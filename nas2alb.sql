@@ -57,7 +57,7 @@ CREATE TABLE flurst (
 ) WITH OIDS;
 
 INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,af,flurknr,baublock,flskoord,fora,fina,h1shl,h2shl,hinwshl,strshl,gemshl,hausnr,lagebez,k_anlverm,anl_verm,blbnr,n_flst,ff_entst,ff_stand,ff_datum)
-  SELECT
+   SELECT
      to_char(land,'fm00') || to_char(gemarkungsnummer,'fm0000') || '-' || to_char(flurnummer,'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || to_char(coalesce(nenner,0),'fm000') AS flsnr,
      to_char(zaehler,'fm00000') || '/' || to_char(coalesce(nenner,0),'fm000') AS flsnrk,
      to_char(land,'fm00') || to_char(gemarkungsnummer,'fm0000') AS gemashl,
@@ -92,9 +92,9 @@ INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,af,flurknr,baubloc
      	SELECT *
 	FROM ax_flurstueck b
 	WHERE b.endet IS NULL
-	  AND to_char(a.land,'fm00') || to_char(a.gemarkungsnummer,'fm0000') || '-' || to_char(a.flurnummer,'fm000') || '-' || to_char(a.zaehler,'fm00000') || '/' || to_char(coalesce(a.nenner,0),'fm000')
-     	     =to_char(b.land,'fm00') || to_char(b.gemarkungsnummer,'fm0000') || '-' || to_char(b.flurnummer,'fm000') || '-' || to_char(b.zaehler,'fm00000') || '/' || to_char(coalesce(b.nenner,0),'fm000')
+	  AND a.land=b.land AND a.gemarkungsnummer=b.gemarkungsnummer AND a.flurnummer=b.flurnummer AND a.zaehler=b.zaehler AND coalesce(a.nenner,0)=coalesce(b.nenner,0)
 	  AND b.beginnt<a.beginnt
+	  AND a.ogc_fid<>b.ogc_fid
 	)
      ;
 
@@ -376,9 +376,9 @@ INSERT INTO bestand(bestdnr,gbbz,gbblnr,anteil,auftlnr,bestfl,ff_entst,ff_stand,
 	  	SELECT *
 		FROM ax_buchungsblatt bb2
 		WHERE bb2.endet IS NULL
-		  AND to_char(bb.land,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || bb.buchungsblattnummermitbuchstabenerweiterung
-		     =to_char(bb2.land,'fm00') || to_char(bb2.bezirk,'fm0000') || '-' || bb2.buchungsblattnummermitbuchstabenerweiterung
+		  AND bb.land=bb2.land AND bb.bezirk=bb2.bezirk AND bb.buchungsblattnummermitbuchstabenerweiterung=bb2.buchungsblattnummermitbuchstabenerweiterung
 	          AND bb2.beginnt<bb.beginnt
+	          AND bb2.ogc_fid<>bb.ogc_fid
 	  )
 	;
 
@@ -409,9 +409,9 @@ CREATE TABLE eigner (
     geb_name varchar(200),
     geb_datum character(10),
     str_hnr varchar(200),
-    plz_pf character(10),
-    postfach character(10),
-    plz character(10),
+    plz_pf character(20),
+    postfach character(20),
+    plz character(20),
     ort character(50),
     land character(100),
     ff_entst integer,

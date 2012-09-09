@@ -12,6 +12,7 @@ import tempfile
 
 from PyQt4.QtCore import QSettings, QProcess, QString, QVariant, QStringList, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QTime
 from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox
+from PyQt4.QtSql import QSqlDatabase, QSqlQuery, QSqlError, QSql
 
 from alkisImportDlg import Ui_Dialog
 
@@ -63,6 +64,9 @@ class ProcessError(Exception):
 	def __init__(self, msg):
 		self.msg = msg
 
+	def __str__(self):
+		return unicode(msg)
+
 class alkisImportDlg(QDialog, Ui_Dialog):
 
 	def __init__(self):
@@ -70,8 +74,6 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.setupUi(self)
 		self.setWindowIcon( QIcon('logo.png') )
 		self.setWindowFlags( Qt.WindowMinimizeButtonHint )
-
-		self.lwProtocol.setUniformItemSizes(True);
 
 		s = QSettings( "norBIT", "norGIS-ALKIS-Import" )
 
@@ -103,6 +105,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 		self.canceled = False
 		self.running = False
+		self.logqry = None
 
 
 	def loadRe(self):
@@ -226,11 +229,29 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		app.processEvents()
 
 	def log(self, msg):
+		self.logDb( msg )
+		
 		if len(msg)>300:
 			msg=msg[:300] + "..."
+
 		self.lwProtocol.addItem( QDateTime.currentDateTime().toString( Qt.ISODate ) + " " + msg )
+
 		app.processEvents()
 		self.lwProtocol.scrollToBottom()
+
+	def logDb(self, msg):
+		if not self.logqry:
+			return
+
+		self.logqry.bindValue(0, msg )
+
+		if not self.logqry.exec_():
+			err = self.logqry.lastError().text()
+			logqry = self.logqry
+			self.logqry = None
+
+			self.log( u"Datenbank-Protokollierung fehlgeschlagen [%s: %s]" % (err, msg ) )
+			self.logqry = logqry
 
 	def saveLog(self):
 		save = QFileDialog.getSaveFileName(self, u"Protokolldatei angeben", ".", "Protokoll-Dateien (*.log)" )
@@ -271,7 +292,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		else:
 			return True
 
-	def processOutput(self, current, output, log):
+	def processOutput(self, current, output):
 		if output.isEmpty():
 			return
 
@@ -298,25 +319,13 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 			l = unicode( l )
 			if self.keep(l):
 				self.log( "> %s|" % l )
-
-			log.write( l )
-			log.write( "\n" )
+			else:
+				self.logDb( l )
 
 		return current + lastline
 
 	def runProcess(self, args):
-		#print "PROCESS: '%s'" % unicode("' '".join(args))
-
-		log = QFile("output.log")
-		if not log.open( QIODevice.WriteOnly | QIODevice.Append ):
-			self.log( "Konnte Logdatei nicht erzeugen." )
-			return False
-
-		log.write( "-----\nBEFEHL: '%s'\nSTART: %s\nPROTOKOLL:\n"  % (
-				"' '".join(args),
-				QDateTime.currentDateTime().toString( Qt.ISODate )
-				)
-			)
+		self.logDb( "BEFEHL: '%s'"  % ( "' '".join(args) ) )
 
 		currout = ""
 		currerr = ""
@@ -330,8 +339,8 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 			self.alive.setText( self.alive.text()[:-1] + ("-\|/")[i%4] )
 			app.processEvents()
 
-			currout = self.processOutput( currout, p.readAllStandardOutput(), log )
-			currerr = self.processOutput( currerr, p.readAllStandardError(), log )
+			currout = self.processOutput( currout, p.readAllStandardOutput() )
+			currerr = self.processOutput( currerr, p.readAllStandardError() )
 
 			if p.state()<>QProcess.Running:
 				if self.canceled:
@@ -342,16 +351,13 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 				self.log( u"Prozeß wird abgebrochen." )
 				p.kill()
 
-		currout = self.processOutput( currout, p.readAllStandardOutput(), log )
+		currout = self.processOutput( currout, p.readAllStandardOutput() )
 		if currout and currout!="":
 			self.log( "E %s" % currout )
-			log.write( currout )
 
-		currerr = self.processOutput( currerr, p.readAllStandardError(), log )
+		currerr = self.processOutput( currerr, p.readAllStandardError() )
 		if currerr and currerr!="":
 			self.log( "E %s" % currerr )
-			log.write( currerr )
-
 
 		ok = False
 		if p.exitStatus()==QProcess.NormalExit:
@@ -362,12 +368,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		else:
 			self.log( "Prozess abgebrochen %d" % p.exitCode() )
 
-		log.write( "-----\nENDE: %s\nEXITCODE: %d\n"  % (
-				QDateTime.currentDateTime().toString( Qt.ISODate ),
-				p.exitCode()
-				) )
-
-		log.close()
+		self.logDb( "EXITCODE: %d"  % p.exitCode() )
 
 		p.close()
 
@@ -420,256 +421,317 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.pbLoad.setDisabled(True)
 		self.pbSave.setDisabled(True)
 
+		self.lwProtocol.setUniformItemSizes(True);
+
 		self.lstFiles.itemSelectionChanged.disconnect(self.selChanged)
 
 		QApplication.setOverrideCursor( Qt.WaitCursor );
 
-		try:
+		while True:
 			t0 = QTime()
 			t0.start()
 
 			self.loadRe()
 
-			self.status( u"Bestimme Gesamtgröße des Imports..." )
-
 			self.lstFiles.clearSelection()
+
+			self.db = QSqlDatabase.addDatabase( "QPSQL" )
+			self.db.setConnectOptions( conn )
+			if not self.db.open():
+				self.log(u"Konnte Datenbankverbindung nicht aufbauen!")
+				break
+
+			qry = self.db.exec_( "SELECT version()" )
+
+			if not qry or not qry.next():
+				self.log(u"Konnte PostgreSQL-Version nicht bestimmen!")
+				break
+
+			self.log( "PostgreSQL-Version: %s" % qry.value(0).toString() )
+
+			qry = self.db.exec_( "SELECT postgis_version()" )
+			if not qry or not qry.next():
+				self.log(u"Konnte PostGIS-Version nicht bestimmen!")
+				break
+
+			self.log( "PostGIS-Version: %s" % qry.value(0).toString() )
+
+			qry = self.db.exec_( "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='alkis_importlog'" )
+			if not qry or not qry.next():
+				self.log( u"Konnte Existenz von Protokolltabelle nicht überprüfen." )
+				break
+
+			if qry.value(0).toInt()[0] == 0:
+				qry = self.db.exec_( "CREATE TABLE alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" )
+				if not qry:
+					self.log( u"Konnte Protokolltabelle nicht anlegen [%s]" % qry.lastError().text() )
+					break
+
+			qry = self.db.exec_( "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='alkis_beziehungen'" )
+			if not qry or not qry.next():
+				self.log( u"Konnte Existenz des ALKIS-Schema nicht überprüfen." )
+				break
+
+			if not self.cbxCreate.isChecked() and qry.value(0).toInt()[0] == 0:
+				self.cbxCreate.setChecked( True )
+				self.log( u"ALKIS-Daten nicht nicht vorhanden - Datenbank muß angelegt werden." )
+				break
+
+			self.logqry = QSqlQuery(self.db)
+			if not self.logqry.prepare( "INSERT INTO alkis_importlog(msg) VALUES (?)" ):
+				self.log( u"Konnte Protokollierungsanweisung nicht vorbereiten [%s]" % qry.lastError().text() )
+				self.logqry = None
+				break
 
 			self.ogr2ogr = which("ogr2ogr")
 			if not self.ogr2ogr:
 				self.ogr2ogr = which("ogr2ogr.exe")
 
 			if not self.ogr2ogr:
-				raise ProcessError(u"ogr2ogr nicht gefunden!")
+				self.log(u"ogr2ogr nicht gefunden!")
+				break
 
 			if not self.runProcess([self.ogr2ogr, "--version"]):
-				raise ProcessError(u"Konnte ogr2ogr-Version  nicht abfragen!")
+				self.log(u"Konnte ogr2ogr-Version nicht abfragen!")
+				break
 
 			self.psql = which("psql")
 			if not self.psql:
 				self.psql = which("psql.exe")
 
 			if not self.psql:
-				raise ProcessError(u"psql nicht gefunden!")
+				self.log(u"psql nicht gefunden!")
+				break
 
 			if not self.runProcess([self.psql, "--version"]):
-				raise ProcessError(u"Konnte psql-Version  nicht abfragen!")
+				self.log(u"Konnte psql-Version nicht abfragen!")
+				break
 
-			if not self.runProcess([self.psql, "-q", "-c", "SELECT version()", conn]):
-				raise ProcessError(u"Konnte PostgreSQL-Version  nicht abfragen!")
+			try:
+				self.status( u"Bestimme Gesamtgröße des Imports..." )
 
-			if not self.runProcess([self.psql, "-q", "-c", "SELECT postgis_version()", conn]):
-				raise ProcessError(u"Konnte PostGIS-Version nicht abfragen!")
+				self.pbProgress.setRange( 0, self.lstFiles.count() )
 
-			self.pbProgress.setRange( 0, self.lstFiles.count() )
+				sizes={}
 
-			sizes={}
+				ts = 0
+				for i in range(self.lstFiles.count()):
+					self.pbProgress.setValue( i )
+					item = self.lstFiles.item(i)
+					fn = unicode( item.text() )
 
-			ts = 0
-			for i in range(self.lstFiles.count()):
-				self.pbProgress.setValue( i )
-				item = self.lstFiles.item(i)
-				fn = unicode( item.text() )
+					if fn[-4:] == ".xml":
+						s = os.path.getsize(fn)
+						sizes[ fn ] = s
 
-				if fn[-4:] == ".xml":
-					s = os.path.getsize(fn)
-					sizes[ fn ] = s
+					elif fn[-4:] == ".zip":
+						self.status( u"%s wird abgefragt..." % fn )
+						app.processEvents()
 
-				elif fn[-4:] == ".zip":
-					self.status( u"%s wird abgefragt..." % fn )
-					app.processEvents()
+						f = zipfile.ZipFile(fn, "r")
+						il = f.infolist()
+						if len(il) <> 1:
+							raise ProcessError(u"ZIP-Archiv %s enthält mehr als eine Datei!" % fn)
+						s = il[0].file_size
+						sizes[ fn[:-4] + ".xml" ] = s
 
-					f = zipfile.ZipFile(fn, "r")
-					il = f.infolist()
-					if len(il) <> 1:
-						raise ProcessError(u"ZIP-Archiv %s enthält mehr als eine Datei!" % fn)
-					s = il[0].file_size
-					sizes[ fn[:-4] + ".xml" ] = s
+					elif fn[-7:] == ".xml.gz":
+						self.status( u"%s wird abgefragt..." % fn )
 
-				elif fn[-7:] == ".xml.gz":
-					self.status( u"%s wird abgefragt..." % fn )
+						f = gzip.open(fn)
+						s = 0
+						while True:
+							chunk = f.read( 1024*1024 )
+							if not chunk:
+								break
+							s = s + len( chunk )
+						f.close()
+						sizes[ fn[:-3] ] = s
 
-					f = gzip.open(fn)
-					s = 0
-					while True:
-						chunk = f.read( 1024*1024 )
-						if not chunk:
-							break
-						s = s + len( chunk )
-					f.close()
-					sizes[ fn[:-3] ] = s
+					ts += s
 
-				ts += s
+					if self.canceled:
+						break
 
 				if self.canceled:
 					break
 
-			self.log( u"Gesamtgröße des Imports: %s" % self.memunits(ts) )
+				self.log( u"Gesamtgröße des Imports: %s" % self.memunits(ts) )
 
-			self.pbProgress.setRange( 0, 10000 )
-			self.pbProgress.setValue( 0 )
+				self.pbProgress.setRange( 0, 10000 )
+				self.pbProgress.setValue( 0 )
 
-			if not self.canceled and self.cbxCreate.isChecked():
-				self.status( u"Datenbank wird angelegt..." )
-				if not self.runSQLScript( conn, "alkis-schema.sql" ):
-					raise ProcessError(u"Anlegen der Datenbank schlug fehl.")
-				self.cbxCreate.setChecked( False )
-				self.log( u"Datenbank angelegt." )
+				if self.cbxCreate.isChecked():
+					self.status( u"Datenbank wird angelegt..." )
+					if not self.runSQLScript( conn, "alkis-schema.sql" ):
+						raise ProcessError(u"Anlegen der Datenbank schlug fehl.")
+					self.cbxCreate.setChecked( False )
+					self.log( u"Datenbank angelegt." )
 
-			ok = True
+				ok = True
 
-			s = 0
-			for i in range(self.lstFiles.count()):
-				if self.canceled:
-					self.log( "Import abgebrochen." )
-					break
+				s = 0
+				for i in range(self.lstFiles.count()):
+					if self.canceled:
+						self.log( "Import abgebrochen." )
+						break
 
-				item = self.lstFiles.item(i)
-				self.lstFiles.setCurrentItem( item )
+					item = self.lstFiles.item(i)
+					self.lstFiles.setCurrentItem( item )
 
-				fn = unicode( item.text() )
+					fn = unicode( item.text() )
 
-				src = ""
-				if fn[-7:] == ".xml.gz":
-					src = fn[:-3]
-					size = sizes[ src ]
+					src = ""
+					if fn[-7:] == ".xml.gz":
+						src = fn[:-3]
+						size = sizes[ src ]
 
-					self.status( u"%s wird extrahiert." % fn )
-					app.processEvents()
+						self.status( u"%s wird extrahiert." % fn )
+						app.processEvents()
 
-					src = os.path.join( tempfile.gettempdir(), os.path.basename(src) )
+						src = os.path.join( tempfile.gettempdir(), os.path.basename(src) )
 
-					f_in = gzip.open(fn)
-					f_out = open(src, "wb");
-					while True:
-						chunk = f_in.read( 1024*1024 )
-						if not chunk:
-							break
+						f_in = gzip.open(fn)
+						f_out = open(src, "wb");
+						while True:
+							chunk = f_in.read( 1024*1024 )
+							if not chunk:
+								break
+							
+							f_out.write( chunk )
+
+						f_out.close()
+						f_in.close()
+
+						self.logDb( u"%s wurde entpackt." % fn )
+
+					elif fn[-4:] == ".zip":
+						src = fn[:-4] + ".xml"
+						size = sizes[ src ]
+
+						self.status( u"%s wird extrahiert." % fn )
+						app.processEvents()
+
+						src = os.path.join( tempfile.gettempdir(), os.path.basename(src) )
+
+						zipf = zipfile.ZipFile(fn, "r")
+						f_in = zipf.open( zipf.infolist()[0].filename )
+						f_out = open(src, "wb");
+						while True:
+							chunk = f_in.read( 1024*1024 )
+							if not chunk:
+								break
+							
+							f_out.write( chunk )
+						f_out.close()
+						f_in.close()
+						zipf.close()
+
+						self.logDb( u"%s wurde entpackt." % fn )
+
+					else:
+						src = fn
+						size = sizes[ fn ]
+
+					try:
+						os.unlink( src[:-4] + ".gfs" )
+					except:
+						pass
+
+					args = [self.ogr2ogr,
+						"-f", "PostgreSQL",
+						"-append",
+						"-update",
+						"PG:%s" % conn,
+						"-a_srs", "EPSG:25832",
+						]
+
+					if self.cbxSkipFailures.isChecked():
+						args.append("-skipfailures")
+
+					args.append(src)
+
+					self.status( u"%s mit %s wird importiert..." % (fn, self.memunits(size) ) )
+
+					t1 = QTime()
+					t1.start()
+
+					ok = self.runProcess(args)
+
+					elapsed = t1.elapsed()
 						
-						f_out.write( chunk )
+					if elapsed>0:
+						throughput = " (%s/s)" % self.memunits( size * 1000 / elapsed )
+					else:
+						throughput = ""
 
-					f_out.close()
-					f_in.close()
-
-				elif fn[-4:] == ".zip":
-					src = fn[:-4] + ".xml"
-					size = sizes[ src ]
-
-					self.status( u"%s wird extrahiert." % fn )
-					app.processEvents()
-
-					src = os.path.join( tempfile.gettempdir(), os.path.basename(src) )
-
-					zipf = zipfile.ZipFile(fn, "r")
-					f_in = zipf.open( zipf.infolist()[0].filename )
-					f_out = open(src, "wb");
-					while True:
-						chunk = f_in.read( 1024*1024 )
-						if not chunk:
-							break
-						
-						f_out.write( chunk )
-					f_out.close()
-					f_in.close()
-					zipf.close()
-
-				else:
-					src = fn
-					size = sizes[ fn ]
-
-				try:
-					os.unlink( src[:-4] + ".gfs" )
-				except:
-					pass
-
-				args = [self.ogr2ogr,
-					"-f", "PostgreSQL",
-					"-append",
-					"-update",
-					"PG:%s" % conn,
-					"-a_srs", "EPSG:25832",
-					]
-
-				if self.cbxSkipFailures.isChecked():
-					args.append("-skipfailures")
-
-				args.append(src)
-
-				self.status( u"%s mit %s wird importiert..." % (fn, self.memunits(size) ) )
-
-				t1 = QTime()
-				t1.start()
-
-				ok = self.runProcess(args)
-
-				elapsed = t1.elapsed()
-					
-				if elapsed>0:
-					throughput = " (%s/s)" % self.memunits( size * 1000 / elapsed )
-				else:
-					throughput = ""
-
-				self.log( u"%s mit %s in %s importiert%s" % (
-						fn,
-						self.memunits( size ),
-						self.timeunits( elapsed ),
-						throughput
-					) )
-
-				item.setSelected( ok )
-				if src <> fn and os.path.exists(src):
-					os.unlink( src )
-
-				s = s + size
-				self.pbProgress.setValue( 10000 * s / ts )
-
-				remaining_data = ts - s
-				remaining_time = remaining_data * t0.elapsed() / s
-
-				self.alive.setText( "Noch %s in etwa %s\nETA: %s -" % (
-							self.memunits( remaining_data ),
-							self.timeunits( remaining_time ),
-							QDateTime.currentDateTime().addMSecs( remaining_time ).toString( Qt.ISODate )
+					self.log( u"%s mit %s in %s importiert%s" % (
+							fn,
+							self.memunits( size ),
+							self.timeunits( elapsed ),
+							throughput
 						) )
 
-				app.processEvents()
+					item.setSelected( ok )
+					if src <> fn and os.path.exists(src):
+						os.unlink( src )
 
-				if not ok:
-					self.status( u"Fehler bei %s." % fn )
-					break
+					s = s + size
+					self.pbProgress.setValue( 10000 * s / ts )
 
-			self.pbProgress.setValue( 10000 )
+					remaining_data = ts - s
+					remaining_time = remaining_data * t0.elapsed() / s
 
-			if ok and self.lstFiles.count()>0:
-				self.log( u"Alle NAS-Dateien importiert." )
+					self.alive.setText( "Noch %s in etwa %s\nETA: %s -" % (
+								self.memunits( remaining_data ),
+								self.timeunits( remaining_time ),
+								QDateTime.currentDateTime().addMSecs( remaining_time ).toString( Qt.ISODate )
+							) )
 
-			if ok:
-				self.status( u"Signaturen werden importiert..." )
-				ok = self.runSQLScript( conn, "alkis-signaturen.sql" )
+					app.processEvents()
+
+					if not ok:
+						self.status( u"Fehler bei %s." % fn )
+						break
+
+				self.pbProgress.setValue( 10000 )
+
+				if ok and self.lstFiles.count()>0:
+					self.log( u"Alle NAS-Dateien importiert." )
+
 				if ok:
-					self.log( "Signaturen importiert." )
+					self.status( u"Signaturen werden importiert..." )
+					ok = self.runSQLScript( conn, "alkis-signaturen.sql" )
+					if ok:
+						self.log( "Signaturen importiert." )
+					else:
+						self.log( "Signaturen importiert." )
+
+				if ok:
+					self.status( u"Ableitungsregeln werden verarbeitet..." )
+					ok = self.runSQLScript( conn, "alkis-ableitungsregeln.sql" )
+					if ok:
+						self.log( "Ableitungsregeln verarbeitet." )
+
+				if ok:
+					self.status( u"Liegenschaftsbuch-Daten werden übernommen..." )
+					ok = self.runSQLScript( conn, "nas2alb.sql" )
+					if ok:
+						self.log( u"Liegenschaftsbuch-Daten übernommen." )
+
+				if ok:
+					self.log( u"Import nach %s erfolgreich beendet." % self.timeunits( t0.elapsed() ) )
 				else:
-					self.log( "Signaturen importiert." )
+					self.log( u"Import nach %s abgebrochen." % self.timeunits( t0.elapsed() ) )
 
-			if ok:
-				self.status( u"Ableitungsregeln werden verarbeitet..." )
-				ok = self.runSQLScript( conn, "alkis-ableitungsregeln.sql" )
-				if ok:
-					self.log( "Ableitungsregeln verarbeitet." )
+			except Exception, e:
+				exc_type, exc_value, exc_traceback = sys.exc_info()
+				err = u"\n> ".join( traceback.format_exception( exc_type, exc_value, exc_traceback ) )
+				if sys.stdout:
+					print err
+				self.log( u"Abbruch nach Fehler\n> %s" % unicode(err) )
 
-			if ok:
-				self.status( u"Liegenschaftsbuch-Daten werden übernommen..." )
-				ok = self.runSQLScript( conn, "nas2alb.sql" )
-				if ok:
-					self.log( u"Liegenschaftsbuch-Daten übernommen." )
-
-			if ok:
-				self.log( u"Import nach %s erfolgreich beendet." % self.timeunits( t0.elapsed() ) )
-			else:
-				self.log( u"Import nach %s abgebrochen." % self.timeunits( t0.elapsed() ) )
-
-		except Exception, e:
-			exc_type, exc_value, exc_traceback = sys.exc_info()
-			self.log( u"Abbruch nach Fehler %s" % unicode( ",".join( traceback.format_exception( exc_type, exc_value, exc_traceback ) ) ) )
+			break
 
 		self.status("")
 		self.alive.setText( "-" )
@@ -684,11 +746,17 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.pbSave.setEnabled(True)
 		self.selChanged()
 
+		self.lwProtocol.setUniformItemSizes(False);
+
 		self.lstFiles.itemSelectionChanged.connect(self.selChanged)
 
 		QApplication.restoreOverrideCursor()
 
+		self.logqry = None
 		self.running = False
+
+		self.db.close()
+		self.db = None
 
 app = QApplication(sys.argv)
 dlg = alkisImportDlg()

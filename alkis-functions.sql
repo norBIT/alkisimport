@@ -33,6 +33,13 @@ BEGIN
 		d := E'\n';
 	END LOOP;
 
+	FOR c IN SELECT indexname FROM pg_indexes WHERE schemaname='public' AND indexname=t
+	LOOP
+		r := r || d || 'Index ' || c.indexname || ' gelöscht.';
+		EXECUTE 'DROP INDEX ' || c.indexname;
+		d := E'\n';
+	END LOOP;
+
 	FOR c IN SELECT proname,proargtypes
 		FROM pg_proc
 		JOIN pg_namespace ON pg_proc.pronamespace=pg_namespace.oid
@@ -141,13 +148,13 @@ DECLARE
 	delim TEXT;
 	c RECORD;
 BEGIN
-	SELECT alkis_dropobject('vbeziehungen');
-	SELECT alkis_dropobject('vobjekte');
+	SELECT alkis_dropobject('vbeziehungen') INTO sql;
+	SELECT alkis_dropobject('vobjekte') INTO sql;
 
 	delim := '';
 	sql := 'CREATE VIEW vobjekte AS ';
 
-	FOR c IN SELECT table_name from information_schema.columns WHERE column_name='gml_id' AND table_name LIKE 'ax_%' LOOP
+	FOR c IN SELECT table_name FROM information_schema.columns WHERE column_name='gml_id' AND substr(table_name,1,3) IN ('ax_','ap_','ks_') LOOP
 		sql := sql || delim || 'SELECT gml_id,beginnt,''' || c.table_name || ''' AS table_name FROM ' || c.table_name;
 		delim := ' UNION ';
 	END LOOP;
@@ -229,7 +236,7 @@ BEGIN
 	END LOOP;
 
 	-- Indizes aktualisieren
-	FOR c IN SELECT table_name from information_schema.columns a WHERE a.column_name='gml_id'
+	FOR c IN SELECT table_name FROM information_schema.columns a WHERE a.column_name='gml_id'
 		AND EXISTS (SELECT * FROM information_schema.columns b WHERE b.column_name='beginnt' AND a.table_catalog=b.table_catalog AND a.table_schema=b.table_schema AND a.table_name=b.table_name)
 	LOOP
 		-- Vorhandene Indizes droppen (TODO: Löscht auch die Sonderfälle - entfernen)
@@ -246,7 +253,7 @@ BEGIN
 	END LOOP;
 
 	-- Geometrieindizes aktualisieren
-	FOR c IN SELECT table_name from information_schema.columns a WHERE a.column_name='gml_id'
+	FOR c IN SELECT table_name FROM information_schema.columns a WHERE a.column_name='gml_id'
 		AND EXISTS (SELECT * FROM information_schema.columns b WHERE b.column_name='wkb_geometry' AND a.table_catalog=b.table_catalog AND a.table_schema=b.table_schema AND a.table_name=b.table_name)
 	LOOP
 		EXECUTE 'CREATE INDEX ' || c.table_name || '_geom ON ' || c.table_name || ' USING GIST (wkb_geometry)';

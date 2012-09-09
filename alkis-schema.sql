@@ -552,9 +552,9 @@ CREATE TABLE ax_historischesflurstueck (
 	nenner				integer,         --
 	-- daraus abgeleitet:
 	flurstueckskennzeichen	character(20),			-- Inhalt rechts mit __ auf 20 aufgefüllt
-	amtlicheflaeche			double precision,	-- AFL
-	abweichenderrechtszustand	varchar,		-- ARZ
-	zweifelhafterFlurstuecksnachweis varchar,		-- ZFM Boolean
+	amtlicheflaeche			double precision,		-- AFL
+	abweichenderrechtszustand	varchar default 'false',	-- ARZ
+	zweifelhafterFlurstuecksnachweis varchar,			-- ZFM Boolean
 	rechtsbehelfsverfahren		integer,		-- RBV
 	zeitpunktderentstehung		character(10),		-- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
 --	gemeindezugehoerigkeit		integer,
@@ -936,7 +936,7 @@ CREATE TABLE ax_flurstueck (
 	flurstueckskennzeichen		character(20),         -- Inhalt rechts mit __ auf 20 aufgefüllt
 
 	amtlicheflaeche			double precision,      -- AFL
-	abweichenderrechtszustand	varchar,               -- ARZ
+	abweichenderrechtszustand	varchar default 'false',	-- ARZ
 	zweifelhafterFlurstuecksnachweis varchar,              -- ZFM Boolean
 	rechtsbehelfsverfahren		integer,               -- RBV
 	zeitpunktderentstehung		character(10),         -- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
@@ -976,6 +976,8 @@ SELECT AddGeometryColumn('ax_flurstueck','wkb_geometry',25832,'GEOMETRY',2);
 
 CREATE INDEX ax_flurstueck_geom_idx   ON ax_flurstueck USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_flurstueck_gml ON ax_flurstueck USING btree (gml_id,beginnt);
+CREATE INDEX ax_flurstueck_lgfzn ON ax_flurstueck(land,gemarkungsnummer,flurnummer,zaehler,nenner);
+CREATE INDEX ax_flurstueck_arz ON ax_flurstueck(abweichenderrechtszustand);
 
   COMMENT ON TABLE  ax_flurstueck                           IS '"F l u r s t u e c k" ist ein Teil der Erdoberfläche, der von einer im Liegenschaftskataster festgelegten Grenzlinie umschlossen und mit einer Nummer bezeichnet ist. Es ist die Buchungseinheit des Liegenschaftskatasters.';
   COMMENT ON COLUMN ax_flurstueck.gml_id                    IS 'Identifikator, global eindeutig';
@@ -1071,6 +1073,7 @@ CREATE TABLE ax_grenzpunkt (
 SELECT AddGeometryColumn('ax_grenzpunkt','dummy',25832,'POINT',2);
 
 CREATE UNIQUE INDEX ax_grenzpunkt_gml ON ax_grenzpunkt USING btree (gml_id,beginnt);
+CREATE INDEX ax_grenzpunkt_abmm ON ax_grenzpunkt(abmarkung_marke);
 
 COMMENT ON TABLE  ax_grenzpunkt        IS 'G r e n z p u n k t';
 COMMENT ON COLUMN ax_grenzpunkt.gml_id IS 'Identifikator, global eindeutig';
@@ -1684,6 +1687,7 @@ SELECT AddGeometryColumn('ax_buchungsblatt','dummy',25832,'POINT',2);
 
 -- Index für alkis_beziehungen
 CREATE UNIQUE INDEX ax_buchungsblatt_gml ON ax_buchungsblatt USING btree (gml_id,beginnt);
+CREATE INDEX ax_buchungsblatt_lbb ON ax_buchungsblatt(land,bezirk,buchungsblattnummermitbuchstabenerweiterung);
 
 COMMENT ON TABLE  ax_buchungsblatt        IS 'NREO "Buchungsblatt" enthält die Buchungen (Buchungsstellen und Namensnummern) des Grundbuchs und des Liegenschhaftskatasters (bei buchungsfreien Grundstücken).';
 COMMENT ON COLUMN ax_buchungsblatt.gml_id IS 'Identifikator, global eindeutig';

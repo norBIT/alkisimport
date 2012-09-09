@@ -25,7 +25,7 @@
 ^psql:alkis-compat.sql:.*: FEHLER:  Funktion geom_accum\(geometry\[\], geometry\) existiert nicht\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Berechtigung nur f\S+r Eigent\S+mer der Funktion st_dump\s*$
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint).*gel\S+scht\..*$
-^\s+(addgeometrycolumn|alkis_drop|alkis_dropobject|version|postgis_version)\s*$
+^\s+(addgeometrycolumn|alkis_drop|alkis_dropobject|version|postgis_version|\?column\?)\s*$
 ^-+\s*$
 ^\s+public\..*\.(wkb_geometry|dummy) SRID:25832 TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT) DIMS:2\s*$
 ^\s+public\.ax_punktortau\.wkb_geometry SRID:25832 TYPE:POINT DIMS:3\s*$

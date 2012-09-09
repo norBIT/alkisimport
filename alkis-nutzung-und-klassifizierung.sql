@@ -262,9 +262,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+SELECT 'Prüfe Flurstücksgeometrien...';
 SELECT alkis_checkflurstueck();
 
+SELECT 'Prüfe Klassifizierungen...';
 SELECT alkis_createklassifizierung();
+
+SELECT 'Prüfe tatsächliche Nutzungen...';
 SELECT alkis_createnutzung();
 
 DELETE FROM kls_shl;
@@ -278,6 +282,8 @@ INSERT INTO nutz_shl(nutzshl,nutzung)
 SELECT alkis_dropobject('klas_3x_pk_seq');
 CREATE SEQUENCE klas_3x_pk_seq;
 
+SELECT 'Erzeuge Flurstücksklassifizierungen...';
+
 DELETE FROM klas_3x;
 INSERT INTO klas_3x(flsnr,pk,klf,fl,ff_entst,ff_stand)
   SELECT
@@ -288,11 +294,13 @@ INSERT INTO klas_3x(flsnr,pk,klf,fl,ff_entst,ff_stand)
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
-  JOIN ax_klassifizierung k ON st_intersects(f.wkb_geometry,k.wkb_geometry)
+  JOIN ax_klassifizierung k ON f.wkb_geometry && k.wkb_geometry AND st_intersects(f.wkb_geometry,k.wkb_geometry)
   WHERE f.endet IS NULL AND st_area(st_intersection(f.wkb_geometry,k.wkb_geometry))::int>0;
 
 SELECT alkis_dropobject('nutz_shl_pk_seq');
 CREATE SEQUENCE nutz_shl_pk_seq;
+
+SELECT 'Erzeuge Flurstücksnutzungen...';
 
 DELETE FROM nutz_21;
 INSERT INTO nutz_21(flsnr,pk,nutzsl,fl,ff_entst,ff_stand)
@@ -304,7 +312,7 @@ INSERT INTO nutz_21(flsnr,pk,nutzsl,fl,ff_entst,ff_stand)
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
-  JOIN ax_tatsaechlichenutzung n ON st_intersects(f.wkb_geometry,n.wkb_geometry)
+  JOIN ax_tatsaechlichenutzung n ON f.wkb_geometry && n.wkb_geometry AND st_intersects(f.wkb_geometry,n.wkb_geometry)
   WHERE f.endet IS NULL AND st_area(st_intersection(f.wkb_geometry,n.wkb_geometry))::int>0;
 
 -- TODO: Wo sind denn den ausführenden Stellen in ALKIS?
