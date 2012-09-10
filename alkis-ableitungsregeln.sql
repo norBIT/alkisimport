@@ -161,7 +161,7 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,ho
 SELECT
 	o.gml_id,
 	'Flurstücke' AS thema,
-	'ax_flurstueck' AS layer,
+	'ax_flurstueck_nummer' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	coalesce(replace(t.schriftinhalt,'-','/'),o.zaehler||'/'||o.nenner,o.zaehler::text) AS text,
 	t.signaturnummer AS signaturnummer,
@@ -177,7 +177,7 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,ho
 SELECT
 	o.gml_id,
 	'Flurstücke' AS thema,
-	'ax_flurstueck_zaehler' AS layer,
+	'ax_flurstueck_nummer' AS layer,
 	st_translate(coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)), 0, 0.40) AS point,
 	coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',1),o.zaehler::text) AS text,
 	coalesce(t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4112' ELSE '4111' END) AS signaturnummer,
@@ -185,7 +185,7 @@ SELECT
 FROM ax_flurstueck o
 LEFT OUTER JOIN (
 	alkis_beziehungen b
-	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZAE_NEN' AND t.endet IS NULL
+	JOIN ap_pto t ON b.beziehung_von=t.gml_id /* AND t.art='ZAE_NEN' */ AND t.endet IS NULL
 ) ON o.gml_id=b.beziehung_zu
 WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122');
 
@@ -195,7 +195,7 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,ho
 SELECT
 	gml_id,
 	'Flurstücke' AS thema,
-	'ax_flurstueck_nenner' AS layer,
+	'ax_flurstueck_nummer' AS layer,
 	point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
@@ -207,7 +207,7 @@ FROM (
 	FROM ax_flurstueck o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b
-		JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZAE_NEN' AND t.endet IS NULL
+		JOIN ap_pto t ON b.beziehung_von=t.gml_id /* AND t.art='ZAE_NEN' */ AND t.endet IS NULL
  	) ON o.gml_id=b.beziehung_zu
 	WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122')
 ) AS foo
@@ -218,7 +218,7 @@ INSERT INTO po_lines(gml_id,thema,layer,signaturnummer,line)
 SELECT
 	gml_id,
 	'Flurstücke' AS thema,
-	'ax_flurstueck_bruchstrich' AS layer,
+	'ax_flurstueck_nummer' AS layer,
 	2001 AS signaturnummer,
 	st_multi(st_makeline(st_translate(point, -len, 0.0), st_translate(point, len, 0.0))) AS line
 FROM (
@@ -235,7 +235,7 @@ FROM (
 		FROM ax_flurstueck o
 		LEFT OUTER JOIN (
 			alkis_beziehungen b
-			JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZAE_NEN' AND t.endet IS NULL
+			JOIN ap_pto t ON b.beziehung_von=t.gml_id /* AND t.art='ZAE_NEN' */ AND t.endet IS NULL
  		) ON o.gml_id=b.beziehung_zu
 		WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122')
 	) AS bruchstrich0 WHERE lenz>0 AND lenn>0
@@ -246,7 +246,7 @@ INSERT INTO po_lines(gml_id,thema,layer,signaturnummer,line)
 SELECT
 	o.gml_id,
 	'Flurstücke' AS thema,
-	'ax_flurstueck' AS layer,
+	'ax_flurstueck_zuordnung' AS layer,
 	CASE WHEN o.abweichenderrechtszustand='true' THEN 2005 ELSE 2004 END AS signaturnummer,
 	st_multi(l.wkb_geometry) AS line
 FROM ax_flurstueck o
@@ -2794,9 +2794,8 @@ SELECT
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	3488 AS signaturnummer
 FROM ax_fliessgewaesser o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Pfeil' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu
+JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu
+JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Fließpfeil' AND p.endet IS NULL
 WHERE o.endet IS NULL AND coalesce(zustand,0)<>4000;
 
 -- Fließgewäesser, Symbol
