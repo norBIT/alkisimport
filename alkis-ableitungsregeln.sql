@@ -324,104 +324,111 @@ WHERE (
      OR '2004' = ANY (artderflurstuecksgrenze)
   ) AND a.ogc_fid<b.ogc_fid AND o.endet IS NULL;
 
--- Grenze der Region
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer)
-SELECT
-	gml_id,
-	'Politische Grenzen' AS thema,
-	'ax_besondereflurstuecksgrenze' AS layer,
-	st_multi(wkb_geometry) AS line,
-	2010 AS signaturnummer
-FROM ax_besondereflurstuecksgrenze
-WHERE '2500' = ANY (artderflurstuecksgrenze) OR '7104' = ANY (artderflurstuecksgrenze) AND endet IS NULL;
 
--- Grenze der Flur
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer)
-SELECT
-	gml_id,
-	'Politische Grenzen' AS thema,
-	'ax_besondereflurstuecksgrenze' AS layer,
-	st_multi(wkb_geometry) AS line,
-	2012 AS signaturnummer
-FROM ax_besondereflurstuecksgrenze
-WHERE '3000' = ANY (artderflurstuecksgrenze) AND endet IS NULL;
+CREATE OR REPLACE FUNCTION alkis_besondereflurstuecksgrenze() RETURNS varchar AS $$
+DECLARE
+	r0 RECORD;
+	r1 RECORD;
+	r VARCHAR;
+	adf INTEGER;
+	sn VARCHAR;
+	p0 GEOMETRY;
+	p1 GEOMETRY;
+	l GEOMETRY;
+	n INTEGER;
+	np INTEGER;
+BEGIN
+	SELECT alkis_dropobject('alkis_joinlines') INTO r;
 
--- Grenze der Gemarkung
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer)
-SELECT
-	gml_id,
-	'Politische Grenzen' AS thema,
-	'ax_besondereflurstuecksgrenze' AS layer,
-	st_multi(wkb_geometry) AS line,
-	2014 AS signaturnummer
-FROM ax_besondereflurstuecksgrenze
-WHERE '7003' = ANY (artderflurstuecksgrenze) AND endet IS NULL;
+	CREATE TABLE alkis_joinlines(ogc_fid INTEGER PRIMARY KEY, gml_id VARCHAR);
+	SELECT AddGeometryColumn('alkis_joinlines','line',(SELECT srid FROM geometry_columns WHERE f_table_name='po_labels' AND f_geometry_column='line'),'LINESTRING',2) INTO r;
+	CREATE INDEX alkis_joinlines_line ON alkis_joinlines USING GIST (line);
+	
+	DELETE FROM po_lines WHERE layer='ax_besondereflurstuecksgrenze' AND signaturnummer IN ('2010','2012','2014','2016','2020','2022','2024','2026');
 
--- Grenze der BRD
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer)
-SELECT
-	gml_id,
-	'Politische Grenzen' AS thema,
-	'ax_besondereflurstuecksgrenze' AS layer,
-	st_multi(wkb_geometry) AS line,
-	2016 AS signaturnummer
-FROM ax_besondereflurstuecksgrenze
-WHERE '7101' = ANY (artderflurstuecksgrenze) AND endet IS NULL;
+	FOR adf IN SELECT unnest(ARRAY[2500,3000,7003,7101,7103,7104,7106,7107,7108])
+	LOOP
+		sn :=	CASE
+			WHEN adf=2500 THEN '2010'
+			WHEN adf=3000 THEN '2012'
+			WHEN adf=7003 THEN '2014'
+			WHEN adf=7101 THEN '2016'
+			WHEN adf=7102 THEN '2018'
+			WHEN adf=7103 THEN '2020'
+			WHEN adf=7104 THEN '2010'
+			WHEN adf=7106 THEN '2022'
+			WHEN adf=7107 THEN '2024'
+			WHEN adf=7108 THEN '2026'
+			END;
+			
+		INSERT INTO alkis_joinlines(ogc_fid,gml_id,line)
+			SELECT ogc_fid,gml_id,wkb_geometry AS line
+			FROM ax_besondereflurstuecksgrenze
+			WHERE adf = ANY (artderflurstuecksgrenze) AND endet IS NULL;
 
--- Grenze des Bundeslands
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer)
-SELECT
-	gml_id,
-	'Politische Grenzen' AS thema,
-	'ax_besondereflurstuecksgrenze' AS layer,
-	st_multi(wkb_geometry) AS line,
-	2018 AS signaturnummer
-FROM ax_besondereflurstuecksgrenze
-WHERE '7102' = ANY (artderflurstuecksgrenze) AND endet IS NULL;
+		SELECT count(*) INTO n FROM alkis_joinlines;
 
--- Grenze des Regierungsbezirks
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer)
-SELECT
-	gml_id,
-	'Politische Grenzen' AS thema,
-	'ax_besondereflurstuecksgrenze' AS layer,
-	st_multi(wkb_geometry) AS line,
-	2020 AS signaturnummer
-FROM ax_besondereflurstuecksgrenze
-WHERE '7103' = ANY (artderflurstuecksgrenze) AND endet IS NULL;
+		WHILE n>0
+		LOOP
+			SELECT ogc_fid,gml_id,line INTO STRICT r0 FROM alkis_joinlines LIMIT 1;
+			
+			DELETE FROM alkis_joinlines WHERE alkis_joinlines.ogc_fid=r0.ogc_fid;
+			n  := n - 1;
 
--- Grenze der Gemeinde
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer)
-SELECT
-	gml_id,
-	'Politische Grenzen' AS thema,
-	'ax_besondereflurstuecksgrenze' AS layer,
-	st_multi(wkb_geometry) AS line,
-	2022 AS signaturnummer
-FROM ax_besondereflurstuecksgrenze
-WHERE '7106' = ANY (artderflurstuecksgrenze) AND endet IS NULL;
+			l := r0.line;
 
--- Grenze des Gemeindeteils
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer)
-SELECT
-	gml_id,
-	'Politische Grenzen' AS thema,
-	'ax_besondereflurstuecksgrenze' AS layer,
-	st_multi(wkb_geometry) AS line,
-	2024 AS signaturnummer
-FROM ax_besondereflurstuecksgrenze
-WHERE '7107' = ANY (artderflurstuecksgrenze) AND endet IS NULL;
+			<<joinlines>> WHILE n>0
+			LOOP
+				np := st_numpoints(l);
+				p0 := st_startpoint(l);
+				p1 := st_endpoint(l);
 
--- Grenze der Verwaltung
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer)
-SELECT
-	gml_id,
-	'Politische Grenzen' AS thema,
-	'ax_besondereflurstuecksgrenze' AS layer,
-	st_multi(wkb_geometry) AS line,
-	2026 AS signaturnummer
-FROM ax_besondereflurstuecksgrenze
-WHERE '7108' = ANY (artderflurstuecksgrenze) AND endet IS NULL;
+				BEGIN
+					SELECT ogc_fid,line INTO STRICT r1 FROM alkis_joinlines WHERE p0 && line AND p0=st_endpoint(line);
+    				EXCEPTION
+        			WHEN NO_DATA_FOUND OR TOO_MANY_ROWS THEN
+					BEGIN
+						SELECT ogc_fid,st_reverse(line) AS line INTO STRICT r1 FROM alkis_joinlines WHERE p0 && line AND p0=st_startpoint(line);
+    					EXCEPTION WHEN NO_DATA_FOUND OR TOO_MANY_ROWS THEN
+						BEGIN
+							SELECT ogc_fid,line AS line INTO STRICT r1 FROM alkis_joinlines WHERE p1 && line AND p1=st_startpoint(line);
+    						EXCEPTION WHEN NO_DATA_FOUND OR TOO_MANY_ROWS THEN
+							BEGIN
+								SELECT ogc_fid,st_reverse(line) AS line INTO STRICT r1 FROM alkis_joinlines WHERE p1 && line AND p1=st_endpoint(line);
+    							EXCEPTION WHEN NO_DATA_FOUND OR TOO_MANY_ROWS THEN
+								EXIT joinlines;
+							END;
+						END;
+					END;
+				END;
+
+				l := st_linemerge(st_collect(l,r1.line));
+
+				IF st_numpoints(l)=np THEN
+					RAISE EXCEPTION 'merge failed: % with %',
+						st_astext(l),
+						st_astext(r1.line);
+				END IF;
+
+				DELETE FROM alkis_joinlines WHERE alkis_joinlines.ogc_fid=r1.ogc_fid;
+				n  := n - 1;
+
+			END LOOP joinlines;
+			
+			INSERT
+				INTO po_lines(gml_id,thema,layer,line,signaturnummer)
+				VALUES (r0.gml_id,'Politische Grenzen','ax_besondereflurstuecksgrenze',st_multi(l),sn);
+		END LOOP;
+	
+	END LOOP;
+
+	SELECT alkis_dropobject('alkis_joinlines') INTO r;
+
+	RETURN 'Politische Grenze verschmolzen';
+END;  
+$$ LANGUAGE plpgsql;
+
+SELECT alkis_besondereflurstuecksgrenze();
 
 --
 -- Grenzpunkte (11003)
@@ -6398,7 +6405,7 @@ UPDATE po_labels
 			FROM alkis_schriften
 			WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer
 		),
-		size_umn=0.25*25.4*skalierung*(SELECT grad_pt FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),
+		size_umn=0.25/0.0254*skalierung*(SELECT grad_pt FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),
 		alignment_dxf=coalesce(
 			CASE
 			WHEN horizontaleausrichtung='linksbündig' THEN

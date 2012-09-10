@@ -307,7 +307,7 @@ BEGIN
 		-- RAISE NOTICE 'SQL: %', sql;
 
 		-- FEHLER: identifier enthält nur gml_id, aber nicht den Timestamp dahinter
-		--         Daher wird das zu ersetzende Obejkt nicht gefunden
+		--         Daher wird das zu ersetzende Objekt nicht gefunden
 
 		EXECUTE sql INTO endete;
 
