@@ -290,12 +290,14 @@ INSERT INTO klas_3x(flsnr,pk,klf,fl,ff_entst,ff_stand)
     to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(f.flurnummer,'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
     to_hex(nextval('klas_3x_pk_seq'::regclass)) AS pk,
     k.klassifizierung AS klf,
-    st_area(st_intersection(f.wkb_geometry,k.wkb_geometry))::int AS fl,
+    sum(st_area(st_intersection(f.wkb_geometry,k.wkb_geometry)))::int AS fl,
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
   JOIN ax_klassifizierung k ON f.wkb_geometry && k.wkb_geometry AND st_intersects(f.wkb_geometry,k.wkb_geometry)
-  WHERE f.endet IS NULL AND st_area(st_intersection(f.wkb_geometry,k.wkb_geometry))::int>0;
+  WHERE f.endet IS NULL AND st_area(st_intersection(f.wkb_geometry,k.wkb_geometry))::int>0
+  GROUP BY
+    f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), k.klassifizierung;
 
 SELECT alkis_dropobject('nutz_shl_pk_seq');
 CREATE SEQUENCE nutz_shl_pk_seq;
@@ -308,11 +310,12 @@ INSERT INTO nutz_21(flsnr,pk,nutzsl,fl,ff_entst,ff_stand)
     to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(f.flurnummer,'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
     to_hex(nextval('nutz_shl_pk_seq'::regclass)) AS pk,
     n.nutzung AS nutzsl,
-    st_area(st_intersection(f.wkb_geometry,n.wkb_geometry))::int AS fl,
+    sum(st_area(st_intersection(f.wkb_geometry,n.wkb_geometry)))::int AS fl,
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
   JOIN ax_tatsaechlichenutzung n ON f.wkb_geometry && n.wkb_geometry AND st_intersects(f.wkb_geometry,n.wkb_geometry)
-  WHERE f.endet IS NULL AND st_area(st_intersection(f.wkb_geometry,n.wkb_geometry))::int>0;
+  WHERE f.endet IS NULL AND st_area(st_intersection(f.wkb_geometry,n.wkb_geometry))::int>0
+  GROUP BY f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), n.nutzung;
 
 -- TODO: Wo sind denn den ausführenden Stellen in ALKIS?
