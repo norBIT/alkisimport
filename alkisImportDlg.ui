@@ -6,124 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>857</width>
-    <height>640</height>
+    <width>1091</width>
+    <height>553</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>ALKIS-Import</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="20" column="0" colspan="3">
-    <widget class="QListWidget" name="lwProtocol"/>
-   </item>
-   <item row="21" column="0" colspan="3">
-    <widget class="QProgressBar" name="pbProgress">
-     <property name="value">
-      <number>24</number>
-     </property>
-    </widget>
-   </item>
-   <item row="24" column="0" colspan="3">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QPushButton" name="pbStart">
-       <property name="text">
-        <string>Starten</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbSaveLog">
-       <property name="text">
-        <string>Protokoll speichern...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_4">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbClearLog">
-       <property name="text">
-        <string>Protokoll löschen</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbClose">
-       <property name="text">
-        <string>Schließen</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="11" column="2">
-    <widget class="QPushButton" name="pbAdd">
-     <property name="text">
-      <string>Datei hinzufügen...</string>
-     </property>
-    </widget>
-   </item>
-   <item row="12" column="2">
-    <widget class="QPushButton" name="pbAddDir">
-     <property name="text">
-      <string>Verzeichnis hinzufügen...</string>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="0" rowspan="6" colspan="2">
-    <widget class="QListWidget" name="lstFiles">
-     <property name="selectionMode">
-      <enum>QAbstractItemView::ExtendedSelection</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="3">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>Dateiliste</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="3">
+   <item row="0" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Datenbankeinstellungen</string>
@@ -257,51 +148,24 @@
      </layout>
     </widget>
    </item>
-   <item row="19" column="0">
+   <item row="12" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Protokoll:</string>
      </property>
     </widget>
    </item>
-   <item row="13" column="2">
-    <widget class="QPushButton" name="pbRemove">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>Gewählte entfernen</string>
+   <item row="13" column="0" colspan="2">
+    <widget class="QListWidget" name="lwProtocol"/>
+   </item>
+   <item row="14" column="0" colspan="2">
+    <widget class="QProgressBar" name="pbProgress">
+     <property name="value">
+      <number>24</number>
      </property>
     </widget>
    </item>
-   <item row="15" column="2">
-    <widget class="QPushButton" name="pbLoad">
-     <property name="text">
-      <string>Liste laden...</string>
-     </property>
-    </widget>
-   </item>
-   <item row="16" column="2">
-    <widget class="QPushButton" name="pbSave">
-     <property name="text">
-      <string>Liste speichern...</string>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="2">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="22" column="0" colspan="3">
+   <item row="15" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QLabel" name="leStatus">
@@ -337,6 +201,148 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="17" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="pbStart">
+       <property name="text">
+        <string>Starten</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbSaveLog">
+       <property name="text">
+        <string>Protokoll speichern...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbClearLog">
+       <property name="text">
+        <string>Protokoll löschen</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbClose">
+       <property name="text">
+        <string>Schließen</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="4" column="0">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Dateiliste</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0" rowspan="2" colspan="2">
+       <widget class="QListWidget" name="lstFiles">
+        <property name="selectionMode">
+         <enum>QAbstractItemView::ExtendedSelection</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QPushButton" name="pbAdd">
+          <property name="text">
+           <string>Datei hinzufügen...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pbAddDir">
+          <property name="text">
+           <string>Verzeichnis hinzufügen...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pbRemove">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Gewählte entfernen</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pbSave">
+          <property name="text">
+           <string>Liste speichern...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pbLoad">
+          <property name="text">
+           <string>Liste laden...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>

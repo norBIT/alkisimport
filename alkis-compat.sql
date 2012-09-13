@@ -110,6 +110,22 @@ CREATE FUNCTION st_makevalid(geometry) RETURNS geometry AS $$
   SELECT buffer($1,0);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
+CREATE FUNCTION st_xmin(box3d) RETURNS float8 AS $$
+  SELECT xmin($1);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
+CREATE FUNCTION st_ymin(box3d) RETURNS float8 AS $$
+  SELECT ymin($1);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
+CREATE FUNCTION st_xmax(box3d) RETURNS float8 AS $$
+  SELECT xmax($1);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
+CREATE FUNCTION st_ymax(box3d) RETURNS float8 AS $$
+  SELECT ymax($1);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
 CREATE AGGREGATE st_collect (
         sfunc = geom_accum,
 	basetype = geometry,

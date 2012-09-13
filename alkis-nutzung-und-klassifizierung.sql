@@ -1,3 +1,5 @@
+SET application_name='ALKIS-Import - Nutzungen & Klassifizierungen';
+
 \set ON_ERROR_STOP
 
 CREATE OR REPLACE FUNCTION alkis_checkflurstueck() RETURNS VARCHAR AS $$

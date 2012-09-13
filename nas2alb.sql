@@ -1,3 +1,5 @@
+\unset ON_ERROR_STOP
+SET application_name='ALKIS-Import - Liegenschaftsbuchübernahme';
 \set ON_ERROR_STOP
 
 --

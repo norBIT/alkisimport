@@ -37,11 +37,12 @@
 ^\s+public\.alkis_linie\.position SRID:0 TYPE:LINESTRING DIMS:2
 ^\(\d+ rows?\)\s*$
 ^removed.*\.(gfs|xml)'\s*$
-^CONTEXT:  (SQL statement|SQL-Anweisung) \S+DROP TABLE .* CASCADE\S+
-^\s*PL\/pgSQL function "alkis_dropobject" line \d+ at (execute|EXECUTE)( statement|-Anweisung)
+^CONTEXT:  (SQL statement|SQL-Anweisung) \S+(DROP TABLE .* CASCADE|CREATE TABLE)
+PL\/pgSQL function "(alkis_dropobject|alkis_joinlines|alkis_besondereflurstuecksgrenze)" line \d+ at (EXECUTE statement|SQL statement|execute statement|EXECUTE-Anweisung|SQL-Anweisung)
 ERROR:  relation "public\.alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
 ERROR:  table "alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
 ERROR:  sequence "alkis_(farben|konturen|linie|randlinie|strichart|stricharten|stricharten_i)_id_seq" does not exist
+.*ERROR:  unrecognized configuration parameter "application_name"
 ^\s+(alkis_createklassifizierung|alkis_createnutzung|alkis_checkflurstueck)\s+$
 ^ ax_klassifizierung und ax_klassifizierungsschluessel erzeugt\.\s*$
 ^ ax_tatsaechlichenutzung und ax_tatsaechlichenutzungsschluessel erzeugt\.\s*$

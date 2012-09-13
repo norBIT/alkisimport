@@ -180,7 +180,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 		s.setValue( "lastDir", dir )
 	
-		QApplication.setOverrideCursor( Qt.WaitCursor );
+		QApplication.setOverrideCursor( Qt.WaitCursor )
 		
 		self.status( "Verzeichnis wird durchsucht..." )
 
@@ -382,6 +382,8 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 	def run(self):
 		if self.cbxDebug.isChecked():
 			os.putenv("CPL_DEBUG", "ON" )
+		else:
+			os.putenv("CPL_DEBUG", "" )
 
 		files = []
 		for i in range(self.lstFiles.count()):
@@ -421,11 +423,11 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.pbLoad.setDisabled(True)
 		self.pbSave.setDisabled(True)
 
-		self.lwProtocol.setUniformItemSizes(True);
+		self.lwProtocol.setUniformItemSizes(True)
 
 		self.lstFiles.itemSelectionChanged.disconnect(self.selChanged)
 
-		QApplication.setOverrideCursor( Qt.WaitCursor );
+		QApplication.setOverrideCursor( Qt.WaitCursor )
 
 		while True:
 			t0 = QTime()
@@ -440,6 +442,8 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 			if not self.db.open():
 				self.log(u"Konnte Datenbankverbindung nicht aufbauen!")
 				break
+
+			qry = self.db.exec_( "SET application_name='ALKIS-Import - Frontend" )
 
 			qry = self.db.exec_( "SELECT version()" )
 
@@ -592,7 +596,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 						src = os.path.join( tempfile.gettempdir(), os.path.basename(src) )
 
 						f_in = gzip.open(fn)
-						f_out = open(src, "wb");
+						f_out = open(src, "wb")
 						while True:
 							chunk = f_in.read( 1024*1024 )
 							if not chunk:
@@ -616,7 +620,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 						zipf = zipfile.ZipFile(fn, "r")
 						f_in = zipf.open( zipf.infolist()[0].filename )
-						f_out = open(src, "wb");
+						f_out = open(src, "wb")
 						while True:
 							chunk = f_in.read( 1024*1024 )
 							if not chunk:
@@ -637,6 +641,11 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 						os.unlink( src[:-4] + ".gfs" )
 					except:
 						pass
+
+					if size==623:
+						item.setSelected( True )
+						self.log( u"Kurze Datei %s übersprungen." % fn )
+						continue
 
 					args = [self.ogr2ogr,
 						"-f", "PostgreSQL",
@@ -746,7 +755,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.pbSave.setEnabled(True)
 		self.selChanged()
 
-		self.lwProtocol.setUniformItemSizes(False);
+		self.lwProtocol.setUniformItemSizes(False)
 
 		self.lstFiles.itemSelectionChanged.connect(self.selChanged)
 

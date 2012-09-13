@@ -211,9 +211,9 @@ CREATE TABLE alkis_beziehungen (
 	CONSTRAINT alkis_beziehungen_pk PRIMARY KEY (ogc_fid)
 );
 
-CREATE INDEX alkis_beziehungen_von_idx ON alkis_beziehungen(beziehung_von);
-CREATE INDEX alkis_beziehungen_zu_idx  ON alkis_beziehungen(beziehung_zu);
-CREATE INDEX alkis_beziehungen_art_idx ON alkis_beziehungen(beziehungsart);
+CREATE INDEX alkis_beziehungen_von_idx ON alkis_beziehungen USING btree (beziehung_von);
+CREATE INDEX alkis_beziehungen_zu_idx  ON alkis_beziehungen USING btree (beziehung_zu);
+CREATE INDEX alkis_beziehungen_art_idx ON alkis_beziehungen USING btree (beziehungsart);
 
 -- Dummy-Eintrag in Metatabelle
 SELECT AddGeometryColumn('alkis_beziehungen','dummy',25832,'POINT',2);
@@ -367,7 +367,7 @@ CREATE TABLE ax_gebaeudeausgestaltung (
 	CONSTRAINT ax_gebaeudeausgestaltung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_gebaeudeausgestaltung','wkb_geometry',25832,'LINESTRING',2);
+SELECT AddGeometryColumn('ax_gebaeudeausgestaltung','wkb_geometry',25832,'GEOMETRY',2);	-- LINESTRING/MULTILINESTRING
 
 CREATE INDEX ax_gebaeudeausgestaltung_geom_idx ON ax_gebaeudeausgestaltung USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_gebaeudeausgestaltung_gml ON ax_gebaeudeausgestaltung USING btree (gml_id,beginnt);
@@ -471,9 +471,9 @@ CREATE TABLE ax_historischesflurstueckalb (
 	flurstueckskennzeichen		character(20),         -- Inhalt rechts mit __ auf 20 aufgefüllt
 
 	amtlicheflaeche			double precision,      -- AFL
-	abweichenderrechtszustand	character(5),          -- ARZ
-	zweifelhafterFlurstuecksnachweis character(5),         -- ZFM Boolean
-	rechtsbehelfsverfahren		integer,               -- RBV
+	abweichenderrechtszustand	varchar default 'false',	-- ARZ
+	zweifelhafterFlurstuecksnachweis varchar default 'false',	-- ZFM Boolean
+	rechtsbehelfsverfahren		varchar default 'false',	-- RBV
 	zeitpunktderentstehung		character(10),         -- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
 --	gemeindezugehoerigkeit	integer,
 	gemeinde		integer,
@@ -505,11 +505,11 @@ CREATE UNIQUE INDEX ax_historischesflurstueckalb_gml ON ax_historischesflurstuec
 COMMENT ON TABLE  ax_historischesflurstueckalb        IS 'Historisches Flurstück ALB';
 COMMENT ON COLUMN ax_historischesflurstueckalb.gml_id IS 'Identifikator, global eindeutig';
 CREATE INDEX idx_histfsalb_vor
-   ON ax_historischesflurstueckalb (vorgaengerflurstueckskennzeichen /*  ASC*/);
+   ON ax_historischesflurstueckalb USING btree (vorgaengerflurstueckskennzeichen /*  ASC*/);
   COMMENT ON INDEX idx_histfsalb_vor IS 'Suchen nach Vorgänger-Flurstück';
 
 CREATE INDEX idx_histfsalb_nach
-   ON ax_historischesflurstueckalb (vorgaengerflurstueckskennzeichen /* ASC */);
+   ON ax_historischesflurstueckalb USING btree (vorgaengerflurstueckskennzeichen /* ASC */);
   COMMENT ON INDEX idx_histfsalb_vor IS 'Suchen nach Nachfolger-Flurstück';
   COMMENT ON TABLE  ax_historischesflurstueckalb        IS 'Historisches Flurstück ALB';
   COMMENT ON COLUMN ax_historischesflurstueckalb.gml_id IS 'Identifikator, global eindeutig';
@@ -554,8 +554,8 @@ CREATE TABLE ax_historischesflurstueck (
 	flurstueckskennzeichen	character(20),			-- Inhalt rechts mit __ auf 20 aufgefüllt
 	amtlicheflaeche			double precision,		-- AFL
 	abweichenderrechtszustand	varchar default 'false',	-- ARZ
-	zweifelhafterFlurstuecksnachweis varchar,			-- ZFM Boolean
-	rechtsbehelfsverfahren		integer,		-- RBV
+	zweifelhafterFlurstuecksnachweis varchar default 'false',	-- ZFM Boolean
+	rechtsbehelfsverfahren		varchar default 'false',	-- RBV
 	zeitpunktderentstehung		character(10),		-- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
 --	gemeindezugehoerigkeit		integer,
 	gemeinde			integer,
@@ -629,7 +629,7 @@ Gleiches gilt für Flurstücksnummern ohne Nenner, hier ist der fehlende Nenner 
 
 -- Kennzeichen indizieren, z.B. fuer Suche aus der Historie
 CREATE INDEX ax_historischesflurstueck_kennz
-   ON ax_historischesflurstueck USING btree (flurstueckskennzeichen /* ASC NULLS LAST */);
+   ON ax_historischesflurstueck(flurstueckskennzeichen /* ASC NULLS LAST */);
 COMMENT ON INDEX ax_historischesflurstueck_kennz IS 'Suche nach Flurstückskennzeichen';
 
 
@@ -782,6 +782,7 @@ SELECT AddGeometryColumn('ap_ppo','wkb_geometry',25832,'GEOMETRY',2); -- POINT/M
 
 CREATE INDEX ap_ppo_geom_idx   ON ap_ppo USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_ppo_gml ON ap_ppo USING btree (gml_id,beginnt);
+CREATE INDEX ap_ppo_endet      ON ap_ppo USING btree (endet);
 
 COMMENT ON TABLE  ap_ppo        IS 'PPO: Punktförmiges Präsentationsobjekt';
 COMMENT ON COLUMN ap_ppo.gml_id IS 'Identifikator, global eindeutig';
@@ -802,10 +803,11 @@ CREATE TABLE ap_lpo (
 	art			varchar,
 	CONSTRAINT ap_lpo_pk PRIMARY KEY (ogc_fid)
 );
-SELECT AddGeometryColumn('ap_lpo','wkb_geometry',25832,'LINESTRING',2);
+SELECT AddGeometryColumn('ap_lpo','wkb_geometry',25832,'GEOMETRY',2); -- LINESTRING/MULTILINESTRING
 
 CREATE INDEX ap_lpo_geom_idx   ON ap_lpo USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_lpo_gml ON ap_lpo USING btree (gml_id,beginnt);
+CREATE INDEX ap_lpo_endet      ON ap_lpo USING btree (endet);
 
 COMMENT ON TABLE  ap_lpo        IS 'LPO: Linienförmiges Präsentationsobjekt';
 COMMENT ON COLUMN ap_lpo.gml_id IS 'Identifikator, global eindeutig';
@@ -838,6 +840,8 @@ SELECT AddGeometryColumn('ap_pto','wkb_geometry',25832,'POINT',2);
 CREATE INDEX ap_pto_geom_idx   ON ap_pto USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_pto_gml ON ap_pto USING btree (gml_id,beginnt);
 CREATE INDEX art_idx           ON ap_pto USING btree (art);
+CREATE INDEX ap_pto_endet_idx  ON ap_pto USING btree (endet);
+CREATE INDEX ap_pto_sn_idx     ON ap_pto USING btree (signaturnummer);
 
 COMMENT ON TABLE  ap_pto               IS 'PTO: Textförmiges Präsentationsobjekt mit punktförmiger Textgeometrie ';
 COMMENT ON COLUMN ap_pto.gml_id        IS 'Identifikator, global eindeutig';
@@ -878,6 +882,7 @@ SELECT AddGeometryColumn('ap_lto','wkb_geometry',25832,'LINESTRING',2);
 
 CREATE INDEX ap_lto_geom_idx   ON ap_lto USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_lto_gml ON ap_lto USING btree (gml_id,beginnt);
+CREATE INDEX ap_lto_endet_idx  ON ap_lto USING btree (endet);
 
 COMMENT ON TABLE  ap_lto        IS 'LTO: Textförmiges Präsentationsobjekt mit linienförmiger Textgeometrie';
 COMMENT ON COLUMN ap_lto.gml_id IS 'Identifikator, global eindeutig';
@@ -904,6 +909,7 @@ CREATE TABLE ap_darstellung (
 SELECT AddGeometryColumn('ap_darstellung','dummy',25832,'POINT',2);
 
 CREATE UNIQUE INDEX ap_darstellung_gml ON ap_darstellung USING btree (gml_id,beginnt);
+CREATE INDEX ap_darstellung_endet_idx  ON ap_darstellung USING btree (endet);
 
 COMMENT ON TABLE  ap_darstellung        IS 'A P  D a r s t e l l u n g';
 COMMENT ON COLUMN ap_darstellung.gml_id IS 'Identifikator, global eindeutig';
@@ -936,9 +942,9 @@ CREATE TABLE ax_flurstueck (
 	flurstueckskennzeichen		character(20),         -- Inhalt rechts mit __ auf 20 aufgefüllt
 
 	amtlicheflaeche			double precision,      -- AFL
-	abweichenderrechtszustand	varchar default 'false',	-- ARZ
-	zweifelhafterFlurstuecksnachweis varchar,              -- ZFM Boolean
-	rechtsbehelfsverfahren		integer,               -- RBV
+	abweichenderrechtszustand	varchar default 'false', -- ARZ
+	zweifelhafterFlurstuecksnachweis varchar default 'false',-- ZFM Boolean
+	rechtsbehelfsverfahren		varchar default 'false', -- RBV
 	zeitpunktderentstehung		character(10),         -- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
 
 	gemeinde			integer,
@@ -976,8 +982,8 @@ SELECT AddGeometryColumn('ax_flurstueck','wkb_geometry',25832,'GEOMETRY',2);
 
 CREATE INDEX ax_flurstueck_geom_idx   ON ax_flurstueck USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_flurstueck_gml ON ax_flurstueck USING btree (gml_id,beginnt);
-CREATE INDEX ax_flurstueck_lgfzn ON ax_flurstueck(land,gemarkungsnummer,flurnummer,zaehler,nenner);
-CREATE INDEX ax_flurstueck_arz ON ax_flurstueck(abweichenderrechtszustand);
+CREATE INDEX ax_flurstueck_lgfzn ON ax_flurstueck USING btree (land,gemarkungsnummer,flurnummer,zaehler,nenner);
+CREATE INDEX ax_flurstueck_arz ON ax_flurstueck USING btree (abweichenderrechtszustand);
 
   COMMENT ON TABLE  ax_flurstueck                           IS '"F l u r s t u e c k" ist ein Teil der Erdoberfläche, der von einer im Liegenschaftskataster festgelegten Grenzlinie umschlossen und mit einer Nummer bezeichnet ist. Es ist die Buchungseinheit des Liegenschaftskatasters.';
   COMMENT ON COLUMN ax_flurstueck.gml_id                    IS 'Identifikator, global eindeutig';
@@ -1073,7 +1079,7 @@ CREATE TABLE ax_grenzpunkt (
 SELECT AddGeometryColumn('ax_grenzpunkt','dummy',25832,'POINT',2);
 
 CREATE UNIQUE INDEX ax_grenzpunkt_gml ON ax_grenzpunkt USING btree (gml_id,beginnt);
-CREATE INDEX ax_grenzpunkt_abmm ON ax_grenzpunkt(abmarkung_marke);
+CREATE INDEX ax_grenzpunkt_abmm ON ax_grenzpunkt USING btree (abmarkung_marke);
 
 COMMENT ON TABLE  ax_grenzpunkt        IS 'G r e n z p u n k t';
 COMMENT ON COLUMN ax_grenzpunkt.gml_id IS 'Identifikator, global eindeutig';
@@ -1276,7 +1282,7 @@ CREATE TABLE ax_punktortag (
 	anlass			varchar,
 	art			varchar[],
 	name			varchar[],
-	kartendarstellung	integer,
+	kartendarstellung	varchar,	-- boolean
 --	"qualitaetsangaben|ax_dqpunktort|herkunft|li_lineage|processstep" integer, -- varchar[],
 	genauigkeitsstufe	integer,
 	vertrauenswuerdigkeit	integer,
@@ -1302,7 +1308,7 @@ CREATE TABLE ax_punktortau (
 	endet 			character(20),
 	advstandardmodell	varchar,
 	anlass			varchar,
-	kartendarstellung	integer,
+	kartendarstellung	varchar,	-- boolean
 --	art			varchar, -- entbehrlich
 	name			varchar[],
 --	"qualitaetsangaben|ax_dqpunktort|herkunft|li_lineage|processstep" integer,  --varchar[],
@@ -1332,7 +1338,7 @@ CREATE TABLE ax_punktortta (
 	endet 			character(20),
 	advstandardmodell	varchar,
 	anlass			varchar,
-	kartendarstellung	integer,
+	kartendarstellung	varchar, -- boolean
 	description		integer,
 	art			varchar[],
 	name			varchar[],
@@ -1345,6 +1351,7 @@ SELECT AddGeometryColumn('ax_punktortta','wkb_geometry',25832,'POINT',2);
 
 CREATE INDEX ax_punktortta_geom_idx ON ax_punktortta USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_punktortta_gml ON ax_punktortta USING btree (gml_id,beginnt);
+CREATE INDEX ax_punktortta_endet_idx ON ax_punktortta USING btree (endet);
 
 COMMENT ON TABLE  ax_punktortta        IS 'P u n k t o r t   T A';
 COMMENT ON COLUMN ax_punktortta.gml_id IS 'Identifikator, global eindeutig';
@@ -1687,7 +1694,7 @@ SELECT AddGeometryColumn('ax_buchungsblatt','dummy',25832,'POINT',2);
 
 -- Index für alkis_beziehungen
 CREATE UNIQUE INDEX ax_buchungsblatt_gml ON ax_buchungsblatt USING btree (gml_id,beginnt);
-CREATE INDEX ax_buchungsblatt_lbb ON ax_buchungsblatt(land,bezirk,buchungsblattnummermitbuchstabenerweiterung);
+CREATE INDEX ax_buchungsblatt_lbb ON ax_buchungsblatt USING btree (land,bezirk,buchungsblattnummermitbuchstabenerweiterung);
 
 COMMENT ON TABLE  ax_buchungsblatt        IS 'NREO "Buchungsblatt" enthält die Buchungen (Buchungsstellen und Namensnummern) des Grundbuchs und des Liegenschhaftskatasters (bei buchungsfreien Grundstücken).';
 COMMENT ON COLUMN ax_buchungsblatt.gml_id IS 'Identifikator, global eindeutig';
@@ -1776,7 +1783,7 @@ CREATE TABLE ax_gebaeude (
 SELECT AddGeometryColumn('ax_gebaeude','wkb_geometry',25832,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
 
 CREATE INDEX ax_gebaeude_geom_idx   ON ax_gebaeude USING gist (wkb_geometry);
-CREATE UNIQUE INDEX ax_gebaeude_gml ON ax_gebaeude USING btree  (gml_id,beginnt);
+CREATE UNIQUE INDEX ax_gebaeude_gml ON ax_gebaeude USING btree (gml_id,beginnt);
 
   COMMENT ON TABLE  ax_gebaeude                    IS '"G e b ä u d e" ist ein dauerhaft errichtetes Bauwerk, dessen Nachweis wegen seiner Bedeutung als Liegenschaft erforderlich ist sowie dem Zweck der Basisinformation des Liegenschaftskatasters dient.';
   COMMENT ON COLUMN ax_gebaeude.gml_id             IS 'Identifikator, global eindeutig';
