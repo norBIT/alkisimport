@@ -6517,6 +6517,7 @@ UPDATE po_polygons SET
 UPDATE po_points SET drehwinkel_grad=degrees(drehwinkel);
 
 -- Winkel in Grad und Ausrichtung belegen
+UPDATE po_labels SET skalierung=1 WHERE skalierung IS NULL;
 UPDATE po_labels
 	SET
 		drehwinkel_grad=degrees(drehwinkel),
@@ -6607,18 +6608,22 @@ CREATE INDEX po_points_point_idx ON po_points USING gist (point);
 CREATE INDEX po_points_gmlid_idx ON po_points(gml_id);
 CREATE INDEX po_points_thema_idx ON po_points(thema);
 CREATE INDEX po_points_layer_idx ON po_points(layer);
+CREATE INDEX po_points_sn_idx ON po_points(signaturnummer)
 
 SELECT 'Indizierung Linien...';
 CREATE INDEX po_lines_line_idx ON po_lines USING gist (line);
 CREATE INDEX po_lines_gmlid_idx ON po_lines(gml_id);
 CREATE INDEX po_lines_thema_idx ON po_lines(thema);
 CREATE INDEX po_lines_layer_idx ON po_lines(layer);
+CREATE INDEX po_lines_sn_idx ON po_lines(signaturnummer)
 
 SELECT 'Indizierung Flächen...';
 CREATE INDEX po_polygons_polygons_idx ON po_polygons USING gist (polygon);
 CREATE INDEX po_polygons_gmlid_idx ON po_polygons(gml_id);
 CREATE INDEX po_polygons_thema_idx ON po_polygons(thema);
 CREATE INDEX po_polygons_layer_idx ON po_polygons(layer);
+CREATE INDEX po_polygons_snf_idx ON po_polygons(sn_flaeche);
+CREATE INDEX po_polygons_snr_idx ON po_polygons(sn_randlinie);
 
 SELECT 'Indizierung Beschriftungen...';
 CREATE INDEX po_labels_point_idx ON po_labels USING gist (point);
@@ -6626,3 +6631,4 @@ CREATE INDEX po_labels_line_idx ON po_labels USING gist (line);
 CREATE INDEX po_labels_gmlid_idx ON po_labels(gml_id);
 CREATE INDEX po_labels_thema_idx ON po_labels(thema);
 CREATE INDEX po_labels_layer_idx ON po_labels(layer);
+CREATE INDEX po_labels_sn_idx ON po_labels(signaturnummer)
