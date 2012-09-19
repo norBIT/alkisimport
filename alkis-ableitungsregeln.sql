@@ -41,11 +41,7 @@ Links/Rechts:
 */
 
 \unset ON_ERROR_STOP
-
 SET application_name='ALKIS-Import - Ableitungsregeln';
-
-\i alkis-compat.sql
-
 \set ON_ERROR_STOP
 
 \i alkis-wertearten.sql
@@ -147,6 +143,7 @@ CREATE OR REPLACE FUNCTION alkis_besondereflurstuecksgrenze() RETURNS varchar AS
 DECLARE
 	r0 RECORD;
 	r1 RECORD;
+	r2 RECORD;
 	r VARCHAR;
 	adf INTEGER;
 	sn VARCHAR;
@@ -155,30 +152,22 @@ DECLARE
 	l GEOMETRY;
 	n INTEGER;
 	np INTEGER;
+	i INTEGER;
+	j INTEGER;
+	adfs INTEGER[];
+	sns VARCHAR[];
+	c refcursor;
 BEGIN
-	SELECT alkis_dropobject('alkis_joinlines') INTO r;
-
-	CREATE TABLE alkis_joinlines(ogc_fid INTEGER PRIMARY KEY, gml_id VARCHAR);
-	SELECT AddGeometryColumn('alkis_joinlines','line',(SELECT srid FROM geometry_columns WHERE f_table_name='po_labels' AND f_geometry_column='line'),'LINESTRING',2) INTO r;
-	CREATE INDEX alkis_joinlines_line ON alkis_joinlines USING GIST (line);
 	
+
 	DELETE FROM po_lines WHERE layer='ax_besondereflurstuecksgrenze' AND signaturnummer IN ('2010','2012','2014','2016','2020','2022','2024','2026');
+	adfs := ARRAY[ 2500,   3000,   7003,   7101,   7102,   7103,   7104,   7106,   7107,   7108];
+	sns  := ARRAY['2010', '2012', '2014', '2016', '2018', '2020', '2010', '2022', '2024', '2026'];
 
-	FOR adf IN SELECT unnest(ARRAY[2500,3000,7003,7101,7103,7104,7106,7107,7108])
+	FOR i IN array_lower(adfs,1)..array_upper(adfs,1)
 	LOOP
-		sn :=	CASE
-			WHEN adf=2500 THEN '2010'
-			WHEN adf=3000 THEN '2012'
-			WHEN adf=7003 THEN '2014'
-			WHEN adf=7101 THEN '2016'
-			WHEN adf=7102 THEN '2018'
-			WHEN adf=7103 THEN '2020'
-			WHEN adf=7104 THEN '2010'
-			WHEN adf=7106 THEN '2022'
-			WHEN adf=7107 THEN '2024'
-			WHEN adf=7108 THEN '2026'
-			END;
-
+		adf := adfs[i];
+		sn  := sns[i];
 			
 		INSERT INTO alkis_joinlines(ogc_fid,gml_id,line)
 			SELECT ogc_fid,gml_id,wkb_geometry AS line
@@ -191,7 +180,7 @@ BEGIN
 
 		WHILE n>0
 		LOOP
-			SELECT ogc_fid,gml_id,line INTO STRICT r0 FROM alkis_joinlines LIMIT 1;
+			SELECT ogc_fid,gml_id,line INTO r0 FROM alkis_joinlines LIMIT 1;
 			
 			DELETE FROM alkis_joinlines WHERE alkis_joinlines.ogc_fid=r0.ogc_fid;
 			n  := n - 1;
@@ -204,29 +193,33 @@ BEGIN
 				p0 := st_startpoint(l);
 				p1 := st_endpoint(l);
 
-				BEGIN
-					SELECT ogc_fid,line INTO STRICT r1 FROM alkis_joinlines
-						WHERE p0 && line AND p0=st_endpoint(line) AND st_equals(p0,st_endpoint(line)) AND NOT p1=st_startpoint(line);
-    				EXCEPTION
-        			WHEN NO_DATA_FOUND OR TOO_MANY_ROWS THEN
-					BEGIN
-						SELECT ogc_fid,st_reverse(line) AS line INTO STRICT r1 FROM alkis_joinlines
-							WHERE p0 && line AND p0=st_startpoint(line) AND st_equals(p0,st_startpoint(line)) AND NOT p1=st_endpoint(line);
-    					EXCEPTION WHEN NO_DATA_FOUND OR TOO_MANY_ROWS THEN
-						BEGIN
-							SELECT ogc_fid,line AS line INTO STRICT r1 FROM alkis_joinlines
-								WHERE p1 && line AND p1=st_startpoint(line) AND st_equals(p1,st_startpoint(line)) AND NOT p0=st_endpoint(line);
-    						EXCEPTION WHEN NO_DATA_FOUND OR TOO_MANY_ROWS THEN
-							BEGIN
-								SELECT ogc_fid,st_reverse(line) AS line INTO STRICT r1 FROM alkis_joinlines
-									WHERE p1 && line AND p1=st_endpoint(line) AND st_equals(p1,st_endpoint(line)) AND NOT p0=st_startpoint(line);
-    							EXCEPTION WHEN NO_DATA_FOUND OR TOO_MANY_ROWS THEN
-								EXIT joinlines;
-							END;
-						END;
-					END;
-				END;
+				FOR i IN 0..3
+				LOOP
+					IF i=0 THEN
+						OPEN c FOR SELECT ogc_fid,line FROM alkis_joinlines WHERE p0 && line AND p0=st_endpoint(line) AND st_equals(p0,st_endpoint(line)) AND NOT p1=st_startpoint(line) LIMIT 2;
+					ELSIF i=1 THEN
+						OPEN c FOR SELECT ogc_fid,st_reverse(line) AS line FROM alkis_joinlines WHERE p0 && line AND p0=st_startpoint(line) AND st_equals(p0,st_startpoint(line)) AND NOT p1=st_endpoint(line) LIMIT 2;
+					ELSIF i=2 THEN
+						OPEN c FOR SELECT ogc_fid,line AS line FROM alkis_joinlines WHERE p1 && line AND p1=st_startpoint(line) AND st_equals(p1,st_startpoint(line)) AND NOT p0=st_endpoint(line) LIMIT 2;
+					ELSIF i=3 THEN							
+						OPEN c FOR SELECT ogc_fid,st_reverse(line) AS line FROM alkis_joinlines WHERE p1 && line AND p1=st_endpoint(line) AND st_equals(p1,st_endpoint(line)) AND NOT p0=st_startpoint(line) LIMIT 2;
+					END IF;
 
+					FETCH c INTO r1;
+					IF FOUND THEN
+						FETCH c INTO r2;
+						IF NOT FOUND THEN
+							-- unique hit found
+							EXIT;
+						END IF;
+					END IF;	
+
+					CLOSE c;
+					IF i=3 THEN
+						EXIT joinlines;
+					END IF;
+				END LOOP;
+					
 				l := st_linemerge(st_collect(l,r1.line));
 
 				IF geometrytype(l)='MULTILINESTRING' THEN
@@ -238,6 +231,7 @@ BEGIN
 				END IF;
 
 				DELETE FROM alkis_joinlines WHERE alkis_joinlines.ogc_fid=r1.ogc_fid;
+				CLOSE c;
 				n  := n - 1;
 			END LOOP joinlines;
 
@@ -535,8 +529,16 @@ WHERE (
      OR '2004' = ANY (artderflurstuecksgrenze)
   ) AND a.ogc_fid<b.ogc_fid AND o.endet IS NULL;
 
+
+SELECT alkis_dropobject('alkis_joinlines');
+CREATE TABLE alkis_joinlines(ogc_fid INTEGER, gml_id VARCHAR, PRIMARY KEY(ogc_fid));
+SELECT AddGeometryColumn('alkis_joinlines','line',(SELECT srid FROM geometry_columns WHERE f_table_name='po_labels' AND f_geometry_column='line'),'LINESTRING',2);
+CREATE INDEX alkis_joinlines_line ON alkis_joinlines USING GIST (line);
+
 SELECT 'Politische Grenze werden verschmolzen';
 SELECT alkis_besondereflurstuecksgrenze();
+
+SELECT alkis_dropobject('alkis_joinlines');
 
 --
 -- Grenzpunkte (11003)
@@ -6608,14 +6610,14 @@ CREATE INDEX po_points_point_idx ON po_points USING gist (point);
 CREATE INDEX po_points_gmlid_idx ON po_points(gml_id);
 CREATE INDEX po_points_thema_idx ON po_points(thema);
 CREATE INDEX po_points_layer_idx ON po_points(layer);
-CREATE INDEX po_points_sn_idx ON po_points(signaturnummer)
+CREATE INDEX po_points_sn_idx ON po_points(signaturnummer);
 
 SELECT 'Indizierung Linien...';
 CREATE INDEX po_lines_line_idx ON po_lines USING gist (line);
 CREATE INDEX po_lines_gmlid_idx ON po_lines(gml_id);
 CREATE INDEX po_lines_thema_idx ON po_lines(thema);
 CREATE INDEX po_lines_layer_idx ON po_lines(layer);
-CREATE INDEX po_lines_sn_idx ON po_lines(signaturnummer)
+CREATE INDEX po_lines_sn_idx ON po_lines(signaturnummer);
 
 SELECT 'Indizierung Flächen...';
 CREATE INDEX po_polygons_polygons_idx ON po_polygons USING gist (polygon);
@@ -6631,4 +6633,4 @@ CREATE INDEX po_labels_line_idx ON po_labels USING gist (line);
 CREATE INDEX po_labels_gmlid_idx ON po_labels(gml_id);
 CREATE INDEX po_labels_thema_idx ON po_labels(thema);
 CREATE INDEX po_labels_layer_idx ON po_labels(layer);
-CREATE INDEX po_labels_sn_idx ON po_labels(signaturnummer)
+CREATE INDEX po_labels_sn_idx ON po_labels(signaturnummer);

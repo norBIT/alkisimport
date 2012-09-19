@@ -569,6 +569,9 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 					self.status( u"Datenbank wird angelegt..." )
 					if not self.runSQLScript( conn, "alkis-schema.sql" ):
 						raise ProcessError(u"Anlegen der Datenbank schlug fehl.")
+					self.status( u"KompatibilitÃ¤tsfunktionen werden importiert..." )
+					if not self.runSQLScript( conn, "alkis-compat.sql" ):
+						raise ProcessError(u"Import der KompatibilitÃtsfunktionen schlug fehl.")
 					self.cbxCreate.setChecked( False )
 					self.log( u"Datenbank angelegt." )
 

@@ -18,6 +18,26 @@ CREATE FUNCTION st_intersects(geometry,geometry) RETURNS BOOLEAN AS $$
   SELECT intersects($1,$2);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
+CREATE FUNCTION st_astext(geometry) RETURNS TEXT AS $$
+  SELECT astext($1);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
+CREATE FUNCTION st_numpoints(geometry) RETURNS INTEGER AS $$
+  SELECT numpoints($1);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
+CREATE FUNCTION st_startpoint(geometry) RETURNS geometry AS $$
+  SELECT startpoint($1);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
+CREATE FUNCTION st_endpoint(geometry) RETURNS geometry AS $$
+  SELECT endpoint($1);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
+CREATE FUNCTION st_equals(geometry,geometry) RETURNS BOOLEAN AS $$
+  SELECT equals($1,$2);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
 CREATE FUNCTION st_isvalid(geometry) RETURNS BOOLEAN AS $$
   SELECT isvalid($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
@@ -40,6 +60,10 @@ $$ LANGUAGE 'sql' IMMUTABLE;
 
 CREATE FUNCTION st_makeline(geometry,geometry) RETURNS geometry AS $$
   SELECT makeline($1,$2);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
+CREATE FUNCTION st_makeline(geometry[]) RETURNS geometry AS $$
+  SELECT makeline_garray($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
 CREATE FUNCTION st_line_interpolate_point(geometry,float8) RETURNS geometry AS $$
@@ -98,6 +122,10 @@ CREATE FUNCTION st_collect(geometry,geometry) RETURNS geometry AS $$
   SELECT collect($1,$2);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
+CREATE FUNCTION st_collect(geometry[]) RETURNS geometry AS $$
+  SELECT collect_garray($1);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
 CREATE FUNCTION st_linemerge(geometry) RETURNS geometry AS $$
   SELECT linemerge($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
@@ -126,12 +154,22 @@ CREATE FUNCTION st_ymax(box3d) RETURNS float8 AS $$
   SELECT ymax($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
+CREATE FUNCTION st_distance(geometry,geometry) RETURNS float8 AS $$
+  SELECT distance($1,$2);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
 CREATE AGGREGATE st_collect (
         sfunc = geom_accum,
 	basetype = geometry,
 	stype = geometry[],
 	finalfunc = collect_garray
 );
+
+CREATE AGGREGATE st_extent(
+        sfunc = combine_bbox,
+        basetype = geometry,
+        stype = box2d
+        );
 
 CREATE FUNCTION alkis_intersect_lines( p0 geometry, p1 geometry, p2 geometry, p3 geometry ) RETURNS geometry AS $$
 DECLARE
@@ -237,7 +275,7 @@ BEGIN
 		END IF;
 	END LOOP;
 
-	IF o<0 THEN
+	IF offs<0 THEN
 		RETURN st_reverse( st_makeline(r) );
 	ELSE
 		RETURN st_makeline(r);
