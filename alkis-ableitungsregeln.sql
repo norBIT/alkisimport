@@ -6190,6 +6190,34 @@ FROM (
 ) AS o WHERE NOT text IS NULL;
 
 --
+-- Klassifizierungen nach Wasserrecht (71003)
+-- (kommt in SK nicht vor)
+--
+
+SELECT 'Klassifizierungen nach Wasserrecht werden verarbeitet.';
+
+INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
+SELECT
+	gml_id,
+	'Rechtliche Festlegungen' AS thema,
+	'ax_klassifizierungnachwasserrecht' AS layer,
+	point,
+	text,
+	4140 AS signaturnummer,
+	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
+FROM (
+	SELECT
+		o.gml_id,
+		t.wkb_geometry AS point,
+		schriftinhalt AS text,
+		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
+	FROM ax_klassifizierungnachwasserrecht o
+	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.endet IS NULL
+	WHERE o.endet IS NULL
+) AS o WHERE NOT text IS NULL;
+
+--
 -- Klassifizierungen nach Natur-, Umwelt- oder Bodenschutzrecht (71006)
 --
 
@@ -6633,4 +6661,5 @@ CREATE INDEX po_labels_line_idx ON po_labels USING gist (line);
 CREATE INDEX po_labels_gmlid_idx ON po_labels(gml_id);
 CREATE INDEX po_labels_thema_idx ON po_labels(thema);
 CREATE INDEX po_labels_layer_idx ON po_labels(layer);
+CREATE INDEX po_labels_text_idx ON po_labels(text);
 CREATE INDEX po_labels_sn_idx ON po_labels(signaturnummer);
