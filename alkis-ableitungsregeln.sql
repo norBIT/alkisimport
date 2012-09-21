@@ -158,19 +158,17 @@ DECLARE
 	sns VARCHAR[];
 	c refcursor;
 BEGIN
-	
-
-	DELETE FROM po_lines WHERE layer='ax_besondereflurstuecksgrenze' AND signaturnummer IN ('2010','2012','2014','2016','2020','2022','2024','2026');
 	adfs := ARRAY[ 2500,   3000,   7003,   7101,   7102,   7103,   7104,   7106,   7107,   7108];
 	sns  := ARRAY['2010', '2012', '2014', '2016', '2018', '2020', '2010', '2022', '2024', '2026'];
+	DELETE FROM po_lines WHERE layer='ax_besondereflurstuecksgrenze' AND signaturnummer = ANY (sns);
 
 	FOR i IN array_lower(adfs,1)..array_upper(adfs,1)
 	LOOP
 		adf := adfs[i];
 		sn  := sns[i];
 			
-		INSERT INTO alkis_joinlines(ogc_fid,gml_id,line)
-			SELECT ogc_fid,gml_id,wkb_geometry AS line
+		INSERT INTO alkis_joinlines(ogc_fid,gml_id,line,visited)
+			SELECT ogc_fid,gml_id,wkb_geometry AS line,false AS visited 
 			FROM ax_besondereflurstuecksgrenze
 			WHERE adf = ANY (artderflurstuecksgrenze) AND endet IS NULL;
 
@@ -180,9 +178,12 @@ BEGIN
 
 		WHILE n>0
 		LOOP
-			SELECT ogc_fid,gml_id,line INTO r0 FROM alkis_joinlines LIMIT 1;
-			
-			DELETE FROM alkis_joinlines WHERE alkis_joinlines.ogc_fid=r0.ogc_fid;
+			SELECT ogc_fid,gml_id,line INTO r0 FROM alkis_joinlines WHERE NOT visited LIMIT 1;
+--			RAISE NOTICE 'START %:		von:%	nach:%)',
+--						r0.ogc_fid,
+--						st_astext(st_startpoint(r0.line)),
+--						st_astext(st_endpoint(r0.line));
+			UPDATE alkis_joinlines SET visited=true WHERE alkis_joinlines.ogc_fid=r0.ogc_fid;
 			n  := n - 1;
 
 			l := r0.line;
@@ -196,17 +197,17 @@ BEGIN
 				FOR i IN 0..3
 				LOOP
 					IF i=0 THEN
-						OPEN c FOR SELECT ogc_fid,line FROM alkis_joinlines WHERE p0 && line AND p0=st_endpoint(line) AND st_equals(p0,st_endpoint(line)) AND NOT p1=st_startpoint(line) LIMIT 2;
+						OPEN c FOR SELECT ogc_fid,line,visited FROM alkis_joinlines WHERE p0 && line AND p0=st_endpoint(line) AND st_equals(p0,st_endpoint(line)) AND NOT p1=st_startpoint(line) ORDER BY visited LIMIT 2;
 					ELSIF i=1 THEN
-						OPEN c FOR SELECT ogc_fid,st_reverse(line) AS line FROM alkis_joinlines WHERE p0 && line AND p0=st_startpoint(line) AND st_equals(p0,st_startpoint(line)) AND NOT p1=st_endpoint(line) LIMIT 2;
+						OPEN c FOR SELECT ogc_fid,st_reverse(line) AS line,visited FROM alkis_joinlines WHERE p0 && line AND p0=st_startpoint(line) AND st_equals(p0,st_startpoint(line)) AND NOT p1=st_endpoint(line) ORDER BY visited LIMIT 2;
 					ELSIF i=2 THEN
-						OPEN c FOR SELECT ogc_fid,line AS line FROM alkis_joinlines WHERE p1 && line AND p1=st_startpoint(line) AND st_equals(p1,st_startpoint(line)) AND NOT p0=st_endpoint(line) LIMIT 2;
+						OPEN c FOR SELECT ogc_fid,line AS line,visited FROM alkis_joinlines WHERE p1 && line AND p1=st_startpoint(line) AND st_equals(p1,st_startpoint(line)) AND NOT p0=st_endpoint(line) ORDER BY visited LIMIT 2;
 					ELSIF i=3 THEN							
-						OPEN c FOR SELECT ogc_fid,st_reverse(line) AS line FROM alkis_joinlines WHERE p1 && line AND p1=st_endpoint(line) AND st_equals(p1,st_endpoint(line)) AND NOT p0=st_startpoint(line) LIMIT 2;
+						OPEN c FOR SELECT ogc_fid,st_reverse(line) AS line,visited FROM alkis_joinlines WHERE p1 && line AND p1=st_endpoint(line) AND st_equals(p1,st_endpoint(line)) AND NOT p0=st_startpoint(line) ORDER BY visited LIMIT 2;
 					END IF;
 
 					FETCH c INTO r1;
-					IF FOUND THEN
+					IF FOUND AND NOT r1.visited THEN
 						FETCH c INTO r2;
 						IF NOT FOUND THEN
 							-- unique hit found
@@ -219,6 +220,21 @@ BEGIN
 						EXIT joinlines;
 					END IF;
 				END LOOP;
+
+				IF r1.visited THEN
+					RAISE EXCEPTION '%: bereits besucht (von:% nach:%)
+bei von:% bis:%',
+						r1.ogc_fid,
+						st_astext(st_startpoint(r1.line)),
+						st_astext(st_endpoint(r1.line)),
+						st_astext(p0),
+						st_astext(p1);
+--				ELSE
+--					RAISE NOTICE 'WEITER %:		von:%	nach:%)',
+--						r1.ogc_fid,
+--						st_astext(st_startpoint(r1.line)),
+--						st_astext(st_endpoint(r1.line));
+				END IF;
 					
 				l := st_linemerge(st_collect(l,r1.line));
 
@@ -230,7 +246,7 @@ BEGIN
 						st_astext(r1.line);
 				END IF;
 
-				DELETE FROM alkis_joinlines WHERE alkis_joinlines.ogc_fid=r1.ogc_fid;
+				UPDATE alkis_joinlines SET visited=true WHERE alkis_joinlines.ogc_fid=r1.ogc_fid;
 				CLOSE c;
 				n  := n - 1;
 			END LOOP joinlines;
@@ -241,7 +257,12 @@ BEGIN
 				INTO po_lines(gml_id,thema,layer,line,signaturnummer)
 				VALUES (r0.gml_id,'Politische Grenzen','ax_besondereflurstuecksgrenze',st_multi(l),sn);
 		END LOOP;
-	
+
+		SELECT COUNT(*) INTO n FROM alkis_joinlines WHERE NOT visited;
+		IF n>0 THEN
+			RAISE NOTICE 'adf:% sn:%: % verbliebene Linien', adf, sn, n;
+		END IF;
+		DELETE FROM alkis_joinlines;
 	END LOOP;
 
 	SELECT alkis_dropobject('alkis_joinlines') INTO r;
@@ -531,9 +552,10 @@ WHERE (
 
 
 SELECT alkis_dropobject('alkis_joinlines');
-CREATE TABLE alkis_joinlines(ogc_fid INTEGER, gml_id VARCHAR, PRIMARY KEY(ogc_fid));
+CREATE TABLE alkis_joinlines(ogc_fid INTEGER, gml_id VARCHAR, visited BOOLEAN, PRIMARY KEY(ogc_fid));
 SELECT AddGeometryColumn('alkis_joinlines','line',(SELECT srid FROM geometry_columns WHERE f_table_name='po_labels' AND f_geometry_column='line'),'LINESTRING',2);
 CREATE INDEX alkis_joinlines_line ON alkis_joinlines USING GIST (line);
+CREATE INDEX alkis_joinlines_visited ON alkis_joinlines(visited);
 
 SELECT 'Politische Grenze werden verschmolzen';
 SELECT alkis_besondereflurstuecksgrenze();
