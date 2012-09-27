@@ -384,7 +384,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 
 	def run(self):
-		if self.tabWidget.currentIndex==1:
+		if self.tabWidget.currentIndex()==0:
 			self.importALKIS()
 		else:
 			self.importUserData()
