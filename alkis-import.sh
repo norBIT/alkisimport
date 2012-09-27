@@ -14,12 +14,10 @@ export OGR_ARC_MINLENGTH=0.1
 bdate() {
 	local t=$1
 	if [ -z "$t" ]; then
-		t="%F %T"
-		printf "%($t)T" -1
-	else
-		#t=${t#+}
-		date $t
+		t="+%F %T"
 	fi
+
+	date "$t"
 }
 
 memunits() {
@@ -86,7 +84,7 @@ fi
 
 echo "START $(bdate)"
 
-export CPL_DEBUG=
+export CPL_DEBUG
 
 opt=
 log=
@@ -148,6 +146,7 @@ do
 		echo "CREATE $(bdate)"
 		pushd "$B" >/dev/null
 		psql -q -f alkis-schema.sql "$DB"
+		psql -q -f alkis-compat.sql "$DB"
 		popd >/dev/null
 
 		continue
@@ -165,6 +164,9 @@ do
 
 	"debug "*)
 		export CPL_DEBUG=${src#debug }
+		if [ -z "$CPL_DEBUG" ]; then
+			unset CPL_DEBUG
+		fi
 		echo "DEBUG $CPL_DEBUG"
 		ulimit -c unlimited
 		continue
@@ -200,7 +202,7 @@ do
 			src=${src#log }
 		fi
 
-		printf -v log "%($src)T" -1
+		log=$(bdate +$src)
 
 		echo "LOGGING TO $log $(bdate)"
 		exec 3>&1 4>&2 > >(tee $log) 2>&1
@@ -220,7 +222,7 @@ do
 			src=${src#dump }
 		fi
 
-		printf -v src "%($src)T" -1
+		src=$(bdate +$src)
 
 		echo "DUMPING $(bdate)"
 		pg_dump -Fc -f "$src" "$DB"
@@ -250,7 +252,7 @@ do
 		;;
 
 	*.zip)
-		dst="${src%.zip}.xml"
+		dst=/tmp/$(basename $src .zip).xml
 		echo "DECOMPRESS $(bdate): $src"
 		zcat "$src" >"$dst"
 		rm=1
@@ -262,7 +264,7 @@ do
 			exit 1
 		fi
 
-		dst="${src%.gz}"
+		dst=/tmp/$(basename $src .gz)
 		echo "DECOMPRESS $(bdate): $src"
 		zcat "$src" >"$dst"
 		rm=1
@@ -297,7 +299,6 @@ do
 	echo "IMPORT $(bdate): $dst"
 
 	echo RUNNING: ogr2ogr -f PostgreSQL $opt -append -update "PG:$DB" -a_srs EPSG:25832 "$dst"
-	#printf -v t0 "%(%s)T" -1
 	t0=$(bdate +%s)
 	if [ -z "$T0" ]; then T0=$t0; fi
 	if [ -n "$GDB" ]; then
@@ -305,7 +306,6 @@ do
 	else
 		ogr2ogr -f PostgreSQL $opt -append -update "PG:$DB" -a_srs EPSG:25832 "$dst"
 	fi
-	#printf -v t1 "%(%s)T" -1
 	t1=$(bdate +%s)
 
 	s=$(stat -c %s "$dst")
@@ -357,6 +357,6 @@ echo "END $(bdate)"
 
 if [ -n "$log" ]; then
 	exec 1>&3 2>&4 3>/dev/null 4>/dev/null
-	perl "$B/alkis-logfilter.pl" $log
+	python "$B/refilter.py" $log
 	echo "LOG: $log"
 fi
