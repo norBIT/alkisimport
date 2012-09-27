@@ -389,7 +389,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		else:
 			self.importUserData()
 
-	def alkisImport(self):
+	def importALKIS(self):
 		if self.cbxDebug.isChecked():
 			os.putenv("CPL_DEBUG", "ON" )
 		else:
