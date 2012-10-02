@@ -35,6 +35,7 @@ CREATE TABLE flurst (
     entst character(13),
     fortf character(13),
     flsfl character(9),
+    gemflsfl character(9),
     af character(2),
     flurknr character(14),
     baublock character(12),
@@ -58,7 +59,7 @@ CREATE TABLE flurst (
     primary key (flsnr)
 ) WITH OIDS;
 
-INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,af,flurknr,baublock,flskoord,fora,fina,h1shl,h2shl,hinwshl,strshl,gemshl,hausnr,lagebez,k_anlverm,anl_verm,blbnr,n_flst,ff_entst,ff_stand,ff_datum)
+INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,gemflsfl,af,flurknr,baublock,flskoord,fora,fina,h1shl,h2shl,hinwshl,strshl,gemshl,hausnr,lagebez,k_anlverm,anl_verm,blbnr,n_flst,ff_entst,ff_stand,ff_datum)
    SELECT
      to_char(land,'fm00') || to_char(gemarkungsnummer,'fm0000') || '-' || to_char(flurnummer,'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || to_char(coalesce(nenner,0),'fm000') AS flsnr,
      to_char(zaehler,'fm00000') || '/' || to_char(coalesce(nenner,0),'fm000') AS flsnrk,
@@ -67,6 +68,7 @@ INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,af,flurknr,baubloc
      substr(zeitpunktderentstehung,1,4)  || '/     -  ' AS entst,
      NULL AS fortf,
      amtlicheflaeche AS flsfl,
+     st_area(wkb_geometry)::int::text AS gemflsfl,
      '01' AS af,
      NULL AS flurknr,
      NULL AS baublock,
