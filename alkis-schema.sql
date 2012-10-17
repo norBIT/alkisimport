@@ -3353,6 +3353,7 @@ COMMENT ON COLUMN ax_untergeordnetesgewaesser.gml_id IS 'Identifikator, global e
 CREATE TABLE ax_boeschungkliff (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16),
+	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
 	advstandardmodell	varchar,
@@ -3374,6 +3375,7 @@ COMMENT ON COLUMN ax_boeschungkliff.gml_id IS 'Identifikator, global eindeutig';
 CREATE TABLE ax_boeschungsflaeche (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16),
+	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
 	advstandardmodell	varchar,
