@@ -742,6 +742,12 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 						self.log( u"Liegenschaftsbuch-Daten übernommen." )
 
 				if ok:
+					self.status( u"VACUUM..." )
+					ok = self.db.exec_( "VACUUM" )
+					if ok:
+						self.log( u"VACUUM abgeschlossen." )
+
+				if ok:
 					self.log( u"Import nach %s erfolgreich beendet." % self.timeunits( t0.elapsed() ) )
 				else:
 					self.log( u"Import nach %s abgebrochen." % self.timeunits( t0.elapsed() ) )
