@@ -397,7 +397,7 @@ SELECT
 	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung
 FROM ax_flurstueck o
 JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZAE_NEN' AND t.endet IS NULL AND t.signaturnummer IN ('4113','4122')
+JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZAE_NEN' AND t.endet IS NULL AND t.signaturnummer IN ('4113','4122','6000')
 WHERE o.endet IS NULL;
 
 -- Zähler
@@ -415,7 +415,7 @@ FROM ax_flurstueck o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.endet IS NULL
 ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122');
+WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122','6000');
 
 -- Nenner
 -- Bruchdarstellung, wo nicht Schrägstrichdarstellung erzwungen
@@ -436,7 +436,7 @@ FROM (
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.endet IS NULL
  	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122')
+	WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122','6000')
 ) AS foo
 WHERE NOT text IS NULL;
 
@@ -463,7 +463,7 @@ FROM (
 		LEFT OUTER JOIN (
 			alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.endet IS NULL
  		) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-		WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122')
+		WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122','6000')
 	) AS bruchstrich0 WHERE lenz>0 AND lenn>0
 ) AS bruchstrich1;
 
@@ -1022,9 +1022,10 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
-		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
+		coalesce(n.wkb_geometry,t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(
 			t.schriftinhalt,
+			o.name,
 			CASE
 			WHEN gebaeudefunktion=3012                                              THEN 'Rathaus'  -- TODO: 31001 GFK [3012]?
 			WHEN gebaeudefunktion=3014                                              THEN 'Zoll'
@@ -1040,15 +1041,17 @@ FROM (
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.vertikaleausrichtung ELSE n.vertikaleausrichtung END AS vertikaleausrichtung,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.skalierung ELSE n.skalierung END AS skalierung,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.fontsperrung ELSE n.fontsperrung END AS fontsperrung
-	FROM ax_gebaeude o
+	FROM (
+		SELECT gml_id, wkb_geometry, gebaeudefunktion, unnest(name) AS name
+		FROM ax_gebaeude
+		WHERE endet IS NULL
+	) AS o 
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='GFK' AND t.endet IS NULL
-        ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellgungVon'
+        ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	LEFT OUTER JOIN (
-		alkis_beziehungen c
-		JOIN ap_pto n ON c.beziehung_von=n.gml_id AND n.art='NAM' AND n.endet IS NULL
-        ) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellgungVon'
-	WHERE o.endet IS NULL
+		alkis_beziehungen c JOIN ap_pto n ON c.beziehung_von=n.gml_id AND n.art='NAM' AND n.endet IS NULL
+        ) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
 ) AS o WHERE NOT text IS NULL;
 
 -- Weitere Gebäudefunktion
@@ -1137,8 +1140,7 @@ FROM (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='GFK' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	LEFT OUTER JOIN (
-	  alkis_beziehungen c
-	  JOIN ap_pto n ON c.beziehung_von=n.gml_id AND n.art='NAM' AND n.endet IS NULL
+		alkis_beziehungen c JOIN ap_pto n ON c.beziehung_von=n.gml_id AND n.art='NAM' AND n.endet IS NULL
         ) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
 	WHERE NOT gebaeudefunktion IS NULL
 ) AS o
