@@ -23,6 +23,8 @@
 ^psql:alkis-compat.sql:.*: FEHLER:  Funktion .* existiert bereits mit den selben Argumenttypen\s*$
 ^psql:alkis-compat.sql:.*: ERROR:  function geom_accum\(geometry\[\], geometry\) does not exist\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Funktion geom_accum\(geometry\[\], geometry\) existiert nicht\s*$
+^psql:alkis-compat.sql:.*: FEHLER:  Funktion combine_bbox\(box2d, geometry\) existiert nicht\s*$
+^psql:alkis-compat.sql:.*: Error:  function combine_bbox\(box2d, geometry\) does not exist\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Berechtigung nur f\S+r Eigent\S+mer der Funktion st_dump\s*$
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint).*gel\S+scht\..*$
 ^\s+(addgeometrycolumn|alkis_drop|alkis_dropobject|version|postgis_version|\?column\?)\s*$
@@ -33,8 +35,9 @@
 ^\s+public\.po_lines\.line SRID:25832 TYPE:MULTILINESTRING DIMS:2\s*$
 ^\s+public\.po_polygons\.polygon SRID:25832 TYPE:MULTIPOLYGON DIMS:2\s*$
 ^\s+public\.po_labels\.(point|line) SRID:25832 TYPE:(POINT|LINESTRING) DIMS:2\s*$
-^\s+public\.alkis_schriften\.position SRID:0 TYPE:POINT DIMS:2
-^\s+public\.alkis_linie\.position SRID:0 TYPE:LINESTRING DIMS:2
+^\s+public\.alkis_schriften\.position SRID:0 TYPE:POINT DIMS:2\s*$
+^\s+public\.alkis_joinlines\.line SRID:25832 TYPE:LINESTRING DIMS:2\s*$
+^\s+public\.alkis_linie\.position SRID:0 TYPE:LINESTRING DIMS:2\s*$
 ^\(\d+ rows?\)\s*$
 ^removed.*\.(gfs|xml)'\s*$
 ^CONTEXT:  (SQL statement|SQL-Anweisung) \S+(DROP TABLE .* CASCADE|CREATE TABLE)
@@ -54,11 +57,11 @@ ERROR:  sequence "alkis_(farben|konturen|linie|randlinie|strichart|stricharten|s
 ^GML: Minimum arc step angle is \d+ degrees \(was \d+\.\d+°; segment length \d+\.\d+\)\.
 ^GML: Increasing arc step to \d+\.\d+° \(was \d+\.\d+° with segment length \d+\.\d+ at radius \d+\.\d+; min segment length is \d+\.\d+\)
 ^NAS: Overwriting existing property ((AX_SonstigerVermessungspunkt|AX_Aufnahmepunkt|AX_Buchungsstelle|AX_Flurstueck|AX_Gebaeude)\.(hat|hat|an|zu|weistAuf|zeigtAuf)|AX_Gebaeude\.name|AX_HistorischesFlurstueck\.nachfolgerFlurstueckskennzeichen|AX_GrablochDerBodenschaetzung\.bedeutung|AX_Bodenschaetzung\.sonstigeAngaben|AP_PTO\.dientZurDarstellungVon|(AX_Bodenschaetzung|AX_MusterLandesmusterUndVergleichsstueck)\.entstehungsartOderKlimastufeWasserverhaeltnisse|AX_(Grenzpunkt|SonstigerVermessungspunkt|BesondererBauwerkspunkt|BesondererGebaeudepunkt|Aufnahmepunkt|Sicherungspunkt|BesondererTopographischerPunkt)\.sonstigeEigenschaft|AX_Flurstueck\.sonstigeEigenschaften|AX_SonstigeEigenschaften_Flurstueck|flaecheDesAbschnitts|(AX_(Anschrift|Bundesland|Dienststelle|Regierungsbezirk|KreisRegion|Gemeinde|Gebaeude|Bauteil)|AP_(PTO|LPO|PPO|Darstellung))\.modellart\|AA_Modellart\|advStandardModell|AX_Punktort(TA|AG)\.qualitaetsangaben\|AX_DQPunktort\|herkunft\|LI_Lineage\|processStep\|LI_ProcessStep\|(description\|CharacterString|dateTime\|DateTime|(processor\|CI_ResponsibleParty\|(role\|CI_RoleCode|individualName\|CharacterString)))|AX_HistorischesFlurstueck(ALB)?\.(buchung\||nachfolgerFlurstueckskennzeichen|vorgaengerFlurstueckskennzeichen)|AX_Gemarkung\.istAmtsbezirkVon\|AX_Dienststelle_Schluessel\|land|AX_Gemarkung\.istAmtsbezirkVon\|AX_Dienststelle_Schluessel\|stelle) of value '.*' with '.*' \(gml_id: .*\)\.\s*$
-^Command: INSERT INTO "(ax_bundesland|ax_dienststelle|ax_buchungsblattbezirk|ax_kreisregion|ax_regierungsbezirk|ax_gemarkung|ax_gemarkungsteilflur|ax_kommunalesgebiet)" \("
-.*(FEHLER:  doppelter Schl\S+sselwert verletzt Unique-Constraint \S+|ERROR:  duplicate key value violates unique constraint ")(ax_bundesland|ax_dienststelle|ax_buchungsblattbezirk|ax_kreisregion|ax_regierungsbezirk|ax_gemarkung|ax_gemarkungsteilflur|ax_kommunalesgebiet)_gml\S+\s*$
 ^DETAIL:  (Schl\S+ssel \S+|Key )\(gml_id, beginnt\)=(.*) (already exists|existiert bereits)\.\s*$
-^PG: PQexecParams\(INSERT INTO "(ax_bundesland|ax_dienststelle|ax_buchungsblattbezirk|ax_kreisregion|ax_regierungsbezirk)" \(
+^PG: PQexecParams\(INSERT INTO "(ax_bundesland|ax_dienststelle|ax_buchungsblattbezirk|ax_kreisregion|ax_regierungsbezirk|ax_lagebezeichnungohnehausnummer)" \(
 ^PG: Truncated (alkis_beziehungen\.beziehung_(von|zu)|.*\.gml_id) field value '.*' to 16 characters\.
 ^More than 1000 errors or warnings have been reported\. No more will be reported from now\.\s*$
 ^ERROR 1: INSERT command for new feature failed\.\s*$
 .*L.+schvorgang l.+scht ebenfalls .*$
+^Command: INSERT INTO "(ax_[a-z]+|ap_pto|ap_lpo|ap_ppo|ap_darstellung)" \("
+.*(FEHLER:  doppelter Schl\S+sselwert verletzt Unique-Constraint \S+|ERROR:  duplicate key value violates unique constraint ")(ax_[a-z]+|ap_pto|ap_lpo|ap_ppo|ap_darstellung)_gml\S+\s*$

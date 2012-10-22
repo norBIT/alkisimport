@@ -311,16 +311,17 @@ BEGIN
 
 		EXECUTE sql INTO endete;
 
-/*
 		IF endete IS NULL AND length(NEW.replacedBy)>16 THEN
-			RAISE NOTICE '%: Nachfolger % nicht gefunden - versuche ''%''', NEW.featureid, substr(NEW.replacedBy, 1, 16);
+			RAISE NOTICE '%: Nachfolger % nicht gefunden - versuche ''%''', NEW.featureid, NEW.replacedBy, substr(NEW.replacedBy, 1, 16);
 			sql := 'SELECT beginnt FROM ' || NEW.typename
 			    || ' WHERE gml_id=''' || substr(NEW.replacedBy, 1, 16) || ''''
-			    || ' AND endete IS NULL'
-			    || ' AND identifier<>''urn:adv:oid:'|| NEW.featureid || '''';
+			    || ' AND endet IS NULL'
+			    || ' AND identifier<>''urn:adv:oid:'|| NEW.featureid || ''''
+			    || ' ORDER BY beginnt DESC'
+			    || ' LIMIT 1';
 			EXECUTE sql INTO endete;
+			gml_id := gml_id || ''' AND beginnt<>''' || endete;
 		END IF;
- */
 
 		IF endete IS NULL THEN
 			IF NEW.safetoignore = 'true' THEN
