@@ -16,10 +16,10 @@ from PyQt4.QtSql import QSqlDatabase, QSqlQuery, QSqlError, QSql
 
 from alkisImportDlg import Ui_Dialog
 
-# Felder als String interpretieren (führende Nullen nicht abschneiden)
+# Felder als String interpretieren (d.h. führende Nullen nicht abschneiden)
 os.putenv("GML_FIELDTYPES", "ALWAYS_STRING")
 
-# Warnen, wenn numerische Felder mit alphanumerischen Werten gefällt werden sollen
+# Warnen, wenn numerische Felder mit alphanumerischen Werten gefüllt werden sollen
 os.putenv("OGR_SETFIELD_NUMERIC_WARNING", "ON")
 
 # Mindestlänge für Kreisbogensegmente
