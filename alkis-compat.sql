@@ -6,6 +6,10 @@ CREATE FUNCTION st_geomfromtext(text,integer) RETURNS geometry AS $$
   SELECT geomfromtext($1,$2);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
+CREATE FUNCTION st_geometryfromtext(text,integer) RETURNS geometry AS $$
+  SELECT geometryfromtext($1,$2);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
 CREATE FUNCTION st_multi(geometry) RETURNS geometry AS $$
   SELECT multi($1);
 $$ LANGUAGE 'sql' IMMUTABLE;

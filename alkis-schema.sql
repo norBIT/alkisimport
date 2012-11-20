@@ -237,14 +237,16 @@ COMMENT ON COLUMN alkis_beziehungen.beziehungsart IS 'Typ der Beziehung zwischen
 -- A n d e r e   F e s t l e g u n g   n a c h   W a s s e r r e c h t
 -- --------------------------------------------------------------------
 CREATE TABLE ax_anderefestlegungnachwasserrecht (
-	ogc_fid				serial NOT NULL,
-	gml_id				character(16),
-	identifier			character(44),
-	beginnt				character(20),
-	endet 				character(20),
-	advstandardmodell		varchar,
-	anlass				varchar,
-	artderfestlegung		integer,
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16),
+	identifier		character(44),
+	beginnt			character(20),
+	endet 			character(20),
+	advstandardmodell	varchar,
+	anlass			varchar,
+	artderfestlegung	integer,
+	land			integer,
+	stelle			varchar,
 	CONSTRAINT ax_anderefestlegungnachwasserrecht_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -252,6 +254,7 @@ SELECT AddGeometryColumn('ax_anderefestlegungnachwasserrecht','wkb_geometry',258
 
 CREATE INDEX ax_anderefestlegungnachwasserrecht_geom_idx ON ax_anderefestlegungnachwasserrecht USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_anderefestlegungnachwasserrecht_gml ON ax_anderefestlegungnachwasserrecht USING btree (gml_id,beginnt);
+CREATE INDEX ax_anderefestlegungnachwasserrecht_afs ON ax_anderefestlegungnachwasserrecht(land,stelle);
 
 COMMENT ON TABLE  ax_anderefestlegungnachwasserrecht        IS 'Andere Festlegung nach  W a s s e r r e c h t';
 COMMENT ON COLUMN ax_anderefestlegungnachwasserrecht.gml_id IS 'Identifikator, global eindeutig';
@@ -338,6 +341,8 @@ CREATE TABLE ax_denkmalschutzrecht (
 	advstandardmodell	varchar,
 	anlass			varchar,
 	artderfestlegung	integer,
+	land			integer,
+	stelle			varchar,
 	art			varchar, -- (15)
 	name			varchar, -- (15)
 	CONSTRAINT ax_denkmalschutzrecht_pk PRIMARY KEY (ogc_fid)
@@ -347,6 +352,7 @@ SELECT AddGeometryColumn('ax_denkmalschutzrecht','wkb_geometry',25832,'GEOMETRY'
 
 CREATE INDEX ax_denkmalschutzrecht_geom_idx   ON ax_denkmalschutzrecht USING gist  (wkb_geometry);
 CREATE UNIQUE INDEX ax_denkmalschutzrecht_gml ON ax_denkmalschutzrecht USING btree (gml_id,beginnt);
+CREATE INDEX ax_denkmalschutzrecht_afs ON ax_denkmalschutzrecht(land,stelle);
 
 COMMENT ON TABLE  ax_denkmalschutzrecht        IS 'D e n k m a l s c h u t z r e c h t';
 COMMENT ON COLUMN ax_denkmalschutzrecht.gml_id IS 'Identifikator, global eindeutig';
@@ -457,44 +463,46 @@ COMMENT ON COLUMN ax_grablochderbodenschaetzung.gml_id IS 'Identifikator, global
 -- Vorgänger-Nachfolger-Beziehungen, ohne Geometrie
 
 CREATE TABLE ax_historischesflurstueckalb (
-	ogc_fid				serial NOT NULL,
-	gml_id				character(16),
+	ogc_fid						serial NOT NULL,
+	gml_id						character(16),
 
 	-- GID: AX_Flurstueck_Kerndaten
 	-- 'Flurstück_Kerndaten' enthält Eigenschaften des Flurstücks, die auch für andere Flurstücksobjektarten gelten (z.B. Historisches Flurstück).
-	land 				integer,         --
-	gemarkungsnummer 		integer,            --
-	flurnummer			integer,               -- Teile des Flurstückskennzeichens
-	zaehler 			integer,            --    (redundant zu flurstueckskennzeichen)
-	nenner				integer,         --
+	land 						integer,         --
+	gemarkungsnummer 				integer,            --
+	flurnummer					integer,               -- Teile des Flurstückskennzeichens
+	zaehler 					integer,            --    (redundant zu flurstueckskennzeichen)
+	nenner						integer,         --
 	-- daraus abgeleitet:
-	flurstueckskennzeichen		character(20),         -- Inhalt rechts mit __ auf 20 aufgefüllt
+	flurstueckskennzeichen				character(20),         -- Inhalt rechts mit __ auf 20 aufgefüllt
 
-	amtlicheflaeche			double precision,      -- AFL
-	abweichenderrechtszustand	varchar default 'false',	-- ARZ
-	zweifelhafterFlurstuecksnachweis varchar default 'false',	-- ZFM Boolean
-	rechtsbehelfsverfahren		varchar default 'false',	-- RBV
-	zeitpunktderentstehung		character(10),         -- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
---	gemeindezugehoerigkeit	integer,
-	gemeinde		integer,
+	amtlicheflaeche					double precision,      -- AFL
+	abweichenderrechtszustand			varchar default 'false',	-- ARZ
+	zweifelhafterFlurstuecksnachweis 		varchar default 'false',	-- ZFM Boolean
+	rechtsbehelfsverfahren				varchar default 'false',	-- RBV
+	zeitpunktderentstehung				character(10),         -- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
+--	gemeindezugehoerigkeit				integer,
+	gemeinde					integer,
 	-- GID: ENDE AX_Flurstueck_Kerndaten
 
-	identifier		character(44),
-	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
-	anlass			varchar,
-	name			varchar[],
-	blattart		integer,
-	buchungsart		varchar,
-	buchungsblattkennzeichen	varchar,
-	bezirk					integer,
-	buchungsblattnummermitbuchstabenerweiterung	varchar, --integer,
-	laufendenummerderbuchungsstelle			varchar,
+	identifier					character(44),
+	beginnt						character(20),
+	endet 						character(20),
+	advstandardmodell				varchar,
+	anlass						varchar,
+	name						varchar[],
+	blattart					integer,
+	buchungsart					varchar[],
+	buchungsblattkennzeichen			varchar[],
+	bezirk						integer,
+	buchungsblattnummermitbuchstabenerweiterung	varchar[],
+	laufendenummerderbuchungsstelle			varchar[],
 	zeitpunktderentstehungdesbezugsflurstuecks	varchar,
+	laufendenummerderfortfuehrung			varchar,
+	fortfuehrungsart				varchar,
 
-	vorgaengerflurstueckskennzeichen	varchar[],
-	nachfolgerflurstueckskennzeichen	varchar[],
+	vorgaengerflurstueckskennzeichen		varchar[],
+	nachfolgerflurstueckskennzeichen		varchar[],
 	CONSTRAINT ax_historischesflurstueckalb_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -573,9 +581,9 @@ CREATE TABLE ax_historischesflurstueck (
 	nachfolgerflurstueckskennzeichen	varchar[],
 	blattart			integer,
 	buchungsart			integer,
-	buchungsblattkennzeichen	varchar,
+	buchungsblattkennzeichen	varchar[],
 	bezirk				integer,
-	buchungsblattnummermitbuchstabenerweiterung	varchar, -- hier länger als (7)!
+	buchungsblattnummermitbuchstabenerweiterung	varchar[], -- hier länger als (7)!
 	laufendenummerderbuchungsstelle	integer,
 	CONSTRAINT ax_historischesflurstueck_pk PRIMARY KEY (ogc_fid)
 );
@@ -645,6 +653,8 @@ CREATE TABLE ax_naturumweltoderbodenschutzrecht (
 	advstandardmodell	varchar,
 	anlass			varchar,
 	artderfestlegung	integer,
+	land			integer,
+	stelle			varchar,
 	name			varchar,
 	CONSTRAINT ax_naturumweltoderbodenschutzrecht_pk PRIMARY KEY (ogc_fid)
 );
@@ -653,6 +663,7 @@ SELECT AddGeometryColumn('ax_naturumweltoderbodenschutzrecht','wkb_geometry',258
 
 CREATE INDEX ax_naturumweltoderbodenschutzrecht_geom_idx   ON ax_naturumweltoderbodenschutzrecht USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_naturumweltoderbodenschutzrecht_gml ON ax_naturumweltoderbodenschutzrecht USING btree (gml_id,beginnt);
+CREATE INDEX ax_naturumweltoderbodenschutzrecht_afs ON ax_naturumweltoderbodenschutzrecht(land,stelle);
 
 COMMENT ON TABLE  ax_naturumweltoderbodenschutzrecht        IS 'N  a t u r -,  U m w e l t -   o d e r   B o d e n s c h u t z r e c h t';
 COMMENT ON COLUMN ax_naturumweltoderbodenschutzrecht.gml_id IS 'Identifikator, global eindeutig';
@@ -669,6 +680,8 @@ CREATE TABLE ax_schutzgebietnachwasserrecht (
 	advstandardmodell	varchar,
 	anlass			varchar,
 	artderfestlegung	integer,
+	land			integer,
+	stelle			varchar,
 	art			varchar[], --(15)
 	name			varchar[],
 	nummerdesschutzgebietes	varchar,
@@ -678,6 +691,7 @@ CREATE TABLE ax_schutzgebietnachwasserrecht (
 SELECT AddGeometryColumn('ax_schutzgebietnachwasserrecht','dummy',25832,'POINT',2);
 
 CREATE UNIQUE INDEX ax_schutzgebietnachwasserrecht_gml ON ax_schutzgebietnachwasserrecht USING btree (gml_id,beginnt);
+CREATE INDEX ax_schutzgebietnachwasserrecht_afs ON ax_schutzgebietnachwasserrecht(land,stelle);
 
 COMMENT ON TABLE  ax_schutzgebietnachwasserrecht        IS 'S c h u t z g e b i e t   n a c h   W a s s s e r r e c h t';
 COMMENT ON COLUMN ax_schutzgebietnachwasserrecht.gml_id IS 'Identifikator, global eindeutig';
@@ -693,12 +707,15 @@ CREATE TABLE ax_schutzgebietnachnaturumweltoderbodenschutzrecht (
 	advstandardmodell	varchar,
 	anlass			varchar,
 	artderfestlegung	integer,
+	land			integer,
+	stelle			varchar,
 	CONSTRAINT ax_schutzgebietnachnaturumweltoderbodenschutzrecht_pk PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_schutzgebietnachnaturumweltoderbodenschutzrecht','dummy',25832,'POINT',2);
 
 CREATE UNIQUE INDEX ax_schutzgebietnachnaturumweltoderbodenschutzrecht_gml ON ax_schutzgebietnachnaturumweltoderbodenschutzrecht USING btree (gml_id,beginnt);
+CREATE INDEX ax_schutzgebietnachnaturumweltoderbodenschutzrecht_afs ON ax_schutzgebietnachnaturumweltoderbodenschutzrecht(land,stelle);
 
 COMMENT ON TABLE  ax_schutzgebietnachnaturumweltoderbodenschutzrecht IS 'S c h u t z g e b i e t   n a c h   N a t u r,  U m w e l t  o d e r  B o d e n s c h u t z r e c h t';
 COMMENT ON COLUMN ax_schutzgebietnachnaturumweltoderbodenschutzrecht.gml_id IS 'Identifikator, global eindeutig';
@@ -959,6 +976,7 @@ CREATE TABLE ax_flurstueck (
 	name				varchar[],   -- 03.11.2011: array, Buchauskunft anpassen!
 	regierungsbezirk		integer,
 	kreis				integer,
+	stelle				varchar,
 
 -- neu aus SVN-Version 28.02.2012 hinzugefuegt
 -- Dies ist noch zu ueberpruefen
@@ -970,11 +988,6 @@ CREATE TABLE ax_flurstueck (
 	angabenzumabschnittnummeraktenzeichen integer[],
 	angabenzumabschnittbemerkung	varchar[],
 
-	-- siehe alkis_relationen
---	istgebucht			varchar,
---	zeigtauf			varchar,
---	weistauf			varchar,
--- neu-Ende
 	CONSTRAINT ax_flurstueck_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1073,6 +1086,7 @@ CREATE TABLE ax_grenzpunkt (
 	art				varchar, --(37)
 	name				varchar[],
 	zeitpunktderentstehung		integer,
+	relativehoehe			double precision,
 	CONSTRAINT ax_grenzpunkt_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1199,6 +1213,7 @@ CREATE TABLE ax_aufnahmepunkt (
 	stelle			integer,
 	sonstigeeigenschaft	varchar[],
 	vermarkung_marke	integer,
+	relativehoehe		double precision,
 	CONSTRAINT ax_aufnahmepunkt_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1225,8 +1240,9 @@ CREATE TABLE ax_sicherungspunkt (
 	punktkennung		varchar,
 	land			integer,
 	stelle			integer,
-	sonstigeeigenschaft	varchar,
+	sonstigeeigenschaft	varchar[],
 	vermarkung_marke	integer,
+	relativehoehe		double precision,
  	CONSTRAINT ax_sicherungspunkt_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1245,9 +1261,11 @@ CREATE TABLE ax_sonstigervermessungspunkt (
 	anlass			varchar,
 	vermarkung_marke	integer,
 	punktkennung		varchar, -- integer,
+	art			varchar,
 	land			integer,
 	stelle			integer,
 	sonstigeeigenschaft	varchar[],
+	relativehoehe		double precision,
 	CONSTRAINT ax_sonstigervermessungspunkt_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1286,6 +1304,7 @@ CREATE TABLE ax_punktortag (
 --	"qualitaetsangaben|ax_dqpunktort|herkunft|li_lineage|processstep" integer, -- varchar[],
 	genauigkeitsstufe	integer,
 	vertrauenswuerdigkeit	integer,
+	koordinatenstatus	integer,
 	CONSTRAINT ax_punktortag_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1316,6 +1335,7 @@ CREATE TABLE ax_punktortau (
 	individualname		varchar,
 	vertrauenswuerdigkeit	integer,
 	genauigkeitsstufe	integer,
+	koordinatenstatus	integer,
 	CONSTRAINT ax_punktortau_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1344,6 +1364,7 @@ CREATE TABLE ax_punktortta (
 	name			varchar[],
 	genauigkeitsstufe	integer,
 	vertrauenswuerdigkeit	integer,
+	koordinatenstatus	integer,
 	CONSTRAINT ax_punktortta_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1625,6 +1646,10 @@ CREATE TABLE ax_anschrift (
 	strasse				varchar,
 	hausnummer			varchar, -- integer
 	bestimmungsland			varchar,
+	postleitzahlpostfach		varchar,
+	postfach			varchar,
+	ortsteil			varchar,
+	weitereAdressen			varchar,
 	CONSTRAINT ax_anschrift_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -2816,6 +2841,7 @@ CREATE TABLE ax_bauwerkoderanlagefuerindustrieundgewerbe (
 	bauwerksfunktion	integer,
 	name			varchar,
 	zustand			integer,
+	objekthoehe		double precision,
 	CONSTRAINT ax_bauwerkoderanlagefuerindustrieundgewerbe_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -3043,7 +3069,7 @@ CREATE TABLE ax_besondererbauwerkspunkt (
 	punktkennung		varchar, -- integer,
 	land			integer,
 	stelle			integer,
-	--sonstigeeigenschaft	character(26),
+	sonstigeeigenschaft	varchar[],
 	CONSTRAINT ax_besondererbauwerkspunkt_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -3543,6 +3569,8 @@ CREATE TABLE ax_klassifizierungnachstrassenrecht (
 	advstandardmodell	varchar,
 	anlass			varchar,
 	artderfestlegung	integer,
+	land			integer,
+	stelle			varchar,
 	bezeichnung		varchar,
 	CONSTRAINT ax_klassifizierungnachstrassenrecht_pk PRIMARY KEY (ogc_fid)
 );
@@ -3551,6 +3579,7 @@ SELECT AddGeometryColumn('ax_klassifizierungnachstrassenrecht','wkb_geometry',25
 
 CREATE INDEX ax_klassifizierungnachstrassenrecht_geom_idx   ON ax_klassifizierungnachstrassenrecht USING gist  (wkb_geometry);
 CREATE UNIQUE INDEX ax_klassifizierungnachstrassenrecht_gml ON ax_klassifizierungnachstrassenrecht USING btree (gml_id,beginnt);
+CREATE INDEX ax_klassifizierungnachstrassenrecht_afs ON ax_klassifizierungnachstrassenrecht(land,stelle);
 
 COMMENT ON TABLE  ax_klassifizierungnachstrassenrecht        IS 'K l a s s i f i z i e r u n g   n a c h   S t r a s s e n r e c h t';
 COMMENT ON COLUMN ax_klassifizierungnachstrassenrecht.gml_id IS 'Identifikator, global eindeutig';
@@ -3567,12 +3596,15 @@ CREATE TABLE ax_klassifizierungnachwasserrecht (
 	advstandardmodell	varchar,
 	anlass			varchar,
 	artderfestlegung	integer,
+	land			integer,
+	stelle			varchar,
 	CONSTRAINT ax_klassifizierungnachwasserrecht_pk PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_klassifizierungnachwasserrecht','wkb_geometry',25832,'GEOMETRY',2);
 
 CREATE INDEX ax_klassifizierungnachwasserrecht_geom_idx ON ax_klassifizierungnachwasserrecht USING gist (wkb_geometry);
+CREATE INDEX ax_klassifizierungnachwasserrecht_afs ON ax_klassifizierungnachwasserrecht(land,stelle);
 
 COMMENT ON TABLE  ax_klassifizierungnachwasserrecht        IS 'K l a s s i f i z i e r u n g   n a c h   W a s s e r r e c h t';
 COMMENT ON COLUMN ax_klassifizierungnachwasserrecht.gml_id IS 'Identifikator, global eindeutig';
@@ -3728,6 +3760,7 @@ CREATE TABLE ax_bundesland (
 	schluesselgesamt	integer,
 	bezeichnung		varchar, --(22)
 	land			integer,
+	stelle			varchar,
 	CONSTRAINT ax_bundesland_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -4075,6 +4108,7 @@ CREATE TABLE ax_kommunalesgebiet (
 	regierungsbezirk	integer,
 	kreis			integer,
 	gemeinde		integer,
+	gemeindeflaeche		double precision,
 	CONSTRAINT ax_kommunalesgebiet_pk PRIMARY KEY (ogc_fid)
 );
 

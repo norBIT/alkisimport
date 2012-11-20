@@ -190,7 +190,6 @@ BEGIN
 	kv := E'CREATE VIEW ax_klassifizierungsschluessel AS\n  ';
 	d := '';
 
-        -- In allen Tabellen die Objekte Löschen, die ein Ende-Datum haben
 	i := 0;
         FOR r IN
                 SELECT
@@ -264,6 +263,90 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION alkis_createausfuehrendestellen() RETURNS varchar AS $$
+DECLARE
+	r VARCHAR[];
+	v VARCHAR;
+	d VARCHAR;
+	f VARCHAR;
+	p VARCHAR;
+	i INTEGER;
+	name VARCHAR;
+	invalid INTEGER;
+BEGIN
+	PERFORM alkis_dropobject('ax_ausfuehrendestellen');
+
+	PERFORM alkis_dropobject('v_schutzgebietnachwasserrecht');
+	CREATE VIEW v_schutzgebietnachwasserrecht AS
+		SELECT z.ogc_fid,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
+		FROM ax_schutzgebietnachwasserrecht s
+		JOIN alkis_beziehungen b ON s.gml_id=b.beziehung_zu AND b.beziehungsart='istTeilVon'
+		JOIN ax_schutzzone z ON b.beziehung_von=z.gml_id AND z.endet IS NULL
+		WHERE s.endet IS NULL;
+
+	PERFORM alkis_dropobject('v_schutzgebietnachnaturumweltoderbodenschutzrecht');
+	CREATE VIEW v_schutzgebietnachnaturumweltoderbodenschutzrecht AS
+		SELECT z.ogc_fid,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
+		FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht s
+		JOIN alkis_beziehungen b ON s.gml_id=b.beziehung_zu AND b.beziehungsart='istTeilVon'
+		JOIN ax_schutzzone z ON b.beziehung_von=z.gml_id AND z.endet IS NULL
+		WHERE s.endet IS NULL;
+
+	r := ARRAY[
+			'v_schutzgebietnachwasserrecht',
+			'v_schutzgebietnachnaturumweltoderbodenschutzrecht',
+			'ax_naturumweltoderbodenschutzrecht',
+			-- 'ax_forstrecht',
+			'ax_bauraumoderbodenordnungsrecht',
+			'ax_klassifizierungnachstrassenrecht',
+			'ax_denkmalschutzrecht',
+			'ax_anderefestlegungnachwasserrecht',
+			-- 'ax_anderefestlegungnachstrassenrecht',
+			'ax_sonstigesrecht',
+			'ax_klassifizierungnachwasserrecht'
+		];
+
+	v := E'CREATE VIEW ax_ausfuehrendestellen AS\n  ';
+	d := '';
+
+	FOR i IN array_lower(r,1)..array_upper(r,1)
+        LOOP
+		name := r[i];
+		BEGIN
+			EXECUTE 'SELECT count(*) FROM '||name||' WHERE NOT st_isvalid(wkb_geometry)' INTO invalid;
+		EXCEPTION
+			WHEN OTHERS THEN
+				BEGIN
+					EXECUTE 'UPDATE '||name||' SET wkb_geometry=st_makevalid(wkb_geometry) WHERE NOT st_isvalid(wkb_geometry)';
+					EXECUTE 'SELECT count(*) FROM '||name||' WHERE NOT st_isvalid(wkb_geometry)' INTO invalid;
+				EXCEPTION
+					WHEN OTHERS THEN RAISE EXCEPTION 'Validierungsausnahme in %', name;
+				END;
+		END;
+
+		IF invalid > 0 THEN
+			RAISE EXCEPTION '% ungültige Geometrien in %', invalid, name;
+		END IF;
+
+		v := v
+		  || d
+		  || 'SELECT '
+		  || 'ogc_fid*16+' || i || ' AS ogc_fid,'
+		  || '''' || name || '''::text AS name,'
+		  || 'to_char(land,''fm00'') || stelle AS ausfuehrendestelle,'
+		  || 'wkb_geometry'
+		  || ' FROM ' || name
+		  || ' WHERE endet IS NULL'
+		  ;
+
+		d := E' UNION\n  ';
+        END LOOP;
+
+	EXECUTE v;
+	RETURN 'ax_ausfuehrendestellen erzeugt.';
+END;
+$$ LANGUAGE plpgsql;
+
 SELECT 'Prüfe Flurstücksgeometrien...';
 SELECT alkis_checkflurstueck();
 
@@ -272,6 +355,9 @@ SELECT alkis_createklassifizierung();
 
 SELECT 'Prüfe tatsächliche Nutzungen...';
 SELECT alkis_createnutzung();
+
+SELECT 'Prüfe ausführende Stellen...';
+SELECT alkis_createausfuehrendestellen();
 
 DELETE FROM kls_shl;
 INSERT INTO kls_shl(klf,klf_text)
@@ -320,4 +406,30 @@ INSERT INTO nutz_21(flsnr,pk,nutzsl,fl,ff_entst,ff_stand)
   WHERE f.endet IS NULL AND st_area(st_intersection(f.wkb_geometry,n.wkb_geometry))::int>0
   GROUP BY f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), n.nutzung;
 
--- TODO: Wo sind denn den ausführenden Stellen in ALKIS?
+SELECT alkis_dropobject('ausfst_pk_seq');
+CREATE SEQUENCE ausfst_pk_seq;
+
+SELECT 'Erzeuge ausführende Stellen...';
+
+DELETE FROM ausfst;
+INSERT INTO ausfst(flsnr,pk,ausf_st,verfnr,verfshl,ff_entst,ff_stand)
+  SELECT
+    to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(f.flurnummer,'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
+    to_hex(nextval('ausfst_pk_seq'::regclass)) AS pk,
+    s.ausfuehrendestelle AS ausf_st,
+    NULL AS verfnr,
+    NULL AS verfshl,
+    0 AS ff_entst,
+    0 AS ff_stand
+  FROM ax_flurstueck f
+  JOIN ax_ausfuehrendestellen s ON f.wkb_geometry && s.wkb_geometry AND st_intersects(f.wkb_geometry,s.wkb_geometry)
+  WHERE f.endet IS NULL AND st_area(st_intersection(f.wkb_geometry,s.wkb_geometry))::int>0
+  GROUP BY f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), s.ausfuehrendestelle;
+
+DELETE FROM afst_shl;
+INSERT INTO afst_shl(ausf_st,afst_txt)
+  SELECT DISTINCT
+    to_char(d.land,'fm00') || d.stelle,
+    bezeichnung
+  FROM ax_dienststelle d
+  WHERE EXISTS (SELECT * FROM ausfst WHERE ausf_st=to_char(d.land,'fm00') || d.stelle);

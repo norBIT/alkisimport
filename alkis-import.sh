@@ -52,10 +52,11 @@ timeunits() {
 }
 
 export LC_CTYPE=de_DE.UTF-8
-
+export TEMP=/tmp
 if [ -d "$PWD/gdal-dev" ]; then
 	export PATH=$PWD/gdal-dev/bin:$PATH
-	export GDAL_DATA=$PWD/gdal-dev/share/gdal
+	export GDAL_DATA=$(cygpath -w $PWD/gdal-dev/share/gdal)
+	TEMP=$(cygpath -w $TEMP)
 elif [ -d "$HOME/src/gdal/apps/.libs" ]; then
 	export PATH=$HOME/src/gdal/apps/.libs:$PATH
 	export LD_LIBRARY_PATH=$HOME/src/gdal/.libs
@@ -252,7 +253,7 @@ do
 		;;
 
 	*.zip)
-		dst=/tmp/$(basename $src .zip).xml
+		dst=$TEMP/$(basename $src .zip).xml
 		echo "DECOMPRESS $(bdate): $src"
 		zcat "$src" >"$dst"
 		rm=1
@@ -264,7 +265,7 @@ do
 			exit 1
 		fi
 
-		dst=/tmp/$(basename $src .gz)
+		dst=$TEMP/$(basename $src .gz)
 		echo "DECOMPRESS $(bdate): $src"
 		zcat "$src" >"$dst"
 		rm=1

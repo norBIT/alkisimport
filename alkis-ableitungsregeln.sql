@@ -89,15 +89,15 @@ BEGIN
 	END IF;
 
 	SELECT * INTO regel FROM alkis_positionierungsregeln WHERE id=regelid;
-	
+
 	g := st_buffer(g0, -0.5);
 	xmin := floor(st_xmin(g)/regel.abstand)*regel.abstand;
 	ymin := floor(st_ymin(g)/regel.zeilenabstand)*regel.zeilenabstand;
 	xmax := ceil(st_xmax(g)/regel.abstand)*regel.abstand;
 	ymax := ceil(st_ymax(g)/regel.zeilenabstand)*regel.zeilenabstand;
-	
+
 	SELECT st_srid(g) INTO srid;
-	
+
 	x0 := xmin;
 	y  := ymin;
 
@@ -106,7 +106,7 @@ BEGIN
 --		(xmax-xmin)/abstand,
 --		(ymax-ymin)/zeilenabstand,
 --		((xmax-xmin)/abstand) * ((ymax-ymin)/zeilenabstand);
-	
+
 	FOR i IN 0..1 LOOP
 		WHILE y<ymax LOOP
 			x := x0;
@@ -119,11 +119,11 @@ BEGIN
 			END LOOP;
 			y := y + 2*regel.zeilenabstand;
 		END LOOP;
-		
+
 		y  := ymin + regel.zeilenabstand;
 		x0 := x0 + regel.versatz;
 	END LOOP;
-	
+
 	IF regel.dichte<100 THEN
 		SELECT st_collect(geom) INTO g
 		FROM (
@@ -134,7 +134,7 @@ BEGIN
 	ELSE
 		g := st_collect(r);
 	END IF;
-	
+
 	RETURN st_multi(g);
 END;
 $$ LANGUAGE plpgsql;
@@ -166,14 +166,14 @@ BEGIN
 	LOOP
 		adf := adfs[i];
 		sn  := sns[i];
-			
+
 		INSERT INTO alkis_joinlines(ogc_fid,gml_id,line,visited)
-			SELECT ogc_fid,gml_id,wkb_geometry AS line,false AS visited 
+			SELECT ogc_fid,gml_id,wkb_geometry AS line,false AS visited
 			FROM ax_besondereflurstuecksgrenze
 			WHERE adf = ANY (artderflurstuecksgrenze) AND endet IS NULL;
 
 		GET DIAGNOSTICS n = ROW_COUNT;
-		
+
 		RAISE NOTICE 'adf:% sn:% n:%', adf, sn, n;
 
 		WHILE n>0
@@ -202,7 +202,7 @@ BEGIN
 						OPEN c FOR SELECT ogc_fid,st_reverse(line) AS line,visited FROM alkis_joinlines WHERE p0 && line AND p0=st_startpoint(line) AND st_equals(p0,st_startpoint(line)) AND NOT p1=st_endpoint(line) ORDER BY visited LIMIT 2;
 					ELSIF i=2 THEN
 						OPEN c FOR SELECT ogc_fid,line AS line,visited FROM alkis_joinlines WHERE p1 && line AND p1=st_startpoint(line) AND st_equals(p1,st_startpoint(line)) AND NOT p0=st_endpoint(line) ORDER BY visited LIMIT 2;
-					ELSIF i=3 THEN							
+					ELSIF i=3 THEN
 						OPEN c FOR SELECT ogc_fid,st_reverse(line) AS line,visited FROM alkis_joinlines WHERE p1 && line AND p1=st_endpoint(line) AND st_equals(p1,st_endpoint(line)) AND NOT p0=st_startpoint(line) ORDER BY visited LIMIT 2;
 					END IF;
 
@@ -213,7 +213,7 @@ BEGIN
 							-- unique hit found
 							EXIT;
 						END IF;
-					END IF;	
+					END IF;
 
 					CLOSE c;
 					IF i=3 THEN
@@ -235,7 +235,7 @@ bei von:% bis:%',
 --						st_astext(st_startpoint(r1.line)),
 --						st_astext(st_endpoint(r1.line));
 				END IF;
-					
+
 				l := st_linemerge(st_collect(l,r1.line));
 
 				IF geometrytype(l)='MULTILINESTRING' THEN
@@ -268,7 +268,7 @@ bei von:% bis:%',
 	SELECT alkis_dropobject('alkis_joinlines') INTO r;
 
 	RETURN 'Politische Grenze verschmolzen';
-END;  
+END;
 $$ LANGUAGE plpgsql;
 
 -- Präsentationsobjekte?
@@ -502,7 +502,7 @@ SELECT
 	'ax_gemarkungsteilflur' AS layer,
 	t.wkb_geometry AS point,
 	coalesce(schriftinhalt,CASE WHEN bezeichnung LIKE 'Flur %' THEN bezeichnung ELSE 'Flur '||bezeichnung END) AS text,
-	4200 AS signaturnummer,
+	coalesce(t.signaturnummer,'4200') AS signaturnummer,
 	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung
 FROM ax_gemarkungsteilflur o
 JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
@@ -603,9 +603,14 @@ SELECT
 	'ax_grenzpunkt' AS layer,
 	coalesce(t.wkb_geometry,ta.wkb_geometry) AS point,
 	besonderePunktnummer AS text,
-	CASE 
-	WHEN NOT EXISTS (SELECT * FROM ax_flurstueck f WHERE f.endet IS NULL AND f.abweichenderrechtszustand='true' AND ta.wkb_geometry && f.wkb_geometry AND st_intersects(ta.wkb_geometry,f.wkb_geometry))
-	THEN 4071 ELSE 4072 END as signaturnummer,
+	coalesce(
+		t.signaturnummer,
+		CASE
+		WHEN NOT EXISTS (SELECT * FROM ax_flurstueck f WHERE f.endet IS NULL AND f.abweichenderrechtszustand='true' AND ta.wkb_geometry && f.wkb_geometry AND st_intersects(ta.wkb_geometry,f.wkb_geometry))
+		THEN '4071'
+		ELSE '4072'
+		END
+	) AS signaturnummer,
 	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung
 FROM ax_grenzpunkt p
 JOIN alkis_beziehungen bo ON p.gml_id=bo.beziehung_zu
@@ -630,11 +635,11 @@ SELECT
 	'ax_lagebezeichnungohnehausnummer' AS layer,
 	t.wkb_geometry AS point,
 	schriftinhalt AS text,
-	4160 AS signaturnummer,
+	coalesce(t.signaturnummer,'4160') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND art='Ort' AND t.endet IS NULL
+JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND art='Ort' AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
 WHERE coalesce(schriftinhalt,'')<>'' AND o.endet IS NULL;
 
 -- Lagebezeichnungen
@@ -652,11 +657,11 @@ SELECT
 		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
 		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
 	) AS text,
-	4206 AS signaturnummer,
+	coalesce(t.signaturnummer,'4206') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art='Gewanne' AND t.endet IS NULL
+JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art='Gewanne' AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 -- Straße/Weg
@@ -672,11 +677,11 @@ SELECT
 		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
 		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
 	) AS text,
-	4107 AS signaturnummer,
+	coalesce(t.signaturnummer,'4107') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Strasse','Weg') AND t.endet IS NULL
+JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Strasse','Weg') AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 -- Platz/Bahnverkehr
@@ -692,11 +697,11 @@ SELECT
 		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
 		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
 	) AS text,
-	4141 AS signaturnummer,
+	coalesce(t.signaturnummer,'4141') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Platz','Bahnverkehr') AND t.endet IS NULL
+JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Platz','Bahnverkehr') AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 -- Fließgewässer/Stehendes Gewässer
@@ -737,7 +742,7 @@ SELECT
 	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_lto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Strasse','Weg') AND t.endet IS NULL
+JOIN ap_lto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Strasse','Weg') AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 -- Platz/Bahnverkehr, Text auf Linien
@@ -757,7 +762,7 @@ SELECT
 	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu
-JOIN ap_lto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Platz','Bahnverkehr') AND t.endet IS NULL
+JOIN ap_lto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Platz','Bahnverkehr') AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 -- Fließgewässer/Stehendes Gewässer, Text auf Linien
@@ -777,7 +782,7 @@ SELECT
 	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_lto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Fliessgewaesser','StehendesGewaesser') AND t.endet IS NULL
+JOIN ap_lto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Fliessgewaesser','StehendesGewaesser') AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 
@@ -795,11 +800,11 @@ SELECT
 	'ax_lagebezeichnungmithausnummer' AS layer,
 	t.wkb_geometry AS point,
 	schriftinhalt AS text,
-	4160 AS signaturnummer,
+	coalesce(t.signaturnummer,'4160') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungmithausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND art='Ort' AND t.endet IS NULL
+JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND art='Ort' AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
 WHERE coalesce(schriftinhalt,'')<>'' AND o.endet IS NULL;
 
 -- mit Hausnummer (bezieht sich auf Gebäude, Turm oder Flurstück)
@@ -814,7 +819,7 @@ SELECT
 	WHEN f.ogc_fid IS NULL THEN coalesce(tx.schriftinhalt,o.hausnummer)
 	ELSE coalesce(tx.schriftinhalt,'HsNr. '||hausnummer)
 	END as text,
-	4070 AS signaturnummer,
+	coalesce(tx.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungmithausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
@@ -824,7 +829,7 @@ JOIN (
 	LEFT OUTER JOIN ax_turm t       ON bg.beziehung_von=t.gml_id AND t.endet IS NULL
 	LEFT OUTER JOIN ax_gebaeude g   ON bg.beziehung_von=g.gml_id AND g.endet IS NULL
 	LEFT OUTER JOIN ax_flurstueck f ON bg.beziehung_von=f.gml_id AND f.endet IS NULL
-) ON o.gml_id=bg.beziehung_zu AND bg.beziehungsart='zeigtAuf' AND coalesce(t.ogc_fid,g.ogc_fid,f.ogc_fid) IS NOT NULL
+) ON o.gml_id=bg.beziehung_zu AND bg.beziehungsart='zeigtAuf' AND coalesce(t.ogc_fid,g.ogc_fid,f.ogc_fid) IS NOT NULL AND coalesce(signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 
@@ -842,11 +847,11 @@ SELECT
 	'ax_lagebezeichnungmitpseudonummer' AS layer,
 	t.wkb_geometry AS point,
 	coalesce('('||laufendenummer||')','P'||pseudonummer) as text,
-	4070 AS signaturnummer,
+	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungmitpseudonummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art='PNR' AND t.endet IS NULL
+JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art='PNR' AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 -- Lagebezeichnung mit Pseudonummer, Ortsteil
@@ -857,11 +862,11 @@ SELECT
 	'ax_lagebezeichnungmitpseudonummer' AS layer,
 	t.wkb_geometry AS point,
 	schriftinhalt AS text,
-	4160 AS signaturnummer,
+	coalesce(t.signaturnummer,'4160') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungmitpseudonummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art='Ort' AND t.endet IS NULL
+JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art='Ort' AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 
@@ -963,40 +968,40 @@ SELECT
 	'ax_gebaeude' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	o.signaturnummer
+	coalesce(p.signaturnummer,o.signaturnummer) AS signaturnummer
 FROM (
 	SELECT
 		gml_id,
 		wkb_geometry,
 		CASE gebaeudefunktion
-		WHEN 2030 THEN 3300
-		WHEN 2056 THEN 3338
-		WHEN 2071 THEN 3302
-		WHEN 2072 THEN 3303
-		WHEN 2081 THEN 3305
-		WHEN 2092 THEN 3306
-		WHEN 2094 THEN 3308
-		WHEN 2461 THEN 3309 WHEN 2462 THEN 3309
-		WHEN 2465 THEN 3336
-		WHEN 2523 THEN 3521
-		WHEN 2612 THEN 3311
-		WHEN 3013 THEN 3312
-		WHEN 3032 THEN 3314
-		WHEN 3037 THEN 3315
-		WHEN 3041 THEN 3316  -- TODO: PNR 1113?
-		WHEN 3042 THEN 3317
-		WHEN 3043 THEN 3318  -- TODO: PNR 1113?
-		WHEN 3046 THEN 3319
-		WHEN 3047 THEN 3320
-		WHEN 3051 THEN 3321 WHEN 3052 THEN 3321
-		WHEN 3065 THEN 3323
-		WHEN 3071 THEN 3324
-		WHEN 3072 THEN 3326
-		WHEN 3094 THEN 3328
-		WHEN 3095 THEN 3330
-		WHEN 3097 THEN 3332
-		WHEN 3221 THEN 3334
-		WHEN 3290 THEN 3340
+		WHEN 2030 THEN '3300'
+		WHEN 2056 THEN '3338'
+		WHEN 2071 THEN '3302'
+		WHEN 2072 THEN '3303'
+		WHEN 2081 THEN '3305'
+		WHEN 2092 THEN '3306'
+		WHEN 2094 THEN '3308'
+		WHEN 2461 THEN '3309' WHEN 2462 THEN '3309'
+		WHEN 2465 THEN '3336'
+		WHEN 2523 THEN CASE WHEN gml_id LIKE 'DERP%' THEN 'RP3521' ELSE '3521' END
+		WHEN 2612 THEN '3311'
+		WHEN 3013 THEN '3312'
+		WHEN 3032 THEN '3314'
+		WHEN 3037 THEN '3315'
+		WHEN 3041 THEN '3316' -- TODO: PNR 1113?
+		WHEN 3042 THEN '3317'
+		WHEN 3043 THEN '3318' -- TODO: PNR 1113?
+		WHEN 3046 THEN '3319'
+		WHEN 3047 THEN '3320'
+		WHEN 3051 THEN '3321' WHEN 3052 THEN '3321'
+		WHEN 3065 THEN '3323'
+		WHEN 3071 THEN '3324'
+		WHEN 3072 THEN '3326'
+		WHEN 3094 THEN '3328'
+		WHEN 3095 THEN '3330'
+		WHEN 3097 THEN '3332'
+		WHEN 3221 THEN '3334'
+		WHEN 3290 THEN '3340'
 		END AS signaturnummer
 	FROM ax_gebaeude
 	WHERE endet IS NULL
@@ -1017,13 +1022,14 @@ SELECT
 	'ax_gebaeude' AS layer,
 	point,
 	text,
-	4070 AS signaturnummer,
+	signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(n.wkb_geometry,t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(
+			n.schriftinhalt,
 			t.schriftinhalt,
 			o.name,
 			CASE
@@ -1034,25 +1040,35 @@ FROM (
 			WHEN gebaeudefunktion=3034 AND name IS NULL AND n.schriftinhalt IS NULL THEN 'Museum'   -- TODO: 31001 GFK [3034]?
 			WHEN gebaeudefunktion=3091 AND name IS NULL AND n.schriftinhalt IS NULL THEN 'Bahnhof'
 			WHEN gebaeudefunktion=9998                                              THEN 'oF'
+			WHEN o.gml_id LIKE 'DERP%' THEN
+				CASE
+				WHEN gebaeudefunktion IN (3011,3016,3017,3019,3024,3031,3033,3035,3036,3061,3062,3073,3074,3075,3080,3081,3092,3242) THEN
+					(select v from alkis_wertearten where element='ax_gebaeude' AND bezeichnung='gebaeudefunktion' AND k=gebaeudefunktion::text)
+				WHEN gebaeudefunktion=3022 THEN 'Schule'
+				WHEN gebaeudefunktion=3023 THEN 'Hochschule'
+				WHEN gebaeudefunktion=3038 THEN 'Burg'
+				WHEN gebaeudefunktion=3211 THEN 'Sporthalle'
+				END
 			END
 		) AS text,
+		coalesce(CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.signaturnummer ELSE n.signaturnummer END,'4070') AS signaturnummer,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.drehwinkel ELSE n.drehwinkel END AS drehwinkel,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.horizontaleausrichtung ELSE n.horizontaleausrichtung END AS horizontaleausrichtung,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.vertikaleausrichtung ELSE n.vertikaleausrichtung END AS vertikaleausrichtung,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.skalierung ELSE n.skalierung END AS skalierung,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.fontsperrung ELSE n.fontsperrung END AS fontsperrung
 	FROM (
-		SELECT gml_id, wkb_geometry, gebaeudefunktion, unnest(name) AS name
+		SELECT gml_id, wkb_geometry, gebaeudefunktion, unnest(coalesce(name,ARRAY[NULL])) AS name
 		FROM ax_gebaeude
 		WHERE endet IS NULL
-	) AS o 
+	) AS o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='GFK' AND t.endet IS NULL
         ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	LEFT OUTER JOIN (
 		alkis_beziehungen c JOIN ap_pto n ON c.beziehung_von=n.gml_id AND n.art='NAM' AND n.endet IS NULL
         ) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
-) AS o WHERE NOT text IS NULL;
+) AS o WHERE NOT text IS NULL AND coalesce(signaturnummer,'6000')<>'6000';
 
 -- Weitere Gebäudefunktion
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer)
@@ -1062,33 +1078,33 @@ SELECT
 	'ax_gebaeude' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	p.drehwinkel,
-	o.signaturnummer
+	coalesce(o.signaturnummer,p.signaturnummer) AS signaturnummer
 FROM (
 	SELECT
 		o.gml_id,
 		wkb_geometry,
 		CASE gebaeudefunktion
-		WHEN 1000 THEN 3300
-		WHEN 1010 THEN 3302
-		WHEN 1020 THEN 3303
-		WHEN 1030 THEN 3305
-		WHEN 1040 THEN 3306
-		WHEN 1050 THEN 3308
-		WHEN 1060 THEN 3336
-		WHEN 1070 THEN 3309
-		WHEN 1080 THEN 3311
-		WHEN 1090 THEN 3112
-		WHEN 1110 THEN 3314
-		WHEN 1130 THEN 3315
-		WHEN 1140 THEN 3318  -- TODO: Kapelle PNR 1113?
-		WHEN 1150 THEN 3319
-		WHEN 1160 THEN 3320
-		WHEN 1170 THEN 3338
-		WHEN 1180 THEN 3324
-		WHEN 1190 THEN 3321
-		WHEN 1200 THEN 3340
-		WHEN 1210 THEN 3323
-		WHEN 1220 THEN 3324
+		WHEN 1000 THEN '3300'
+		WHEN 1010 THEN '3302'
+		WHEN 1020 THEN '3303'
+		WHEN 1030 THEN '3305'
+		WHEN 1040 THEN '3306'
+		WHEN 1050 THEN '3308'
+		WHEN 1060 THEN '3336'
+		WHEN 1070 THEN '3309'
+		WHEN 1080 THEN '3311'
+		WHEN 1090 THEN '3112'
+		WHEN 1110 THEN '3314'
+		WHEN 1130 THEN '3315'
+		WHEN 1140 THEN '3318'  -- TODO: Kapelle PNR 1113?
+		WHEN 1150 THEN '3319'
+		WHEN 1160 THEN '3320'
+		WHEN 1170 THEN '3338'
+		WHEN 1180 THEN '3324'
+		WHEN 1190 THEN '3321'
+		WHEN 1200 THEN '3340'
+		WHEN 1210 THEN '3323'
+		WHEN 1220 THEN '3324'
 		END AS signaturnummer
 	FROM (
 		SELECT
@@ -1112,7 +1128,7 @@ SELECT
 	'ax_gebaeude' AS layer,
 	point,
 	text,
-	4070 AS signaturnummer,
+	signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM (
 	SELECT
@@ -1123,6 +1139,7 @@ FROM (
 		WHEN gebaeudefunktion=1129 AND coalesce(name,n.schriftinhalt) IS NULL THEN 'Museum'   -- TODO: 31001 GFK [3034]?
 		END AS text,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.drehwinkel ELSE n.drehwinkel END AS drehwinkel,
+		coalesce(CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.signaturnummer ELSE n.signaturnummer END,'4070') AS signaturnummer,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.horizontaleausrichtung ELSE n.horizontaleausrichtung END AS horizontaleausrichtung,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.vertikaleausrichtung ELSE n.vertikaleausrichtung END AS vertikaleausrichtung,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.skalierung ELSE n.skalierung END AS skalierung,
@@ -1131,7 +1148,7 @@ FROM (
 		SELECT
 			gml_id,
 			wkb_geometry,
-			unnest(name) AS name,
+			unnest(coalesce(name,ARRAY[NULL])) AS name,
 			unnest(weiteregebaeudefunktion) AS gebaeudefunktion
 		FROM ax_gebaeude o
 		WHERE endet IS NULL
@@ -1153,7 +1170,7 @@ SELECT
 	o.gml_id,
 	'Gebäude' AS thema,
 	'ax_gebaeude' AS layer,
-	unnest(name),
+	unnest(coalesce(name,ARRAY[NULL])),
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry))  AS point,
 	coalesce(t.schriftinhalt,o.zaehler||'/'||o.nenner,o.zaehler::text) AS text,
 	coalesce(t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN 4112 ELSE 4111 END) AS signaturnummer,
@@ -1173,7 +1190,7 @@ SELECT
 	'ax_gebaeude' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	coalesce(o.anzahlderoberirdischengeschosse::text||' / -'||o.anzahlderunterirdischengeschosse::text,o.anzahlderoberirdischengeschosse::text,'-'||o.anzahlderunterirdischengeschosse::text) AS text,
-	4070 AS signaturnummer,
+	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_gebaeude o
 LEFT OUTER JOIN (
@@ -1205,7 +1222,7 @@ SELECT
 	WHEN 5000 THEN 'MD'
 	WHEN 9999 THEN 'SD'
 	END AS text,
-	4070 AS signaturnummer,
+	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_gebaeude o
 LEFT OUTER JOIN (
@@ -1228,7 +1245,7 @@ SELECT
 		WHEN 3000 THEN '(geplant)'
 		WHEN 4000 THEN '(im Bau)'
 		END) AS text,
-	4070 AS signaturnummer,
+	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_gebaeude o
 LEFT OUTER JOIN (
@@ -1287,7 +1304,7 @@ SELECT
 	'ax_bauteil' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3336 AS signaturnummer
+	coalesce(p.signaturnummer,'3336') AS signaturnummer
 FROM ax_bauteil o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BAT' AND p.endet IS NULL
@@ -1318,7 +1335,7 @@ SELECT
 	WHEN 5000 THEN 'MD'
 	WHEN 9999 THEN 'SD'
 	END AS text,
-	4070 AS signaturnummer,
+	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_bauteil o
 LEFT OUTER JOIN (
@@ -1334,7 +1351,7 @@ SELECT
 	'ax_bauteil' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	o.anzahlderoberirdischengeschosse::text AS text,
-	4070 AS signaturnummer,
+	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_bauteil o
 LEFT OUTER JOIN (
@@ -1402,13 +1419,14 @@ SELECT
 	'ax_wohnbauflaeche' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 	FROM ax_wohnbauflaeche o
 	LEFT OUTER JOIN (
@@ -1441,20 +1459,21 @@ SELECT
 	'ax_industrieundgewerbeflaeche' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 	FROM ax_industrieundgewerbeflaeche o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
         ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL
-) AS i WHERE NOT text IS NULL;
+) AS i WHERE NOT text IS NULL AND coalesce(signaturnummer,'')<>'6000';
 
 -- Industrie- und Gewerbefläche, Funktionen
 -- TODO: Förderanlage/Kraftwerk/Bergbaubetrieb 4140 (PNR 3003)
@@ -1465,7 +1484,7 @@ SELECT
 	'ax_industrieundgewerbeflaeche' AS layer,
 	point,
 	text,
-	4140 AS signaturnummer,
+	signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM (
 	SELECT
@@ -1475,49 +1494,52 @@ FROM (
 		WHEN funktion=1740 THEN
 			CASE
 			WHEN coalesce(lagergut,0) IN (0,9999) THEN
-		coalesce(
-			schriftinhalt,
-			(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
-		)
+				coalesce(
+					schriftinhalt,
+					(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+				)
 			ELSE
-		coalesce(
-			schriftinhalt,
-			(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
-			|| E'\n('
-			||(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='lagergut' AND k=lagergut::text)
-			||')',
-			(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
-		)
+				coalesce(
+					schriftinhalt,
+					(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+					|| E'\n('
+					||(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='lagergut' AND k=lagergut::text)
+					||')',
+					(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+				)
 			END
+		WHEN o.gml_id LIKE 'DERP%' AND funktion=2502 THEN 'Versorgungsanlage'
+		WHEN o.gml_id LIKE 'DERP%' AND funktion=2602 THEN 'Entsorgungsanlage'
+		WHEN o.gml_id LIKE 'DERP%' AND funktion=2623 THEN 'Schlamm'
 		WHEN funktion IN (2520,2522, 2550,2552, 2560,2562, 2580.2582, 2610,2612, 2620,2622, 2630, 2640 ) THEN
-		coalesce(
-			schriftinhalt,
-			(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
-		)
+			coalesce(
+				schriftinhalt,
+				(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+			)
 		WHEN funktion IN (2530,2532) THEN
-		coalesce(
-			schriftinhalt,
-			'(' || (select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='primaerenergie' AND k=primaerenergie::text) || ')'
-		)
+			coalesce(
+				schriftinhalt,
+				'(' || (select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='primaerenergie' AND k=primaerenergie::text) || ')'
+			)
 		WHEN funktion IN (2570,2572) THEN
-		CASE
-		WHEN primaerenergie IS NULL THEN
-			coalesce(
-				schriftinhalt,
-				(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
-			)
-		ELSE
-			coalesce(
-				schriftinhalt,
-				(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
-				|| E'\n('
-				|| (select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='primaerenergie' AND k=primaerenergie::text)
-				|| ')',
-				(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
-			)
-		END
+			CASE
+			WHEN primaerenergie IS NULL THEN
+				coalesce(
+					schriftinhalt,
+					(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+				)
+			ELSE
+				coalesce(
+					schriftinhalt,
+					(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+					|| E'\n('
+					|| (select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='primaerenergie' AND k=primaerenergie::text)
+					|| ')',
+					(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+				)
+			END
 		END AS text,
-		4140 AS signaturnummer,
+		coalesce(t.signaturnummer,'4140') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 	FROM ax_industrieundgewerbeflaeche o
 	LEFT OUTER JOIN (
@@ -1540,12 +1562,15 @@ FROM (
 		o.gml_id,
 		coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN funktion=1730           THEN 3401
-		WHEN funktion=2510           THEN 3402
-		WHEN funktion IN (2530,2432) THEN 3403
-		WHEN funktion=2540           THEN 3404
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN funktion=1730           THEN '3401'
+			WHEN funktion=2510           THEN '3402'
+			WHEN funktion IN (2530,2432) THEN '3403'
+			WHEN funktion=2540           THEN '3404'
+			END
+		) AS signaturnummer
 	FROM ax_industrieundgewerbeflaeche o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
@@ -1608,13 +1633,14 @@ SELECT
 	'ax_halde' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 	FROM ax_halde o
 	LEFT OUTER JOIN (
@@ -1652,7 +1678,7 @@ FROM (
 		o.gml_id,
 		coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE WHEN zustand=2100 THEN 3406 ELSE 3505 END AS signaturnummer
+		coalesce(p.signaturnummer,CASE WHEN zustand=2100 THEN '3406' ELSE '3505' END) AS signaturnummer
 	FROM ax_bergbaubetrieb o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ZUS' AND p.endet IS NULL
@@ -1679,7 +1705,7 @@ FROM (
 			schriftinhalt,
 			E'(' || (select v from alkis_wertearten where element='ax_bergbaubetrieb' AND bezeichnung='abbaugut' AND k=abbaugut::text) ||')'
 		) AS text,
-		4141 AS signaturnummer,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 	FROM ax_bergbaubetrieb o
 	LEFT OUTER JOIN (
@@ -1697,13 +1723,14 @@ SELECT
 	'ax_bergbaubetrieb' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 	FROM ax_bergbaubetrieb o
 	LEFT OUTER JOIN (
@@ -1749,7 +1776,7 @@ FROM (
 		E'(' || (select v from alkis_wertearten where element='ax_tagebaugrubesteinbruch' AND bezeichnung='abbaugut' AND k=abbaugut::text) ||')',
 		CASE WHEN abbaugut=4100 THEN '(Torfstich)' ELSE NULL END
 		) AS text,
-		4141 AS signaturnummer,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 	FROM ax_tagebaugrubesteinbruch o
 	LEFT OUTER JOIN (
@@ -1767,7 +1794,7 @@ SELECT
 	'ax_tagebaugrubesteinbruch' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3407 AS signaturnummer
+	coalesce(p.signaturnummer,'3407') AS signaturnummer
 FROM ax_tagebaugrubesteinbruch o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
@@ -1782,13 +1809,14 @@ SELECT
 	'ax_tagebaugrubesteinbruch' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 	FROM ax_tagebaugrubesteinbruch o
 	LEFT OUTER JOIN (
@@ -1820,13 +1848,14 @@ SELECT
 	'ax_flaechegemischternutzung' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 	FROM ax_flaechegemischternutzung o
 	LEFT OUTER JOIN (
@@ -1859,13 +1888,14 @@ SELECT
 	'ax_flaechebesondererfunktionalerpraegung' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 	FROM ax_flaechebesondererfunktionalerpraegung o
 	LEFT OUTER JOIN (
@@ -1874,6 +1904,31 @@ FROM (
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
 
+-- Historische Anlagen (RP)
+INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
+SELECT
+	gml_id,
+	'Industrie und Gewerbe' AS thema,
+	'ax_flaechebesondererfunktionalerpraegung' AS layer,
+	point,
+	text,
+	signaturnummer,
+	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
+FROM (
+	SELECT
+		o.gml_id,
+		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
+		coalesce(
+			t.schriftinhalt,
+			(select v from alkis_wertearten where element='ax_flaechebesondererfunktionalerpraegung' AND bezeichnung='funktion' AND k=funktion::text)
+		) AS text,
+		coalesce(t.signaturnummer,'4070') AS signaturnummer,
+		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
+	FROM ax_industrieundgewerbeflaeche o
+	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='FKT' AND t.endet IS NULL
+	WHERE o.endet IS NULL AND funktion=1300 AND o.gml_id LIKE 'DERP%'
+) AS i WHERE NOT text IS NULL;
 
 --
 -- Sport-, Freizeit- und Erholungsfläche (41008)
@@ -1899,7 +1954,7 @@ SELECT
 	'ax_sportfreizeitunderholungsflaeche' AS layer,
 	point,
 	text,
-	4140 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
@@ -1913,8 +1968,15 @@ FROM (
 			WHEN funktion IN (4320,4321) THEN 'Bad'
 			WHEN funktion IN (4110,4200,4230,4240,4250,4260,4270,4280,4290,4310,4450) THEN
 				(select v from alkis_wertearten where element='ax_sportfreizeitunderholungsflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+			WHEN o.gml_id LIKE 'DERP%' THEN
+				CASE
+				WHEN funktion IN (4120,4130,4140,4150,4160,4170) THEN
+					(select v from alkis_wertearten where element='ax_sportfreizeitunderholungsflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+				WHEN funktion IS NULL THEN 'Sportfläche'
+				END
 			END
 		) AS text,
+		coalesce(t.signaturnummer,n.signaturnummer,'4140') AS signaturnummer,
 		t.drehwinkel,t.horizontaleausrichtung,t.vertikaleausrichtung,t.skalierung,t.fontsperrung
 	FROM ax_sportfreizeitunderholungsflaeche o
 	LEFT OUTER JOIN (
@@ -1942,17 +2004,20 @@ FROM (
 		o.gml_id,
 		coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN funktion IN (4210,4211) THEN 3410
-		WHEN funktion=4220           THEN 3411
-		WHEN funktion IN (4330,4331) THEN 3412
-		WHEN funktion IN (4400,4410) THEN 3413
-		WHEN funktion=4420           THEN 3415
-		WHEN funktion IN (4430,4431) THEN 3417
-		WHEN funktion=4440           THEN 3419
-		WHEN funktion=4460           THEN 3421
-		WHEN funktion=4470           THEN 3423
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN funktion IN (4210,4211) THEN '3410'
+			WHEN funktion=4220           THEN '3411'
+			WHEN funktion IN (4330,4331) THEN '3412'
+			WHEN funktion IN (4400,4410) THEN '3413'
+			WHEN funktion=4420           THEN '3415'
+			WHEN funktion IN (4430,4431) THEN '3417'
+			WHEN funktion=4440           THEN '3419'
+			WHEN funktion=4460           THEN '3421'
+			WHEN funktion=4470           THEN '3423'
+			END
+		) AS signaturnummer
 	FROM ax_sportfreizeitunderholungsflaeche o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
@@ -1972,13 +2037,14 @@ SELECT
 	'ax_sportfreizeitunderholungsflaeche' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_sportfreizeitunderholungsflaeche o
 	LEFT OUTER JOIN (
@@ -2010,13 +2076,14 @@ SELECT
 	'ax_friedhof' AS layer,
 	point,
 	text,
-	4140 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,n.signaturnummer,'4140') AS signaturnummer,
 		t.drehwinkel,t.horizontaleausrichtung,t.vertikaleausrichtung,t.skalierung,t.fontsperrung
 	FROM ax_friedhof o
 	LEFT OUTER JOIN (
@@ -2036,13 +2103,14 @@ SELECT
 	'ax_friedhof' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_friedhof o
 	LEFT OUTER JOIN (
@@ -2083,7 +2151,7 @@ SELECT
 	'ax_strassenverkehr' AS layer,
 	point,
 	text,
-	4100 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
@@ -2093,6 +2161,7 @@ FROM (
 			t.schriftinhalt,
 			(select v from alkis_wertearten where element='ax_strassenverkehr' AND bezeichnung='funktion' AND k=funktion::text)
 		) AS text,
+		coalesce(t.signaturnummer,'4100') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_strassenverkehr o
 	LEFT OUTER JOIN (
@@ -2109,13 +2178,14 @@ SELECT
 	'ax_strassenverkehr' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.zweitname) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_strassenverkehr o
 	LEFT OUTER JOIN (
@@ -2153,12 +2223,15 @@ FROM (
 		o.gml_id,
 		coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN funktion IN (5220,5230) THEN 3424
-		WHEN funktion=5240           THEN 3426
-		WHEN funktion=5250           THEN 3428
-		WHEN funktion=5260           THEN 3430
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN funktion IN (5220,5230) THEN '3424'
+			WHEN funktion=5240           THEN '3426'
+			WHEN funktion=5250           THEN '3428'
+			WHEN funktion=5260           THEN '3430'
+			END
+		) AS signaturnummer
 	FROM ax_weg o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
@@ -2199,11 +2272,14 @@ FROM (
 		o.gml_id,
 		coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN funktion=5310 THEN 3432
-		WHEN funktion=5320 THEN 3434
-		WHEN funktion=5330 THEN 3436
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN funktion=5310 THEN '3432'
+			WHEN funktion=5320 THEN '3434'
+			WHEN funktion=5330 THEN '3436'
+			END
+		) AS signaturnummer
 	FROM ax_platz o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
@@ -2220,7 +2296,7 @@ SELECT
 	'ax_platz' AS layer,
 	point,
 	text,
-	4140 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
@@ -2230,12 +2306,13 @@ FROM (
 			t.schriftinhalt,
 			(select v from alkis_wertearten where element='ax_platz' AND bezeichnung='funktion' AND k=funktion::text)
 		) AS text,
+		coalesce(t.signaturnummer,'4140') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_platz o
 	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='FKT' AND t.endet IS NULL
+		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.endet IS NULL -- AND t.art='FKT' -- fehlt in RP
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	WHERE o.endet IS NULL AND funktion IN (5340,5350)
+	WHERE o.endet IS NULL -- AND funktion IN (5340,5350)
 ) AS n WHERE NOT text IS NULL;
 
 -- Platz, Zweitname
@@ -2246,13 +2323,14 @@ SELECT
 	'ax_platz' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.zweitname) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_platz o
 	LEFT OUTER JOIN (
@@ -2293,13 +2371,14 @@ SELECT
 	'ax_bahnverkehr' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.zweitname) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_bahnverkehr o
 	LEFT OUTER JOIN (
@@ -2338,10 +2417,13 @@ FROM (
 		o.gml_id,
 		coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN funktion=5530 THEN 3438
-		WHEN funktion=5550 THEN 3439
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN funktion=5530 THEN '3438'
+			WHEN funktion=5550 THEN '3439'
+			END
+		) AS signaturnummer
 	FROM ax_flugverkehr o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ART' AND p.endet IS NULL
@@ -2358,13 +2440,14 @@ SELECT
 	'ax_flugverkehr' AS layer,
 	point,
 	text,
-	4200 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4200') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_flugverkehr o
 	LEFT OUTER JOIN (
@@ -2397,13 +2480,14 @@ SELECT
 	'ax_schiffsverkehr' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_schiffsverkehr o
 	LEFT OUTER JOIN (
@@ -2411,6 +2495,36 @@ FROM (
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
+
+-- Hafenanlage (RP)
+INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
+SELECT
+	gml_id,
+	'Verkehr' AS thema,
+	'ax_schiffsverkehr' AS layer,
+	point,
+	text,
+	signaturnummer,
+	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
+FROM (
+	SELECT
+		o.gml_id,
+		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
+		coalesce(
+			t.schriftinhalt,
+			CASE
+			WHEN funktion=5610 THEN 'Hafenanlage'
+			WHEN funktion IN (5630,5640) THEN
+				(select v from alkis_wertearten where element='ax_schiffsverkehr' AND bezeichnung='funktion' AND k=funktion::text)
+			END
+		) AS text,
+		coalesce(t.signaturnummer,'4140') AS signaturnummer,
+		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
+	FROM ax_schiffsverkehr o
+	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='FKT' AND t.endet IS NULL
+	WHERE o.endet IS NULL AND o.gml_id LIKE 'DERP%'
+) AS i WHERE NOT text IS NULL;
 
 
 --
@@ -2455,19 +2569,22 @@ FROM (
 		o.gml_id,
 		coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN vegetationsmerkmal=1011 THEN 3440
-		WHEN vegetationsmerkmal=1012 THEN 3442
-		WHEN vegetationsmerkmal=1013 THEN 3444
-		WHEN vegetationsmerkmal=1020 THEN 3413
-		WHEN vegetationsmerkmal=1021 THEN 3441
-		WHEN vegetationsmerkmal=1030 THEN 3421
-		WHEN vegetationsmerkmal=1031 THEN 3446
-		WHEN vegetationsmerkmal=1040 THEN 3448
-		WHEN vegetationsmerkmal=1050 THEN 3450
-		WHEN vegetationsmerkmal=1051 THEN 3452
-		WHEN vegetationsmerkmal=1052 THEN 3454
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN vegetationsmerkmal=1011 THEN '3440'
+			WHEN vegetationsmerkmal=1012 THEN '3442'
+			WHEN vegetationsmerkmal=1013 THEN '3444'
+			WHEN vegetationsmerkmal=1020 THEN '3413'
+			WHEN vegetationsmerkmal=1021 THEN '3441'
+			WHEN vegetationsmerkmal=1030 THEN '3421'
+			WHEN vegetationsmerkmal=1031 THEN '3446'
+			WHEN vegetationsmerkmal=1040 THEN '3448'
+			WHEN vegetationsmerkmal=1050 THEN '3450'
+			WHEN vegetationsmerkmal=1051 THEN '3452'
+			WHEN vegetationsmerkmal=1052 THEN '3454'
+			END
+		) AS signaturnummer
 	FROM ax_landwirtschaft o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='VEG' AND p.endet IS NULL
@@ -2487,13 +2604,14 @@ SELECT
 	'ax_landwirtschaft' AS layer,
 	point,
 	text,
-	4208 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4208') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_landwirtschaft o
 	LEFT OUTER JOIN (
@@ -2532,12 +2650,15 @@ FROM (
 		o.gml_id,
 		coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN vegetationsmerkmal IS NULL             THEN 3456
-		WHEN vegetationsmerkmal=1100                THEN 3458
-		WHEN vegetationsmerkmal=1200                THEN 3460
-		WHEN vegetationsmerkmal IN (1300,1310,1320) THEN 3462
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN vegetationsmerkmal IS NULL             THEN '3456'
+			WHEN vegetationsmerkmal=1100                THEN '3458'
+			WHEN vegetationsmerkmal=1200                THEN '3460'
+			WHEN vegetationsmerkmal IN (1300,1310,1320) THEN '3462'
+			END
+		) AS signaturnummer
 	FROM ax_wald o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='VEG' AND p.endet IS NULL
@@ -2557,13 +2678,14 @@ SELECT
 	'ax_wald' AS layer,
 	point,
 	text,
-	4209 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4209') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_wald o
 	LEFT OUTER JOIN (
@@ -2602,10 +2724,13 @@ FROM (
 		o.gml_id,
 		coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN vegetationsmerkmal IS NULL             THEN 3470
-		WHEN vegetationsmerkmal=1400                THEN 3472
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN vegetationsmerkmal IS NULL             THEN '3470'
+			WHEN vegetationsmerkmal=1400                THEN '3472'
+			END
+		) AS signaturnummer
 	FROM ax_gehoelz o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='VEG' AND p.endet IS NULL
@@ -2625,13 +2750,14 @@ SELECT
 	'ax_gehoelz' AS layer,
 	point,
 	text,
-	4209 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4209') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_gehoelz o
 	LEFT OUTER JOIN (
@@ -2681,13 +2807,14 @@ SELECT
 	'ax_heide' AS layer,
 	point,
 	text,
-	4209 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4209') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_heide o
 	LEFT OUTER JOIN (
@@ -2720,7 +2847,7 @@ SELECT
 	'ax_moor' AS layer,
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3476 AS signaturnummer
+	coalesce(p.signaturnummer,'3476') AS signaturnummer
 FROM ax_moor o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Moor' AND p.endet IS NULL
@@ -2738,13 +2865,14 @@ SELECT
 	'ax_moor' AS layer,
 	point,
 	text,
-	4209 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4209') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_moor o
 	LEFT OUTER JOIN (
@@ -2776,7 +2904,7 @@ SELECT
 	'ax_sumpf' AS layer,
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3478 AS signaturnummer
+	coalesce(p.signaturnummer,'3478') AS signaturnummer
 FROM ax_sumpf o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Sumpf' AND p.endet IS NULL
@@ -2794,13 +2922,14 @@ SELECT
 	'ax_sumpf' AS layer,
 	point,
 	text,
-	4209 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4209') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_sumpf o
 	LEFT OUTER JOIN (
@@ -2849,17 +2978,20 @@ FROM (
 		o.gml_id,
 		coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN coalesce(funktion,1000)=1000 THEN
+		coalesce(
+			p.signaturnummer,
 			CASE
-			WHEN oberflaechenmaterial IS NULL        THEN 3480
-			WHEN oberflaechenmaterial=1010           THEN 3481
-			WHEN oberflaechenmaterial=1020           THEN 3482
-			WHEN oberflaechenmaterial=1030           THEN 3483
-			WHEN oberflaechenmaterial=1040           THEN 3484
-			WHEN oberflaechenmaterial IN (1110,1120) THEN 3486
+			WHEN coalesce(funktion,1000)=1000 THEN
+				CASE
+				WHEN oberflaechenmaterial IS NULL        THEN '3480'
+				WHEN oberflaechenmaterial=1010           THEN '3481'
+				WHEN oberflaechenmaterial=1020           THEN '3482'
+				WHEN oberflaechenmaterial=1030           THEN '3483'
+				WHEN oberflaechenmaterial=1040           THEN '3484'
+				WHEN oberflaechenmaterial IN (1110,1120) THEN '3486'
+				END
 			END
-		END AS signaturnummer
+		) AS signaturnummer
 	FROM ax_unlandvegetationsloseflaeche o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='OFM' AND p.endet IS NULL
@@ -2885,10 +3017,10 @@ FROM (
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
-		CASE
-		WHEN oberflaechenmaterial IN (1110,1120) THEN 4151
-		ELSE 4150
-		END AS signaturnummer,
+		coalesce(
+			t.signaturnummer,
+			CASE WHEN oberflaechenmaterial IN (1110,1120) THEN '4151' ELSE '4150' END
+		) AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_unlandvegetationsloseflaeche o
 	LEFT OUTER JOIN (
@@ -2924,7 +3056,7 @@ SELECT
 	'ax_fliessgewaesser' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3488 AS signaturnummer
+	coalesce(p.signaturnummer,'3488') AS signaturnummer
 FROM ax_fliessgewaesser o
 JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Fließpfeil' AND p.endet IS NULL
@@ -2938,7 +3070,7 @@ SELECT
 	'ax_fliessgewaesser' AS layer,
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3490 AS signaturnummer
+	coalesce(p.signaturnummer,'3490') AS signaturnummer
 FROM ax_fliessgewaesser o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
@@ -2972,7 +3104,7 @@ SELECT
 	'ax_hafenbecken' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3490 AS signaturnummer
+	coalesce(p.signaturnummer,'3490') AS signaturnummer
 FROM ax_hafenbecken o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
@@ -2987,13 +3119,14 @@ SELECT
 	'ax_hafenbecken' AS layer,
 	point,
 	text,
-	4211 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4211') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_hafenbecken o
 	LEFT OUTER JOIN (
@@ -3029,7 +3162,7 @@ SELECT
 	'ax_stehendesgewaesser' AS layer,
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3490 AS signaturnummer
+	coalesce(p.signaturnummer,'3490') AS signaturnummer
 FROM ax_stehendesgewaesser o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
@@ -3063,7 +3196,7 @@ SELECT
 	'ax_meer' AS layer,
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3490 AS signaturnummer
+	coalesce(p.signaturnummer,'3490') AS signaturnummer
 FROM ax_meer o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
@@ -3081,13 +3214,14 @@ SELECT
 	'ax_meer' AS layer,
 	point,
 	text,
-	4286 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4286') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_meer o
 	LEFT OUTER JOIN (
@@ -3120,7 +3254,7 @@ SELECT
 	'ax_turm' AS layer,
 	point,
 	text,
-	4070 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
@@ -3136,6 +3270,7 @@ FROM (
 				CASE WHEN zustand=2100 THEN '(außer Betrieb)' WHEN zustand=2200 THEN '(zerstört)' END
 			END
 		) AS text,
+		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_turm o
 	LEFT OUTER JOIN (
@@ -3152,13 +3287,14 @@ SELECT
 	'ax_turm' AS layer,
 	point,
 	text,
-	4074 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4074') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_turm o
 	LEFT OUTER JOIN (
@@ -3210,28 +3346,31 @@ FROM (
 			END
 		) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN bauwerksfunktion=1220           THEN 3501
-		WHEN bauwerksfunktion=1230           THEN 3502
-		WHEN bauwerksfunktion=1240           THEN 3503
-		WHEN bauwerksfunktion=1250           THEN 3504
-		WHEN bauwerksfunktion IN (1260,1270) THEN 3506
-		WHEN bauwerksfunktion=1280           THEN 3507
-		WHEN bauwerksfunktion=1290           THEN 3508
-		WHEN bauwerksfunktion=1310           THEN 3509
-		WHEN bauwerksfunktion=1320           THEN 3510
-		WHEN bauwerksfunktion=1330           THEN 3511
-		WHEN bauwerksfunktion=1331           THEN 3512
-		WHEN bauwerksfunktion=1332           THEN 3513
-		WHEN bauwerksfunktion=1333           THEN 3514
-		WHEN bauwerksfunktion=1350           THEN 3515
-		WHEN bauwerksfunktion=1360           THEN 3516
-		WHEN bauwerksfunktion IN (1370,1371) THEN 3517
-		WHEN bauwerksfunktion=1372           THEN 3518
-		WHEN bauwerksfunktion=1380           THEN 3519
-		WHEN bauwerksfunktion=1390           THEN 3520
-		WHEN bauwerksfunktion=1400           THEN 3521
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN bauwerksfunktion=1220           THEN '3501'
+			WHEN bauwerksfunktion=1230           THEN '3502'
+			WHEN bauwerksfunktion=1240           THEN '3503'
+			WHEN bauwerksfunktion=1250           THEN '3504'
+			WHEN bauwerksfunktion IN (1260,1270) THEN '3506'
+			WHEN bauwerksfunktion=1280           THEN '3507'
+			WHEN bauwerksfunktion=1290           THEN '3508'
+			WHEN bauwerksfunktion=1310           THEN '3509'
+			WHEN bauwerksfunktion=1320           THEN '3510'
+			WHEN bauwerksfunktion=1330           THEN '3511'
+			WHEN bauwerksfunktion=1331           THEN '3512'
+			WHEN bauwerksfunktion=1332           THEN '3513'
+			WHEN bauwerksfunktion=1333           THEN '3514'
+			WHEN bauwerksfunktion=1350           THEN '3515'
+			WHEN bauwerksfunktion=1360           THEN '3516'
+			WHEN bauwerksfunktion IN (1370,1371) THEN '3517'
+			WHEN bauwerksfunktion=1372           THEN '3518'
+			WHEN bauwerksfunktion=1380           THEN '3519'
+			WHEN bauwerksfunktion=1390           THEN '3520'
+			WHEN bauwerksfunktion=1400           THEN '3521'
+			END
+		) AS signaturnummer
 	FROM ax_bauwerkoderanlagefuerindustrieundgewerbe o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
@@ -3257,10 +3396,13 @@ FROM (
 			t.schriftinhalt,
 			(select v from alkis_wertearten where element='ax_bauwerkoderanlagefuerindustrieundgewerbe' AND bezeichnung='bauwerksfunktion' AND k=bauwerksfunktion::text)
 		) AS text,
-		CASE
-		WHEN bauwerksfunktion IN (1210,1215) THEN 4100
-		WHEN bauwerksfunktion=1340           THEN 4140
-		END AS signaturnummer,
+		coalesce(
+			t.signaturnummer,
+			CASE
+			WHEN bauwerksfunktion IN (1210,1215) THEN '4100'
+			WHEN bauwerksfunktion=1340           THEN '4140'
+			END
+		) AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_bauwerkoderanlagefuerindustrieundgewerbe o
 	LEFT OUTER JOIN (
@@ -3277,13 +3419,14 @@ SELECT
 	'ax_bauwerkoderanlagefuerindustrieundgewerbe' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_bauwerkoderanlagefuerindustrieundgewerbe o
 	LEFT OUTER JOIN (
@@ -3300,7 +3443,7 @@ SELECT
 	'ax_bauwerkoderanlagefuerindustrieundgewerbe' AS layer,
 	point,
 	text,
-	4070 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
@@ -3311,6 +3454,7 @@ FROM (
 		WHEN 2200 THEN '(zerstört)'
 		WHEN 4200 THEN '(verschlossen)'
 		END AS text,
+		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_bauwerkoderanlagefuerindustrieundgewerbe o
 	LEFT OUTER JOIN (
@@ -3353,7 +3497,7 @@ SELECT
 		END
 	)) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3522 AS signaturnummer
+	coalesce(p.signaturnummer,'3522') AS signaturnummer
 FROM ax_vorratsbehaelterspeicherbauwerk o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Vorratsbehaelter' AND p.endet IS NULL
@@ -3371,13 +3515,14 @@ SELECT
 	'ax_vorratsbehaelterspeicherbauwerk' AS layer,
 	point,
 	text,
-	4107 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,name) AS text,
+		coalesce(t.signaturnummer,'4107') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_vorratsbehaelterspeicherbauwerk o
 	LEFT OUTER JOIN (
@@ -3434,13 +3579,14 @@ SELECT
 	'ax_transportanlage' AS layer,
 	point,
 	text,
-	4070 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		(select v from alkis_wertearten where element='ax_vorratsbehaelterspeicherbauwerk' AND bezeichnung='produkt' AND k=produkt::text) AS text,
+		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_transportanlage o
 	LEFT OUTER JOIN (
@@ -3477,7 +3623,7 @@ SELECT
 	'ax_leitung' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	'Erdkabel' AS text,
-	4070 AS signaturnummer,
+	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM ax_leitung o
 LEFT OUTER JOIN (
@@ -3492,8 +3638,8 @@ SELECT
 	'Industrie und Gewerbe' AS thema,
 	'ax_leitung' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
-	spannungsebene || ' KV' AS text,
-	4070 AS signaturnummer,
+	spannungsebene || CASE WHEN o.gml_id LIKE 'DERP%' THEN ' kV' ELSE ' KV' END AS text,
+	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM ax_leitung o
 LEFT OUTER JOIN (
@@ -3532,7 +3678,7 @@ SELECT
 	'ax_bauwerkoderanlagefuersportfreizeitunderholung' AS layer,
 	point,
 	text,
-	4100 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
@@ -3543,12 +3689,18 @@ FROM (
 		WHEN bauwerksfunktion=1460 THEN 'Liegewiese'
 		WHEN bauwerksfunktion=1470 THEN 'Sprungschanze'
 		WHEN bauwerksfunktion=1510 THEN 'Wildgehege'
-		WHEN bauwerksfunktion IN (1450) THEN
+		WHEN bauwerksfunktion=1450 THEN
 			coalesce(
 				t.schriftinhalt,
 				(select v from alkis_wertearten where element='ax_bauwerkoderanlagefuersportfreizeitunderholung' AND bezeichnung='bauwerksfunktion' AND k=bauwerksfunktion::text)
 			)
+		WHEN o.gml_id LIKE 'DERP%' AND bauwerksfunktion=1410 THEN
+			coalesce(
+				t.schriftinhalt,
+				'Sportplatz'
+			)
 		END AS text,
+		coalesce(t.signaturnummer,'4100') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_bauwerkoderanlagefuersportfreizeitunderholung o
 	LEFT OUTER JOIN (
@@ -3571,10 +3723,13 @@ FROM (
 		o.gml_id,
 		coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN bauwerksfunktion=1480 THEN 3524
-		WHEN bauwerksfunktion=1490 THEN 3525
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN bauwerksfunktion=1480 THEN '3524'
+			WHEN bauwerksfunktion=1490 THEN '3525'
+			END
+		) AS signaturnummer
 	FROM ax_bauwerkoderanlagefuersportfreizeitunderholung o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BWF' AND p.endet IS NULL
@@ -3590,13 +3745,14 @@ SELECT
 	'ax_bauwerkoderanlagefuersportfreizeitunderholung' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_bauwerkoderanlagefuersportfreizeitunderholung o
 	LEFT OUTER JOIN (
@@ -3613,7 +3769,7 @@ SELECT
 	'ax_bauwerkoderanlagefuersportfreizeitunderholung' AS layer,
 	point,
 	text,
-	4100 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
@@ -3631,6 +3787,7 @@ FROM (
 		WHEN sportart=1100           THEN 'Radrennbahn'
 		WHEN sportart=1110           THEN 'Pferderennbahn'
 		END AS text,
+		coalesce(t.signaturnummer,'4100') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_bauwerkoderanlagefuersportfreizeitunderholung o
 	LEFT OUTER JOIN (
@@ -3647,7 +3804,7 @@ SELECT
 	'ax_bauwerkoderanlagefuersportfreizeitunderholung' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3409 AS signaturnummer
+	coalesce(p.signaturnummer,'3409') AS signaturnummer
 FROM ax_bauwerkoderanlagefuersportfreizeitunderholung o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='SPO' AND p.endet IS NULL
@@ -3714,11 +3871,14 @@ FROM (
 			END
 		)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN archaeologischertyp=1010 THEN 3526
-		WHEN archaeologischertyp=1020 THEN 3527
-		WHEN archaeologischertyp=1300 THEN 3528
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN archaeologischertyp=1010 THEN '3526'
+			WHEN archaeologischertyp=1020 THEN '3527'
+			WHEN archaeologischertyp=1300 THEN '3528'
+			END
+		) AS signaturnummer
 	FROM ax_historischesbauwerkoderhistorischeeinrichtung o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ATP' AND p.endet IS NULL
@@ -3764,7 +3924,7 @@ FROM (
 				(select v from alkis_wertearten where element='ax_historischesbauwerkoderhistorischeeinrichtung' AND bezeichnung='archaeologischertyp' AND k=archaeologischertyp::text)
 			)
 		END AS text,
-		4070 AS signaturnummer,
+		coalesce(t.signaturnummer,n.signaturnummer,'4070') AS signaturnummer,
 		t.drehwinkel,t.horizontaleausrichtung,t.vertikaleausrichtung,t.skalierung,t.fontsperrung
 	FROM ax_historischesbauwerkoderhistorischeeinrichtung o
 	LEFT OUTER JOIN (
@@ -3784,13 +3944,14 @@ SELECT
 	'ax_historischesbauwerkoderhistorischeeinrichtung' AS layer,
 	point,
 	text,
-	4074 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4074') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_historischesbauwerkoderhistorischeeinrichtung o
 	LEFT OUTER JOIN (
@@ -3823,7 +3984,7 @@ SELECT
 	'ax_heilquellegasquelle' AS layer,
 	point,
 	text,
-	4073 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
@@ -3833,6 +3994,7 @@ FROM (
 		WHEN o.art=4010 THEN 'Hqu'
 		WHEN o.art=4020 THEN 'Gqu'
 		END AS text,
+		coalesce(t.signaturnummer,'4073') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_heilquellegasquelle o
 	LEFT OUTER JOIN (
@@ -3849,13 +4011,14 @@ SELECT
 	'ax_heilquellegasquelle' AS layer,
 	point,
 	text,
-	4108 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4108') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_heilquellegasquelle o
 	LEFT OUTER JOIN (
@@ -3934,18 +4097,21 @@ FROM (
 			END
 		) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN bauwerksfunktion=1640                                                            THEN 3531
-		WHEN bauwerksfunktion=1750                                                            THEN 3532
-		WHEN bauwerksfunktion=1760                                                            THEN 3533
-		WHEN bauwerksfunktion=1761                                                            THEN 3534
-		WHEN bauwerksfunktion IN (1762,1763)                                                  THEN 3535
-		WHEN bauwerksfunktion=1770                                                            THEN 3536
-		WHEN bauwerksfunktion=1780 AND geometrytype(o.wkb_geometry) IN ('POINT','MULTIPOINT') THEN 3529
-		WHEN bauwerksfunktion=1781                                                            THEN 3537
-		WHEN bauwerksfunktion=1782                                                            THEN 3539
-		WHEN bauwerksfunktion=1783                                                            THEN 3540
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN bauwerksfunktion=1640                                                            THEN '3531'
+			WHEN bauwerksfunktion=1750                                                            THEN '3532'
+			WHEN bauwerksfunktion=1760                                                            THEN '3533'
+			WHEN bauwerksfunktion=1761                                                            THEN '3534'
+			WHEN bauwerksfunktion IN (1762,1763)                                                  THEN '3535'
+			WHEN bauwerksfunktion=1770                                                            THEN '3536'
+			WHEN bauwerksfunktion=1780 AND geometrytype(o.wkb_geometry) IN ('POINT','MULTIPOINT') THEN '3529'
+			WHEN bauwerksfunktion=1781                                                            THEN '3537'
+			WHEN bauwerksfunktion=1782                                                            THEN '3539'
+			WHEN bauwerksfunktion=1783                                                            THEN '3540'
+			END
+		) AS signaturnummer
 	FROM ax_sonstigesbauwerkodersonstigeeinrichtung o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BWF' AND p.endet IS NULL
@@ -3981,10 +4147,13 @@ FROM (
 				(select v from alkis_wertearten where element='ax_sonstigesbauwerkodersonstigeeinrichtung' AND bezeichnung='bauwerksfunktion' AND k=bauwerksfunktion::text)
 			)
 		END AS text,
-		CASE
-		WHEN bauwerksfunktion IN (1650,1670) THEN 4070
-		WHEN bauwerksfunktion IN (1780)      THEN 4073
-		END AS signaturnummer,
+		coalesce(
+			t.signaturnummer,
+			CASE
+			WHEN bauwerksfunktion IN (1650,1670) THEN '4070'
+			WHEN bauwerksfunktion IN (1780)      THEN '4073'
+			END
+		) AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_sonstigesbauwerkodersonstigeeinrichtung o
 	LEFT OUTER JOIN (
@@ -4001,7 +4170,7 @@ SELECT
 	'ax_sonstigesbauwerkodersonstigeeinrichtung' AS layer,
 	point,
 	text,
-	4107 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
@@ -4015,6 +4184,7 @@ FROM (
 			END
 		) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4107') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_sonstigesbauwerkodersonstigeeinrichtung o
 	LEFT OUTER JOIN (
@@ -4109,10 +4279,13 @@ FROM (
 			st_centroid(o.wkb_geometry)
 		) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN o.art=1110 THEN 3543
-		WHEN o.art=2200 THEN 3567
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN o.art=1110 THEN '3543'
+			WHEN o.art=2200 THEN '3567'
+			END
+		) AS signaturnummer
 	FROM ax_einrichtunginoeffentlichenbereichen o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ART' AND p.endet IS NULL
@@ -4132,9 +4305,7 @@ FROM (
 	SELECT
 		o.gml_id,
 		wkb_geometry AS line,
-		CASE
-		wHEN o.art=1650 THEN 2002
-		END AS signaturnummer
+		CASE wHEN o.art=1650 THEN 2002 END AS signaturnummer
 	FROM ax_einrichtunginoeffentlichenbereichen o
 	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
 ) AS o WHERE NOT signaturnummer IS NULL;
@@ -4147,7 +4318,7 @@ SELECT
 	'ax_einrichtunginoeffentlichenbereichen' AS layer,
 	coalesce(t.wkb_geometry,o.wkb_geometry) AS point,
 	'OD' AS text,
-	4070 AS signaturnummer,
+	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM ax_einrichtunginoeffentlichenbereichen o
 LEFT OUTER JOIN (
@@ -4163,7 +4334,7 @@ SELECT
 	'ax_einrichtunginoeffentlichenbereichen' AS layer,
 	coalesce(t.wkb_geometry,o.wkb_geometry) AS point,
 	kilometerangabe AS text,
-	4070 AS signaturnummer,
+	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM ax_einrichtunginoeffentlichenbereichen o
 LEFT OUTER JOIN (
@@ -4253,13 +4424,14 @@ SELECT
 	'ax_bauwerkimverkehrsbereich' AS layer,
 	point,
 	text,
-	4070 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,'Schutzgalerie') AS text,
+		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_bauwerkimverkehrsbereich o
 	LEFT OUTER JOIN (
@@ -4276,7 +4448,7 @@ SELECT
 	'ax_bauwerkimverkehrsbereich' AS layer,
 	st_multi(coalesce(p.wkb_geometry,o.wkb_geometry)) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3573 AS signaturnummer
+	coalesce(p.signaturnummer,'3573') AS signaturnummer
 FROM ax_bauwerkimverkehrsbereich o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BWF' AND p.endet IS NULL
@@ -4291,13 +4463,14 @@ SELECT
 	'ax_bauwerkimverkehrsbereich' AS layer,
 	point,
 	text,
-	4107 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4107') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_bauwerkimverkehrsbereich o
 	LEFT OUTER JOIN (
@@ -4314,13 +4487,14 @@ SELECT
 	'ax_bauwerkimverkehrsbereich' AS layer,
 	point,
 	text,
-	4070 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		'(außer Betrieb)'::text AS text,
+		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_bauwerkimverkehrsbereich o
 	LEFT OUTER JOIN (
@@ -4383,7 +4557,7 @@ SELECT
 	'ax_strassenverkehrsanlage' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3574 AS signaturnummer
+	coalesce(p.signaturnummer,'3574') AS signaturnummer
 FROM ax_strassenverkehrsanlage o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BEZ' AND p.endet IS NULL
@@ -4397,7 +4571,7 @@ SELECT
 	'ax_strassenverkehrsanlage' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	bezeichnung AS text,
-	4052 AS signaturnummer,
+	coalesce(t.signaturnummer,'4052') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM ax_strassenverkehrsanlage o
 LEFT OUTER JOIN (
@@ -4413,13 +4587,14 @@ SELECT
 	'ax_strassenverkehrsanlage' AS layer,
 	point,
 	text,
-	4100 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		(select v from alkis_wertearten where element='ax_strassenverkehrsanlage' AND bezeichnung='art' AND k=o.art::text) AS text,
+		coalesce(t.signaturnummer,'4100') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_strassenverkehrsanlage o
 	LEFT OUTER JOIN (
@@ -4436,13 +4611,14 @@ SELECT
 	'ax_strassenverkehrsanlage' AS layer,
 	point,
 	text,
-	4141 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,name) AS text,
+		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_strassenverkehrsanlage o
 	LEFT OUTER JOIN (
@@ -4517,12 +4693,15 @@ FROM (
 			END
 		) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN o.art=1106 THEN 3426
-		WHEN o.art=1107 THEN 3420
-		WHEN o.art=1110 THEN 3428
-		WHEN o.art=1111 THEN 3576
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN o.art=1106 THEN '3426'
+			WHEN o.art=1107 THEN '3420'
+			WHEN o.art=1110 THEN '3428'
+			WHEN o.art=1111 THEN '3576'
+			END
+		) AS signaturnummer
 	FROM ax_wegpfadsteig o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ART' AND p.endet IS NULL
@@ -4538,13 +4717,14 @@ SELECT
 	'ax_wegpfadsteig' AS layer,
 	point,
 	text,
-	4109 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,name) AS text,
+		coalesce(t.signaturnummer,'4109') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_wegpfadsteig o
 	LEFT OUTER JOIN (
@@ -4614,15 +4794,16 @@ FROM (
 		WHEN bahnhofskategorie IN (1020,1030) THEN
 			coalesce(n.schriftinhalt,name)
 		END AS text,
-		CASE
-		WHEN bahnhofskategorie=1010 THEN
+		coalesce(
+			t.signaturnummer,
 			CASE
-			WHEN name IS NULL AND n.schriftinhalt IS NULL THEN 4141
-			ELSE 4140
+			WHEN bahnhofskategorie=1010 THEN
+				CASE
+				WHEN name IS NULL AND n.schriftinhalt IS NULL THEN '4141' ELSE '4140' END
+			ELSE
+				'4107'
 			END
-		ELSE
-			4107
-		END AS signaturnummer,
+		) AS signaturnummer,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.drehwinkel ELSE n.drehwinkel END AS drehwinkel,
 		CASE WHEN name IS NULL AND n.horizontaleausrichtung IS NULL THEN t.horizontaleausrichtung ELSE n.horizontaleausrichtung END AS horizontaleausrichtung,
 		CASE WHEN name IS NULL AND n.vertikaleausrichtung IS NULL THEN t.vertikaleausrichtung ELSE n.vertikaleausrichtung END AS vertikaleausrichtung,
@@ -4668,23 +4849,26 @@ FROM (
 			WHEN geometrytype(o.wkb_geometry)='LINESTRING'                  THEN st_line_interpolate_point(o.wkb_geometry,0.5) END
 		) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN bahnhofskategorie=1010 THEN
+		coalesce(
+			p.signaturnummer,
 			CASE
-			WHEN bahnkategorie=1104 THEN 3330
-			WHEN bahnkategorie=1200 THEN 3343
-			WHEN bahnkategorie=1201 THEN 3554
-			WHEN bahnkategorie=1202 THEN 3328
+			WHEN bahnhofskategorie=1010 THEN
+				CASE
+				WHEN bahnkategorie=1104 THEN '3330'
+				WHEN bahnkategorie=1200 THEN '3343'
+				WHEN bahnkategorie=1201 THEN '3554'
+				WHEN bahnkategorie=1202 THEN '3328'
+				END
+			WHEN bahnhofskategorie IN (1020,1030) THEN
+				CASE
+				WHEN bahnkategorie IN (1100,1102,1300,1301,1400,1500,1600,9999) THEN '3578'
+				WHEN bahnkategorie=1104 THEN '3330'
+				WHEN bahnkategorie=1200 THEN '3343'
+				WHEN bahnkategorie=1201 THEN '3554'
+				WHEN bahnkategorie=1202 THEN '3328'
+				END
 			END
-		WHEN bahnhofskategorie IN (1020,1030) THEN
-			CASE
-			WHEN bahnkategorie IN (1100,1102,1300,1301,1400,1500,1600,9999) THEN 3578
-			WHEN bahnkategorie=1104 THEN 3330
-			WHEN bahnkategorie=1200 THEN 3343
-			WHEN bahnkategorie=1201 THEN 3554
-			WHEN bahnkategorie=1202 THEN 3328
-			END
-		END AS signaturnummer
+		) AS signaturnummer
 	FROM ax_bahnverkehrsanlage o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BKT' AND p.endet IS NULL
@@ -4722,11 +4906,12 @@ SELECT
 	'ax_seilbahnschwebebahn' AS layer,
 	point,
 	text,
-	4107 AS signaturnummer
+	signaturnummer
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
+		coalesce(t.signaturnummer,'4107') AS signaturnummer,
 		coalesce(t.schriftinhalt,name) AS text
 	FROM ax_seilbahnschwebebahn o
 	LEFT OUTER JOIN (
@@ -4759,7 +4944,7 @@ SELECT
 	'ax_gleis' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3587 AS signaturnummer
+	coalesce(p.signaturnummer,'3587') AS signaturnummer
 FROM ax_gleis o
 JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ART' AND p.endet IS NULL
@@ -4821,13 +5006,14 @@ SELECT
 	'ax_gleis' AS layer,
 	point,
 	text,
-	4107 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,name) AS text,
+		coalesce(t.signaturnummer,'4107') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_gleis o
 	LEFT OUTER JOIN (
@@ -4860,7 +5046,7 @@ SELECT
 	'ax_flugverkehrsanlage' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3588 AS signaturnummer
+	coalesce(p.signaturnummer,'3588') AS signaturnummer
 FROM ax_flugverkehrsanlage o
 JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ART' AND p.endet IS NULL
@@ -4874,13 +5060,14 @@ SELECT
 	'ax_flugverkehrsanlage' AS layer,
 	point,
 	text,
-	4107 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,name) AS text,
+		coalesce(t.signaturnummer,'4107') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_flugverkehrsanlage o
 	LEFT OUTER JOIN (
@@ -4932,7 +5119,7 @@ SELECT
 	'ax_einrichtungenfuerdenschiffsverkehr' AS layer,
 	coalesce(t.wkb_geometry,o.wkb_geometry) AS point,
 	kilometerangabe AS text,
-	4101 AS signaturnummer
+	coalesce(t.signaturnummer,'4101') AS signaturnummer
 FROM ax_einrichtungenfuerdenschiffsverkehr o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='KMA' AND t.endet IS NULL
@@ -4947,12 +5134,13 @@ SELECT
 	'ax_einrichtungenfuerdenschiffsverkehr' AS layer,
 	point,
 	text,
-	4081 AS signaturnummer
+	signaturnummer
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
-		coalesce(t.schriftinhalt,name) AS text
+		coalesce(t.schriftinhalt,name) AS text,
+		coalesce(t.signaturnummer,'4081') AS signaturnummer
 	FROM ax_einrichtungenfuerdenschiffsverkehr o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
@@ -5035,14 +5223,17 @@ FROM (
 		o.gml_id,
 		coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN bauwerksfunktion=2050 THEN 3653
-		WHEN bauwerksfunktion=2060 THEN 3692
-		WHEN bauwerksfunktion=2080 THEN 3693
-		WHEN bauwerksfunktion=2090 THEN 3594
-		WHEN bauwerksfunktion=2110 THEN 3695
-		WHEN bauwerksfunktion=2131 THEN 3482
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN bauwerksfunktion=2050 THEN '3653'
+			WHEN bauwerksfunktion=2060 THEN '3692'
+			WHEN bauwerksfunktion=2080 THEN '3693'
+			WHEN bauwerksfunktion=2090 THEN '3594'
+			WHEN bauwerksfunktion=2110 THEN '3695'
+			WHEN bauwerksfunktion=2131 THEN '3482'
+			END
+		) AS signaturnummer
 	FROM ax_bauwerkimgewaesserbereich o
 	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BWF' AND p.endet IS NULL
@@ -5078,13 +5269,14 @@ SELECT
 	'ax_bauwerkimgewaesserbereich' AS layer,
 	point,
 	text,
-	4105 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		(select v from alkis_wertearten where element='ax_bauwerkimgewaesserbereich' AND bezeichnung='bauwerksfunktion' AND k=o.bauwerksfunktion::text) AS text,
+		coalesce(t.signaturnummer,'4105') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_bauwerkimgewaesserbereich o
 	LEFT OUTER JOIN (
@@ -5101,7 +5293,7 @@ SELECT
 	'ax_bauwerkimgewaesserbereich' AS layer,
 	point,
 	text,
-	4070 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
@@ -5113,6 +5305,7 @@ FROM (
 			(select v from alkis_wertearten where element='ax_bauwerkimgewaesserbereich' AND bezeichnung='bauwerksfunktion' AND k=o.bauwerksfunktion::text)
 			|| E' (im Bau)'
 		END AS text,
+		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_bauwerkimgewaesserbereich o
 	LEFT OUTER JOIN (
@@ -5129,13 +5322,14 @@ SELECT
 	'ax_bauwerkimgewaesserbereich' AS layer,
 	point,
 	text,
-	4074 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,name) AS text,
+		coalesce(t.signaturnummer,'4074') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_bauwerkimgewaesserbereich o
 	LEFT OUTER JOIN (
@@ -5251,7 +5445,7 @@ FROM (
 		st_multi(wkb_geometry) AS polygon,
 		CASE
 		WHEN bewuchs IN (1021,1022,1023,1050,1260,1400,1500,1510,1600,1700,1800) THEN 1560
-		WHEN bewuchs=1300                          THEN 1561
+		WHEN bewuchs=1300                                                        THEN 1561
 		END AS signaturnummer
 	FROM ax_vegetationsmerkmal o
 	WHERE geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL
@@ -5270,18 +5464,21 @@ FROM (
 		o.gml_id,
 		coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN bewuchs=1021          THEN 3458
-		WHEN bewuchs=1022          THEN 3460
-		WHEN bewuchs=1023          THEN 3462
-		WHEN bewuchs=1050          THEN 3470
-		WHEN bewuchs=1260          THEN 3601
-		WHEN bewuchs=1400          THEN 3603
-		WHEN bewuchs IN(1500,1510) THEN 3613
-		WHEN bewuchs=1600          THEN 3605
-		WHEN bewuchs=1700          THEN 3607
-		WHEN bewuchs=1800          THEN 3609
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN bewuchs=1021          THEN '3458'
+			WHEN bewuchs=1022          THEN '3460'
+			WHEN bewuchs=1023          THEN '3462'
+			WHEN bewuchs=1050          THEN '3470'
+			WHEN bewuchs=1260          THEN '3601'
+			WHEN bewuchs=1400          THEN '3603'
+			WHEN bewuchs IN(1500,1510) THEN '3613'
+			WHEN bewuchs=1600          THEN '3605'
+			WHEN bewuchs=1700          THEN '3607'
+			WHEN bewuchs=1800          THEN '3609'
+			END
+		) AS signaturnummer
 	FROM ax_vegetationsmerkmal o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BWS' AND p.endet IS NULL
@@ -5311,7 +5508,7 @@ SELECT
 	'ax_vegetationsmerkmal' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3478 AS signaturnummer
+	coalesce(p.signaturnummer,'3478') AS signaturnummer
 FROM ax_vegetationsmerkmal o
 JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ZUS' AND p.endet IS NULL
@@ -5325,7 +5522,7 @@ SELECT
 	'ax_vegetationsmerkmal' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	'Schneise' AS text,
-	4070 AS signaturnummer,
+	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM ax_vegetationsmerkmal o
 LEFT OUTER JOIN (
@@ -5341,13 +5538,14 @@ SELECT
 	'ax_vegetationsmerkmal' AS layer,
 	point,
 	text,
-	4074 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,name) AS text,
+		coalesce(t.signaturnummer,'4074') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_vegetationsmerkmal o
 	LEFT OUTER JOIN (
@@ -5440,12 +5638,15 @@ FROM (
 		o.gml_id,
 		coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN o.art=1620 THEN 3615
-		WHEN o.art=1630 THEN 3617
-		WHEN o.art=1640 THEN 3484
-		WHEN o.art=1660 THEN 3490
-		END AS signaturnummer
+		coalesce(
+			p.signaturnummer,
+			CASE
+			WHEN o.art=1620 THEN '3615'
+			WHEN o.art=1630 THEN '3617'
+			WHEN o.art=1640 THEN '3484'
+			WHEN o.art=1660 THEN '3490'
+			END
+		) AS signaturnummer
 	FROM ax_gewaessermerkmal o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ART' AND p.endet IS NULL
@@ -5464,7 +5665,7 @@ SELECT
 	'ax_gewaessermerkmal' AS layer,
 	point,
 	text,
-	4103 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
@@ -5477,6 +5678,7 @@ FROM (
 			END
 		) AS point,
 		'Qu'::text AS text,
+		coalesce(t.signaturnummer,'4103') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_gewaessermerkmal o
 	LEFT OUTER JOIN (
@@ -5500,10 +5702,13 @@ FROM (
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,name) AS text,
-		CASE
-		WHEN o.art IN (1610,1620,1630,1660) THEN 4117
-		WHEN o.art IN (1640,1650,9999) THEN 4116
-		END AS signaturnummer,
+		coalesce(
+			t.signaturnummer,
+			CASE
+			WHEN o.art IN (1610,1620,1630,1660) THEN '4117'
+			WHEN o.art IN (1640,1650,9999)      THEN '4116'
+			END
+		)AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_gewaessermerkmal o
 	LEFT OUTER JOIN (
@@ -5595,15 +5800,18 @@ FROM (
 			END
 		) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		CASE
-		WHEN coalesce(funktion,0) IN (0,1040) THEN 3490
-		WHEN funktion IN (1010,1011,1012,1013,1020,1030) THEN
+		coalesce(
+			p.signaturnummer,
 			CASE
-			WHEN lagezurerdoberflaeche IS NULL AND hydrologischesmerkmal IS NULL THEN 3488
-			WHEN lagezurerdoberflaeche IN (1800,1810)                            THEN 3619
-			WHEN lagezurerdoberflaeche IS NULL AND hydrologischesmerkmal=2000    THEN 3621
+			WHEN coalesce(funktion,0) IN (0,1040) THEN '3490'
+			WHEN funktion IN (1010,1011,1012,1013,1020,1030) THEN
+				CASE
+				WHEN lagezurerdoberflaeche IS NULL AND hydrologischesmerkmal IS NULL THEN '3488'
+				WHEN lagezurerdoberflaeche IN (1800,1810)                            THEN '3619'
+				WHEN lagezurerdoberflaeche IS NULL AND hydrologischesmerkmal=2000    THEN '3621'
+				END
 			END
-		END AS signaturnummer
+		) AS signaturnummer
 	FROM ax_untergeordnetesgewaesser o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
@@ -5622,7 +5830,7 @@ SELECT
 	'ax_untergeordnetesgewaesser' AS layer,
 	point,
 	text,
-	4070 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
@@ -5635,6 +5843,7 @@ FROM (
 			END
 		) AS point,
 		(select v from alkis_wertearten where element='ax_untergeordnetesgewaesser' AND bezeichnung='lagezurerdoberflaeche' AND k=lagezurerdoberflaeche::text) AS text,
+		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_untergeordnetesgewaesser o
 	LEFT OUTER JOIN (
@@ -5651,7 +5860,7 @@ SELECT
 	'ax_untergeordnetesgewaesser' AS layer,
 	point,
 	text,
-	4070 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
@@ -5661,6 +5870,7 @@ FROM (
 			st_centroid(o.wkb_geometry)
 		) AS point,
 		'Graben'::text AS text,
+		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_untergeordnetesgewaesser o
 	LEFT OUTER JOIN (
@@ -5677,13 +5887,14 @@ SELECT
 	'ax_untergeordnetesgewaesser' AS layer,
 	point,
 	text,
-	4117 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4117') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_untergeordnetesgewaesser o
 	LEFT OUTER JOIN (
@@ -5708,7 +5919,7 @@ SELECT
 	'ax_wasserspiegelhoehe' AS layer,
 	st_multi(coalesce(p.wkb_geometry,o.wkb_geometry)) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3623 AS signaturnummer
+	coalesce(p.signaturnummer,'3623') AS signaturnummer
 FROM ax_wasserspiegelhoehe o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='SYMBOL' AND p.endet IS NULL
@@ -5723,7 +5934,7 @@ SELECT
 	'ax_wasserspiegelhoehe' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	hoehedeswasserspiegels AS text,
-	4102 AS signaturnummer
+	coalesce(t.signaturnummer,'4102') AS signaturnummer
 FROM ax_wasserspiegelhoehe o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='HWS' AND t.endet IS NULL
@@ -5777,7 +5988,7 @@ FROM (
 			WHEN art=ARRAY[1730]                        THEN 'Personenfähre'
 			END
 		) END AS text,
-		4103 AS signaturnummer
+		coalesce(t.signaturnummer,'4103') AS signaturnummer
 	FROM ax_schifffahrtsliniefaehrverkehr o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ART' AND t.endet IS NULL
@@ -5793,12 +6004,13 @@ SELECT
 	'ax_schifffahrtsliniefaehrverkehr' AS layer,
 	point,
 	text,
-	4107 AS signaturnummer
+	signaturnummer
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
-		coalesce(t.schriftinhalt,name) AS text
+		coalesce(t.schriftinhalt,name) AS text,
+		coalesce(t.signaturnummer,'4107') AS signaturnummer
 	FROM ax_schifffahrtsliniefaehrverkehr o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
@@ -5833,11 +6045,12 @@ SELECT
 	'ax_boeschungsliniekliff' AS layer,
 	point,
 	text,
-	4118 AS signaturnummer
+	signaturnummer
 FROM (
 	SELECT
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
-		coalesce(t.schriftinhalt,name) AS text
+		coalesce(t.schriftinhalt,name) AS text,
+		coalesce(t.signaturnummer,'4118') AS signaturnummer
 	FROM ax_boeschungsliniekliff o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
@@ -5881,13 +6094,14 @@ SELECT
 	'ax_dammwalldeich' AS layer,
 	point,
 	text,
-	4109 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,name) AS text,
+		coalesce(t.signaturnummer,'4109') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_dammwalldeich o
 	LEFT OUTER JOIN (
@@ -5922,11 +6136,12 @@ SELECT
 	'ax_hoehleneingang' AS layer,
 	point,
 	text,
-	4118 AS signaturnummer
+	signaturnummer
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
+		coalesce(t.signaturnummer,'4118') AS signaturnummer,
 		coalesce(t.schriftinhalt,name) AS text
 	FROM ax_hoehleneingang o
 	LEFT OUTER JOIN (
@@ -5983,7 +6198,7 @@ SELECT
 	'ax_felsenfelsblockfelsnadel' AS layer,
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3627 AS signaturnummer
+	coalesce(p.signaturnummer,'3627') AS signaturnummer
 FROM ax_felsenfelsblockfelsnadel o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Felsen' AND p.endet IS NULL
@@ -6001,13 +6216,14 @@ SELECT
 	'ax_felsenfelsblockfelsnadel' AS layer,
 	point,
 	text,
-	4118 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,name) AS text,
+		coalesce(t.signaturnummer,'4118') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_felsenfelsblockfelsnadel o
 	LEFT OUTER JOIN (
@@ -6043,7 +6259,7 @@ SELECT
 	'ax_duene' AS layer,
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	3484 AS signaturnummer
+	coalesce(p.signaturnummer,'3484') AS signaturnummer
 FROM ax_duene o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Duene' AND p.endet IS NULL
@@ -6061,11 +6277,12 @@ SELECT
 	'ax_duene' AS layer,
 	point,
 	text,
-	4118 AS signaturnummer
+	signaturnummer
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
+		coalesce(t.signaturnummer,'4118') AS signaturnummer,
 		coalesce(t.schriftinhalt,name) AS text
 	FROM ax_duene o
 	LEFT OUTER JOIN (
@@ -6109,7 +6326,7 @@ SELECT
 	'ax_hoehenlinie' AS layer,
 	coalesce(t.wkb_geometry,st_line_interpolate_point(o.wkb_geometry,0.5)) AS point,
 	hoehevonhoehenlinie AS text,
-	4104 AS signaturnummer
+	coalesce(t.signaturnummer,'4104') AS signaturnummer
 FROM ax_hoehenlinie o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='HHL' AND t.endet IS NULL
@@ -6145,7 +6362,7 @@ SELECT
 	'ax_besonderertopographischerpunkt' AS layer,
 	t.wkb_geometry AS point,
 	coalesce(schriftinhalt,punktkennung) AS text,
-	4104 AS signaturnummer,
+	coalesce(t.signaturnummer,'4104') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM ax_besonderertopographischerpunkt o
 JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
@@ -6199,13 +6416,14 @@ SELECT
 	'ax_klassifizierungnachstrassenrecht' AS layer,
 	point,
 	text,
-	4140 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		t.wkb_geometry AS point,
 		bezeichnung AS text,
+		coalesce(t.signaturnummer,'4140') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_klassifizierungnachstrassenrecht o
 	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
@@ -6227,19 +6445,24 @@ SELECT
 	'ax_klassifizierungnachwasserrecht' AS layer,
 	point,
 	text,
-	4140 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		t.wkb_geometry AS point,
 		schriftinhalt AS text,
+		coalesce(t.signaturnummer,'4140') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_klassifizierungnachwasserrecht o
 	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
+
+-- TODO: Kam noch nicht vor
+-- RP: ax_anderefestlegungnachwasserecht (71004)
+-- RP: ax_anderefestlegungnachwasserecht (71005)
 
 --
 -- Klassifizierungen nach Natur-, Umwelt- oder Bodenschutzrecht (71006)
@@ -6253,10 +6476,17 @@ SELECT
 	'Rechtliche Festlegungen' AS thema,
 	'ax_naturumweltoderbodenschutzrecht' AS layer,
 	st_multi(wkb_geometry) AS polygon,
-	1703 AS signaturnummer
+	CASE
+	WHEN o.gml_id LIKE 'DERP%' THEN
+		CASE
+		WHEN artderfestlegung IN (1610,1612,1621,1622,1642,1653,1656) THEN 1703
+		WHEN artderfestlegung IN (1632,1634,1641,1655,1662) THEN 1704
+		END
+	ELSE 1703
+	END AS signaturnummer
 FROM ax_naturumweltoderbodenschutzrecht o
-WHERE artderfestlegung=1621 AND endet IS NULL
-  AND geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON'); 
+WHERE (artderfestlegung=1621 OR (o.gml_id LIKE 'DERP%' AND artderfestlegung IN (1610,1612,1621,1622,1632,1634,1641,1642,1653,1655,1656,1662))) AND endet IS NULL
+  AND geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON');
 
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
 SELECT
@@ -6265,18 +6495,45 @@ SELECT
 	'ax_naturumweltoderbodenschutzrecht' AS layer,
 	point,
 	text,
-	4143 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		t.wkb_geometry AS point,
-		(select v from alkis_wertearten where element='ax_naturumweltoderbodenschutzrecht' AND bezeichnung='artderfestlegung' AND k=artderfestlegung::text) AS text,
+		CASE
+		WHEN o.gml_id LIKE 'DERP%' THEN
+			coalesce(
+				t.schriftinhalt,
+				CASE
+				WHEN artderfestlegung=1610 THEN 'Schutzfläche'
+				WHEN artderfestlegung=1656 THEN 'Ausgleichsfläche'
+				WHEN artderfestlegung IN (1612,1621,1622,1632,1634,1641,1642,1653,1655,1662) THEN
+					(select v from alkis_wertearten where element='ax_naturumweltoderbodenschutzrecht' AND bezeichnung='artderfestlegung' AND k=artderfestlegung::text)
+				END
+			)
+		ELSE
+			(select v from alkis_wertearten where element='ax_naturumweltoderbodenschutzrecht' AND bezeichnung='artderfestlegung' AND k=artderfestlegung::text)
+		END AS text,
+		coalesce(
+			t.signaturnummer,
+			CASE
+			WHEN o.gml_id LIKE 'DERP%' THEN
+				CASE
+				WHEN artderfestlegung IN (1610,1612,1621,1622,1642) THEN '4143'
+				WHEN artderfestlegung IN (1632,1634,1641) THEN '4144'
+				WHEN artderfestlegung IN (1655,1662) THEN 'RP4075'
+				WHEN artderfestlegung=1656 THEN 'RP4076'
+				END
+			ELSE '4143'
+			END
+		) AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_naturumweltoderbodenschutzrecht o
-	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ADF' AND t.endet IS NULL
-	WHERE o.endet IS NULL AND artderfestlegung=1621
+	JOIN (
+		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ADF' AND t.endet IS NULL
+	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	WHERE (artderfestlegung=1621 OR (o.gml_id LIKE 'DERP%' AND artderfestlegung IN (1610,1612,1621,1622,1632,1634,1641,1642,1653,1655,1656,1662))) AND o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
 
 -- Namen
@@ -6287,13 +6544,14 @@ SELECT
 	'ax_naturumweltoderbodenschutzrecht' AS layer,
 	point,
 	text,
-	4143 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		'"' || coalesce(t.schriftinhalt,name) || '"' AS text,
+		coalesce(t.signaturnummer,'4143') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_naturumweltoderbodenschutzrecht o
 	LEFT OUTER JOIN (
@@ -6327,12 +6585,13 @@ SELECT
 	'ax_schutzgebietnachnaturumweltoderbodenschutzrecht' AS layer,
 	point,
 	text,
-	4143 AS signaturnummer
+	signaturnummer
 FROM (
 	SELECT
 		o.gml_id,
 		t.wkb_geometry AS point,
-		(select v from alkis_wertearten where element='ax_schutzgebietnachnaturumweltoderbodenschutzrecht ' AND bezeichnung='artderfestlegung' AND k=artderfestlegung::text) AS text
+		(select v from alkis_wertearten where element='ax_schutzgebietnachnaturumweltoderbodenschutzrecht ' AND bezeichnung='artderfestlegung' AND k=artderfestlegung::text) AS text,
+		coalesce(t.signaturnummer,'4143') AS signaturnummer,
 	FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht o
 	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ADF' AND t.endet IS NULL
@@ -6347,12 +6606,13 @@ SELECT
 	'ax_schutzgebietnachnaturumweltoderbodenschutzrecht' AS layer,
 	point,
 	text,
-	4143 AS signaturnummer
+	signaturnummer
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
-		'"' || name || '"' AS text
+		'"' || name || '"' AS text,
+		coalesce(t.signaturnummer,'4143') AS signaturnummer
 	FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
@@ -6384,21 +6644,39 @@ SELECT
 	'ax_bauraumoderbodenordnungsrecht' AS layer,
 	point,
 	text,
-	4144 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
-		t.wkb_geometry AS point,
-		CASE
-		WHEN artderfestlegung=1750 THEN 'Umlegung'
-		WHEN artderfestlegung=1840 THEN 'Sanierung'
-		WHEN artderfestlegung IN (2100,2110,2120,2130,2140,2150) THEN 'Flurbereinigung'
-		END AS text,
+		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
+		coalesce(
+			t.schriftinhalt,
+			CASE
+			WHEN artderfestlegung=1750 THEN 'Umlegung'
+			WHEN artderfestlegung=1840 THEN 'Sanierung'
+			WHEN artderfestlegung IN (2100,2110,2120,2130,2140,2150) THEN 'Flurbereinigung'
+			WHEN o.gml_id LIKE 'DERP%' THEN
+				CASE
+				WHEN artderfestlegung IN (1760,2610) THEN
+					(select v from alkis_wertearten where element='ax_bauraumoderbodenordnungsrecht' AND bezeichnung='artderfestlegung' AND k=artderfestlegung::text)
+				WHEN artderfestlegung=1810 THEN 'Entwickungsbereich'
+				END
+			END
+		) AS text,
+		coalesce(
+			t.signaturnummer,
+			CASE
+			WHEN o.gml_id LIKE 'DERP%' AND artderfestlegung IN (1760,2610)
+			THEN 'RP4075'
+			ELSE '4144'
+			END
+		) AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_bauraumoderbodenordnungsrecht o
-	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ADF' AND t.endet IS NULL
+	LEFT OUTER JOIN (
+		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ADF' AND t.endet IS NULL
+	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
 
@@ -6410,7 +6688,7 @@ SELECT
 	'ax_bauraumoderbodenordnungsrecht' AS layer,
 	point,
 	text,
-	4144 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
@@ -6422,6 +6700,7 @@ FROM (
 		WHEN artderfestlegung IN (2100,2110,2120,2130,2140,2150) THEN 'Flurbereinigung'
 		END
 		|| ' "' || name || '"' AS text,
+		coalesce(t.signaturnummer,'4144') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_bauraumoderbodenordnungsrecht o
 	LEFT OUTER JOIN (
@@ -6430,6 +6709,46 @@ FROM (
 	WHERE o.endet IS NULL AND NOT name IS NULL AND artderfestlegung IN (1750,1840,2100,2110,2120,2130,2140,2150)
 ) AS n WHERE NOT text IS NULL;
 
+--
+-- Denkmalschutzrecht (71009; RP)
+--
+
+SELECT 'Bauraum und Bauordnungsrecht wird verarbeitet.';
+
+INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer)
+SELECT
+	gml_id,
+	'Rechtliche Festlegungen' AS thema,
+	'ax_denkmalschutzrecht' AS layer,
+	st_multi(wkb_geometry) AS polygon,
+	'1704' AS signaturnummer
+FROM ax_denkmalschutzrecht o
+WHERE endet IS NULL AND gml_id LIKE 'DERP%';
+
+INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
+SELECT
+	gml_id,
+	'Rechtliche Festlegungen' AS thema,
+	'ax_denkmalschutzrecht' AS layer,
+	point,
+	text,
+	signaturnummer,
+	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
+FROM (
+	SELECT
+		o.gml_id,
+		t.wkb_geometry AS point,
+		CASE
+		WHEN artderfestlegung=2910 THEN 'DZ'
+		WHEN artderfestlegung=2930 THEN 'GSG'
+		END AS text,
+		coalesce(t.signaturnummer,'RP4144') AS signaturnummer,
+		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
+	FROM ax_denkmalschutzrecht o
+	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ADF' AND t.endet IS NULL
+	WHERE o.endet IS NULL AND o.gml_id LIKE 'DERP%'
+) AS o WHERE NOT text IS NULL;
 
 --
 -- Sonstiges Recht (71011)
@@ -6454,13 +6773,26 @@ SELECT
 	'ax_sonstigesrecht' AS layer,
 	point,
 	text,
-	4144 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
-		'Truppenübungsplatz'::text AS text,
+		CASE
+		WHEN o.gml_id LIKE 'DERP%' THEN
+			coalesce(
+				t.schriftinhalt,
+				CASE
+				WHEN artderfestlegung=4720 THEN 'MÜG'
+				WHEN artderfestlegung=7000 THEN 'WLG'
+				WHEN artderfestlegung=7100 THEN 'STL'
+				WHEN artderfestlegung=7300 THEN 'SSL'
+				END
+			)
+		ELSE 'Truppenübungsplatz'::text
+		END AS text,
+		coalesce(t.signaturnummer,'4144') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_sonstigesrecht o
 	LEFT OUTER JOIN (
@@ -6477,13 +6809,14 @@ SELECT
 	'ax_sonstigesrecht' AS layer,
 	point,
 	text,
-	4144 AS signaturnummer,
+	signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		'Truppenübungsplatz "' || name || '"' AS text,
+		coalesce(t.signaturnummer,'4144') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_sonstigesrecht o
 	LEFT OUTER JOIN (
@@ -6505,13 +6838,14 @@ SELECT
 	'ax_wohnplatz' AS layer,
 	point,
 	text,
-	4200 AS signaturnummer,
+	signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		name AS text,
+		coalesce(t.signaturnummer,'4200') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_wohnplatz o
 	LEFT OUTER JOIN (
@@ -6652,6 +6986,26 @@ INSERT INTO po_lines(gml_id,thema,layer,signaturnummer,line)
 		FROM po_lines l
 		JOIN alkis_linie s ON s.abschluss='Pfeil' AND l.signaturnummer=s.signaturnummer
 	) as pfeile;
+
+-- RP-Gruppensignaturen
+UPDATE po_points
+	SET
+		point=st_collect(ARRAY[
+			st_translate(st_geometryn(point,1), -10,  0 ),
+			st_translate(st_geometryn(point,1),  -5,  5 ),
+			st_translate(st_geometryn(point,1),  -5, -5 ),
+			st_translate(st_geometryn(point,1),   0,  0 ),
+			st_translate(st_geometryn(point,1),   5,  5 ),
+			st_translate(st_geometryn(point,1),   5, -5 ),
+			st_translate(st_geometryn(point,1),  10,  0 )
+			]),
+		signaturnummer=substring(signaturnummer,3)
+	WHERE
+		signaturnummer IN (
+			'RP3413','RP3415','RP3421','RP3442','RP3444','RP3448','RP3474','RP3476','RP3478','RP3480','RP3481','RP3484','RP3490',
+			-- TODO: Folgende mit Strichstärke 18
+			'RP3440','RP3441','RP3446','RP3450','RP3452','RP3454','RP3456','RP3458','RP3460', 'RP3462','RP3470'
+		);
 
 --
 -- Indizes

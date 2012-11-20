@@ -348,11 +348,11 @@ BEGIN
 	IF n<>1 THEN
 		RAISE NOTICE 'SQL: %', sql;
 		IF NEW.context = 'delete' OR NEW.safetoignore = 'true' THEN
-			RAISE NOTICE '%: Untergangsdatum von % Objekte statt nur einem auf % gesetzt - ignoriert', NEW.featureid, n, endete;
+			RAISE NOTICE '%: Untergangsdatum von % Objekten statt nur einem auf % gesetzt - ignoriert', NEW.featureid, n, endete;
 			NEW.ignored := true;
 			RETURN NEW;
 		ELSE
-			RAISE EXCEPTION '%: Untergangsdatum von % Objekte statt nur einem auf % gesetzt - ignoriert', NEW.featureid, n, endete;
+			RAISE EXCEPTION '%: Untergangsdatum von % Objekten statt nur einem auf % gesetzt - ignoriert', NEW.featureid, n, endete;
 		END IF;
 	END IF;
 

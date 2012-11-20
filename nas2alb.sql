@@ -676,7 +676,7 @@ CREATE TABLE ausfst
 (
 	flsnr char(20),
 	pk char(8) NOT NULL,
-	ausf_st char(5),
+	ausf_st varchar,
 	verfnr char(6),
 	verfshl char(2),
 	ff_entst integer,
@@ -687,7 +687,7 @@ CREATE TABLE ausfst
 SELECT alkis_dropobject('afst_shl');
 CREATE TABLE afst_shl
 (
-	ausf_st char(5) NOT NULL,
+	ausf_st varchar NOT NULL,
 	afst_txt char(200),
 	PRIMARY KEY (ausf_st)
 );
