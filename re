@@ -24,19 +24,19 @@
 ^psql:alkis-compat.sql:.*: ERROR:  function geom_accum\(geometry\[\], geometry\) does not exist\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Funktion geom_accum\(geometry\[\], geometry\) existiert nicht\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Funktion combine_bbox\(box2d, geometry\) existiert nicht\s*$
-^psql:alkis-compat.sql:.*: Error:  function combine_bbox\(box2d, geometry\) does not exist\s*$
+^psql:alkis-compat.sql:.*: ERROR:  function combine_bbox\(box2d, geometry\) does not exist\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Berechtigung nur f\S+r Eigent\S+mer der Funktion st_dump\s*$
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint).*gel\S+scht\..*$
 ^\s+(addgeometrycolumn|alkis_drop|alkis_dropobject|version|postgis_version|\?column\?)\s*$
 ^-+\s*$
-^\s+public\..*\.(wkb_geometry|dummy) SRID:25832 TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT) DIMS:2\s*$
-^\s+public\.ax_punktortau\.wkb_geometry SRID:25832 TYPE:POINT DIMS:3\s*$
-^\s+public\.po_points\.point SRID:25832 TYPE:MULTIPOINT DIMS:2\s*$
-^\s+public\.po_lines\.line SRID:25832 TYPE:MULTILINESTRING DIMS:2\s*$
-^\s+public\.po_polygons\.polygon SRID:25832 TYPE:MULTIPOLYGON DIMS:2\s*$
-^\s+public\.po_labels\.(point|line) SRID:25832 TYPE:(POINT|LINESTRING) DIMS:2\s*$
+^\s+public\..*\.(wkb_geometry|dummy) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT) DIMS:2\s*$
+^\s+public\.ax_punktortau\.wkb_geometry SRID:\d+ TYPE:POINT DIMS:3\s*$
+^\s+public\.po_points\.point SRID:\d+ TYPE:MULTIPOINT DIMS:2\s*$
+^\s+public\.po_lines\.line SRID:\d+ TYPE:MULTILINESTRING DIMS:2\s*$
+^\s+public\.po_polygons\.polygon SRID:\d+ TYPE:MULTIPOLYGON DIMS:2\s*$
+^\s+public\.po_labels\.(point|line) SRID:\d+ TYPE:(POINT|LINESTRING) DIMS:2\s*$
 ^\s+public\.alkis_schriften\.position SRID:0 TYPE:POINT DIMS:2\s*$
-^\s+public\.alkis_joinlines\.line SRID:25832 TYPE:LINESTRING DIMS:2\s*$
+^\s+public\.alkis_joinlines\.line SRID:\d+ TYPE:LINESTRING DIMS:2\s*$
 ^\s+public\.alkis_linie\.position SRID:0 TYPE:LINESTRING DIMS:2\s*$
 ^\(\d+ rows?\)\s*$
 ^removed.*\.(gfs|xml)'\s*$

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>934</width>
-    <height>571</height>
+    <height>608</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -245,13 +245,6 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="4">
-       <widget class="QCheckBox" name="cbxCreate">
-        <property name="text">
-         <string>Datenbank anlegen</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="4">
        <widget class="QCheckBox" name="cbxSkipFailures">
         <property name="text">
@@ -259,10 +252,27 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="4">
+       <widget class="QCheckBox" name="cbxCreate">
+        <property name="text">
+         <string>Datenbank anlegen</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QComboBox" name="cbEPSG"/>
+      </item>
       <item row="5" column="4">
        <widget class="QCheckBox" name="cbxDebug">
         <property name="text">
          <string>Debugging aktivieren</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Koordinatensystem</string>
         </property>
        </widget>
       </item>
@@ -424,10 +434,31 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>leDBNAME</tabstop>
+  <tabstop>leUID</tabstop>
+  <tabstop>lePWD</tabstop>
+  <tabstop>cbEPSG</tabstop>
+  <tabstop>leSERVICE</tabstop>
+  <tabstop>leHOST</tabstop>
+  <tabstop>lePORT</tabstop>
+  <tabstop>cbxCreate</tabstop>
+  <tabstop>cbxSkipFailures</tabstop>
+  <tabstop>cbxDebug</tabstop>
+  <tabstop>pbAdd</tabstop>
+  <tabstop>pbAddDir</tabstop>
+  <tabstop>pbRemove</tabstop>
+  <tabstop>pbSave</tabstop>
+  <tabstop>pbLoad</tabstop>
   <tabstop>pbStart</tabstop>
-  <tabstop>lwProtocol</tabstop>
   <tabstop>pbSaveLog</tabstop>
+  <tabstop>pbClearLog</tabstop>
   <tabstop>pbClose</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>lwProtocol</tabstop>
+  <tabstop>lstFiles</tabstop>
+  <tabstop>albUID</tabstop>
+  <tabstop>albDSN</tabstop>
+  <tabstop>albPWD</tabstop>
  </tabstops>
  <resources/>
  <connections/>

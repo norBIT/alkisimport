@@ -11,6 +11,8 @@ export OGR_SETFIELD_NUMERIC_WARNING=ON
 # Mindestlänge für Kreisbogensegmente
 export OGR_ARC_MINLENGTH=0.1
 
+export EPSG=25832
+
 bdate() {
 	local t=$1
 	if [ -z "$t" ]; then
@@ -134,7 +136,43 @@ do
 		;;
 
 	PG:*)
+		DST=$src
 		DB=${src#PG:}
+		DRIVER=PostgreSQL
+		sql() {
+			pushd "$B"
+			psql -v alkis_epsg=$EPSG -q -f "$1" "$DB"
+			popd >/dev/null
+		}
+		dump() {
+			pg_dump -Fc -f "$1" "$DB"
+		}
+		restore() {
+			pg_restore -Fc -c "$1" | psql "$DB"
+		}
+		continue
+		;;
+
+	OCI:*)
+		DST=$src
+		DB=${src#OCI:}
+		DRIVER=OCI
+		sql() {
+			pushd "$B/oci"
+			sqlplus "$DB" @$1
+			popd >/dev/null
+		}
+		dump() {
+			exp "$DB" file=$1 owner=$user statistics=none
+		}
+		restore() {
+			imp "$DB" file=$1 fromuser=$user touser=$user
+		}
+		continue
+		;;
+
+	"epsg "*)
+		EPSG=${src#epsg }
 		continue
 		;;
 
@@ -145,9 +183,9 @@ do
 		fi
 
 		echo "CREATE $(bdate)"
-		pushd "$B" >/dev/null
-		psql -q -f alkis-schema.sql "$DB"
-		psql -q -f alkis-compat.sql "$DB"
+		pushd "$B/$sql" >/dev/null
+		sql alkis-schema.sql
+		sql alkis-compat.sql
 		popd >/dev/null
 
 		continue
@@ -187,7 +225,7 @@ do
 
 		src=${src#execute }
 		echo "EXECUTE $src $(bdate)"
-		psql -q -c "$src" "$DB"
+		sql "$src"
 		continue
 		;;
 
@@ -226,7 +264,7 @@ do
 		src=$(bdate +$src)
 
 		echo "DUMPING $(bdate)"
-		pg_dump -Fc -f "$src" "$DB"
+		dump "$src"
 
 		continue
 		;;
@@ -244,7 +282,7 @@ do
 		fi
 
 		echo "RESTORING $(bdate)"
-		pg_restore -Fc -c "$src" | psql "$DB"
+		restore "$src"
 		continue
 		;;
 
@@ -299,13 +337,13 @@ do
 
 	echo "IMPORT $(bdate): $dst"
 
-	echo RUNNING: ogr2ogr -f PostgreSQL $opt -append -update "PG:$DB" -a_srs EPSG:25832 "$dst"
+	echo RUNNING: ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs EPSG:$EPSG "$dst"
 	t0=$(bdate +%s)
 	if [ -z "$T0" ]; then T0=$t0; fi
 	if [ -n "$GDB" ]; then
-		gdb --args ogr2ogr -f PostgreSQL $opt -append -update "PG:$DB" -a_srs EPSG:25832 "$dst" </dev/tty >/dev/tty 2>&1
+		gdb --args ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs EPSG:$EPSG "$dst" </dev/tty >/dev/tty 2>&1
 	else
-		ogr2ogr -f PostgreSQL $opt -append -update "PG:$DB" -a_srs EPSG:25832 "$dst"
+		ogr2ogr -f $DRIVER $opt -append -update "PG:$DB" -a_srs EPSG:$EPSG "$dst"
 	fi
 	t1=$(bdate +%s)
 
@@ -347,7 +385,7 @@ if [ "$src" != "exit" -a "$src" != "error" ]; then
 	do
 		if [ -r "$i" ]; then
 			echo "SQL RUNNING: $i $(bdate)"
-			psql -q -f $i "$DB"
+			sql $i
 		fi
 	done
 

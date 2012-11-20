@@ -287,7 +287,7 @@ CREATE TABLE po_points(
 	drehwinkel_grad double precision
 );
 
-SELECT AddGeometryColumn('po_points','point', 25832, 'MULTIPOINT', 2);
+SELECT AddGeometryColumn('po_points','point', :alkis_epsg, 'MULTIPOINT', 2);
 
 -- Linien
 SELECT alkis_dropobject('po_lines');
@@ -300,7 +300,7 @@ CREATE TABLE po_lines(
 	FOREIGN KEY (signaturnummer) REFERENCES alkis_linien(signaturnummer)
 );
 
-SELECT AddGeometryColumn('po_lines','line', 25832, 'MULTILINESTRING', 2);
+SELECT AddGeometryColumn('po_lines','line', :alkis_epsg, 'MULTILINESTRING', 2);
 
 -- Polygone
 SELECT alkis_dropobject('po_polygons');
@@ -316,7 +316,7 @@ CREATE TABLE po_polygons(
 	FOREIGN KEY (sn_randlinie) REFERENCES alkis_linien(signaturnummer)
 );
 
-SELECT AddGeometryColumn('po_polygons','polygon', 25832, 'MULTIPOLYGON', 2);
+SELECT AddGeometryColumn('po_polygons','polygon', :alkis_epsg, 'MULTIPOLYGON', 2);
 
 -- Beschriftungen
 SELECT alkis_dropobject('po_labels');
@@ -341,8 +341,8 @@ CREATE TABLE po_labels(
 	FOREIGN KEY (signaturnummer) REFERENCES alkis_schriften(signaturnummer)
 );
 
-SELECT AddGeometryColumn('po_labels','point', 25832, 'POINT', 2);
-SELECT AddGeometryColumn('po_labels','line', 25832, 'LINESTRING', 2);
+SELECT AddGeometryColumn('po_labels','point', :alkis_epsg, 'POINT', 2);
+SELECT AddGeometryColumn('po_labels','line', :alkis_epsg, 'LINESTRING', 2);
 
 --
 -- Flurstücke (11001)

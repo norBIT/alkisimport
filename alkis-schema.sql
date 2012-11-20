@@ -135,7 +135,7 @@ CREATE TABLE "delete"
 
 
 -- Dummy-Eintrag in Metatabelle
-SELECT AddGeometryColumn('delete','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('delete','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX delete_fid ON "delete"(featureid);
 
@@ -185,7 +185,7 @@ CREATE TABLE ks_sonstigesbauwerk (
 	CONSTRAINT ks_sonstigesbauwerk_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ks_sonstigesbauwerk','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ks_sonstigesbauwerk','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ks_sonstigesbauwerk_geom_idx ON ks_sonstigesbauwerk USING gist (wkb_geometry);
 
@@ -216,7 +216,7 @@ CREATE INDEX alkis_beziehungen_zu_idx  ON alkis_beziehungen USING btree (beziehu
 CREATE INDEX alkis_beziehungen_art_idx ON alkis_beziehungen USING btree (beziehungsart);
 
 -- Dummy-Eintrag in Metatabelle
-SELECT AddGeometryColumn('alkis_beziehungen','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('alkis_beziehungen','dummy',:alkis_epsg,'POINT',2);
 
 COMMENT ON TABLE  alkis_beziehungen               IS 'zentrale Multi-Verbindungstabelle';
 COMMENT ON COLUMN alkis_beziehungen.beziehung_von IS 'Join auf Feld gml_id verschiedener Tabellen';
@@ -250,7 +250,7 @@ CREATE TABLE ax_anderefestlegungnachwasserrecht (
 	CONSTRAINT ax_anderefestlegungnachwasserrecht_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_anderefestlegungnachwasserrecht','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_anderefestlegungnachwasserrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_anderefestlegungnachwasserrecht_geom_idx ON ax_anderefestlegungnachwasserrecht USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_anderefestlegungnachwasserrecht_gml ON ax_anderefestlegungnachwasserrecht USING btree (gml_id,beginnt);
@@ -273,7 +273,7 @@ CREATE TABLE ax_baublock (
 	baublockbezeichnung	integer,
 	CONSTRAINT ax_baublock_pk PRIMARY KEY (ogc_fid)
 );
-SELECT AddGeometryColumn('ax_baublock','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_baublock','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_baublock_geom_idx ON ax_baublock USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_baublock_gml ON ax_baublock USING btree (gml_id,beginnt);
@@ -299,7 +299,7 @@ CREATE TABLE ax_besonderertopographischerpunkt (
 	CONSTRAINT ax_besonderertopographischerpunkt_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_besonderertopographischerpunkt','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_besonderertopographischerpunkt','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_besonderertopographischerpunkt_gml ON ax_besonderertopographischerpunkt USING btree (gml_id,beginnt);
 
@@ -321,7 +321,7 @@ CREATE TABLE ax_bewertung (
 	CONSTRAINT ax_bewertung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_bewertung','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_bewertung','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_bewertung_geom_idx   ON ax_bewertung USING gist  (wkb_geometry);
 CREATE UNIQUE INDEX ax_bewertung_gml ON ax_bewertung USING btree (gml_id,beginnt);
@@ -348,7 +348,7 @@ CREATE TABLE ax_denkmalschutzrecht (
 	CONSTRAINT ax_denkmalschutzrecht_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_denkmalschutzrecht','wkb_geometry',25832,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
+SELECT AddGeometryColumn('ax_denkmalschutzrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
 
 CREATE INDEX ax_denkmalschutzrecht_geom_idx   ON ax_denkmalschutzrecht USING gist  (wkb_geometry);
 CREATE UNIQUE INDEX ax_denkmalschutzrecht_gml ON ax_denkmalschutzrecht USING btree (gml_id,beginnt);
@@ -373,7 +373,7 @@ CREATE TABLE ax_gebaeudeausgestaltung (
 	CONSTRAINT ax_gebaeudeausgestaltung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_gebaeudeausgestaltung','wkb_geometry',25832,'GEOMETRY',2);	-- LINESTRING/MULTILINESTRING
+SELECT AddGeometryColumn('ax_gebaeudeausgestaltung','wkb_geometry',:alkis_epsg,'GEOMETRY',2);	-- LINESTRING/MULTILINESTRING
 
 CREATE INDEX ax_gebaeudeausgestaltung_geom_idx ON ax_gebaeudeausgestaltung USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_gebaeudeausgestaltung_gml ON ax_gebaeudeausgestaltung USING btree (gml_id,beginnt);
@@ -412,7 +412,7 @@ CREATE TABLE ax_georeferenziertegebaeudeadresse (
 	CONSTRAINT ax_georeferenziertegebaeudeadresse_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_georeferenziertegebaeudeadresse','wkb_geometry',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_georeferenziertegebaeudeadresse','wkb_geometry',:alkis_epsg,'POINT',2);
 
 CREATE INDEX ax_georeferenziertegebaeudeadresse_geom_idx ON ax_georeferenziertegebaeudeadresse USING gist (wkb_geometry);
 
@@ -446,7 +446,7 @@ CREATE TABLE ax_grablochderbodenschaetzung (
 	CONSTRAINT ax_grablochderbodenschaetzung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_grablochderbodenschaetzung','wkb_geometry',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_grablochderbodenschaetzung','wkb_geometry',:alkis_epsg,'POINT',2);
 
 CREATE INDEX ax_grablochderbodenschaetzung_geom_idx   ON ax_grablochderbodenschaetzung USING gist  (wkb_geometry);
 CREATE UNIQUE INDEX ax_grablochderbodenschaetzung_gml ON ax_grablochderbodenschaetzung USING btree (gml_id,beginnt);
@@ -506,7 +506,7 @@ CREATE TABLE ax_historischesflurstueckalb (
 	CONSTRAINT ax_historischesflurstueckalb_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_historischesflurstueckalb','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_historischesflurstueckalb','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_historischesflurstueckalb_gml ON ax_historischesflurstueckalb USING btree (gml_id,beginnt);
 
@@ -588,7 +588,7 @@ CREATE TABLE ax_historischesflurstueck (
 	CONSTRAINT ax_historischesflurstueck_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_historischesflurstueck','wkb_geometry',25832,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
+SELECT AddGeometryColumn('ax_historischesflurstueck','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
 
 CREATE INDEX ax_historischesflurstueck_geom_idx   ON ax_historischesflurstueck USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_historischesflurstueck_gml ON ax_historischesflurstueck USING btree (gml_id,beginnt);
@@ -659,7 +659,7 @@ CREATE TABLE ax_naturumweltoderbodenschutzrecht (
 	CONSTRAINT ax_naturumweltoderbodenschutzrecht_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_naturumweltoderbodenschutzrecht','wkb_geometry',25832,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
+SELECT AddGeometryColumn('ax_naturumweltoderbodenschutzrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
 
 CREATE INDEX ax_naturumweltoderbodenschutzrecht_geom_idx   ON ax_naturumweltoderbodenschutzrecht USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_naturumweltoderbodenschutzrecht_gml ON ax_naturumweltoderbodenschutzrecht USING btree (gml_id,beginnt);
@@ -688,7 +688,7 @@ CREATE TABLE ax_schutzgebietnachwasserrecht (
 	CONSTRAINT ax_schutzgebietnachwasserrecht_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_schutzgebietnachwasserrecht','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_schutzgebietnachwasserrecht','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_schutzgebietnachwasserrecht_gml ON ax_schutzgebietnachwasserrecht USING btree (gml_id,beginnt);
 CREATE INDEX ax_schutzgebietnachwasserrecht_afs ON ax_schutzgebietnachwasserrecht(land,stelle);
@@ -712,7 +712,7 @@ CREATE TABLE ax_schutzgebietnachnaturumweltoderbodenschutzrecht (
 	CONSTRAINT ax_schutzgebietnachnaturumweltoderbodenschutzrecht_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_schutzgebietnachnaturumweltoderbodenschutzrecht','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_schutzgebietnachnaturumweltoderbodenschutzrecht','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_schutzgebietnachnaturumweltoderbodenschutzrecht_gml ON ax_schutzgebietnachnaturumweltoderbodenschutzrecht USING btree (gml_id,beginnt);
 CREATE INDEX ax_schutzgebietnachnaturumweltoderbodenschutzrecht_afs ON ax_schutzgebietnachnaturumweltoderbodenschutzrecht(land,stelle);
@@ -736,7 +736,7 @@ CREATE TABLE ax_schutzzone (
 	CONSTRAINT ax_schutzzone_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_schutzzone','wkb_geometry',25832,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
+SELECT AddGeometryColumn('ax_schutzzone','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
 
 CREATE INDEX ax_schutzzone_geom_idx   ON ax_schutzzone USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_schutzzone_gml ON ax_schutzzone USING btree (gml_id,beginnt);
@@ -760,7 +760,7 @@ CREATE TABLE ax_topographischelinie (
 	CONSTRAINT ax_topographischelinie_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_topographischelinie','wkb_geometry',25832,'LINESTRING',2);
+SELECT AddGeometryColumn('ax_topographischelinie','wkb_geometry',:alkis_epsg,'LINESTRING',2);
 
 CREATE INDEX ax_topographischelinie_geom_idx   ON ax_topographischelinie USING gist(wkb_geometry);
 CREATE UNIQUE INDEX ax_topographischelinie_gml ON ax_topographischelinie USING btree (gml_id,beginnt);
@@ -795,7 +795,7 @@ CREATE TABLE ap_ppo (
 	CONSTRAINT ap_ppo_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ap_ppo','wkb_geometry',25832,'GEOMETRY',2); -- POINT/MULTIPOLYGON
+SELECT AddGeometryColumn('ap_ppo','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POINT/MULTIPOLYGON
 
 CREATE INDEX ap_ppo_geom_idx   ON ap_ppo USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_ppo_gml ON ap_ppo USING btree (gml_id,beginnt);
@@ -820,7 +820,7 @@ CREATE TABLE ap_lpo (
 	art			varchar,
 	CONSTRAINT ap_lpo_pk PRIMARY KEY (ogc_fid)
 );
-SELECT AddGeometryColumn('ap_lpo','wkb_geometry',25832,'GEOMETRY',2); -- LINESTRING/MULTILINESTRING
+SELECT AddGeometryColumn('ap_lpo','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/MULTILINESTRING
 
 CREATE INDEX ap_lpo_geom_idx   ON ap_lpo USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_lpo_gml ON ap_lpo USING btree (gml_id,beginnt);
@@ -852,7 +852,7 @@ CREATE TABLE ap_pto (
 	CONSTRAINT ap_pto_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ap_pto','wkb_geometry',25832,'POINT',2);
+SELECT AddGeometryColumn('ap_pto','wkb_geometry',:alkis_epsg,'POINT',2);
 
 CREATE INDEX ap_pto_geom_idx   ON ap_pto USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_pto_gml ON ap_pto USING btree (gml_id,beginnt);
@@ -895,7 +895,7 @@ CREATE TABLE ap_lto (
 	CONSTRAINT ap_lto_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ap_lto','wkb_geometry',25832,'LINESTRING',2);
+SELECT AddGeometryColumn('ap_lto','wkb_geometry',:alkis_epsg,'LINESTRING',2);
 
 CREATE INDEX ap_lto_geom_idx   ON ap_lto USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_lto_gml ON ap_lto USING btree (gml_id,beginnt);
@@ -923,7 +923,7 @@ CREATE TABLE ap_darstellung (
 );
 
 -- Dummy-Eintrag in Metatabelle
-SELECT AddGeometryColumn('ap_darstellung','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ap_darstellung','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ap_darstellung_gml ON ap_darstellung USING btree (gml_id,beginnt);
 CREATE INDEX ap_darstellung_endet_idx  ON ap_darstellung USING btree (endet);
@@ -991,7 +991,7 @@ CREATE TABLE ax_flurstueck (
 	CONSTRAINT ax_flurstueck_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_flurstueck','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_flurstueck','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_flurstueck_geom_idx   ON ax_flurstueck USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_flurstueck_gml ON ax_flurstueck USING btree (gml_id,beginnt);
@@ -1056,7 +1056,7 @@ CREATE TABLE ax_besondereflurstuecksgrenze (
 	CONSTRAINT ax_besondereflurstuecksgrenze_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_besondereflurstuecksgrenze','wkb_geometry',25832,'LINESTRING',2);
+SELECT AddGeometryColumn('ax_besondereflurstuecksgrenze','wkb_geometry',:alkis_epsg,'LINESTRING',2);
 
 CREATE INDEX ax_besondereflurstuecksgrenze_geom_idx   ON ax_besondereflurstuecksgrenze USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_besondereflurstuecksgrenze_gml ON ax_besondereflurstuecksgrenze USING btree (gml_id,beginnt);
@@ -1090,7 +1090,7 @@ CREATE TABLE ax_grenzpunkt (
 	CONSTRAINT ax_grenzpunkt_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_grenzpunkt','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_grenzpunkt','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_grenzpunkt_gml ON ax_grenzpunkt USING btree (gml_id,beginnt);
 CREATE INDEX ax_grenzpunkt_abmm ON ax_grenzpunkt USING btree (abmarkung_marke);
@@ -1121,7 +1121,7 @@ CREATE TABLE ax_lagebezeichnungohnehausnummer (
 	CONSTRAINT ax_lagebezeichnungohnehausnummer_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_lagebezeichnungohnehausnummer','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_lagebezeichnungohnehausnummer','dummy',:alkis_epsg,'POINT',2);
 
 -- Verbindungstabellen indizieren
 CREATE UNIQUE INDEX ax_lagebezeichnungohnehausnummer_gml ON ax_lagebezeichnungohnehausnummer USING btree (gml_id,beginnt);
@@ -1154,7 +1154,7 @@ CREATE TABLE ax_lagebezeichnungmithausnummer (
 	CONSTRAINT ax_lagebezeichnungmithausnummer_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_lagebezeichnungmithausnummer','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_lagebezeichnungmithausnummer','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_lagebezeichnungmithausnummer_gml ON ax_lagebezeichnungmithausnummer USING btree (gml_id,beginnt); -- Verbindungstabellen indizieren
 CREATE INDEX ax_lagebezeichnungmithausnummer_lage       ON ax_lagebezeichnungmithausnummer USING btree (gemeinde, lage); -- Adressen-Suche nach Strasse
@@ -1184,7 +1184,7 @@ CREATE TABLE ax_lagebezeichnungmitpseudonummer (
 	CONSTRAINT ax_lagebezeichnungmitpseudonummer_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_lagebezeichnungmitpseudonummer','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_lagebezeichnungmitpseudonummer','dummy',:alkis_epsg,'POINT',2);
 
 -- Verbindungstabellen indizieren
 CREATE UNIQUE INDEX ax_lagebezeichnungmitpseudonummer_gml ON ax_lagebezeichnungmitpseudonummer USING btree (gml_id,beginnt);
@@ -1217,7 +1217,7 @@ CREATE TABLE ax_aufnahmepunkt (
 	CONSTRAINT ax_aufnahmepunkt_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_aufnahmepunkt','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_aufnahmepunkt','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_aufnahmepunkt_gml ON ax_aufnahmepunkt USING btree (gml_id,beginnt);
 
@@ -1246,7 +1246,7 @@ CREATE TABLE ax_sicherungspunkt (
  	CONSTRAINT ax_sicherungspunkt_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_sicherungspunkt','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_sicherungspunkt','dummy',:alkis_epsg,'POINT',2);
 
 
 -- s o n s t i g e r   V e r m e s s u n g s p u n k t
@@ -1269,7 +1269,7 @@ CREATE TABLE ax_sonstigervermessungspunkt (
 	CONSTRAINT ax_sonstigervermessungspunkt_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_sonstigervermessungspunkt','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_sonstigervermessungspunkt','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_sonstigervermessungspunkt_gml ON ax_sonstigervermessungspunkt USING btree (gml_id,beginnt);
 
@@ -1308,7 +1308,7 @@ CREATE TABLE ax_punktortag (
 	CONSTRAINT ax_punktortag_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_punktortag','wkb_geometry',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_punktortag','wkb_geometry',:alkis_epsg,'POINT',2);
 
 CREATE INDEX ax_punktortag_geom_idx ON ax_punktortag USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_punktortag_gml ON ax_punktortag USING btree (gml_id,beginnt);
@@ -1339,7 +1339,7 @@ CREATE TABLE ax_punktortau (
 	CONSTRAINT ax_punktortau_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_punktortau','wkb_geometry',25832,'POINT',3); -- 0,0,Höhe
+SELECT AddGeometryColumn('ax_punktortau','wkb_geometry',:alkis_epsg,'POINT',3); -- 0,0,Höhe
 
 CREATE INDEX ax_punktortau_geom_idx ON ax_punktortau USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_punktortau_gml ON ax_punktortau USING btree (gml_id,beginnt);
@@ -1368,7 +1368,7 @@ CREATE TABLE ax_punktortta (
 	CONSTRAINT ax_punktortta_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_punktortta','wkb_geometry',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_punktortta','wkb_geometry',:alkis_epsg,'POINT',2);
 
 CREATE INDEX ax_punktortta_geom_idx ON ax_punktortta USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_punktortta_gml ON ax_punktortta USING btree (gml_id,beginnt);
@@ -1406,7 +1406,7 @@ CREATE TABLE ax_fortfuehrungsnachweisdeckblatt (
 	CONSTRAINT ax_fortfuehrungsnachweisdeckblatt_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_fortfuehrungsnachweisdeckblatt','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_fortfuehrungsnachweisdeckblatt','dummy',:alkis_epsg,'POINT',2);
 
 COMMENT ON TABLE  ax_fortfuehrungsnachweisdeckblatt
 IS 'F o r t f u e h r u n g s n a c h w e i s / D e c k b l a t t';
@@ -1434,7 +1434,7 @@ CREATE TABLE ax_fortfuehrungsfall (
 	CONSTRAINT ax_fortfuehrungsfall_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_fortfuehrungsfall','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_fortfuehrungsfall','dummy',:alkis_epsg,'POINT',2);
 
 COMMENT ON TABLE  ax_fortfuehrungsfall IS 'F o r t f u e h r u n g s f a l l';
 
@@ -1461,7 +1461,7 @@ CREATE TABLE ax_reservierung (
 	CONSTRAINT ax_reservierung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_reservierung','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_reservierung','dummy',:alkis_epsg,'POINT',2);
 
 -- P u n k t k e n n u n g  U n t e r g e g a n g e n
 -- --------------------------------------------------
@@ -1479,7 +1479,7 @@ CREATE TABLE ax_punktkennunguntergegangen (
 	CONSTRAINT ax_punktkennunguntergegangen_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_punktkennunguntergegangen','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_punktkennunguntergegangen','dummy',:alkis_epsg,'POINT',2);
 
 
 
@@ -1554,7 +1554,7 @@ Array mit Kennzeichen im Format der Spalte "flurstueckskennzeichen"';
 
 
 -- keine Geometrie, daher ersatzweise: Dummy-Eintrag in Metatabelle
-SELECT AddGeometryColumn('ax_historischesflurstueckohneraumbezug','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_historischesflurstueckohneraumbezug','dummy',:alkis_epsg,'POINT',2);
 -- Kennzeichen indizieren, z.B. fuer Suche aus der Historie
 CREATE INDEX ax_hist_fs_ohne_kennz ON ax_historischesflurstueckohneraumbezug USING btree (flurstueckskennzeichen /* ASC NULLS LAST */ );
 COMMENT ON INDEX ax_hist_fs_ohne_kennz IS 'Suche nach Flurstückskennzeichen';
@@ -1607,7 +1607,7 @@ CREATE TABLE ax_person (
 	CONSTRAINT ax_person_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_person','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_person','dummy',:alkis_epsg,'POINT',2);
 
 -- Verbindungstabellen indizieren
 CREATE UNIQUE INDEX id_ax_person_gml ON ax_person USING btree (gml_id,beginnt);
@@ -1654,7 +1654,7 @@ CREATE TABLE ax_anschrift (
 );
 
 -- Dummy-Eintrag in Metatabelle
-SELECT AddGeometryColumn('ax_anschrift','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_anschrift','dummy',:alkis_epsg,'POINT',2);
 
 -- Index für alkis_beziehungen
 CREATE UNIQUE INDEX ax_anschrift_gml ON ax_anschrift USING btree (gml_id,beginnt);
@@ -1686,7 +1686,7 @@ CREATE TABLE ax_namensnummer (
 
 -- Filter   istbestandteilvon <> '' or benennt <> '' or bestehtausrechtsverhaeltnissenzu <> ''
 
-SELECT AddGeometryColumn('ax_namensnummer','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_namensnummer','dummy',:alkis_epsg,'POINT',2);
 
 -- Verbindungstabellen indizieren
 CREATE UNIQUE INDEX ax_namensnummer_gml ON ax_namensnummer USING btree (gml_id,beginnt);
@@ -1715,7 +1715,7 @@ CREATE TABLE ax_buchungsblatt (
 	CONSTRAINT ax_buchungsblatt_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_buchungsblatt','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_buchungsblatt','dummy',:alkis_epsg,'POINT',2);
 
 -- Index für alkis_beziehungen
 CREATE UNIQUE INDEX ax_buchungsblatt_gml ON ax_buchungsblatt USING btree (gml_id,beginnt);
@@ -1747,7 +1747,7 @@ CREATE TABLE ax_buchungsstelle (
 	CONSTRAINT ax_buchungsstelle_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_buchungsstelle','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_buchungsstelle','dummy',:alkis_epsg,'POINT',2);
 
 --Index für alkis_beziehungen
 CREATE UNIQUE INDEX ax_buchungsstelle_gml ON ax_buchungsstelle USING btree (gml_id,beginnt);
@@ -1805,7 +1805,7 @@ CREATE TABLE ax_gebaeude (
 	CONSTRAINT ax_gebaeude_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_gebaeude','wkb_geometry',25832,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
+SELECT AddGeometryColumn('ax_gebaeude','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
 
 CREATE INDEX ax_gebaeude_geom_idx   ON ax_gebaeude USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_gebaeude_gml ON ax_gebaeude USING btree (gml_id,beginnt);
@@ -1872,7 +1872,7 @@ CREATE TABLE ax_bauteil (
 	CONSTRAINT ax_bauteil_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_bauteil','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_bauteil','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_bauteil_geom_idx ON ax_bauteil USING gist (wkb_geometry);
 
@@ -1896,7 +1896,7 @@ CREATE TABLE ax_besonderegebaeudelinie (
 	CONSTRAINT ax_besonderegebaeudelinie_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_besonderegebaeudelinie','wkb_geometry',25832,'LINESTRING',2);
+SELECT AddGeometryColumn('ax_besonderegebaeudelinie','wkb_geometry',:alkis_epsg,'LINESTRING',2);
 
 CREATE INDEX ax_besonderegebaeudelinie_geom_idx ON ax_besonderegebaeudelinie USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_besonderegebaeudelinie_gml ON ax_besonderegebaeudelinie USING btree (gml_id,beginnt);
@@ -1921,7 +1921,7 @@ CREATE TABLE ax_firstlinie (
 	CONSTRAINT ax_firstlinie_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_firstlinie','wkb_geometry',25832,'LINESTRING',2);
+SELECT AddGeometryColumn('ax_firstlinie','wkb_geometry',:alkis_epsg,'LINESTRING',2);
 
 CREATE INDEX ax_firstlinie_geom_idx ON ax_firstlinie USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_firstlinie_gml ON ax_firstlinie USING btree (gml_id,beginnt);
@@ -1949,7 +1949,7 @@ CREATE TABLE ax_besonderergebaeudepunkt (
 	CONSTRAINT ax_besonderergebaeudepunkt_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_besonderergebaeudepunkt','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_besonderergebaeudepunkt','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_besonderergebaeudepunkt_gml ON ax_besonderergebaeudepunkt USING btree (gml_id,beginnt);
 
@@ -1992,7 +1992,7 @@ CREATE TABLE ax_wohnbauflaeche (
 	CONSTRAINT ax_wohnbauflaeche_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_wohnbauflaeche','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_wohnbauflaeche','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_wohnbauflaeche_geom_idx ON ax_wohnbauflaeche USING gist (wkb_geometry);
 
@@ -2025,7 +2025,7 @@ CREATE TABLE ax_industrieundgewerbeflaeche (
 	CONSTRAINT ax_industrieundgewerbeflaeche_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_industrieundgewerbeflaeche','wkb_geometry',25832,'GEOMETRY',2); -- POLYGON/POINT
+SELECT AddGeometryColumn('ax_industrieundgewerbeflaeche','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/POINT
 
 CREATE INDEX ax_industrieundgewerbeflaeche_geom_idx ON ax_industrieundgewerbeflaeche USING gist (wkb_geometry);
 
@@ -2057,7 +2057,7 @@ CREATE TABLE ax_halde
 	CONSTRAINT ax_halde_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_halde','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_halde','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_halde_geom_idx ON ax_halde USING gist (wkb_geometry);
 
@@ -2088,7 +2088,7 @@ CREATE TABLE ax_bergbaubetrieb (
 	CONSTRAINT ax_bergbaubetrieb_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_bergbaubetrieb','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_bergbaubetrieb','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_bergbaubetrieb_geom_idx   ON ax_bergbaubetrieb USING gist  (wkb_geometry);
 CREATE UNIQUE INDEX ax_bergbaubetrieb_gml ON ax_bergbaubetrieb USING btree (gml_id,beginnt);
@@ -2117,7 +2117,7 @@ CREATE TABLE ax_tagebaugrubesteinbruch (
 	CONSTRAINT ax_tagebaugrubesteinbruch_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_tagebaugrubesteinbruch','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_tagebaugrubesteinbruch','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_tagebaugrubesteinbruch_geom_idx ON ax_tagebaugrubesteinbruch USING gist (wkb_geometry);
 
@@ -2147,7 +2147,7 @@ CREATE TABLE ax_flaechegemischternutzung (
 	CONSTRAINT ax_flaechegemischternutzung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_flaechegemischternutzung','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_flaechegemischternutzung','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_flaechegemischternutzung_geom_idx ON ax_flaechegemischternutzung USING gist (wkb_geometry);
 
@@ -2178,7 +2178,7 @@ CREATE TABLE ax_flaechebesondererfunktionalerpraegung (
 	CONSTRAINT ax_flaechebesondererfunktionalerpraegung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_flaechebesondererfunktionalerpraegung','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_flaechebesondererfunktionalerpraegung','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_flaechebesondererfunktionalerpraegung_geom_idx ON ax_flaechebesondererfunktionalerpraegung USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_flaechebesondererfunktionalerpraegung_gml ON ax_flaechebesondererfunktionalerpraegung USING btree (gml_id,beginnt);
@@ -2207,7 +2207,7 @@ CREATE TABLE ax_sportfreizeitunderholungsflaeche (
 	CONSTRAINT ax_sportfreizeitunderholungsflaeche_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_sportfreizeitunderholungsflaeche','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_sportfreizeitunderholungsflaeche','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_sportfreizeitunderholungsflaeche_geom_idx ON ax_sportfreizeitunderholungsflaeche USING gist (wkb_geometry);
 
@@ -2236,7 +2236,7 @@ CREATE TABLE ax_friedhof (
 	CONSTRAINT ax_friedhof_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_friedhof','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_friedhof','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_friedhof_geom_idx ON ax_friedhof USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_friedhof_gml ON ax_friedhof USING btree (gml_id,beginnt);
@@ -2274,7 +2274,7 @@ CREATE TABLE ax_strassenverkehr (
 	CONSTRAINT ax_strassenverkehr_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_strassenverkehr','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_strassenverkehr','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_strassenverkehr_geom_idx ON ax_strassenverkehr USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_strassenverkehr_gml ON ax_strassenverkehr USING btree (gml_id,beginnt);
@@ -2310,7 +2310,7 @@ CREATE TABLE ax_weg (
 	CONSTRAINT ax_weg_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_weg','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_weg','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_weg_geom_idx ON ax_weg USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_weg_gml ON ax_weg USING btree (gml_id,beginnt);
@@ -2344,7 +2344,7 @@ CREATE TABLE ax_platz (
 	CONSTRAINT ax_platz_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_platz','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_platz','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_platz_geom_idx ON ax_platz USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_platz_gml ON ax_platz USING btree (gml_id,beginnt);
@@ -2375,7 +2375,7 @@ CREATE TABLE ax_bahnverkehr (
 	CONSTRAINT ax_bahnverkehr_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_bahnverkehr','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_bahnverkehr','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_bahnverkehr_geom_idx ON ax_bahnverkehr USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_bahnverkehr_gml ON ax_bahnverkehr USING btree (gml_id,beginnt);
@@ -2414,7 +2414,7 @@ CREATE TABLE ax_flugverkehr (
 	CONSTRAINT ax_flugverkehr_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_flugverkehr','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_flugverkehr','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_flugverkehr_geom_idx   ON ax_flugverkehr USING gist  (wkb_geometry);
 CREATE UNIQUE INDEX ax_flugverkehr_gml ON ax_flugverkehr USING btree (gml_id,beginnt);
@@ -2445,7 +2445,7 @@ CREATE TABLE ax_schiffsverkehr (
 	CONSTRAINT ax_schiffsverkehr_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_schiffsverkehr','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_schiffsverkehr','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_schiffsverkehr_geom_idx ON ax_schiffsverkehr USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_schiffsverkehr_gml ON ax_schiffsverkehr USING btree (gml_id,beginnt);
@@ -2476,7 +2476,7 @@ CREATE TABLE ax_landwirtschaft (
 	CONSTRAINT ax_landwirtschaft_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_landwirtschaft','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_landwirtschaft','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_landwirtschaft_geom_idx ON ax_landwirtschaft USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_landwirtschaft_gml ON ax_landwirtschaft USING btree (gml_id,beginnt);
@@ -2503,7 +2503,7 @@ CREATE TABLE ax_wald (
 	CONSTRAINT ax_wald_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_wald','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_wald','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_wald_geom_idx ON ax_wald USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_wald_gml ON ax_wald USING btree (gml_id,beginnt);
@@ -2531,7 +2531,7 @@ CREATE TABLE ax_gehoelz (
 	CONSTRAINT ax_gehoelz_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_gehoelz','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_gehoelz','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_gehoelz_geom_idx ON ax_gehoelz USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_gehoelz_gml ON ax_gehoelz USING btree (gml_id,beginnt);
@@ -2558,7 +2558,7 @@ CREATE TABLE ax_heide (
 	CONSTRAINT ax_heide_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_heide','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_heide','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_heide_geom_idx ON ax_heide USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_heide_gml ON ax_heide USING btree (gml_id,beginnt);
@@ -2582,7 +2582,7 @@ CREATE TABLE ax_moor (
 	CONSTRAINT ax_moor_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_moor','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_moor','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_moor_geom_idx   ON ax_moor USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_moor_gml ON ax_moor USING btree (gml_id,beginnt);
@@ -2607,7 +2607,7 @@ CREATE TABLE ax_sumpf (
 	CONSTRAINT ax_sumpf_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_sumpf','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_sumpf','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_sumpf_geom_idx ON ax_sumpf USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_sumpf_gml ON ax_sumpf USING btree (gml_id,beginnt);
@@ -2633,7 +2633,7 @@ CREATE TABLE ax_unlandvegetationsloseflaeche (
 	CONSTRAINT ax_unlandvegetationsloseflaeche_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_unlandvegetationsloseflaeche','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_unlandvegetationsloseflaeche','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_unlandvegetationsloseflaeche_geom_idx ON ax_unlandvegetationsloseflaeche USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_unlandvegetationsloseflaeche_gml ON ax_unlandvegetationsloseflaeche USING btree (gml_id,beginnt);
@@ -2675,7 +2675,7 @@ CREATE TABLE ax_fliessgewaesser (
 	CONSTRAINT ax_fliessgewaesser_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_fliessgewaesser','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_fliessgewaesser','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_fliessgewaesser_geom_idx ON ax_fliessgewaesser USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_fliessgewaesser_gml ON ax_fliessgewaesser USING btree (gml_id,beginnt);
@@ -2703,7 +2703,7 @@ CREATE TABLE ax_hafenbecken (
 	CONSTRAINT ax_hafenbecken_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_hafenbecken','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_hafenbecken','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_hafenbecken_geom_idx   ON ax_hafenbecken USING gist  (wkb_geometry);
 CREATE UNIQUE INDEX ax_hafenbecken_gml ON ax_hafenbecken USING btree (gml_id,beginnt);
@@ -2735,7 +2735,7 @@ CREATE TABLE ax_stehendesgewaesser (
 	CONSTRAINT ax_stehendesgewaesser_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_stehendesgewaesser','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_stehendesgewaesser','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_stehendesgewaesser_geom_idx ON ax_stehendesgewaesser USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_stehendesgewaesser_gml ON ax_stehendesgewaesser USING btree (gml_id,beginnt);
@@ -2765,7 +2765,7 @@ CREATE TABLE ax_meer (
 	CONSTRAINT ax_meer_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_meer','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_meer','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_meer_geom_idx ON ax_meer USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_meer_gml ON ax_meer USING btree (gml_id,beginnt);
@@ -2819,7 +2819,7 @@ CREATE TABLE ax_turm (
 	CONSTRAINT ax_turm_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_turm','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_turm','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_turm_geom_idx ON ax_turm USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_turm_gml ON ax_turm USING btree (gml_id,beginnt);
@@ -2845,7 +2845,7 @@ CREATE TABLE ax_bauwerkoderanlagefuerindustrieundgewerbe (
 	CONSTRAINT ax_bauwerkoderanlagefuerindustrieundgewerbe_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_bauwerkoderanlagefuerindustrieundgewerbe','wkb_geometry',25832,'GEOMETRY',2); -- POLYGON/POINT
+SELECT AddGeometryColumn('ax_bauwerkoderanlagefuerindustrieundgewerbe','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/POINT
 
 CREATE INDEX ax_bauwerkoderanlagefuerindustrieundgewerbe_geom_idx ON ax_bauwerkoderanlagefuerindustrieundgewerbe USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_bauwerkoderanlagefuerindustrieundgewerbe_gml ON ax_bauwerkoderanlagefuerindustrieundgewerbe USING btree (gml_id,beginnt);
@@ -2871,7 +2871,7 @@ CREATE TABLE ax_vorratsbehaelterspeicherbauwerk (
 	CONSTRAINT ax_vorratsbehaelterspeicherbauwerk_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_vorratsbehaelterspeicherbauwerk','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_vorratsbehaelterspeicherbauwerk','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_vorratsbehaelterspeicherbauwerk_geom_idx ON ax_vorratsbehaelterspeicherbauwerk USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_vorratsbehaelterspeicherbauwerk_gml ON ax_vorratsbehaelterspeicherbauwerk USING btree (gml_id,beginnt);
@@ -2898,7 +2898,7 @@ CREATE TABLE ax_transportanlage (
 	CONSTRAINT ax_transportanlage_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_transportanlage','wkb_geometry',25832,'LINESTRING',2);
+SELECT AddGeometryColumn('ax_transportanlage','wkb_geometry',:alkis_epsg,'LINESTRING',2);
 
 CREATE INDEX ax_transportanlage_geom_idx ON ax_transportanlage USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_transportanlage_gml ON ax_transportanlage USING btree (gml_id,beginnt);
@@ -2922,7 +2922,7 @@ CREATE TABLE ax_leitung (
 	CONSTRAINT ax_leitung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_leitung','wkb_geometry',25832,'LINESTRING',2);
+SELECT AddGeometryColumn('ax_leitung','wkb_geometry',:alkis_epsg,'LINESTRING',2);
 
 CREATE INDEX ax_leitung_geom_idx ON ax_leitung USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_leitung_gml ON ax_leitung USING btree (gml_id,beginnt);
@@ -2947,7 +2947,7 @@ CREATE TABLE ax_bauwerkoderanlagefuersportfreizeitunderholung (
 	CONSTRAINT ax_bauwerkoderanlagefuersportfreizeitunderholung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_bauwerkoderanlagefuersportfreizeitunderholung','wkb_geometry',25832,'GEOMETRY',2); -- POLYGON/POINT
+SELECT AddGeometryColumn('ax_bauwerkoderanlagefuersportfreizeitunderholung','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/POINT
 
 CREATE INDEX ax_bauwerkoderanlagefuersportfreizeitunderholung_geom_idx ON ax_bauwerkoderanlagefuersportfreizeitunderholung USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_bauwerkoderanlagefuersportfreizeitunderholung_gml ON ax_bauwerkoderanlagefuersportfreizeitunderholung USING btree (gml_id,beginnt);
@@ -2972,7 +2972,7 @@ CREATE TABLE ax_historischesbauwerkoderhistorischeeinrichtung (
 	CONSTRAINT ax_historischesbauwerkoderhistorischeeinrichtung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_historischesbauwerkoderhistorischeeinrichtung','wkb_geometry',25832,'GEOMETRY',2); -- POLYGON/POINT
+SELECT AddGeometryColumn('ax_historischesbauwerkoderhistorischeeinrichtung','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/POINT
 
 CREATE INDEX ax_historischesbauwerkoderhistorischeeinrichtung_geom_idx ON ax_historischesbauwerkoderhistorischeeinrichtung USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_historischesbauwerkoderhistorischeeinrichtung_gml ON ax_historischesbauwerkoderhistorischeeinrichtung USING btree (gml_id,beginnt);
@@ -2997,7 +2997,7 @@ CREATE TABLE ax_heilquellegasquelle (
 	CONSTRAINT ax_heilquellegasquelle_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_heilquellegasquelle','wkb_geometry',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_heilquellegasquelle','wkb_geometry',:alkis_epsg,'POINT',2);
 
 CREATE INDEX ax_heilquellegasquelle_geom_idx ON ax_heilquellegasquelle USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_heilquellegasquelle_gml ON ax_heilquellegasquelle USING btree (gml_id,beginnt);
@@ -3023,7 +3023,7 @@ CREATE TABLE ax_sonstigesbauwerkodersonstigeeinrichtung (
 	CONSTRAINT ax_sonstigesbauwerkodersonstigeeinrichtung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_sonstigesbauwerkodersonstigeeinrichtung','wkb_geometry',25832,'GEOMETRY',2); -- POLYGON/LINESTRING
+SELECT AddGeometryColumn('ax_sonstigesbauwerkodersonstigeeinrichtung','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/LINESTRING
 
 CREATE INDEX ax_sonstigesbauwerkodersonstigeeinrichtung_geom_idx ON ax_sonstigesbauwerkodersonstigeeinrichtung USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_sonstigesbauwerkodersonstigeeinrichtung_gml ON ax_sonstigesbauwerkodersonstigeeinrichtung USING btree (gml_id,beginnt);
@@ -3047,7 +3047,7 @@ CREATE TABLE ax_einrichtunginoeffentlichenbereichen (
 	CONSTRAINT ax_einrichtunginoeffentlichenbereichen_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_einrichtunginoeffentlichenbereichen','wkb_geometry',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_einrichtunginoeffentlichenbereichen','wkb_geometry',:alkis_epsg,'POINT',2);
 
 CREATE INDEX ax_einrichtunginoeffentlichenbereichen_geom_idx ON ax_einrichtunginoeffentlichenbereichen USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_einrichtunginoeffentlichenbereichen_gml ON ax_einrichtunginoeffentlichenbereichen USING btree (gml_id,beginnt);
@@ -3073,7 +3073,7 @@ CREATE TABLE ax_besondererbauwerkspunkt (
 	CONSTRAINT ax_besondererbauwerkspunkt_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_besondererbauwerkspunkt','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_besondererbauwerkspunkt','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_besondererbauwerkspunkt_gml ON ax_besondererbauwerkspunkt USING btree (gml_id,beginnt);
 
@@ -3103,7 +3103,7 @@ CREATE TABLE ax_bauwerkimverkehrsbereich (
 	CONSTRAINT ax_bauwerkimverkehrsbereich_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_bauwerkimverkehrsbereich','wkb_geometry',25832,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
+SELECT AddGeometryColumn('ax_bauwerkimverkehrsbereich','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
 
 CREATE INDEX ax_bauwerkimverkehrsbereich_geom_idx ON ax_bauwerkimverkehrsbereich USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_bauwerkimverkehrsbereich_gml ON ax_bauwerkimverkehrsbereich USING btree (gml_id,beginnt);
@@ -3128,7 +3128,7 @@ CREATE TABLE ax_strassenverkehrsanlage (
 	CONSTRAINT ax_strassenverkehrsanlage_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_strassenverkehrsanlage','wkb_geometry',25832,'GEOMETRY',2); -- LINESTRING/MULTIPOLYGON
+SELECT AddGeometryColumn('ax_strassenverkehrsanlage','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/MULTIPOLYGON
 
 CREATE INDEX ax_strassenverkehrsanlage_geom_idx ON ax_strassenverkehrsanlage USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_strassenverkehrsanlage_gml ON ax_strassenverkehrsanlage USING btree (gml_id,beginnt);
@@ -3153,7 +3153,7 @@ CREATE TABLE ax_wegpfadsteig (
 	CONSTRAINT ax_wegpfadsteig_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_wegpfadsteig','wkb_geometry',25832,'GEOMETRY',2); -- LINESTRING/POLYGON
+SELECT AddGeometryColumn('ax_wegpfadsteig','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/POLYGON
 
 CREATE INDEX ax_wegpfadsteig_geom_idx ON ax_wegpfadsteig USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_wegpfadsteig_gml ON ax_wegpfadsteig USING btree (gml_id,beginnt);
@@ -3178,7 +3178,7 @@ CREATE TABLE ax_bahnverkehrsanlage (
 	CONSTRAINT ax_bahnverkehrsanlage_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_bahnverkehrsanlage','wkb_geometry',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_bahnverkehrsanlage','wkb_geometry',:alkis_epsg,'POINT',2);
 
 CREATE INDEX ax_bahnverkehrsanlage_geom_idx ON ax_bahnverkehrsanlage USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_bahnverkehrsanlage_gml ON ax_bahnverkehrsanlage USING btree (gml_id,beginnt);
@@ -3209,7 +3209,7 @@ CREATE TABLE ax_gleis (
 	CONSTRAINT ax_gleis_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_gleis','wkb_geometry',25832,'GEOMETRY',2); -- LINESTRING/POLYGON
+SELECT AddGeometryColumn('ax_gleis','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/POLYGON
 
 CREATE INDEX ax_gleis_geom_idx ON ax_gleis USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_gleis_gml ON ax_gleis USING btree (gml_id,beginnt);
@@ -3235,7 +3235,7 @@ CREATE TABLE ax_flugverkehrsanlage (
 	CONSTRAINT ax_flugverkehrsanlage_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_flugverkehrsanlage','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_flugverkehrsanlage','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_flugverkehrsanlage_geom_idx ON ax_flugverkehrsanlage USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_flugverkehrsanlage_gml ON ax_flugverkehrsanlage USING btree (gml_id,beginnt);
@@ -3264,7 +3264,7 @@ CREATE TABLE ax_bauwerkimgewaesserbereich (
 	CONSTRAINT ax_bauwerkimgewaesserbereich_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_bauwerkimgewaesserbereich','wkb_geometry',25832,'GEOMETRY',2); -- LINESTRING/POINT
+SELECT AddGeometryColumn('ax_bauwerkimgewaesserbereich','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/POINT
 
 CREATE INDEX ax_bauwerkimgewaesserbereich_geom_idx ON ax_bauwerkimgewaesserbereich USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_bauwerkimgewaesserbereich_gml ON ax_bauwerkimgewaesserbereich USING btree (gml_id,beginnt);
@@ -3292,7 +3292,7 @@ CREATE TABLE ax_vegetationsmerkmal (
 	CONSTRAINT ax_vegetationsmerkmal_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_vegetationsmerkmal','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_vegetationsmerkmal','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_vegetationsmerkmal_geom_idx ON ax_vegetationsmerkmal USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_vegetationsmerkmal_gml ON ax_vegetationsmerkmal USING btree (gml_id,beginnt);
@@ -3319,7 +3319,7 @@ CREATE TABLE ax_gewaessermerkmal (
 	CONSTRAINT ax_gewaessermerkmal_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_gewaessermerkmal','wkb_geometry',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_gewaessermerkmal','wkb_geometry',:alkis_epsg,'POINT',2);
 
 CREATE INDEX ax_gewaessermerkmal_geom_idx ON ax_gewaessermerkmal USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_gewaessermerkmal_gml ON ax_gewaessermerkmal USING btree (gml_id,beginnt);
@@ -3345,7 +3345,7 @@ CREATE TABLE ax_untergeordnetesgewaesser (
 	CONSTRAINT ax_untergeordnetesgewaesser_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_untergeordnetesgewaesser','wkb_geometry',25832,'GEOMETRY',2); -- LINESTRING/POLYGON
+SELECT AddGeometryColumn('ax_untergeordnetesgewaesser','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/POLYGON
 
 CREATE INDEX ax_untergeordnetesgewaesser_geom_idx ON ax_untergeordnetesgewaesser USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_untergeordnetesgewaesser_gml ON ax_untergeordnetesgewaesser USING btree (gml_id,beginnt);
@@ -3387,7 +3387,7 @@ CREATE TABLE ax_boeschungkliff (
 	anlass			varchar
 );
 
-SELECT AddGeometryColumn('ax_boeschungkliff','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_boeschungkliff','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_boeschungkliff_gml ON ax_boeschungkliff USING btree (gml_id,beginnt);
 
@@ -3410,7 +3410,7 @@ CREATE TABLE ax_boeschungsflaeche (
 	CONSTRAINT ax_boeschungsflaeche_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_boeschungsflaeche','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_boeschungsflaeche','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_boeschungsflaeche_geom_idx ON ax_boeschungsflaeche USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_boeschungsflaeche_gml ON ax_boeschungsflaeche USING btree (gml_id,beginnt);
@@ -3434,7 +3434,7 @@ CREATE TABLE ax_dammwalldeich (
 	CONSTRAINT ax_dammwalldeich_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_dammwalldeich','wkb_geometry',25832,'GEOMETRY',2); -- LINESTRING/POLYGON
+SELECT AddGeometryColumn('ax_dammwalldeich','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/POLYGON
 
 CREATE INDEX ax_dammwalldeich_geom_idx ON ax_dammwalldeich USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_dammwalldeich_gml ON ax_dammwalldeich USING btree (gml_id,beginnt);
@@ -3462,7 +3462,7 @@ CREATE TABLE ax_felsenfelsblockfelsnadel (
 	CONSTRAINT ax_felsenfelsblockfelsnadel_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_felsenfelsblockfelsnadel','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_felsenfelsblockfelsnadel','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_felsenfelsblockfelsnadel_geom_idx ON ax_felsenfelsblockfelsnadel USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_felsenfelsblockfelsnadel_gml ON ax_felsenfelsblockfelsnadel USING btree (gml_id,beginnt);
@@ -3509,7 +3509,7 @@ CREATE TABLE ax_gelaendekante (
 	CONSTRAINT ax_gelaendekante_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_gelaendekante','wkb_geometry',25832,'LINESTRING',2);
+SELECT AddGeometryColumn('ax_gelaendekante','wkb_geometry',:alkis_epsg,'LINESTRING',2);
 
 CREATE INDEX ax_gelaendekante_geom_idx ON ax_gelaendekante USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_gelaendekante_gml ON ax_gelaendekante USING btree (gml_id,beginnt);
@@ -3537,7 +3537,7 @@ CREATE TABLE ax_besondererhoehenpunkt (
 	CONSTRAINT ax_besondererhoehenpunkt_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_besondererhoehenpunkt','wkb_geometry',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_besondererhoehenpunkt','wkb_geometry',:alkis_epsg,'POINT',2);
 
 CREATE INDEX ax_besondererhoehenpunkt_geom_idx ON ax_besondererhoehenpunkt USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_besondererhoehenpunkt_gml ON ax_besondererhoehenpunkt USING btree (gml_id,beginnt);
@@ -3575,7 +3575,7 @@ CREATE TABLE ax_klassifizierungnachstrassenrecht (
 	CONSTRAINT ax_klassifizierungnachstrassenrecht_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_klassifizierungnachstrassenrecht','wkb_geometry',25832,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
+SELECT AddGeometryColumn('ax_klassifizierungnachstrassenrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
 
 CREATE INDEX ax_klassifizierungnachstrassenrecht_geom_idx   ON ax_klassifizierungnachstrassenrecht USING gist  (wkb_geometry);
 CREATE UNIQUE INDEX ax_klassifizierungnachstrassenrecht_gml ON ax_klassifizierungnachstrassenrecht USING btree (gml_id,beginnt);
@@ -3601,7 +3601,7 @@ CREATE TABLE ax_klassifizierungnachwasserrecht (
 	CONSTRAINT ax_klassifizierungnachwasserrecht_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_klassifizierungnachwasserrecht','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_klassifizierungnachwasserrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_klassifizierungnachwasserrecht_geom_idx ON ax_klassifizierungnachwasserrecht USING gist (wkb_geometry);
 CREATE INDEX ax_klassifizierungnachwasserrecht_afs ON ax_klassifizierungnachwasserrecht(land,stelle);
@@ -3631,7 +3631,7 @@ CREATE TABLE ax_bauraumoderbodenordnungsrecht (
 	CONSTRAINT ax_bauraumoderbodenordnungsrecht_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_bauraumoderbodenordnungsrecht','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_bauraumoderbodenordnungsrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_bauraumoderbodenordnungsrecht_geom_idx ON ax_bauraumoderbodenordnungsrecht USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_bauraumoderbodenordnungsrecht_gml ON ax_bauraumoderbodenordnungsrecht USING btree (gml_id,beginnt);
@@ -3665,7 +3665,7 @@ CREATE TABLE ax_sonstigesrecht (
 	CONSTRAINT ax_sonstigesrecht_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_sonstigesrecht','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_sonstigesrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_sonstigesrecht_geom_idx ON ax_sonstigesrecht USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_sonstigesrecht_gml ON ax_sonstigesrecht USING btree (gml_id,beginnt);
@@ -3701,7 +3701,7 @@ CREATE TABLE ax_bodenschaetzung (
 	CONSTRAINT ax_bodenschaetzung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_bodenschaetzung','wkb_geometry',25832,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
+SELECT AddGeometryColumn('ax_bodenschaetzung','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
 
 CREATE INDEX ax_bodenschaetzung_geom_idx ON ax_bodenschaetzung USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_bodenschaetzung_gml ON ax_bodenschaetzung USING btree (gml_id,beginnt);
@@ -3734,7 +3734,7 @@ CREATE TABLE ax_musterlandesmusterundvergleichsstueck (
 );
 
 
-SELECT AddGeometryColumn('ax_musterlandesmusterundvergleichsstueck','wkb_geometry',25832,'GEOMETRY',2); -- POLYGON/POINT
+SELECT AddGeometryColumn('ax_musterlandesmusterundvergleichsstueck','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/POINT
 
 CREATE INDEX ax_musterlandesmusterundvergleichsstueck_geom_idx ON ax_musterlandesmusterundvergleichsstueck USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_musterlandesmusterundvergleichsstueck_gml ON ax_musterlandesmusterundvergleichsstueck USING btree (gml_id,beginnt);
@@ -3764,7 +3764,7 @@ CREATE TABLE ax_bundesland (
 	CONSTRAINT ax_bundesland_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_bundesland','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_bundesland','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_bundesland_gml ON ax_bundesland USING btree (gml_id,beginnt);
 
@@ -3789,7 +3789,7 @@ CREATE TABLE ax_regierungsbezirk (
 	CONSTRAINT ax_regierungsbezirk_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_regierungsbezirk','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_regierungsbezirk','dummy',:alkis_epsg,'POINT',2);
 
 -- Verbindungstabellen indizieren
 CREATE UNIQUE INDEX ax_regierungsbezirk_gml ON ax_regierungsbezirk USING btree (gml_id,beginnt);
@@ -3818,7 +3818,7 @@ CREATE TABLE ax_kreisregion (
 	CONSTRAINT ax_kreisregion_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_kreisregion','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_kreisregion','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_kreisregion_gml ON ax_kreisregion USING btree (gml_id,beginnt);
 
@@ -3845,7 +3845,7 @@ CREATE TABLE ax_gemeinde (
 	CONSTRAINT ax_gemeinde_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_gemeinde','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_gemeinde','dummy',:alkis_epsg,'POINT',2);
 
 -- Index für alkis_beziehungen
 CREATE UNIQUE INDEX ax_gemeinde_gml ON ax_gemeinde USING btree (gml_id,beginnt);
@@ -3875,7 +3875,7 @@ CREATE TABLE ax_gemeindeteil (
 	CONSTRAINT ax_gemeindeteil_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_gemeindeteil','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_gemeindeteil','dummy',:alkis_epsg,'POINT',2);
 
 -- Index für alkis_beziehungen
 CREATE UNIQUE INDEX ax_gemeindeteil_gml ON ax_gemeindeteil USING btree (gml_id,beginnt);
@@ -3904,7 +3904,7 @@ CREATE TABLE ax_gemarkung (
 	CONSTRAINT ax_gemarkung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_gemarkung','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_gemarkung','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_gemarkung_gml ON ax_gemarkung USING btree (gml_id,beginnt);         -- Index für alkis_beziehungen
 CREATE INDEX ax_gemarkung_nr         ON ax_gemarkung USING btree (land, gemarkungsnummer); -- Such-Index, Verweis aus ax_Flurstueck
@@ -3932,7 +3932,7 @@ CREATE TABLE ax_gemarkungsteilflur (
 	CONSTRAINT ax_gemarkungsteilflur_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_gemarkungsteilflur','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_gemarkungsteilflur','dummy',:alkis_epsg,'POINT',2);
 
 -- Index für alkis_beziehungen
 CREATE UNIQUE INDEX ax_gemarkungsteilflur_gml ON ax_gemarkungsteilflur USING btree (gml_id,beginnt);
@@ -3960,7 +3960,7 @@ CREATE TABLE ax_buchungsblattbezirk (
 	CONSTRAINT ax_buchungsblattbezirk_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_buchungsblattbezirk','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_buchungsblattbezirk','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_buchungsblattbezirk_gml ON ax_buchungsblattbezirk USING btree (gml_id,beginnt);
 
@@ -3993,7 +3993,7 @@ CREATE TABLE ax_dienststelle (
 	CONSTRAINT ax_dienststelle_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_dienststelle','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_dienststelle','dummy',:alkis_epsg,'POINT',2);
 
 -- Index für alkis_beziehungen
 CREATE UNIQUE INDEX ax_dienststelle_gml ON ax_dienststelle USING btree (gml_id,beginnt);
@@ -4022,7 +4022,7 @@ CREATE TABLE ax_lagebezeichnungkatalogeintrag (
 	CONSTRAINT ax_lagebezeichnungkatalogeintrag_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_lagebezeichnungkatalogeintrag','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_lagebezeichnungkatalogeintrag','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_lagebezeichnungkatalogeintrag_gml ON ax_lagebezeichnungkatalogeintrag USING btree (gml_id,beginnt);
 
@@ -4057,7 +4057,7 @@ CREATE TABLE ax_kleinraeumigerlandschaftsteil (
 	name			varchar
 );
 
-SELECT AddGeometryColumn('ax_kleinraeumigerlandschaftsteil','wkb_geometry',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_kleinraeumigerlandschaftsteil','wkb_geometry',:alkis_epsg,'POINT',2);
 
 CREATE INDEX ax_kleinraeumigerlandschaftsteil_geom_idx   ON ax_kleinraeumigerlandschaftsteil USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_kleinraeumigerlandschaftsteil_gml ON ax_kleinraeumigerlandschaftsteil USING btree (gml_id,beginnt);
@@ -4080,7 +4080,7 @@ CREATE TABLE ax_wohnplatz (
 	CONSTRAINT ax_wohnplatz_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_wohnplatz','wkb_geometry',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_wohnplatz','wkb_geometry',:alkis_epsg,'POINT',2);
 
 CREATE INDEX ax_wohnplatz_geom_idx   ON ax_wohnplatz USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_wohnplatz_gml ON ax_wohnplatz USING btree (gml_id,beginnt);
@@ -4112,7 +4112,7 @@ CREATE TABLE ax_kommunalesgebiet (
 	CONSTRAINT ax_kommunalesgebiet_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_kommunalesgebiet','wkb_geometry',25832,'GEOMETRY',2);
+SELECT AddGeometryColumn('ax_kommunalesgebiet','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ax_kommunalesgebiet_geom_idx   ON ax_kommunalesgebiet USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_kommunalesgebiet_gml ON ax_kommunalesgebiet USING btree (gml_id,beginnt);
@@ -4136,7 +4136,7 @@ CREATE TABLE ax_vertretung (
 	CONSTRAINT ax_vertretung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_vertretung','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_vertretung','dummy',:alkis_epsg,'POINT',2);
 
 CREATE TABLE ax_verwaltungsgemeinschaft (
 	ogc_fid serial NOT NULL,
@@ -4156,7 +4156,7 @@ CREATE TABLE ax_verwaltungsgemeinschaft (
 	CONSTRAINT ax_verwaltungsgemeinschaft_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_verwaltungsgemeinschaft','dummy',25832,'POINT',2);
+SELECT AddGeometryColumn('ax_verwaltungsgemeinschaft','dummy',:alkis_epsg,'POINT',2);
 
 CREATE TABLE ax_verwaltung (
 	ogc_fid serial NOT NULL,
@@ -4170,8 +4170,7 @@ CREATE TABLE ax_verwaltung (
 	CONSTRAINT ax_verwaltung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_verwaltung','dummy',25832,'POINT',2);
-
+SELECT AddGeometryColumn('ax_verwaltung','dummy',:alkis_epsg,'POINT',2);
 
 --*** ############################################################
 --*** Objektbereich: Nutzerprofile

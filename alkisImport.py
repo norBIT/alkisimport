@@ -54,9 +54,9 @@ def getFiles(pattern, directory):
 		fi = QFileInfo(d, f)
 
 		if fi.isDir():
-			files.extend( getFiles( pattern, fi.filePath() ) )
+			files.extend( getFiles( pattern, unicode( fi.filePath() ) ) )
 		elif re.search( pattern, f):
-			files.append( os.path.abspath( fi.filePath() ) )
+			files.append( os.path.abspath( unicode( fi.filePath() ) ) )
 
 	return files
 
@@ -86,6 +86,10 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.lstFiles.addItems( s.value( "files", QVariant.fromList( QStringList() ) ).toStringList() )
 		self.cbxSkipFailures.setChecked( s.value( "skipfailures", False ).toBool() )
 		self.cbxDebug.setChecked( s.value( "debug", False ).toBool() )
+
+		self.cbEPSG.addItem( "UTM32N", "25832")
+		self.cbEPSG.addItem( "UTM33N", "25833")
+		self.cbEPSG.setCurrentIndex( self.cbEPSG.findData( s.value( "epsg", "25832" ).toString() ) )
 
 		self.albDSN.setText( s.value( "albDSN", "" ).toString() )
 		self.albUID.setText( s.value( "albUID", "" ).toString() )
@@ -380,7 +384,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 
 	def runSQLScript(self, conn, fn):
-		return self.runProcess([self.psql, "-q", "-f", fn, conn])
+		return self.runProcess([self.psql, "-v", "alkis_epsg=%s" % self.epsg, "-q", "-f", fn, conn])
 
 
 	def run(self):
@@ -409,6 +413,9 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		s.setValue( "files", files )
 		s.setValue( "skipfailures", self.cbxSkipFailures.isChecked() )
 		s.setValue( "debug", self.cbxDebug.isChecked() )
+
+		self.epsg=self.cbEPSG.itemData( self.cbEPSG.currentIndex() ).toString()
+		s.setValue( "epsg", self.epsg)
 
 		if self.leSERVICE.text()<>'':
 			conn = "service=%s " % self.leSERVICE.text()
@@ -665,7 +672,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 						"-append",
 						"-update",
 						"PG:%s" % conn,
-						"-a_srs", "EPSG:25832",
+						"-a_srs", "EPSG:%s" % self.epsg
 						]
 
 					if self.cbxSkipFailures.isChecked():
