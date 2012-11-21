@@ -172,7 +172,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		dirs = []
 
 		for f in files:
-			f = os.path.abspath(f)
+			f = os.path.abspath( unicode(f) )
 			self.lstFiles.addItem( f )
 			dirs.append( os.path.dirname( f ) )
 

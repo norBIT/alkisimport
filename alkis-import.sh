@@ -62,7 +62,7 @@ if [ -d "$PWD/gdal-dev" ]; then
 elif [ -d "$HOME/src/gdal/apps/.libs" ]; then
 	export PATH=$HOME/src/gdal/apps/.libs:$PATH
 	export LD_LIBRARY_PATH=$HOME/src/gdal/.libs
-	export GDAL_DATA=/usr/share/gdal/1.9
+	export GDAL_DATA=/usr/share/gdal/1.10
 fi
 
 B=${0%/*}   # BASEDIR

@@ -5,8 +5,9 @@ all: alkisImportDlg.py
 diff:
 	diff -wur --exclude "*.pyc" --exclude Makefile --exclude alkis-import-env.cmd --exclude .git $(DESTDIR) .
 
-update:
+update: all
 	rsync -avpP \
+		--exclude "*.pyc" \
 		alkis-ableitungsregeln.sql \
 		alkis-compat.sql \
 		alkis-functions.sql \

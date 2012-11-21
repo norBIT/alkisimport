@@ -1896,7 +1896,7 @@ CREATE TABLE ax_besonderegebaeudelinie (
 	CONSTRAINT ax_besonderegebaeudelinie_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_besonderegebaeudelinie','wkb_geometry',:alkis_epsg,'LINESTRING',2);
+SELECT AddGeometryColumn('ax_besonderegebaeudelinie','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/MULTILINESTRING
 
 CREATE INDEX ax_besonderegebaeudelinie_geom_idx ON ax_besonderegebaeudelinie USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_besonderegebaeudelinie_gml ON ax_besonderegebaeudelinie USING btree (gml_id,beginnt);
