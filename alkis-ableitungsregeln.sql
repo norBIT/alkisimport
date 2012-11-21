@@ -236,7 +236,7 @@ bei von:% bis:%',
 --						st_astext(st_endpoint(r1.line));
 				END IF;
 
-				l := st_linemerge(st_collect(l,r1.line));
+				l := st_setsrid(st_linemerge(st_collect(l,r1.line)),st_srid(l));
 
 				IF geometrytype(l)='MULTILINESTRING' THEN
 					RAISE EXCEPTION 'MULTILINESTRING after merge: %', st_astext(l);
@@ -553,7 +553,7 @@ WHERE (
 
 SELECT alkis_dropobject('alkis_joinlines');
 CREATE TABLE alkis_joinlines(ogc_fid INTEGER, gml_id VARCHAR, visited BOOLEAN, PRIMARY KEY(ogc_fid));
-SELECT AddGeometryColumn('alkis_joinlines','line',(SELECT srid FROM geometry_columns WHERE f_table_name='po_labels' AND f_geometry_column='line'),'LINESTRING',2);
+SELECT AddGeometryColumn('alkis_joinlines','line',(SELECT srid FROM geometry_columns WHERE f_table_name='po_lines' AND f_geometry_column='line'),'LINESTRING',2);
 CREATE INDEX alkis_joinlines_line ON alkis_joinlines USING GIST (line);
 CREATE INDEX alkis_joinlines_visited ON alkis_joinlines(visited);
 
