@@ -86,7 +86,7 @@
 --                - "delete_feature()" ist nun ein Trigger
 
 -- 2012-04-24 FJ  Datei alkis-funktions aus Diff zum GDAL-Patch #4555 hier integriert
---                Umschaltung mit/ohne Historie über Vernüpfung Trigger -> Function
+--                Umschaltung mit/ohne Historie über Verknüpfung Trigger -> Function
 --                Typ 'GEOMETRY' bei Tabellen: AX_WegPfadSteig, AX_UntergeordnetesGewaesser
 
 --  VERSIONS-NUMMER:
