@@ -516,6 +516,10 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 				self.log(u"Konnte ogr2ogr-Version nicht abfragen!")
 				break
 
+			if not self.runProcess([self.ogr2ogr, "--utility_version"]):
+				self.log(u"Konnte ogr2ogr-Bibliotheksversion nicht abfragen!")
+				break
+
 			self.psql = which("psql")
 			if not self.psql:
 				self.psql = which("psql.exe")

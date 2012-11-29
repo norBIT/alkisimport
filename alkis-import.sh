@@ -53,23 +53,23 @@ timeunits() {
 	echo $r
 }
 
+B=${0%/*}   # BASEDIR
+if [ "$0" = "$B" ]; then
+	B=.
+fi
+P=${0##*/}  # PROGNAME
+
 export LC_CTYPE=de_DE.UTF-8
 export TEMP=/tmp
-if [ -d "$PWD/gdal-dev" ]; then
-	export PATH=$PWD/gdal-dev/bin:$PATH
-	export GDAL_DATA=$(cygpath -w $PWD/gdal-dev/share/gdal)
+if [ -d "$B/gdal-dev" ]; then
+	export PATH=$B/gdal-dev/bin:$PATH
+	export GDAL_DATA=$(cygpath -w $B/gdal-dev/share/gdal)
 	TEMP=$(cygpath -w $TEMP)
 elif [ -d "$HOME/src/gdal/apps/.libs" ]; then
 	export PATH=$HOME/src/gdal/apps/.libs:$PATH
 	export LD_LIBRARY_PATH=$HOME/src/gdal/.libs
 	export GDAL_DATA=/usr/share/gdal/1.10
 fi
-
-B=${0%/*}   # BASEDIR
-if [ "$0" = "$B" ]; then
-	B=.
-fi
-P=${0##*/}  # PROGNAME
 
 F=$1
 if [ -z "$F" ]; then
@@ -86,6 +86,9 @@ if [ -z "$BASH_VERSION" ]; then
 fi
 
 echo "START $(bdate)"
+
+ogr2ogr --version
+ogr2ogr --utility_version
 
 export CPL_DEBUG
 
@@ -141,8 +144,11 @@ do
 		DRIVER=PostgreSQL
 		sql() {
 			pushd "$B"
-			psql -v alkis_epsg=$EPSG -q -f "$1" "$DB"
+			psql -P pager=null -v alkis_epsg=$EPSG -q -f "$1" "$DB"
 			popd >/dev/null
+		}
+		runsql() {
+			psql -P pager=null -c "$1" "$DB"
 		}
 		dump() {
 			pg_dump -Fc -f "$1" "$DB"
@@ -161,6 +167,13 @@ do
 			pushd "$B/oci"
 			sqlplus "$DB" @$1
 			popd >/dev/null
+		}
+		runsql() {
+			sqlplus "$DB" <<EOF
+$1;
+commit;
+quit;
+EOF
 		}
 		dump() {
 			exp "$DB" file=$1 owner=$user statistics=none
@@ -225,7 +238,7 @@ do
 
 		src=${src#execute }
 		echo "EXECUTE $src $(bdate)"
-		sql "$src"
+		runsql "$src"
 		continue
 		;;
 
