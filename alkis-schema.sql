@@ -61,9 +61,9 @@
 --		  - ax_dammwalldeich.name ergänzt
 --		  - ax_naturumweltoderbodenschutzrecht.name ergänzt
 --		  - ax_gelaendekante.art ergänzt
---		  - ax_bauteil.advstandardmodel varchar => varchar[]
---		  - ax_gemarkung.advstandardmodel varchar => varchar[]
---		  - ax_buchungsstelle.advstandardmodel.zaehler/nenner => double precision
+--		  - ax_bauteil.advstandardmodell varchar => varchar[]
+--		  - ax_gemarkung.advstandardmodell varchar => varchar[]
+--		  - ax_buchungsstelle.advstandardmodell.zaehler/nenner => double precision
 --                - signaturnummer: integer => varchar
 --                - anlass: integer => varchar
 --		  - ax_historischesflurstueckalb.buchungsblattkennzeichen: double precision => varchar
@@ -913,7 +913,7 @@ CREATE TABLE ap_darstellung (
 	identifier		character(44),
 	beginnt			character(20),			-- Datumsformat
 	endet 			character(20),			-- Datumsformat
-	advstandardmodell	varchar,
+	advstandardmodell	varchar[],
 	anlass			varchar,
 	art			varchar,		-- (37)
 	darstellungsprioritaet  integer,
@@ -1603,7 +1603,6 @@ CREATE TABLE ax_person (
 	akademischergrad		varchar,  -- 'Akademischer Grad' ist der akademische Grad der Person (z.B. Dipl.-Ing., Dr., Prof. Dr.)
 	--art				varchar,  -- (37)  Wozu?
 	--uri				varchar,  -- Wozu ?
-	-- hat				varchar,      -- bliebt leer, Beziehung?
 	CONSTRAINT ax_person_pk PRIMARY KEY (ogc_fid)
 );
 

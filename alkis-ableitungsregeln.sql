@@ -685,7 +685,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Strasse','Weg') AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
+JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Strasse','Weg') AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000' AND NOT (t.gml_id LIKE 'DENW%' AND t.advstandardmodell IS NOT NULL)
 WHERE o.endet IS NULL;
 
 -- Platz/Bahnverkehr

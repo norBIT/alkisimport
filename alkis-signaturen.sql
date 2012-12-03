@@ -831,6 +831,8 @@ INSERT INTO alkis_randlinie(id,farbe,strichart,strichstaerke,abschluss,scheitel)
 INSERT INTO alkis_randlinie(id,farbe,strichart,strichstaerke,abschluss,scheitel) VALUES (252, 13, NULL, 10, 'Rund', 'Rund');
 INSERT INTO alkis_linien(signaturnummer,darstellungsprioritaet,name,seite,farbe) VALUES (2003, 130, '{"Lahnung","Schöpfwerk","Sonstiges Bauwerk im Gewässerbereich","Sperrwerk","Wehr"}', 32, 2);
 INSERT INTO alkis_linie(id,i,signaturnummer,strichart,kontur,abschluss,scheitel,strichstaerke,pfeilhoehe,pfeillaenge,position) VALUES (87, 0, 2003, NULL, NULL, 'Abgeschnitten', 'Spitz', '18', NULL, NULL, NULL);
+
+-- NW
 INSERT INTO alkis_schriften(signaturnummer,darstellungsprioritaet,name,seite,art,stil,grad_pt,horizontaleausrichtung,vertikaleausrichtung,farbe,alignment_umn,alignment_dxf,sperrung_pt,effekt,position) VALUES ('8111', '380', '{"Schriftformat F 11"}', '302', 'Arial', 'Fett', '11', NULL, NULL, '2', NULL, NULL, NULL, NULL,st_geomfromtext(NULL,0));
 INSERT INTO alkis_schriften(signaturnummer,darstellungsprioritaet,name,seite,art,stil,grad_pt,horizontaleausrichtung,vertikaleausrichtung,farbe,alignment_umn,alignment_dxf,sperrung_pt,effekt,position) VALUES ('8112', '699', '{"Schriftformat N 7 380 liM"}', '302', 'Arial', 'Unterstrichen', '7', 'Mitte', 'linksbÃ¼ndig', '2', 'CL', '4', NULL, NULL,st_geomfromtext(NULL,0));
 INSERT INTO alkis_schriften(signaturnummer,darstellungsprioritaet,name,seite,art,stil,grad_pt,horizontaleausrichtung,vertikaleausrichtung,farbe,alignment_umn,alignment_dxf,sperrung_pt,effekt,position) VALUES ('8113', '380', '{"Schriftformat F 11"}', '302', 'Arial', 'Fett', '11', NULL, NULL, '2', NULL, NULL, NULL, NULL,st_geomfromtext(NULL,0));
