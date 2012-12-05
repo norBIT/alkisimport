@@ -402,7 +402,7 @@ SELECT
 FROM ax_flurstueck o
 JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZAE_NEN' AND t.endet IS NULL AND t.signaturnummer IN ('4113','4122','6000')
-WHERE o.endet IS NULL;
+WHERE o.endet IS NULL AND coalesce(signaturnummer,'')<>'6000';
 
 -- Zähler
 -- Bruchdarstellung, wo nicht Schrägstrichdarstellung erzwungen
