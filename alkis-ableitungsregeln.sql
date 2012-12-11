@@ -3508,7 +3508,7 @@ LEFT OUTER JOIN (
 LEFT OUTER JOIN (
 	alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='Vorratsbehaelter' AND d.endet IS NULL
 ) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
-WHERE o.endet IS NULL AND coalesce(d.signaturnummer,'')<>'6000';
+WHERE o.endet IS NULL AND coalesce(p.signaturnummer,'')<>'6000';
 
 -- Vorratsbehälter, Speicherbauwerk, Name
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
@@ -6537,7 +6537,7 @@ FROM (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ADF' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE (artderfestlegung=1621 OR (o.gml_id LIKE 'DERP%' AND artderfestlegung IN (1610,1612,1621,1622,1632,1634,1641,1642,1653,1655,1656,1662))) AND o.endet IS NULL
-) AS o WHERE NOT text IS NULL;
+) AS o WHERE NOT text IS NULL AND coalesce(signaturnummer,'6000')<>'6000';
 
 -- Namen
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
