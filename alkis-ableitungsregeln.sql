@@ -3436,7 +3436,7 @@ FROM (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL AND NOT name IS NULL
-) AS n;
+) AS n WHERE coalesce(signaturnummer,'6000')<>'6000';
 
 -- Bauwerk- oder Anlage für Industrie und Gewerbe, Zustandstext
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
@@ -3464,7 +3464,7 @@ FROM (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZUS' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL AND zustand IN (2100,2200,4200)
-) AS n;
+) AS n WHERE coalesce(signaturnummer,'6000')<>'6000';
 
 
 --
@@ -3477,38 +3477,51 @@ SELECT
 	gml_id,
 	'Industrie und Gewerbe' AS thema,
 	'ax_vorratsbehaelterspeicherbauwerk' AS layer,
-	st_multi(wkb_geometry) AS polygon,
-	CASE
-	WHEN lagezurerdoberflaeche IS NULL THEN 1305
-	WHEN lagezurerdoberflaeche=1200    THEN 1321
-	WHEN lagezurerdoberflaeche=1400    THEN 20311304
-	END AS signaturnummer
-FROM ax_vorratsbehaelterspeicherbauwerk
-WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON');
+	polygon,
+	signaturnummer
+FROM (
+	SELECT
+		gml_id,
+		st_multi(wkb_geometry) AS polygon,
+		CASE
+		WHEN lagezurerdoberflaeche IS NULL THEN 1305
+		WHEN lagezurerdoberflaeche=1200    THEN 1321
+		WHEN lagezurerdoberflaeche=1400    THEN 20311304
+		END AS signaturnummer
+	FROM ax_vorratsbehaelterspeicherbauwerk
+	WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON')
+) AS o WHERE coalesce(signaturnummer,'6000')<>'6000';
 
 -- Vorratsbehälter, Speicherbauwerk, Symbole
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer)
 SELECT
-	o.gml_id,
+	gml_id,
 	'Industrie und Gewerbe' AS thema,
 	'ax_vorratsbehaelterspeicherbauwerk' AS layer,
-	st_multi(coalesce(
-		p.wkb_geometry,
-		CASE
-		WHEN geometrytype(o.wkb_geometry) IN ('POINT','MULTIPOINT')     THEN o.wkb_geometry
-		WHEN geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') THEN st_centroid(o.wkb_geometry)
-		END
-	)) AS point,
-	coalesce(p.drehwinkel,0) AS drehwinkel,
-	coalesce(p.signaturnummer,'3522') AS signaturnummer
-FROM ax_vorratsbehaelterspeicherbauwerk o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Vorratsbehaelter' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-LEFT OUTER JOIN (
-	alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='Vorratsbehaelter' AND d.endet IS NULL
-) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
-WHERE o.endet IS NULL AND coalesce(p.signaturnummer,'')<>'6000';
+	point,
+	drehwinkel,
+	signaturnummer
+FROM (
+	SELECT
+		o.gml_id,
+		st_multi(coalesce(
+			p.wkb_geometry,
+			CASE
+			WHEN geometrytype(o.wkb_geometry) IN ('POINT','MULTIPOINT')     THEN o.wkb_geometry
+			WHEN geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') THEN st_centroid(o.wkb_geometry)
+			END
+		)) AS point,
+		coalesce(p.drehwinkel,0) AS drehwinkel,
+		coalesce(p.signaturnummer,'3522') AS signaturnummer
+	FROM ax_vorratsbehaelterspeicherbauwerk o
+	LEFT OUTER JOIN (
+		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Vorratsbehaelter' AND p.endet IS NULL
+	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN (
+		alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='Vorratsbehaelter' AND d.endet IS NULL
+	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	WHERE o.endet IS NULL
+) AS o WHERE signaturnummer<>'6000';
 
 -- Vorratsbehälter, Speicherbauwerk, Name
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
@@ -3532,7 +3545,7 @@ FROM (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL AND NOT name IS NULL
-) AS n;
+) AS n WHERE signaturnummer<>'6000';
 
 
 --
@@ -3738,7 +3751,7 @@ FROM (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BWF' AND p.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o WHERE coalesce(signaturnummer,'6000')<>'6000';
 
 -- Bauwerk oder Anlage für Sport, Freizeit und Erholung, Name
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
@@ -3762,7 +3775,7 @@ FROM (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL AND NOT name IS NULL
-) AS n;
+) AS n WHERE coalesce(signaturnummer,'6000')<>'6000';
 
 -- Bauwerk oder Anlage für Sport, Freizeit und Erholung, Sportart
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
