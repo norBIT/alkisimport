@@ -89,9 +89,13 @@
 --                Umschaltung mit/ohne Historie über Verknüpfung Trigger -> Function
 --                Typ 'GEOMETRY' bei Tabellen: AX_WegPfadSteig, AX_UntergeordnetesGewaesser
 
+-- 2012-10-31 FJ  Trigger fuer NAS-Replace-Sätze repariert:
+--                siehe: FUNCTION delete_feature_kill()
+--                ax_historischesflurstueck.buchungsart ist Text nicht integer.
+
 --  VERSIONS-NUMMER:
 
---  Dies Schema kann nicht mehr mit der installierbaren gdal-Version 1.9 verwendet werden.
+--  Dies Schema kann NICHT mehr mit der installierbaren gdal-Version 1.9 verwendet werden.
 --  Derzeit muss ogr2ogr (gdal) aus den Quellen compiliert werden, die o.g. Patch enthalten.
 --  Weiterführung dieses Zweiges als PostNAS 0.7
 
@@ -513,7 +517,7 @@ CREATE UNIQUE INDEX ax_historischesflurstueckalb_gml ON ax_historischesflurstuec
 COMMENT ON TABLE  ax_historischesflurstueckalb        IS 'Historisches Flurstück ALB';
 COMMENT ON COLUMN ax_historischesflurstueckalb.gml_id IS 'Identifikator, global eindeutig';
 CREATE INDEX idx_histfsalb_vor
-   ON ax_historischesflurstueckalb USING btree (vorgaengerflurstueckskennzeichen /*  ASC*/);
+   ON ax_historischesflurstueckalb USING btree (vorgaengerflurstueckskennzeichen /* ASC */);
   COMMENT ON INDEX idx_histfsalb_vor IS 'Suchen nach Vorgänger-Flurstück';
 
 CREATE INDEX idx_histfsalb_nach

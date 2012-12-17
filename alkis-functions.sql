@@ -365,9 +365,12 @@ $$ LANGUAGE plpgsql;
 -- Löschsatz verarbeiten (OHNE Historie)
 -- historische Objekte werden sofort gelöscht.
 -- Siehe Mail W. Jacobs vom 23.03.2012 in PostNAS-Mailingliste
+-- geaendert krz FJ 2012-10-31
 CREATE OR REPLACE FUNCTION delete_feature_kill() RETURNS TRIGGER AS $$
 DECLARE
 	query TEXT;
+	begsql TEXT;
+	aktbeg TEXT;
 	gml_id TEXT;
 BEGIN
 	NEW.typename := lower(NEW.typename);
@@ -379,16 +382,55 @@ BEGIN
 	END IF;
 
 	IF NEW.context='delete' THEN
-		query := 'DELETE FROM ' || NEW.typename || ' WHERE gml_id = ''' || gml_id || '''';
+		-- ersatzloses Loeschen eines Objektes
+
+		query := 'DELETE FROM ' || NEW.typename
+			|| ' WHERE gml_id = ''' || gml_id || '''';
 		EXECUTE query;
 
-		query := 'DELETE FROM alkis_beziehungen WHERE beziehung_von = ''' || gml_id || ''' OR beziehung_zu = ''' || gml_id || '''';
+		query := 'DELETE FROM alkis_beziehungen WHERE beziehung_von = ''' || gml_id
+			|| ''' OR beziehung_zu = ''' || gml_id || '''';
 		EXECUTE query;
+		RAISE NOTICE 'Lösche gml_id % in % und Beziehungen', gml_id, NEW.typename;
+
 	ELSE
-		-- replace
-		query := 'DELETE FROM ' || NEW.typename || ' WHERE gml_id = ''' || gml_id || '''';
+		-- Ersetzen eines Objektes
+		-- In der objekt-Tabelle sind bereits 2 Objekte vorhanden (alt und neu).
+		-- Die 2 Datensätze unterscheiden sich nur in ogc_fid und beginnt
+
+		-- beginnt-Wert des aktuellen Objektes ermitteln
+		-- RAISE NOTICE 'Suche beginnt von neuem gml_id % ', substr(NEW.replacedBy, 1, 16);
+		begsql := 'SELECT max(beginnt) FROM ' || NEW.typename || ' WHERE gml_id = ''' || substr(NEW.replacedBy, 1, 16) || ''' AND endet IS NULL';
+		EXECUTE begsql INTO aktbeg;
+
+		-- Nur alte Objekte entfernen
+		query := 'DELETE FROM ' || NEW.typename
+			|| ' WHERE gml_id = ''' || gml_id || ''' AND beginnt < ''' || aktbeg || '''';
 		EXECUTE query;
-		-- alkis_beziehungen bleibt so
+
+		-- Tabelle alkis_beziehungen
+		IF gml_id = substr(NEW.replacedBy, 1, 16) THEN -- gml_id gleich
+			-- Beziehungen des Objektes wurden redundant noch einmal eingetragen
+			-- ToDo:         HIER sofort die Redundanzen zum aktuellen Objekt beseitigen.
+			-- Workaround: Nach der Konvertierung werden im Post-Processing
+			--             ALLE Redundanzen mit einem SQL-Statemant beseitigt.
+		--	RAISE NOTICE 'Ersetze gleiche gml_id % in %', gml_id, NEW.typename;
+
+		-- ENTWURF ungetestet:
+		--query := 'DELETE FROM alkis_beziehungen AS bezalt
+		--	WHERE (bezalt.beziehung_von = ' || gml_id || ' OR bezalt.beziehung_zu = ' || gml_id ||')
+		--	AND EXISTS (SELECT ogc_fid FROM alkis_beziehungen AS bezneu
+		--		WHERE bezalt.beziehung_von = bezneu.beziehung_von
+		--		AND bezalt.beziehung_zu = bezneu.beziehung_zu
+		--		AND bezalt.beziehungsart = bezneu.beziehungsart
+		--		AND bezalt.ogc_fid < bezneu.ogc_fid);'
+		--EXECUTE query;
+
+		ELSE
+			-- replace mit ungleicher gml_id
+			-- Falls dies vorkommt, die Function erweitern
+			RAISE EXCEPTION '%: neue gml_id % bei Replace in %. alkis_beziehungen muss aktualisiert werden!', gml_id, NEW.replacedBy, NEW.typename;
+		END IF;
 	END IF;
 
 	NEW.ignored := false;
@@ -396,7 +438,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Im Trigger 'delete_feature_trigger' muss eine dieser beiden Funktion
+-- Im Trigger 'delete_feature_trigger' muss eine dieser beiden Funktionen
 -- (delete_feature_hist oder delete_feature_kill) verlinkt werden, je nachdem ob nur
 -- aktuelle oder auch historische Objekte in der Datenbank geführt werden sollen.
 
@@ -413,7 +455,7 @@ BEGIN
 		ORDER BY table_name
 	LOOP
 		EXECUTE 'DELETE FROM ' || c.table_name || ' WHERE NOT endet IS NULL';
-		RAISE NOTICE 'Lösche ''endet'' in: %', c.table_name;
+		-- RAISE NOTICE 'Lösche ''endet'' in: %', c.table_name;
 	END LOOP;
 END;
 $$ LANGUAGE plpgsql;
