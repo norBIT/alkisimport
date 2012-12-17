@@ -3512,7 +3512,7 @@ FROM (
 			END
 		)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		coalesce(p.signaturnummer,'3522') AS signaturnummer
+		coalesce(d.signaturnummmer,p.signaturnummer,'3522') AS signaturnummer
 	FROM ax_vorratsbehaelterspeicherbauwerk o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Vorratsbehaelter' AND p.endet IS NULL
