@@ -402,7 +402,7 @@ SELECT
 FROM ax_flurstueck o
 JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZAE_NEN' AND t.endet IS NULL AND t.signaturnummer IN ('4113','4122','6000')
-WHERE o.endet IS NULL AND coalesce(signaturnummer,'')<>'6000';
+WHERE o.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000';
 
 -- Zähler
 -- Bruchdarstellung, wo nicht Schrägstrichdarstellung erzwungen
@@ -510,7 +510,7 @@ SELECT
 	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung
 FROM ax_gemarkungsteilflur o
 JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BEZ' AND t.endet IS NULL
+JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BEZ' AND t.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000'
 WHERE coalesce(t.schriftinhalt,'')<>'Flur 0' AND o.endet IS NULL;
 
 --
@@ -622,7 +622,7 @@ JOIN ax_punktortta ta ON bo.beziehung_von=ta.gml_id AND ta.endet IS NULL AND bo.
 LEFT OUTER JOIN (
 	alkis_beziehungen bt JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.endet IS NULL
 ) ON p.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-WHERE coalesce(besonderePunktnummer,'')<>'' AND p.endet IS NULL;
+WHERE coalesce(besonderePunktnummer,'')<>'' AND p.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000';
 
 
 --
@@ -643,7 +643,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND art='Ort' AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
+JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND art='Ort' AND t.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000'
 WHERE coalesce(schriftinhalt,'')<>'' AND o.endet IS NULL;
 
 -- Lagebezeichnungen
@@ -665,7 +665,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art='Gewanne' AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
+JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art='Gewanne' AND t.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 -- Straße/Weg
@@ -705,7 +705,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Platz','Bahnverkehr') AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
+JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Platz','Bahnverkehr') AND t.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 -- Fließgewässer/Stehendes Gewässer
@@ -725,7 +725,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Fliessgewaesser','StehendesGewaesser') AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
+JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Fliessgewaesser','StehendesGewaesser') AND t.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 -- ohne Hausnummer auf Linie
@@ -746,7 +746,7 @@ SELECT
 	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_lto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Strasse','Weg') AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
+JOIN ap_lto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Strasse','Weg') AND t.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 -- Platz/Bahnverkehr, Text auf Linien
@@ -766,7 +766,7 @@ SELECT
 	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu
-JOIN ap_lto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Platz','Bahnverkehr') AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
+JOIN ap_lto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Platz','Bahnverkehr') AND t.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 -- Fließgewässer/Stehendes Gewässer, Text auf Linien
@@ -786,7 +786,7 @@ SELECT
 	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_lto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Fliessgewaesser','StehendesGewaesser') AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
+JOIN ap_lto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Fliessgewaesser','StehendesGewaesser') AND t.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 
@@ -808,7 +808,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungmithausnummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND art='Ort' AND t.endet IS NULL AND coalesce(signaturnummer,'')<>'6000'
+JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND art='Ort' AND t.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000'
 WHERE coalesce(schriftinhalt,'')<>'' AND o.endet IS NULL;
 
 -- mit Hausnummer (bezieht sich auf Gebäude, Turm oder Flurstück)
@@ -833,7 +833,7 @@ JOIN (
 	LEFT OUTER JOIN ax_turm t       ON bg.beziehung_von=t.gml_id AND t.endet IS NULL
 	LEFT OUTER JOIN ax_gebaeude g   ON bg.beziehung_von=g.gml_id AND g.endet IS NULL
 	LEFT OUTER JOIN ax_flurstueck f ON bg.beziehung_von=f.gml_id AND f.endet IS NULL
-) ON o.gml_id=bg.beziehung_zu AND bg.beziehungsart='zeigtAuf' AND coalesce(t.ogc_fid,g.ogc_fid,f.ogc_fid) IS NOT NULL AND coalesce(signaturnummer,'')<>'6000'
+) ON o.gml_id=bg.beziehung_zu AND bg.beziehungsart='zeigtAuf' AND coalesce(t.ogc_fid,g.ogc_fid,f.ogc_fid) IS NOT NULL AND coalesce(tx.signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 
@@ -972,7 +972,7 @@ SELECT
 	'ax_gebaeude' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
-	coalesce(p.signaturnummer,o.signaturnummer) AS signaturnummer
+	coalesce(d.signaturnummer,p.signaturnummer,o.signaturnummer) AS signaturnummer
 FROM (
 	SELECT
 		gml_id,
@@ -1016,7 +1016,7 @@ LEFT OUTER JOIN (
 LEFT OUTER JOIN (
 	alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='GFK' AND d.endet IS NULL
 ) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
-WHERE coalesce(p.signaturnummer,o.signaturnummer,'6000')<>'6000' AND coalesce(d.signaturnummer,'')<>'6000';
+WHERE coalesce(d.signaturnummer,p.signaturnummer,o.signaturnummer,'6000')<>'6000';
 
 -- Gebäudebeschriftungen
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
@@ -1165,7 +1165,7 @@ FROM (
         ) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
 	WHERE NOT gebaeudefunktion IS NULL
 ) AS o
-WHERE NOT text IS NULL;
+WHERE NOT text IS NULL AND coalesce(signaturnummer,'6000')<>'6000';
 
 /*
 -- TODO: Gebäudenamen für weitere Funktionen  (Mehrere Namen? Und Funktionen? Gleich viele oder wie ist das zu kombinieren?)
@@ -1183,7 +1183,7 @@ FROM ax_gebaeude o
 LEFT OUTER JOIN (
   alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZAE_NEN' AND (t.signaturnummer IS NULL OR t.signaturnummer IN (4122,4123)) AND t.endet IS NULL
 ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-WHERE NOT name IS NULL AND o.endet IS NULL;
+WHERE NOT name IS NULL AND o.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000';
 */
 
 -- Geschosszahl
@@ -1232,7 +1232,7 @@ FROM ax_gebaeude o
 LEFT OUTER JOIN (
   alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='DAF' AND t.endet IS NULL
 ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-WHERE NOT dachform IS NULL AND o.endet IS NULL;
+WHERE NOT dachform IS NULL AND o.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000';
 
 -- Gebäudezustände
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
@@ -1255,7 +1255,7 @@ FROM ax_gebaeude o
 LEFT OUTER JOIN (
   alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZUS' AND t.endet IS NULL
 ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-WHERE zustand IN (2200,2300,3000,4000) AND o.endet IS NULL;
+WHERE zustand IN (2200,2300,3000,4000) AND o.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000';
 
 
 --
@@ -1267,38 +1267,44 @@ SELECT 'Gebäudeteile werden verarbeitet.';
 -- Gebäudeteile (Bauteil)
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer)
 SELECT
-	o.gml_id,
+	gml_id,
 	'Gebäude' AS thema,
 	'ax_bauteil' AS layer,
-	st_multi(wkb_geometry) AS polygon,
-	CASE
-	WHEN bat=1100 AND ofl=0      THEN 2507
-	WHEN bat=1100 AND ofl=1400   THEN 2508
-	WHEN bat=1200 AND ofl=0      THEN 2507
-	WHEN bat=1200 AND ofl=1400   THEN 2508
-	WHEN bat=1300 AND ofl=0      THEN 2509
-	WHEN bat=1300 AND ofl=1400   THEN 2511
-	WHEN bat=1400 AND ofl=0      THEN 2507
-	WHEN bat=1400 AND ofl=1400   THEN 2508
-	WHEN bat=2000 AND ofl=0      THEN 2507
-	WHEN bat=2000 AND ofl=1200   THEN 2512
-	WHEN bat=2100 AND ofl=0      THEN 2507
-	WHEN bat=2100 AND ofl=1200   THEN 2512
-	WHEN bat IN (2300,2350,2400,2500,2510,2520,2610,2620) THEN 2507
-	WHEN bat=2710                THEN 2513
-	WHEN bat=2720                THEN 2514
-	WHEN bat=9999 AND ofl=0      THEN 2507
-	WHEN bat=9999 AND ofl=1400   THEN 2508
-	END AS signaturnummer
+	polygon,
+	signaturnummer
 FROM (
 	SELECT
-		gml_id,
-		bauart AS bat,
-		coalesce(lagezurerdoberflaeche,0) AS ofl,
-		wkb_geometry
-	FROM ax_bauteil
-	WHERE endet IS NULL
-) AS o;
+		o.gml_id,
+		st_multi(wkb_geometry) AS polygon,
+		CASE
+		WHEN bat=1100 AND ofl=0      THEN 2507
+		WHEN bat=1100 AND ofl=1400   THEN 2508
+		WHEN bat=1200 AND ofl=0      THEN 2507
+		WHEN bat=1200 AND ofl=1400   THEN 2508
+		WHEN bat=1300 AND ofl=0      THEN 2509
+		WHEN bat=1300 AND ofl=1400   THEN 2511
+		WHEN bat=1400 AND ofl=0      THEN 2507
+		WHEN bat=1400 AND ofl=1400   THEN 2508
+		WHEN bat=2000 AND ofl=0      THEN 2507
+		WHEN bat=2000 AND ofl=1200   THEN 2512
+		WHEN bat=2100 AND ofl=0      THEN 2507
+		WHEN bat=2100 AND ofl=1200   THEN 2512
+		WHEN bat IN (2300,2350,2400,2500,2510,2520,2610,2620) THEN 2507
+		WHEN bat=2710                THEN 2513
+		WHEN bat=2720                THEN 2514
+		WHEN bat=9999 AND ofl=0      THEN 2507
+		WHEN bat=9999 AND ofl=1400   THEN 2508
+		END AS signaturnummer
+	FROM (
+		SELECT
+			gml_id,
+			bauart AS bat,
+			coalesce(lagezurerdoberflaeche,0) AS ofl,
+			wkb_geometry
+		FROM ax_bauteil
+		WHERE endet IS NULL
+	) AS o
+) AS o WHERE NOT signaturnummer IS NULL;
 
 -- Gebäudeteilsymbole
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer)
@@ -1313,7 +1319,7 @@ FROM ax_bauteil o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BAT' AND p.endet IS NULL
 ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-WHERE bauart=2100 AND o.endet IS NULL;
+WHERE bauart=2100 AND o.endet IS NULL AND coalesce(p.signaturnummer,'')<>'6000';
 
 -- Gebäudeteildachform
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
@@ -1345,7 +1351,7 @@ FROM ax_bauteil o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='DAF' AND t.endet IS NULL
 ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-WHERE NOT dachform IS NULL AND o.endet IS NULL;
+WHERE NOT dachform IS NULL AND o.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000';
 
 -- Gebäudeteil, oberirdische Geschosse
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
@@ -1361,7 +1367,7 @@ FROM ax_bauteil o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='AOG' AND t.endet IS NULL
 ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-WHERE NOT anzahlderoberirdischengeschosse IS NULL AND o.endet IS NULL;
+WHERE NOT anzahlderoberirdischengeschosse IS NULL AND o.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000';
 
 -- Besondere Gebäudelinien
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer)
@@ -1437,7 +1443,7 @@ FROM (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
         ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL
-) AS n WHERE NOT text IS NULL;
+) AS n WHERE NOT text IS NULL AND coalesce(signaturnummer,'')<>'6000';
 
 
 --
@@ -3512,7 +3518,7 @@ FROM (
 			END
 		)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
-		coalesce(d.signaturnummmer,p.signaturnummer,'3522') AS signaturnummer
+		coalesce(d.signaturnummer,p.signaturnummer,'3522') AS signaturnummer
 	FROM ax_vorratsbehaelterspeicherbauwerk o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Vorratsbehaelter' AND p.endet IS NULL
@@ -6723,7 +6729,7 @@ FROM (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL AND NOT name IS NULL AND artderfestlegung IN (1750,1840,2100,2110,2120,2130,2140,2150)
-) AS n WHERE NOT text IS NULL;
+) AS n WHERE NOT text IS NULL AND coalesce(signaturnummer,'')<>'6000';
 
 --
 -- Denkmalschutzrecht (71009; RP)
@@ -6764,7 +6770,7 @@ FROM (
 	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ADF' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND o.gml_id LIKE 'DERP%'
-) AS o WHERE NOT text IS NULL;
+) AS o WHERE NOT text IS NULL AND coalesce(signaturnummer,'')<>'6000';
 
 --
 -- Sonstiges Recht (71011)
@@ -6815,7 +6821,7 @@ FROM (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ART' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL AND (NOT name IS NULL AND artderfestlegung=4720)
-) AS n WHERE NOT text IS NULL;
+) AS n WHERE NOT text IS NULL AND coalesce(signaturnummer,'')<>'6000';
 
 -- Namen
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
@@ -6839,7 +6845,7 @@ FROM (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL AND (NOT name IS NULL AND artderfestlegung=4720)
-) AS n WHERE NOT text IS NULL;
+) AS n WHERE NOT text IS NULL AND coalesce(signaturnummer,'')<>'6000';
 
 --
 -- Wohnplatz (74005)
@@ -6868,7 +6874,7 @@ FROM (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL AND NOT name IS NULL
-) AS n WHERE NOT text IS NULL;
+) AS n WHERE NOT text IS NULL AND coalesce(signaturnummer,'')<>'6000';
 
 --
 -- Migrationsobjekt: Gebäudeausgestaltung (91001)
