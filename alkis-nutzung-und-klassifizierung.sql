@@ -296,7 +296,7 @@ BEGIN
 			'v_schutzgebietnachwasserrecht',
 			'v_schutzgebietnachnaturumweltoderbodenschutzrecht',
 			'ax_naturumweltoderbodenschutzrecht',
-			-- 'ax_forstrecht',
+			'ax_forstrecht',
 			'ax_bauraumoderbodenordnungsrecht',
 			'ax_klassifizierungnachstrassenrecht',
 			'ax_denkmalschutzrecht',

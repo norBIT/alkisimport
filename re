@@ -38,7 +38,7 @@
 ^\s+public\.alkis_schriften\.position SRID:0 TYPE:POINT DIMS:2\s*$
 ^\s+public\.alkis_joinlines\.line SRID:\d+ TYPE:LINESTRING DIMS:2\s*$
 ^\s+public\.alkis_linie\.position SRID:0 TYPE:LINESTRING DIMS:2\s*$
-^\(\d+ rows?\)\s*$
+^\(\d+ (Zeilen?|rows?)\)\s*$
 ^removed.*\.(gfs|xml)'\s*$
 ^CONTEXT:  (SQL statement|SQL-Anweisung) \S+(DROP TABLE .* CASCADE|CREATE TABLE)
 PL\/pgSQL function "(alkis_dropobject|alkis_joinlines|alkis_besondereflurstuecksgrenze)" line \d+ at (EXECUTE statement|SQL statement|execute statement|EXECUTE-Anweisung|SQL-Anweisung)
@@ -60,6 +60,7 @@ ERROR:  sequence "alkis_(farben|konturen|linie|randlinie|strichart|stricharten|s
 ^NAS: Overwriting existing property AX_HistorischesFlurstueck.buchung\|AX_Buchung_HistorischesFlurstueck|(buchungsblattkennzeichen|buchungsblattnummerMitBuchstabenerweiterung) of value '.*' with '.*' \(gml_id: .*\)\.
 ^NAS: Overwriting existing property AX_HistorischesFlurstueckALB.buchung\|AX_Buchung_HistorischesFlurstueck\|(laufendeNummerDerBuchungsstelle|buchungsblattkennzeichen|buchungsblattnummerMitBuchstabenerweiterung|buchungsart) of value '.*' with '.*' \(gml_id: .*\)\.
 ^NAS: Overwriting existing property .* of value '(?P<overwrittenvalue>[^']+)' with '(?P=overwrittenvalue)' \(gml_id: .*\)\.$
+^NAS: Failed to translate srsName='urn:adv:crs:ETRS89_UTM33'
 ^DETAIL:  (Schl\S+ssel \S+|Key )\(gml_id, beginnt\)=(.*) (already exists|existiert bereits)\.\s*$
 ^PG: PQexecParams\(INSERT INTO "(ax_bundesland|ax_dienststelle|ax_buchungsblattbezirk|ax_kreisregion|ax_regierungsbezirk|ax_lagebezeichnungohnehausnummer)" \(
 ^PG: Truncated (alkis_beziehungen\.beziehung_(von|zu)|.*\.gml_id) field value '.*' to 16 characters\.
@@ -68,29 +69,32 @@ ERROR:  sequence "alkis_(farben|konturen|linie|randlinie|strichart|stricharten|s
 .*L.+schvorgang l.+scht ebenfalls .*$
 ^Command: INSERT INTO "(ax_[a-z]+|ap_pto|ap_lpo|ap_ppo|ap_darstellung)" \("
 .*(FEHLER:  doppelter Schl\S+sselwert verletzt Unique-Constraint \S+|ERROR:  duplicate key value violates unique constraint ")(ax_[a-z]+|ap_pto|ap_lpo|ap_ppo|ap_darstellung)_gml\S+\s*$
-Warning 1: Skipping field 'administrativeFunktion' not found in destination layer 'ax_gemeinde'\.
-Warning 1: Skipping field 'an' not found in destination layer 'ax_buchungsstelle'\.
-Warning 1: Skipping field 'benennt' not found in destination layer 'ax_namensnummer'\.
-Warning 1: Skipping field 'bestehtAusRechtsverhaeltnissenZu' not found in destination layer 'ax_namensnummer'\.
-Warning 1: Skipping field 'bezeichnung' not found in destination layer 'ax_(denkmalschutzrecht|naturumweltoderbodenschutzrecht)'\.
-Warning 1: Skipping field 'buchung\|AX_Buchung_HistorischesFlurstueck\|buchungsblattbezirk\|AX_Buchungsblattbezirk_Schluessel\|land' not found in destination layer 'ax_(historischesflurstueck|historischesflurstueckalb)'\.
-Warning 1: Skipping field 'CharacterString' not found in destination layer 'ax_(anschrift|bahnverkehr|bauraumoderbodenordnungsrecht|bauwerkimgewaesserbereich|bauwerkimverkehrsbereich|bauwerkoderanlagefuerindustrieundgewerbe|bauwerkoderanlagefuersportfreizeitunderholung|bewertung|bodenschaetzung|denkmalschutzrecht|flaechebesondererfunktionalerpraegung|flaechegemischternutzung|fliessgewaesser|friedhof|gebaeude|gehoelz|grablochderbodenschaetzung|halde|heide|industrieundgewerbeflaeche|klassifizierungnachstrassenrecht|klassifizierungnachwasserrecht|landwirtschaft|leitung|musterlandesmusterundvergleichsstueck|naturumweltoderbodenschutzrecht|person|platz|punktortag|punktortau|punktortta|schutzgebietnachwasserrecht|sonstigesbauwerkodersonstigeeinrichtung|sportfreizeitunderholungsflaeche|stehendesgewaesser|strassenverkehr|sumpf|tagebaugrubesteinbruch|transportanlage|turm|unlandvegetationsloseflaeche|wald|weg|wohnbauflaeche|anderefestlegungnachwasserrecht|moor|vorratsbehaelterspeicherbauwerk|schiffsverkehr|flugverkehr|hafenbecken)'\.
-Warning 1: Skipping field 'DateTime' not found in destination layer 'ax_(anschrift|bahnverkehr|bauraumoderbodenordnungsrecht|bauwerkimgewaesserbereich|bauwerkimverkehrsbereich|bauwerkoderanlagefuerindustrieundgewerbe|bauwerkoderanlagefuersportfreizeitunderholung|bewertung|bodenschaetzung|denkmalschutzrecht|flaechebesondererfunktionalerpraegung|flaechegemischternutzung|fliessgewaesser|friedhof|gebaeude|gehoelz|grablochderbodenschaetzung|halde|heide|industrieundgewerbeflaeche|klassifizierungnachstrassenrecht|klassifizierungnachwasserrecht|landwirtschaft|leitung|musterlandesmusterundvergleichsstueck|naturumweltoderbodenschutzrecht|person|platz|punktortag|punktortau|punktortta|schutzgebietnachwasserrecht|sonstigesbauwerkodersonstigeeinrichtung|sonstigesrecht|sportfreizeitunderholungsflaeche|stehendesgewaesser|strassenverkehr|sumpf|tagebaugrubesteinbruch|transportanlage|turm|unlandvegetationsloseflaeche|wald|weg|wohnbauflaeche)'\.$
-Warning 1: Skipping field 'dientZurDarstellungVon' not found in destination layer 'ap_(darstellung|lpo|ppo|pto|lto)'\.
-Warning 1: Skipping field 'gehoertZu' not found in destination layer 'ax_sonstigesbauwerkodersonstigeeinrichtung'\.
-Warning 1: Skipping field 'gehoertZu\|AX_Dienststelle_Schluessel\|land' not found in destination layer 'ax_buchungsblattbezirk'\.
-Warning 1: Skipping field 'gemeindezugehoerigkeit\|AX_Gemeindekennzeichen\|land' not found in destination layer 'ax_(flurstueck|historischesflurstueck)'\.
-Warning 1: Skipping field 'hat' not found in destination layer '(ap_pto|ax_person|ax_aufnahmepunkt|ax_dienststelle|ax_sonstigervermessungspunkt)'\.
-Warning 1: Skipping field 'hatAuch' not found in destination layer 'ax_georeferenziertegebaeudeadresse'\.
-Warning 1: Skipping field 'istAmtsbezirkVon\|AX_Dienststelle_Schluessel\|land' not found in destination layer 'ax_gemarkung'\.
-Warning 1: Skipping field 'istAmtsbezirkVon|AX_Dienststelle_Schluessel|land' not found in destination layer 'ax_bundesland'.
-Warning 1: Skipping field 'istBestandteilVon' not found in destination layer 'ax_(buchungsstelle|namensnummer)'\.
-Warning 1: Skipping field 'istGebucht' not found in destination layer 'ax_flurstueck'\.
-Warning 1: Skipping field 'istTeilVon' not found in destination layer 'ax_(gemeinde|punktort(ag|au|ta)|schutzzone|boeschungsflaeche)'\.
-Warning 1: Skipping field 'qualitaetsangaben\|AX_DQMitDatenerhebung\|herkunft\|LI_Lineage\|source\|LI_Source\|description\|CharacterString' not found in destination layer 'ax_.*'\.
-Warning 1: Skipping field 'qualitaetsangaben\|AX_DQPunktort\|herkunft\|LI_Lineage\|processStep\|LI_ProcessStep\|description\|CharacterString' not found in destination layer 'ax_punktort(ag|au|ta)'\.
-Warning 1: Skipping field 'qualitaetsangaben\|AX_DQPunktort\|herkunft\|LI_Lineage\|source\|LI_Source\|description\|CharacterString' not found in destination layer 'ax_punktort(ag|au|ta)'\.
-Warning 1: Skipping field 'weistAuf' not found in destination layer 'ax_flurstueck'\.
-Warning 1: Skipping field 'zeigtAuf' not found in destination layer 'ax_(flurstueck|gebaeude|turm|grenzpunkt)'\.
-Warning 1: Skipping field 'zu' not found in destination layer 'ax_buchungsstelle'\.
-Warning 1: Skipping field 'zustaendigeStelle|AX_Dienststelle_Schluessel|land' not found in destination layer 'ax_flurstueck'.
+(OGR2OGR|Warning 1): Skipping field 'AX_Datenerhebung' not found in destination layer 'ax_.*'\.
+(OGR2OGR|Warning 1): Skipping field 'AX_Datenerhebung_Punktort' not found in destination layer 'ax_punktort.*'\.
+(OGR2OGR|Warning 1): Skipping field 'administrativeFunktion' not found in destination layer 'ax_gemeinde'\.
+(OGR2OGR|Warning 1): Skipping field 'an' not found in destination layer 'ax_buchungsstelle'\.
+(OGR2OGR|Warning 1): Skipping field 'benennt' not found in destination layer 'ax_namensnummer'\.
+(OGR2OGR|Warning 1): Skipping field 'bestehtAusRechtsverhaeltnissenZu' not found in destination layer 'ax_namensnummer'\.
+(OGR2OGR|Warning 1): Skipping field 'bezeichnung' not found in destination layer 'ax_(denkmalschutzrecht|naturumweltoderbodenschutzrecht)'\.
+(OGR2OGR|Warning 1): Skipping field 'buchung\|AX_Buchung_HistorischesFlurstueck\|buchungsblattbezirk\|AX_Buchungsblattbezirk_Schluessel\|land' not found in destination layer 'ax_(historischesflurstueck|historischesflurstueckalb)'\.
+(OGR2OGR|Warning 1): Skipping field 'CharacterString' not found in destination layer 'ax_(anschrift|bahnverkehr|bauraumoderbodenordnungsrecht|bauwerkimgewaesserbereich|bauwerkimverkehrsbereich|bauwerkoderanlagefuerindustrieundgewerbe|bauwerkoderanlagefuersportfreizeitunderholung|bewertung|bodenschaetzung|denkmalschutzrecht|flaechebesondererfunktionalerpraegung|flaechegemischternutzung|fliessgewaesser|friedhof|gebaeude|gehoelz|grablochderbodenschaetzung|halde|heide|industrieundgewerbeflaeche|klassifizierungnachstrassenrecht|klassifizierungnachwasserrecht|landwirtschaft|leitung|musterlandesmusterundvergleichsstueck|naturumweltoderbodenschutzrecht|person|platz|punktortag|punktortau|punktortta|schutzgebietnachwasserrecht|sonstigesbauwerkodersonstigeeinrichtung|sportfreizeitunderholungsflaeche|stehendesgewaesser|strassenverkehr|sumpf|tagebaugrubesteinbruch|transportanlage|turm|unlandvegetationsloseflaeche|wald|weg|wohnbauflaeche|anderefestlegungnachwasserrecht|moor|vorratsbehaelterspeicherbauwerk|schiffsverkehr|flugverkehr|hafenbecken)'\.
+(OGR2OGR|Warning 1): Skipping field 'DateTime' not found in destination layer 'ax_(anschrift|bahnverkehr|bauraumoderbodenordnungsrecht|bauwerkimgewaesserbereich|bauwerkimverkehrsbereich|bauwerkoderanlagefuerindustrieundgewerbe|bauwerkoderanlagefuersportfreizeitunderholung|bewertung|bodenschaetzung|denkmalschutzrecht|flaechebesondererfunktionalerpraegung|flaechegemischternutzung|fliessgewaesser|friedhof|gebaeude|gehoelz|grablochderbodenschaetzung|halde|heide|industrieundgewerbeflaeche|klassifizierungnachstrassenrecht|klassifizierungnachwasserrecht|landwirtschaft|leitung|musterlandesmusterundvergleichsstueck|naturumweltoderbodenschutzrecht|person|platz|punktortag|punktortau|punktortta|schutzgebietnachwasserrecht|sonstigesbauwerkodersonstigeeinrichtung|sonstigesrecht|sportfreizeitunderholungsflaeche|stehendesgewaesser|strassenverkehr|sumpf|tagebaugrubesteinbruch|transportanlage|turm|unlandvegetationsloseflaeche|wald|weg|wohnbauflaeche)'\.$
+(OGR2OGR|Warning 1): Skipping field 'dientZurDarstellungVon' not found in destination layer 'ap_(darstellung|lpo|ppo|pto|lto)'\.
+(OGR2OGR|Warning 1): Skipping field 'gehoertZu' not found in destination layer 'ax_sonstigesbauwerkodersonstigeeinrichtung'\.
+(OGR2OGR|Warning 1): Skipping field 'gehoertZu\|AX_Dienststelle_Schluessel\|land' not found in destination layer 'ax_buchungsblattbezirk'\.
+(OGR2OGR|Warning 1): Skipping field 'gemeindezugehoerigkeit\|AX_Gemeindekennzeichen\|land' not found in destination layer 'ax_(flurstueck|historischesflurstueck)'\.
+(OGR2OGR|Warning 1): Skipping field 'hat' not found in destination layer '(ap_pto|ax_person|ax_aufnahmepunkt|ax_dienststelle|ax_sonstigervermessungspunkt)'\.
+(OGR2OGR|Warning 1): Skipping field 'hatAuch' not found in destination layer 'ax_georeferenziertegebaeudeadresse'\.
+(OGR2OGR|Warning 1): Skipping field 'istAmtsbezirkVon\|AX_Dienststelle_Schluessel\|land' not found in destination layer 'ax_gemarkung'\.
+(OGR2OGR|Warning 1): Skipping field 'istAmtsbezirkVon|AX_Dienststelle_Schluessel|land' not found in destination layer 'ax_bundesland'.
+(OGR2OGR|Warning 1): Skipping field 'istBestandteilVon' not found in destination layer 'ax_(buchungsstelle|namensnummer)'\.
+(OGR2OGR|Warning 1): Skipping field 'istGebucht' not found in destination layer 'ax_flurstueck'\.
+(OGR2OGR|Warning 1): Skipping field 'istTeilVon' not found in destination layer 'ax_(gemeinde|punktort(ag|au|ta)|schutzzone|boeschungsflaeche)'\.
+(OGR2OGR|Warning 1): Skipping field 'qualitaetsangaben\|AX_DQMitDatenerhebung\|herkunft\|LI_Lineage\|source\|LI_Source\|description\|CharacterString' not found in destination layer 'ax_.*'\.
+(OGR2OGR|Warning 1): Skipping field 'qualitaetsangaben\|AX_DQPunktort\|herkunft\|LI_Lineage\|processStep\|LI_ProcessStep\|description\|CharacterString' not found in destination layer 'ax_punktort(ag|au|ta)'\.
+(OGR2OGR|Warning 1): Skipping field 'qualitaetsangaben\|AX_DQPunktort\|herkunft\|LI_Lineage\|source\|LI_Source\|description\|CharacterString' not found in destination layer 'ax_punktort(ag|au|ta)'\.
+(OGR2OGR|Warning 1): Skipping field 'weistAuf' not found in destination layer 'ax_flurstueck'\.
+(OGR2OGR|Warning 1): Skipping field 'zeigtAuf' not found in destination layer 'ax_(flurstueck|gebaeude|turm|grenzpunkt)'\.
+(OGR2OGR|Warning 1): Skipping field 'zu' not found in destination layer 'ax_buchungsstelle'\.
+(OGR2OGR|Warning 1): Skipping field 'zustaendigeStelle|AX_Dienststelle_Schluessel|land' not found in destination layer 'ax_flurstueck'.
+(OGR2OGR|Warning 1): Value '(?P<intvalue>\d+).0+' of field ax_gebaeude\.grundflaeche parsed incompletely to integer (?P=intvalue)\.

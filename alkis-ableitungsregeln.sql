@@ -4973,6 +4973,7 @@ JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ART' AND p.endet IS NULL
 WHERE o.endet IS NULL AND geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND NOT bahnkategorie IS NULL AND o.art=1200;
 
 -- Gleis, Linien
+-- TODO: Mischsignaturen
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer)
 SELECT
 	gml_id,
@@ -4993,27 +4994,27 @@ FROM (
 			END
 		WHEN bahnkategorie=1201 THEN
 			CASE
-			WHEN lagezuroberflaeche IS NULL THEN 25253646
-			WHEN lagezuroberflaeche=1200    THEN 23003636
-			WHEN lagezuroberflaeche=1400    THEN 23013646
+			WHEN lagezuroberflaeche IS NULL THEN 2525 -- 3646
+			WHEN lagezuroberflaeche=1200    THEN 2300 -- 3636
+			WHEN lagezuroberflaeche=1400    THEN 2301 -- 3646
 			END
 		WHEN bahnkategorie IN (1300,1301) THEN
 			CASE
-			WHEN lagezuroberflaeche IS NULL THEN 25253647
-			WHEN lagezuroberflaeche=1200    THEN 23003647
-			WHEN lagezuroberflaeche=1400    THEN 23013647
+			WHEN lagezuroberflaeche IS NULL THEN 2525 -- 3647
+			WHEN lagezuroberflaeche=1200    THEN 2300 -- 3647
+			WHEN lagezuroberflaeche=1400    THEN 2301 -- 3647
 			END
 		WHEN bahnkategorie=1302 THEN
 			CASE
-			WHEN lagezuroberflaeche IS NULL THEN 25253648
-			WHEN lagezuroberflaeche=1200    THEN 23003648
-			WHEN lagezuroberflaeche=1400    THEN 23013648
+			WHEN lagezuroberflaeche IS NULL THEN 2525 -- 3648
+			WHEN lagezuroberflaeche=1200    THEN 2300 -- 3648
+			WHEN lagezuroberflaeche=1400    THEN 2301 -- 3648
 			END
 		WHEN bahnkategorie=1600 THEN
 			CASE
-			WHEN lagezuroberflaeche IS NULL THEN 25253649
-			WHEN lagezuroberflaeche=1200    THEN 23003649
-			WHEN lagezuroberflaeche=1400    THEN 23013649
+			WHEN lagezuroberflaeche IS NULL THEN 2525 -- 3649
+			WHEN lagezuroberflaeche=1200    THEN 2300 -- 3649
+			WHEN lagezuroberflaeche=1400    THEN 2301 -- 3649
 			END
 		END AS signaturnummer
 	FROM ax_gleis o
@@ -5603,7 +5604,9 @@ FROM (
 	WHERE geometrytype(o.wkb_geometry) IN ('POINT','MULTIPOINT') AND endet IS NULL
 ) AS o WHERE NOT signaturnummer IS NULL;
 
+/*
 -- Linien
+-- TODO: Zickzacklinie - Wasserfall
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer)
 SELECT
 	gml_id,
@@ -5621,6 +5624,7 @@ FROM (
 	FROM ax_gewaessermerkmal o
 	WHERE geometrytype(o.wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
 ) AS o WHERE NOT signaturnummer IS NULL;
+*/
 
 -- Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer)
@@ -6254,10 +6258,8 @@ FROM (
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
-/*
 --
 -- Düne (61007)
--- TODO: In Schema aufnehmen
 --
 
 SELECT 'Dünen werden verarbeitet.';
@@ -6276,7 +6278,7 @@ WHERE endet IS NULL;
 -- Flächensymbole
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer)
 SELECT
-	gml_id,
+	o.gml_id,
 	'Topographie' AS thema,
 	'ax_duene' AS layer,
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
@@ -6299,22 +6301,22 @@ SELECT
 	'ax_duene' AS layer,
 	point,
 	text,
-	signaturnummer
+	signaturnummer,
+	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.signaturnummer,'4118') AS signaturnummer,
-		coalesce(t.schriftinhalt,name) AS text
+		coalesce(t.schriftinhalt,name) AS text,
+		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_duene o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
-*/
 
-/*
 --
 -- Höhenlinien (61008)
 -- TODO: Ins Schema aufnehmen
@@ -6330,12 +6332,12 @@ SELECT
 	'ax_hoehenlinie' AS layer,
 	st_multi(wkb_geometry) AS line,
 	CASE
-	WHEN hoehevonhoehenlinie%20=0    THEN 2670
-	WHEN hoehevonhoehenlinie%10=0    THEN 2672
-	WHEN hoehevonhoehenlinie*2%10=0  THEN 2674
-	WHEN hoehevonhoehenlinie*4%10=0  THEN 2676
-	WHEN hoehevonhoehenlinie*20%10=0 THEN 2676
-	WHEN hoehevonhoehenlinie*40%10=0 THEN 2676
+	WHEN hoehevonhoehenlinie::int%20=0	THEN 2670
+	WHEN hoehevonhoehenlinie::int%10=0	THEN 2672
+	WHEN (hoehevonhoehenlinie*2)::int%10=0  THEN 2674
+	WHEN (hoehevonhoehenlinie*4)::int%10=0  THEN 2676
+	WHEN (hoehevonhoehenlinie*20)::int%10=0 THEN 2676
+	WHEN (hoehevonhoehenlinie*40)::int%10=0 THEN 2676
 	END AS signaturnummer
 FROM ax_hoehenlinie
 WHERE endet IS NULL;
@@ -6348,13 +6350,13 @@ SELECT
 	'ax_hoehenlinie' AS layer,
 	coalesce(t.wkb_geometry,st_line_interpolate_point(o.wkb_geometry,0.5)) AS point,
 	hoehevonhoehenlinie AS text,
-	coalesce(t.signaturnummer,'4104') AS signaturnummer
+	coalesce(t.signaturnummer,'4104') AS signaturnummer,
+	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM ax_hoehenlinie o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='HHL' AND t.endet IS NULL
 ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-WHERE o.endet IS NULL AND NOT hoehevonhoehenlinien IS NULL;
-*/
+WHERE o.endet IS NULL AND NOT hoehevonhoehenlinie IS NULL;
 
 --
 -- Besonderer topographischer Punkt (61009)
