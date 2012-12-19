@@ -222,7 +222,7 @@ CREATE INDEX gema_shl_ag_shl ON gema_shl(ag_shl);
 DELETE FROM str_shl WHERE NOT EXISTS (SELECT * FROM strassen WHERE str_shl.strshl=strassen.strshl);
 DELETE FROM gema_shl WHERE NOT EXISTS (SELECT * FROM flurst WHERE flurst.gemashl=gema_shl.gemashl);
 
-UPDATE gema_shl SET gemshl=(SELECT DISTINCT gemshl FROM flurst WHERE flurst.gemashl=gema_shl.gemashl);
+UPDATE gema_shl SET gemshl=(SELECT gemshl FROM flurst WHERE flurst.gemashl=gema_shl.gemashl LIMIT 1);
 
 DELETE FROM gem_shl
   WHERE NOT EXISTS (SELECT * FROM gema_shl WHERE gema_shl.gemshl=gem_shl.gemshl)

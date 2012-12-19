@@ -263,6 +263,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Im Trigger 'delete_feature_trigger' muss eine dieser beiden Funktionen
+-- (delete_feature_hist oder delete_feature_kill) verlinkt werden, je nachdem ob nur
+-- aktuelle oder auch historische Objekte in der Datenbank geführt werden sollen.
 
 -- Löschsatz verarbeiten (MIT Historie)
 -- context='delete'        => "endet" auf aktuelle Zeit setzen
@@ -293,34 +296,26 @@ BEGIN
 			RAISE EXCEPTION '%: safeToIgnore ''%'' ungültig (''true'' oder ''false'' erwartet).', NEW.featureid, NEW.safetoignore;
 		END IF;
 
-		IF NEW.replacedBy IS NULL OR NEW.replacedBy = '' THEN
+		IF NEW.replacedBy IS NULL OR length(NEW.replacedBy)<16 THEN
 			IF NEW.safetoignore = 'true' THEN
-				RAISE NOTICE '%: Nachfolger nicht gesetzt - ignoriert', NEW.featureid;
+				RAISE NOTICE '%: Nachfolger ''%'' nicht richtig gesetzt - ignoriert', NEW.featureid, NEW.replacedBy;
 				NEW.ignored := true;
 				RETURN NEW;
 			ELSE
-				RAISE EXCEPTION '%: Nachfolger nicht gesetzt', NEW.featureid;
+				RAISE EXCEPTION '%: Nachfolger ''%'' nicht richtig gesetzt - Abbruch', NEW.featureid, NEW.replacedBy;
 			END IF;
 		END IF;
 
-		sql := 'SELECT beginnt FROM ' || NEW.typename || ' WHERE identifier=''urn:adv:oid:' || NEW.replacedBy || '''';
-		-- RAISE NOTICE 'SQL: %', sql;
-
-		-- FEHLER: identifier enthält nur gml_id, aber nicht den Timestamp dahinter
-		--         Daher wird das zu ersetzende Objekt nicht gefunden
-
-		EXECUTE sql INTO endete;
-
-		IF endete IS NULL AND length(NEW.replacedBy)>16 THEN
-			RAISE NOTICE '%: Nachfolger % nicht gefunden - versuche ''%''', NEW.featureid, NEW.replacedBy, substr(NEW.replacedBy, 1, 16);
-			sql := 'SELECT beginnt FROM ' || NEW.typename
-			    || ' WHERE gml_id=''' || substr(NEW.replacedBy, 1, 16) || ''''
-			    || ' AND endet IS NULL'
-			    || ' AND identifier<>''urn:adv:oid:'|| NEW.featureid || ''''
-			    || ' ORDER BY beginnt DESC'
-			    || ' LIMIT 1';
-			EXECUTE sql INTO endete;
-			gml_id := gml_id || ''' AND beginnt<>''' || endete;
+		IF length(NEW.replacedBy)=16 THEN
+			EXECUTE 'SELECT beginnt FROM ' || NEW.typename ||
+			        ' WHERE gml_id=''' || NEW.replacedBy || ''' AND endet IS NULL'
+				' ORDER BY beginnt DESC LIMIT 1'
+                           INTO endete;
+		ELSE
+			-- replaceBy mit Timestamp
+			EXECUTE 'SELECT beginnt FROM ' || NEW.typename ||
+			        ' WHERE identifier=''urn:adv:oid:' || NEW.replacedBy || ''''
+                           INTO endete;
 		END IF;
 
 		IF endete IS NULL THEN
@@ -332,16 +327,15 @@ BEGIN
 				RAISE EXCEPTION '%: Nachfolger % nicht gefunden', NEW.featureid, NEW.replacedBy;
 			END IF;
 		END IF;
-
-		-- RAISE NOTICE '%: Nachfolgeobjekt beginnt um %.', NEW.featureid, endete;
 	ELSE
 		RAISE EXCEPTION '%: Ungültiger Kontext % (''delete'' oder ''replace'' erwartet).', NEW.featureid, NEW.context;
 	END IF;
 
 	sql	:= 'UPDATE ' || NEW.typename
 		|| ' SET endet=''' || endete || ''''
-		|| ' WHERE (identifier=''urn:adv:oid:' || NEW.featureid || ''' OR identifier=''urn:adv:oid:' || gml_id || ''')'
-		|| ' AND endet IS NULL';
+		|| ' WHERE gml_id=''' || gml_id || ''''
+		|| ' AND endet IS NULL'
+		|| ' AND beginnt<''' || endete || '''';
 	-- RAISE NOTICE 'SQL: %', sql;
 	EXECUTE sql;
 	GET DIAGNOSTICS n = ROW_COUNT;
@@ -352,7 +346,7 @@ BEGIN
 			NEW.ignored := true;
 			RETURN NEW;
 		ELSE
-			RAISE EXCEPTION '%: Untergangsdatum von % Objekten statt nur einem auf % gesetzt - ignoriert', NEW.featureid, n, endete;
+			RAISE EXCEPTION '%: Untergangsdatum von % Objekten statt nur einem auf % gesetzt - Abbruch', NEW.featureid, n, endete;
 		END IF;
 	END IF;
 
@@ -438,16 +432,20 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Im Trigger 'delete_feature_trigger' muss eine dieser beiden Funktionen
--- (delete_feature_hist oder delete_feature_kill) verlinkt werden, je nachdem ob nur
--- aktuelle oder auch historische Objekte in der Datenbank geführt werden sollen.
+-- BeziehungssÃ¤tze aufrÃ¤umen
+CREATE OR REPLACE FUNCTION alkis_beziehung_inserted() RETURNS TRIGGER AS $$
+BEGIN
+	DELETE FROM alkis_beziehungen WHERE ogc_fid<NEW.ogc_fid AND beziehung_von=NEW.beziehung_von AND beziehungsart=NEW.beziehungsart AND beziehung_zu=NEW.beziehung_zu;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
 -- Wenn die Datenbank MIT Historie angelegt wurde, kann nach dem Laden hiermit aufgeräumt werden.
 CREATE OR REPLACE FUNCTION alkis_delete_all_endet() RETURNS void AS $$
 DECLARE
 	c RECORD;
 BEGIN
-	-- In allen Tabellen die Objekte Löschen, die ein Ende-Datum haben
+	-- In allen Tabellen die Objekte löschen, die ein Ende-Datum haben
 	FOR c IN
 		SELECT table_name
 		FROM information_schema.columns a
