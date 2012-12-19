@@ -308,7 +308,7 @@ BEGIN
 
 		IF length(NEW.replacedBy)=16 THEN
 			EXECUTE 'SELECT beginnt FROM ' || NEW.typename ||
-			        ' WHERE gml_id=''' || NEW.replacedBy || ''' AND endet IS NULL'
+			        ' WHERE gml_id=''' || NEW.replacedBy || ''' AND endet IS NULL' ||
 				' ORDER BY beginnt DESC LIMIT 1'
                            INTO endete;
 		ELSE
