@@ -433,3 +433,20 @@ INSERT INTO afst_shl(ausf_st,afst_txt)
     bezeichnung
   FROM ax_dienststelle d
   WHERE EXISTS (SELECT * FROM ausfst WHERE ausf_st=to_char(d.land,'fm00') || d.stelle);
+
+
+SELECT 'Belege Baulastenblattnummer...';
+
+CREATE TABLE bblnr_temp AS
+	SELECT
+		to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(f.flurnummer,'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
+		b.bezeichnung
+        FROM ax_flurstueck f,ax_bauraumoderbodenordnungsrecht b
+        WHERE f.endet IS NULL AND b.endet IS NULL AND b.artderfestlegung=2610
+	  AND f.wkb_geometry && b.wkb_geometry AND st_intersects(f.wkb_geometry,b.wkb_geometry);
+
+CREATE INDEX bblnr_temp_flsnr ON bblnr_temp(flsnr);
+
+UPDATE flurst SET blbnr=(SELECT array_to_string(array_agg(DISTINCT b.bezeichnung),',') FROM bblnr_temp b WHERE flurst.flsnr=b.flsnr);
+
+DROP TABLE bblnr_temp;

@@ -51,7 +51,7 @@ CREATE TABLE flurst (
     lagebez character(54),
     k_anlverm character(1),
     anl_verm character(27),
-    blbnr character(33),
+    blbnr character(200),
     n_flst character(22),
     ff_entst integer NOT NULL,
     ff_stand integer,
