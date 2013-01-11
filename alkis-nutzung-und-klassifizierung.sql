@@ -437,6 +437,7 @@ INSERT INTO afst_shl(ausf_st,afst_txt)
 
 SELECT 'Belege Baulastenblattnummer...';
 
+SELECT alkis_dropobject('bblnr_temp');
 CREATE TABLE bblnr_temp AS
 	SELECT
 		to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(f.flurnummer,'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,

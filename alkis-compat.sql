@@ -302,3 +302,10 @@ $$ LANGUAGE 'sql' IMMUTABLE;
 CREATE FUNCTION setsrid(geometry,integer) RETURNS geometry AS $$
   SELECT st_setsrid($1,$2);
 $$ LANGUAGE 'sql' IMMUTABLE;
+
+CREATE AGGREGATE array_agg (
+        sfunc = array_append,
+	basetype = anyelement,
+	stype = anyarray,
+	initcond = '{}'
+);
