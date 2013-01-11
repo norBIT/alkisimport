@@ -315,7 +315,13 @@ BEGIN
 			-- replaceBy mit Timestamp
 			EXECUTE 'SELECT beginnt FROM ' || NEW.typename ||
 			        ' WHERE identifier=''urn:adv:oid:' || NEW.replacedBy || ''''
-                           INTO endete;
+			   INTO endete;
+			IF endete IS NULL THEN
+				EXECUTE 'SELECT beginnt FROM ' || NEW.typename ||
+					' WHERE gml_id=''' || substr(NEW.replacedBy,1,16) || ''' AND endet IS NULL' ||
+					' ORDER BY beginnt DESC LIMIT 1'
+				   INTO endete;
+                       END IF;
 		END IF;
 
 		IF endete IS NULL THEN

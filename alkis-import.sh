@@ -144,11 +144,11 @@ do
 		DRIVER=PostgreSQL
 		sql() {
 			pushd "$B"
-			psql -P pager=null -v alkis_epsg=$EPSG -q -f "$1" "$DB"
+			psql -P pager=off -v alkis_epsg=$EPSG -q -f "$1" "$DB"
 			popd >/dev/null
 		}
 		runsql() {
-			psql -P pager=null -c "$1" "$DB"
+			psql -P pager=off -c "$1" "$DB"
 		}
 		dump() {
 			pg_dump -Fc -f "$1" "$DB"

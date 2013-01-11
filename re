@@ -29,7 +29,7 @@
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint).*gel\S+scht\..*$
 ^\s+(addgeometrycolumn|alkis_drop|alkis_dropobject|version|postgis_version|\?column\?)\s*$
 ^-+\s*$
-^\s+public\..*\.(wkb_geometry|dummy) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT) DIMS:2\s*$
+^\s+public\..*\.(wkb_geometry|dummy) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\s*$
 ^\s+public\.ax_punktortau\.wkb_geometry SRID:\d+ TYPE:POINT DIMS:3\s*$
 ^\s+public\.po_points\.point SRID:\d+ TYPE:MULTIPOINT DIMS:2\s*$
 ^\s+public\.po_lines\.line SRID:\d+ TYPE:MULTILINESTRING DIMS:2\s*$
