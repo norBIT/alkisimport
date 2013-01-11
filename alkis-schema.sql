@@ -1293,7 +1293,7 @@ COMMENT ON COLUMN ax_aufnahmepunkt.gml_id IS 'Identifikator, global eindeutig';
 -- DROP TABLE ax_sicherungspunkt;
 CREATE TABLE ax_sicherungspunkt (
 	ogc_fid			serial NOT NULL,
-	gml_id			varchar,
+	gml_id			character(16),
 	identifier              character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -3203,6 +3203,7 @@ COMMENT ON COLUMN ax_bauwerkimverkehrsbereich.gml_id IS 'Identifikator, global e
 CREATE TABLE ax_strassenverkehrsanlage (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16),
+	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
 	advstandardmodell	varchar,
@@ -3253,6 +3254,7 @@ COMMENT ON COLUMN ax_wegpfadsteig.gml_id IS 'Identifikator, global eindeutig';
 CREATE TABLE ax_bahnverkehrsanlage (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16),
+	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
 	advstandardmodell	varchar,
@@ -3278,6 +3280,7 @@ COMMENT ON COLUMN ax_bahnverkehrsanlage.gml_id IS 'Identifikator, global eindeut
 CREATE TABLE ax_seilbahnschwebebahn (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16),
+	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
 	advstandardmodell	varchar,
@@ -4239,6 +4242,7 @@ COMMENT ON COLUMN ax_lagebezeichnungkatalogeintrag.bezeichnung  IS 'Straßenname
 CREATE TABLE ax_kleinraeumigerlandschaftsteil (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16),
+	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
 	advstandardmodell	varchar,
@@ -4316,48 +4320,46 @@ COMMENT ON COLUMN ax_kommunalesgebiet.gml_id IS 'Identifikator, global eindeutig
 -- ** Tabelle bisher noch nicht generiert
 
 CREATE TABLE ax_vertretung (
-	ogc_fid serial NOT NULL,
-	gml_id varchar(16),
-	identifier varchar(28),
-	beginnt varchar(20),
-	endet character(20),
-	advstandardmodell varchar(4),
-	anlass varchar,
-	haengtan varchar,
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16),
+	identifier		character(44),
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell	varchar(4),
+	anlass			varchar,
 	CONSTRAINT ax_vertretung_pk PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_vertretung','dummy',:alkis_epsg,'POINT',2);
 
 CREATE TABLE ax_verwaltungsgemeinschaft (
-	ogc_fid serial NOT NULL,
-	gml_id varchar(16),
-	identifier varchar(28),
-	beginnt varchar(20),
-	endet character(20),
-	advstandardmodell varchar(4),
-	anlass varchar,
-	schluesselgesamt integer,
-	bezeichnung varchar,
-	bezeichnungart integer,
-	land integer,
-	regierungsbezirk integer,
-	kreis integer,
-	verwaltungsgemeinschaft integer,
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16),
+	identifier		character(44),
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell	varchar(4),
+	anlass			varchar,
+	schluesselgesamt	integer,
+	bezeichnung		varchar,
+	bezeichnungart		integer,
+	land			integer,
+	regierungsbezirk	integer,
+	kreis			integer,
+	verwaltungsgemeinschaft	integer,
 	CONSTRAINT ax_verwaltungsgemeinschaft_pk PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_verwaltungsgemeinschaft','dummy',:alkis_epsg,'POINT',2);
 
 CREATE TABLE ax_verwaltung (
-	ogc_fid serial NOT NULL,
-	gml_id varchar(16),
-	identifier varchar(28),
-	beginnt varchar(20),
-	endet character(20),
-	advstandardmodell varchar(4),
-	anlass varchar,
-	haengtan varchar,
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16),
+	identifier		character(44),
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell	varchar(4),
+	anlass			varchar,
 	CONSTRAINT ax_verwaltung_pk PRIMARY KEY (ogc_fid)
 );
 
