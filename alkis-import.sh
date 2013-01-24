@@ -108,7 +108,7 @@ do
 
 	case $src in
 	*.zip)
-		s=$(unzip -qql "$src" "${src%.zip}.xml"|sed -e "s/^ *//" -e "s/ .*$//")
+		s=$(unzip -qql "$src" "$(basename $src .zip).xml"|sed -e "s/^ *//" -e "s/ .*$//")
 		;;
 
 	*.xml.gz)
@@ -127,6 +127,11 @@ do
 
 	(( S1 += s ))
 done <$F
+
+if (( S1 == 0 )); then
+	echo "$P: Keine Daten zu importieren"
+	exit 0
+fi
 
 echo "$P: Unkomprimierte Gesamtgröße: $(memunits $S1)"
 
