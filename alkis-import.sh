@@ -67,7 +67,7 @@ if [ -d "$B/gdal-dev" ]; then
 	TEMP=$(cygpath -w $TEMP)
 elif [ -d "$HOME/src/gdal/apps/.libs" ]; then
 	export PATH=$HOME/src/gdal/apps/.libs:$PATH
-	export LD_LIBRARY_PATH=$HOME/src/gdal/.libs
+	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/src/gdal/.libs
 	export GDAL_DATA=/usr/share/gdal/1.10
 fi
 
@@ -151,10 +151,14 @@ do
 			psql -P pager=off -c "$1" "$DB"
 		}
 		dump() {
-			pg_dump -Fc -f "$1" "$DB"
+			pg_dump -Fc -f "$1.cpgdmp" "$DB"
 		}
 		restore() {
-			pg_restore -Fc -c "$1" | psql "$DB"
+			if ! [ -r "$1.cpgdmp" ]; then
+				echo "$P: $1.cpgdmp nicht gefunden oder nicht lesbar." >&2
+				exit 1
+			fi
+			pg_restore -Fc -c "$1.cpgdmp" | psql "$DB"
 		}
 		continue
 		;;
@@ -162,24 +166,36 @@ do
 	OCI:*)
 		DST=$src
 		DB=${src#OCI:}
+		user=${DB%%/*}
 		DRIVER=OCI
 		sql() {
 			pushd "$B/oci"
-			sqlplus "$DB" @$1
+			if [ -f "$1" ]; then
+				sqlplus "$DB" @$1 $EPSG
+			else
+				echo "$1 not found"
+				exit 1
+			fi
 			popd >/dev/null
 		}
 		runsql() {
 			sqlplus "$DB" <<EOF
+whenever sqlerror exit 1
 $1;
 commit;
 quit;
 EOF
 		}
 		dump() {
-			exp "$DB" file=$1 owner=$user statistics=none
+			exp "$DB" file=$1.dmp log=$1-export.log owner=$user statistics=none
 		}
 		restore() {
-			imp "$DB" file=$1 fromuser=$user touser=$user
+			if ! [ -r "$1.dmp" ]; then
+				echo "$P: $1.dmp nicht gefunden oder nicht lesbar." >&2
+				exit 1
+			fi
+
+			imp "$DB" file=$1.dmp log=$1-import.log fromuser=$user touser=$user
 		}
 		continue
 		;;
@@ -198,7 +214,7 @@ EOF
 		echo "CREATE $(bdate)"
 		pushd "$B/$sql" >/dev/null
 		sql alkis-schema.sql
-		sql alkis-compat.sql
+		[ ! -r alkis-compat ] || sql alkis-compat.sql
 		popd >/dev/null
 
 		continue
@@ -242,6 +258,11 @@ EOF
 		continue
 		;;
 
+	"shell "*)
+		eval "${src#shell }"
+		continue
+		;;
+
 	log|"log "*)
 		if [ -n "$GDB" ]; then
 			echo "$P: gdb und log schließen sich aus" >&2
@@ -269,7 +290,7 @@ EOF
 		fi
 
 		if [ "$src" = "dump" ]; then
-			src="alkis-%Y-%m-%d-%H-%M.cpgdmp"
+			src="alkis-%Y-%m-%d-%H-%M"
 		else
 			src=${src#dump }
 		fi
@@ -289,10 +310,6 @@ EOF
 		fi
 
 		src=${src#restore }
-		if ! [ -r "$src" ]; then
-			echo "$P: $src nicht gefunden oder nicht lesbar." >&2
-			exit 1
-		fi
 
 		echo "RESTORING $(bdate)"
 		restore "$src"
@@ -356,7 +373,7 @@ EOF
 	if [ -n "$GDB" ]; then
 		gdb --args ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs EPSG:$EPSG "$dst" </dev/tty >/dev/tty 2>&1
 	else
-		ogr2ogr -f $DRIVER $opt -append -update "PG:$DB" -a_srs EPSG:$EPSG "$dst"
+		ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs EPSG:$EPSG "$dst"
 	fi
 	t1=$(bdate +%s)
 
