@@ -273,15 +273,13 @@ $$ LANGUAGE plpgsql;
 -- context='replace'       => "endet" des ersetzten auf "beginnt" des neuen Objekts setzen
 CREATE OR REPLACE FUNCTION delete_feature_hist() RETURNS TRIGGER AS $$
 DECLARE
-	sql TEXT;
+	s TEXT;
 	alt_id TEXT;
 	neu_id TEXT;
 	beginnt TEXT;
-	endet TEXT;
+	endete TEXT;
 	n INTEGER;
 BEGIN
-	RAISE NOTICE 'delete_feature_hist: context=% featureid=% replacedBy=%',
-			NEW.context, NEW.featureid, NEW.replacedBy;
 	NEW.context := lower(NEW.context);
 	IF NEW.context IS NULL THEN
 		NEW.context := 'delete';
@@ -312,9 +310,9 @@ BEGIN
 	IF beginnt IS NULL THEN
 		-- Beginnt-Datum des ältesten Eintrag, der nicht untergegangen ist
 		-- => der Satz dessen 'endet' gesetzt werden muß
-		EXECUTE 'SELECT min(beginnt) FROM ' || NEW.typename ||
-		        ' WHERE gml_id=''' || alt_id || ''''
-			' AND endet IS NULL'
+		EXECUTE 'SELECT min(beginnt) FROM ' || NEW.typename
+			|| ' WHERE gml_id=''' || alt_id || ''''
+			|| ' AND endet IS NULL'
 			INTO beginnt;
 	END IF;
 
@@ -335,7 +333,7 @@ BEGIN
 			neu_id := substr(NEW.replacedBy, 1, 16);
 
 			IF NEW.featureid<>NEW.replacedBy THEN
-				endet  := substr(NEW.replacedBy, 17, 4) || '-'
+				endete  := substr(NEW.replacedBy, 17, 4) || '-'
 					|| substr(NEW.replacedBy, 21, 2) || '-'
 					|| substr(NEW.replacedBy, 23, 2) || 'T'
 					|| substr(NEW.replacedBy, 26, 2) || ':'
@@ -349,14 +347,14 @@ BEGIN
 			RAISE EXCEPTION '%: Länge 16 oder 32 statt % erwartet.', NEW.replacedBy, length(NEW.replacedBy);
 		END IF;
 
-		IF endet IS NULL THEN
+		IF endete IS NULL THEN
 			-- Beginnt-Datum des neuesten Eintrag, der nicht untergegangen ist
 			-- => Enddatum für vorherigen Satz
-			EXECUTE 'SELECT max(beginnt) FROM ' || NEW.typename ||
-				' WHERE gml_id=''' || neu_id || ''''
-				' AND beginnt>''' || beginnt || ''''
-				' AND endet IS NULL'
-				INTO endet;
+			EXECUTE 'SELECT max(beginnt) FROM ' || NEW.typename
+				|| ' WHERE gml_id=''' || neu_id || ''''
+				|| ' AND beginnt>''' || beginnt || ''''
+				|| ' AND endet IS NULL'
+				INTO endete;
 		END IF;
 	ELSE
 		RAISE EXCEPTION '%: Ungültiger Kontext % (''delete'' oder ''replace'' erwartet).', NEW.featureid, NEW.context;
@@ -370,35 +368,35 @@ BEGIN
 		RAISE NOTICE 'Kein Beginndatum fuer Objekt % gefunden.', alt_id;
 	END IF;
 
-	IF endet IS NULL THEN
+	IF endete IS NULL THEN
 		RAISE NOTICE 'Kein Beginndatum fuer Objekt % gefunden.', neu_id;
 	END IF;
 
-	IF beginnt IS NULL OR endet IS NULL OR beginnt=endet THEN
+	IF beginnt IS NULL OR endete IS NULL OR beginnt=endete THEN
 		RAISE EXCEPTION 'Objekt % wird durch Objekt % ersetzt (leere Lebensdauer?).', alt_id, neu_id;
 	END IF;
 
-	sql := 'UPDATE ' || NEW.typename
-	    || ' SET endet=''' || endet || ''''
+	s   := 'UPDATE ' || NEW.typename
+	    || ' SET endet=''' || endete || ''''
 	    || ' WHERE gml_id=''' || alt_id || ''''
 	    || ' AND beginnt=''' || beginnt || ''''
 	    || ' AND endet IS NULL';
-	EXECUTE sql;
+	EXECUTE s;
 	GET DIAGNOSTICS n = ROW_COUNT;
 	IF n<>1 THEN
-		RAISE NOTICE 'SQL: %', sql;
+		RAISE NOTICE 'SQL: %', s;
 		IF NEW.context = 'delete' OR NEW.safetoignore = 'true' THEN
-			RAISE NOTICE '%: Untergangsdatum von % Objekten statt einem auf % gesetzt - ignoriert', NEW.featureid, n, endet;
+			RAISE NOTICE '%: Untergangsdatum von % Objekten statt einem auf % gesetzt - ignoriert', NEW.featureid, n, endete;
 			NEW.ignored := true;
 			RETURN NEW;
 		ELSIF n=0 THEN
 			EXECUTE 'SELECT endet FROM ' || NEW.typename ||
 				' WHERE gml_id=''' || alt_id || '''' ||
 				' AND beginnt=''' || beginnt || ''''
-				INTO endet;
+				INTO endete;
 
-			IF NOT endet IS NULL THEN
-				RAISE NOTICE '%: Objekte bereits % ungegegangen - ignoriert', NEW.featureid, endet;
+			IF NOT endete IS NULL THEN
+				RAISE NOTICE '%: Objekte bereits % ungegegangen - ignoriert', NEW.featureid, endete;
 			ELSE
 				RAISE NOTICE '%: Objekt nicht gefunden - ignoriert', NEW.featureid;
 			END IF;
@@ -406,7 +404,7 @@ BEGIN
 			NEW.ignored := true;
 			RETURN NEW;
 		ELSE
-			RAISE EXCEPTION '%: Untergangsdatum von % Objekten statt einem auf % gesetzt - Abbruch', NEW.featureid, n, endet;
+			RAISE EXCEPTION '%: Untergangsdatum von % Objekten statt einem auf % gesetzt - Abbruch', NEW.featureid, n, endete;
 		END IF;
 	END IF;
 

@@ -46,20 +46,51 @@ CREATE OR REPLACE TRIGGER delete_feature_trigger
 	FOR EACH ROW
 DECLARE
 	s varchar2(2047);
-	gml_id varchar2(13);
+	alt_id varchar2(16);
+	neu_id varchar2(16);
+	beginnt varchar2(20);
 	endete varchar2(20);
 	n INTEGER;
 BEGIN
 	:NEW.typename := upper(substr(:NEW.typename, 1, 30));
 	:NEW.context  := lower(:NEW.context);
-	gml_id        := substr(:NEW.featureid, 1, 16);
-
 	IF :NEW.context IS NULL THEN
 		:NEW.context := 'delete';
 	END IF;
 
+	-- TIMESTAMP weder in gml_id noch identifier verläßlich.
+	-- also ggf. aus Datenbank holen
+
+	IF length(:NEW.featureid)=32 THEN
+		alt_id  := substr(:NEW.featureid, 1, 16);
+
+		IF :NEW.featureid<>:NEW.replacedBy THEN
+			-- Beginnt-Datum aus Timestamp
+			beginnt := substr(:NEW.featureid, 17, 4) || '-'
+				|| substr(:NEW.featureid, 21, 2) || '-'
+				|| substr(:NEW.featureid, 23, 2) || 'T'
+				|| substr(:NEW.featureid, 26, 2) || ':'
+				|| substr(:NEW.featureid, 28, 2) || ':'
+				|| substr(:NEW.featureid, 30, 2) || 'Z'
+				;
+		END IF;
+	ELSIF length(:NEW.featureid)=16 THEN
+		alt_id := :NEW.featureid;
+	ELSE
+		raise_application_error(-20100, :NEW.featureid || ': Länge 16 oder 32 statt ' || length(:NEW.featureid) || ' erwartet.');
+	END IF;
+
+	IF beginnt IS NULL THEN
+		-- Beginnt-Datum des ältesten Eintrag, der nicht untergegangen ist
+		-- => der Satz dessen 'endet' gesetzt werden muß
+		EXECUTE IMMEDIATE 'SELECT min(beginnt) FROM ' || :NEW.typename
+			|| ' WHERE gml_id=''' || alt_id || ''''
+			|| ' AND endet IS NULL'
+			INTO beginnt;
+	END IF;
+
 	IF :NEW.context='delete' THEN
-		SELECT to_char(sysdate, 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"') INTO endete FROM dual;
+		SELECT to_char(sysdate, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') INTO endete FROM dual;
 
 	ELSIF :NEW.context='replace' THEN
 		:NEW.safetoignore := lower(:NEW.safetoignore);
@@ -70,50 +101,59 @@ BEGIN
 			raise_application_error(-20100, :NEW.featureid || ': safeToIgnore ''' || :NEW.safetoignore || ''' ungültig (''true'' oder ''false'' erwartet).');
 		END IF;
 
-		IF :NEW.replacedBy IS NULL OR length(:NEW.replacedBy)<16 THEN
-			IF :NEW.safetoignore = 'true' THEN
-				dbms_output.put_line( :NEW.featureid || ': Nachfolger ''' || :NEW.replacedBy || ''' nicht richtig gesetzt - ignoriert' );
-				:NEW.ignored := 'true';
-				RETURN;
-			ELSE
-				raise_application_error(-20100, :NEW.featureid || ': Nachfolger ''' || :NEW.replacedBy || ''' nicht richtig gesetzt - Abbruch');
-			END IF;
-		END IF;
+		IF length(:NEW.replacedBy)=32 THEN
+			-- Beginnt-Datum aus Timestamp
+			neu_id := substr(:NEW.replacedBy, 1, 16);
 
-		IF length(:NEW.replacedBy)=16 THEN
-			EXECUTE IMMEDIATE 'SELECT MAX(beginnt) FROM ' || :NEW.typename ||
-			        ' WHERE gml_id=''' || :NEW.replacedBy || ''' AND endet IS NULL'
-                           INTO endete;
-		ELSE
-			-- replaceBy mit Timestamp
-			EXECUTE IMMEDIATE 'SELECT beginnt FROM ' || :NEW.typename ||
-			        ' WHERE identifier=''urn:adv:oid:' || :NEW.replacedBy || ''''
-			   INTO endete;
-			IF endete IS NULL THEN
-				EXECUTE IMMEDIATE 'SELECT MAX(beginnt) FROM ' || :NEW.typename ||
-					' WHERE gml_id=''' || substr(:NEW.replacedBy,1,16) || ''' AND endet IS NULL'
-				   INTO endete;
-                       END IF;
+			IF :NEW.featureid<>:NEW.replacedBy THEN
+				endete  := substr(:NEW.replacedBy, 17, 4) || '-'
+					|| substr(:NEW.replacedBy, 21, 2) || '-'
+					|| substr(:NEW.replacedBy, 23, 2) || 'T'
+					|| substr(:NEW.replacedBy, 26, 2) || ':'
+					|| substr(:NEW.replacedBy, 28, 2) || ':'
+					|| substr(:NEW.replacedBy, 30, 2) || 'Z'
+					;
+			END IF;
+		ELSIF length(:NEW.replacedBy)=16 THEN
+			neu_id  := :NEW.replacedBy;
+		ELSIF length(:NEW.replacedBy)<>16 THEN
+			raise_application_error(-20100, :NEW.replacedBy || ': Länge 16 oder 32 statt ' || length(:NEW.replacedBy) || ' erwartet.');
 		END IF;
 
 		IF endete IS NULL THEN
-			IF :NEW.safetoignore = 'true' THEN
-				dbms_output.put_line(:NEW.featureid || ': Nachfolger ''' || :NEW.replacedBy || ''' nicht gefunden - ignoriert');
-				:NEW.ignored := 'true';
-				RETURN;
-			ELSE
-				raise_application_error(-20100, :NEW.featureid || ': Nachfolger ''' || :NEW.replacedBy || ''' nicht gefunden - Abbruch');
-			END IF;
+			-- Beginnt-Datum des neuesten Eintrag, der nicht untergegangen ist
+			-- => Enddatum für vorherigen Satz
+			EXECUTE IMMEDIATE 'SELECT max(beginnt) FROM ' || :NEW.typename
+				|| ' WHERE gml_id=''' || neu_id || ''''
+				|| ' AND beginnt>''' || beginnt || ''''
+				|| ' AND endet IS NULL'
+				INTO endete;
 		END IF;
 	ELSE
 		raise_application_error(-20100, :NEW.featureid || ': Ungültiger Kontext ' || :NEW.context || '''delete'' oder ''replace'' erwartet).');
 	END IF;
 
-	s	:= 'UPDATE ' || :NEW.typename
-		|| ' SET endet=''' || endete || ''''
-		|| ' WHERE gml_id=''' || gml_id || ''''
-		|| ' AND endet IS NULL'
-		|| ' AND beginnt<''' || endete || '''';
+	IF alt_id<>neu_id THEN
+		dbms_output.put_line('Objekt ' || alt_id || ' wird durch Objekt ' || neu_id || ' ersetzt.');
+	END IF;
+
+	IF beginnt IS NULL THEN
+		dbms_output.put_line('Kein Beginndatum fuer Objekt ' || alt_id || '.');
+	END IF;
+
+	IF endete IS NULL THEN
+		dbms_output.put_line('Kein Beginndatum fuer Objekt ' || neu_id || '.');
+	END IF;
+
+	IF beginnt IS NULL OR endete IS NULL OR beginnt=endete THEN
+		raise_application_error(-20100, 'Objekt ' || alt_id || ' wird durch Objekt ' || neu_id || ' ersetzt (leere Lebensdauer?).');
+	END IF;
+
+	s   := 'UPDATE ' || :NEW.typename
+	    || ' SET endet=''' || endete || ''''
+	    || ' WHERE gml_id=''' || alt_id || ''''
+	    || ' AND beginnt=''' || beginnt || ''''
+	    || ' AND endet IS NULL';
 	EXECUTE IMMEDIATE s;
 	n := SQL%ROWCOUNT;
 	IF n<>1 THEN
