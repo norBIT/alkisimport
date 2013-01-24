@@ -317,7 +317,7 @@ BEGIN
 	END IF;
 
 	IF NEW.context='delete' THEN
-		endet := to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"');
+		endete := to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"');
 
 	ELSIF NEW.context='replace' THEN
 		NEW.safetoignore := lower(NEW.safetoignore);
