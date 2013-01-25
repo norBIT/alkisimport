@@ -128,11 +128,6 @@ do
 	(( S1 += s ))
 done <$F
 
-if (( S1 == 0 )); then
-	echo "$P: Keine Daten zu importieren"
-	exit 0
-fi
-
 echo "$P: Unkomprimierte Gesamtgröße: $(memunits $S1)"
 
 while read src
@@ -397,7 +392,9 @@ EOF
 			remaining_time=$(( remaining_data * elapsed / S ))
 			eta=$(( t1 + remaining_time ))
 
-			echo "REMAINING: $(memunits $remaining_data) $(( remaining_data * 100 / S1 ))% $(timeunits $remaining_time) ETA:$(date --date="1970-01-01 $eta seconds UTC")"
+			if (( S1 > 0 )); then
+				echo "REMAINING: $(memunits $remaining_data) $(( remaining_data * 100 / S1 ))% $(timeunits $remaining_time) ETA:$(date --date="1970-01-01 $eta seconds UTC")"
+			fi
 		else
 			echo "TIME: $(memunits $s) in 0,nichts (Gesamt $(memunits $(( S / elapsed )))/s)."
 		fi
