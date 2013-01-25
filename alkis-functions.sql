@@ -1,4 +1,3 @@
-
 -- Table/View/Sequence löschen, wenn vorhanden
 CREATE OR REPLACE FUNCTION alkis_dropobject(t TEXT) RETURNS varchar AS $$
 DECLARE
@@ -490,7 +489,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- BeziehungssÃ¤tze aufrÃ¤umen
+-- Beziehungssätze aufräumen
 CREATE OR REPLACE FUNCTION alkis_beziehung_inserted() RETURNS TRIGGER AS $$
 BEGIN
 	DELETE FROM alkis_beziehungen WHERE ogc_fid<NEW.ogc_fid AND beziehung_von=NEW.beziehung_von AND beziehungsart=NEW.beziehungsart AND beziehung_zu=NEW.beziehung_zu;
