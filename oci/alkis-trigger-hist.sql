@@ -9,7 +9,7 @@ CREATE TABLE alkis_beziehungen_insert(
         CONSTRAINT ALKIS_BZI PRIMARY KEY (ogr_fid)
 );
 
--- Beziehungssätze aufräumen
+-- BeziehungssÃ¤tze aufrÃ¤umen
 CREATE OR REPLACE TRIGGER alkis_beziehung_ins
 	AFTER INSERT ON "ALKIS_BEZIEHUNGEN"
 	REFERENCING NEW AS NEW
@@ -89,6 +89,16 @@ BEGIN
 			INTO beginnt;
 	END IF;
 
+	IF beginnt IS NULL THEN
+		IF :NEW.context = 'delete' OR :NEW.safetoignore = 'true' THEN
+			dbms_output.put_line('Kein Beginndatum fuer Objekt ' || alt_id || ' gefunden.');
+			:NEW.ignored := 'true';
+			RETURN;
+		ELSE
+			raise_application_error(-20100, 'Kein Beginndatum fuer Objekt ' || alt_id || ' gefunden.');
+		END IF;
+	END IF;
+
 	IF :NEW.context='delete' THEN
 		SELECT to_char(sysdate, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') INTO endete FROM dual;
 
@@ -129,24 +139,20 @@ BEGIN
 				|| ' AND endet IS NULL'
 				INTO endete;
 		END IF;
+
+		IF alt_id<>neu_id THEN
+			dbms_output.put_line('Objekt ' || alt_id || ' wird durch Objekt ' || neu_id || ' ersetzt.');
+		END IF;
+
+		IF endete IS NULL THEN
+			dbms_output.put_line('Kein Beginndatum fuer Objekt ' || neu_id || '.');
+		END IF;
+
+		IF endete IS NULL OR beginnt=endete THEN
+			raise_application_error(-20100, 'Objekt ' || alt_id || ' wird durch Objekt ' || neu_id || ' ersetzt (leere Lebensdauer?).');
+		END IF;
 	ELSE
 		raise_application_error(-20100, :NEW.featureid || ': Ungültiger Kontext ' || :NEW.context || '''delete'' oder ''replace'' erwartet).');
-	END IF;
-
-	IF alt_id<>neu_id THEN
-		dbms_output.put_line('Objekt ' || alt_id || ' wird durch Objekt ' || neu_id || ' ersetzt.');
-	END IF;
-
-	IF beginnt IS NULL THEN
-		dbms_output.put_line('Kein Beginndatum fuer Objekt ' || alt_id || '.');
-	END IF;
-
-	IF endete IS NULL THEN
-		dbms_output.put_line('Kein Beginndatum fuer Objekt ' || neu_id || '.');
-	END IF;
-
-	IF beginnt IS NULL OR endete IS NULL OR beginnt=endete THEN
-		raise_application_error(-20100, 'Objekt ' || alt_id || ' wird durch Objekt ' || neu_id || ' ersetzt (leere Lebensdauer?).');
 	END IF;
 
 	s   := 'UPDATE ' || :NEW.typename
@@ -162,13 +168,26 @@ BEGIN
 			dbms_output.put_line( :NEW.featureid || ': Untergangsdatum von  ' || n || ' Objekten statt nur einem auf ' || endete || ' gesetzt - ignoriert' );
 			:NEW.ignored := 'true';
 			RETURN;
+		ELSIF n=0 THEN
+			EXECUTE IMMEDIATE 'SELECT endet FROM ' || :NEW.typename ||
+				' WHERE gml_id=''' || alt_id || '''' ||
+				' AND beginnt=''' || beginnt || ''''
+				INTO endete;
+
+			IF NOT endete IS NULL THEN
+				dbms_output.put_line( :NEW.featureid || ': Objekt bereits ' || endete || ' untergegangen - ignoriert' );
+			ELSE
+				dbms_output.put_line( :NEW.featureid || ': Objekt nicht gefunden - ignoriert' );
+			END IF;
+
+			:NEW.ignored := 'true';
+			RETURN;
 		ELSE
 			raise_application_error(-20100, :NEW.featureid || ': Untergangsdatum von ' || n || ' Objekten statt nur einem auf ' || endete || ' gesetzt - Abbruch' );
 		END IF;
 	END IF;
 
 	:NEW.ignored := 'false';
-	RETURN;
 END delete_feature_trigger;
 /
 

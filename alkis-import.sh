@@ -128,6 +128,11 @@ do
 	(( S1 += s ))
 done <$F
 
+if (( S1 == 0 )); then
+       echo "$P: Keine Daten zu importieren"
+       exit 0
+fi
+
 echo "$P: Unkomprimierte Gesamtgröße: $(memunits $S1)"
 
 while read src
@@ -230,6 +235,14 @@ EOF
 		continue
 		;;
 
+	"temp "*)
+		TEMP=${src#temp }
+		if ! [ -d "$TEMP" ]; then
+			mkdir -p "$TEMP"
+		fi
+		continue
+		;;
+
 	"debug "*)
 		export CPL_DEBUG=${src#debug }
 		if [ -z "$CPL_DEBUG" ]; then
@@ -321,7 +334,7 @@ EOF
 		;;
 
 	*.zip)
-		dst=$TEMP/$(basename $src .zip).xml
+		dst="$TEMP/$(basename $src .zip).xml"
 		echo "DECOMPRESS $(bdate): $src"
 		zcat "$src" >"$dst"
 		rm=1
@@ -333,7 +346,7 @@ EOF
 			exit 1
 		fi
 
-		dst=$TEMP/$(basename $src .gz)
+		dst="$TEMP/$(basename $src .gz)"
 		echo "DECOMPRESS $(bdate): $src"
 		zcat "$src" >"$dst"
 		rm=1
@@ -365,7 +378,10 @@ EOF
 
 	trap "echo '$P: Fehler bei $src' >&2; src=error" EXIT
 
-	echo "IMPORT $(bdate): $dst"
+	s=$(stat -c %s "$dst")
+	(( S += s ))
+
+	echo "IMPORT $(bdate): $dst $(memunits $s)"
 
 	echo RUNNING: ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs EPSG:$EPSG "$dst"
 	t0=$(bdate +%s)
@@ -376,9 +392,6 @@ EOF
 		ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs EPSG:$EPSG "$dst"
 	fi
 	t1=$(bdate +%s)
-
-	s=$(stat -c %s "$dst")
-	(( S += s ))
 
 	elapsed=$(( t1 - T0 ))
 
@@ -392,9 +405,7 @@ EOF
 			remaining_time=$(( remaining_data * elapsed / S ))
 			eta=$(( t1 + remaining_time ))
 
-			if (( S1 > 0 )); then
-				echo "REMAINING: $(memunits $remaining_data) $(( remaining_data * 100 / S1 ))% $(timeunits $remaining_time) ETA:$(date --date="1970-01-01 $eta seconds UTC")"
-			fi
+			echo "REMAINING: $(memunits $remaining_data) $(( remaining_data * 100 / S1 ))% $(timeunits $remaining_time) ETA:$(date --date="1970-01-01 $eta seconds UTC")"
 		else
 			echo "TIME: $(memunits $s) in 0,nichts (Gesamt $(memunits $(( S / elapsed )))/s)."
 		fi

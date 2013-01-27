@@ -315,6 +315,16 @@ BEGIN
 			INTO beginnt;
 	END IF;
 
+	IF beginnt IS NULL THEN
+		IF NEW.context = 'delete' OR NEW.safetoignore = 'true' THEN
+			RAISE NOTICE 'Kein Beginndatum fuer Objekt % gefunden - ignoriert.', alt_id;
+			NEW.ignored := true;
+			RETURN NEW;
+		ELSE
+			RAISE EXCEPTION 'Kein Beginndatum fuer Objekt % gefunden.', alt_id;
+		END IF;
+	END IF;
+
 	IF NEW.context='delete' THEN
 		endete := to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"');
 
@@ -355,24 +365,20 @@ BEGIN
 				|| ' AND endet IS NULL'
 				INTO endete;
 		END IF;
+
+		IF alt_id<>neu_id THEN
+			RAISE NOTICE 'Objekt % wird durch Objekt % ersetzt.', alt_id, neu_id;
+		END IF;
+
+		IF endete IS NULL THEN
+			RAISE NOTICE 'Kein Beginndatum fuer Objekt % gefunden.', neu_id;
+		END IF;
+
+		IF endete IS NULL OR beginnt=endete THEN
+			RAISE EXCEPTION 'Objekt % wird durch Objekt % ersetzt (leere Lebensdauer?).', alt_id, neu_id;
+		END IF;
 	ELSE
 		RAISE EXCEPTION '%: Ungültiger Kontext % (''delete'' oder ''replace'' erwartet).', NEW.featureid, NEW.context;
-	END IF;
-
-	IF alt_id<>neu_id THEN
-		RAISE NOTICE 'Objekt % wird durch Objekt % ersetzt.', alt_id, neu_id;
-	END IF;
-
-	IF beginnt IS NULL THEN
-		RAISE NOTICE 'Kein Beginndatum fuer Objekt % gefunden.', alt_id;
-	END IF;
-
-	IF endete IS NULL THEN
-		RAISE NOTICE 'Kein Beginndatum fuer Objekt % gefunden.', neu_id;
-	END IF;
-
-	IF beginnt IS NULL OR endete IS NULL OR beginnt=endete THEN
-		RAISE EXCEPTION 'Objekt % wird durch Objekt % ersetzt (leere Lebensdauer?).', alt_id, neu_id;
 	END IF;
 
 	s   := 'UPDATE ' || NEW.typename
@@ -395,7 +401,7 @@ BEGIN
 				INTO endete;
 
 			IF NOT endete IS NULL THEN
-				RAISE NOTICE '%: Objekte bereits % ungegegangen - ignoriert', NEW.featureid, endete;
+				RAISE NOTICE '%: Objekt bereits % untergegangen - ignoriert', NEW.featureid, endete;
 			ELSE
 				RAISE NOTICE '%: Objekt nicht gefunden - ignoriert', NEW.featureid;
 			END IF;

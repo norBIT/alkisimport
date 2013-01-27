@@ -1,1 +1,0 @@
-alkis-trigger-hist.sql
