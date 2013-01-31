@@ -219,7 +219,7 @@ EOF
 		echo "CREATE $(bdate)"
 		pushd "$B/$sql" >/dev/null
 		sql alkis-schema.sql
-		[ ! -r alkis-compat ] || sql alkis-compat.sql
+		[ ! -r alkis-compat.sql ] || sql alkis-compat.sql
 		popd >/dev/null
 
 		continue
