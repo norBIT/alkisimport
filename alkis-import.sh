@@ -106,9 +106,9 @@ do
 		continue
 	fi
 
-	case $src in
+	case "$src" in
 	*.zip)
-		s=$(unzip -qql "$src" "$(basename $src .zip).xml"|sed -e "s/^ *//" -e "s/ .*$//")
+		s=$(unzip -qql "$src" "$(basename "$src" .zip).xml"|sed -e "s/^ *//" -e "s/ .*$//")
 		;;
 
 	*.xml.gz)
@@ -334,7 +334,7 @@ EOF
 		;;
 
 	*.zip)
-		dst="$TEMP/$(basename $src .zip).xml"
+		dst="$TEMP/$(basename "$src" .zip).xml"
 		echo "DECOMPRESS $(bdate): $src"
 		zcat "$src" >"$dst"
 		rm=1
@@ -346,7 +346,7 @@ EOF
 			exit 1
 		fi
 
-		dst="$TEMP/$(basename $src .gz)"
+		dst="$TEMP/$(basename "$src" .gz)"
 		echo "DECOMPRESS $(bdate): $src"
 		zcat "$src" >"$dst"
 		rm=1

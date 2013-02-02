@@ -196,7 +196,7 @@ BEGIN
 			name,
 			kennung
                 FROM alkis_elemente
-                WHERE name IN ('ax_bewertung','ax_klassifizierungnachwasserrecht','ax_klassifizierungnachstrassenrecht')
+                WHERE name IN ('ax_bodenschaetzung','ax_bewertung','ax_klassifizierungnachwasserrecht','ax_klassifizierungnachstrassenrecht')
         LOOP
 		BEGIN
 			EXECUTE 'SELECT count(*) FROM '||r.name||' WHERE NOT st_isvalid(wkb_geometry)' INTO invalid;
@@ -215,6 +215,7 @@ BEGIN
 		END IF;
 
 	        f := CASE r.name
+		     WHEN 'ax_bodenschaetzung' THEN 'b'
 		     WHEN 'ax_bewertung' THEN 'B'
 		     WHEN 'ax_klassifizierungnachwasserrecht' THEN 'W'
 		     WHEN 'ax_klassifizierungnachstrassenrecht' THEN 'S'
@@ -224,8 +225,9 @@ BEGIN
 			RAISE EXCEPTION 'Unerwartete Tabelle %', r.name;
 		END IF;
 
-		p := CASE
-		     WHEN r.name = 'ax_bewertung' THEN 'klassifizierung'
+		p := CASE r.name
+		     WHEN 'ax_bodenschaetzung' THEN 'kulturart'
+		     WHEN 'ax_bewertung' THEN 'klassifizierung'
 		     ELSE 'artderfestlegung'
 		     END;
 
@@ -236,6 +238,10 @@ BEGIN
 		   || '''' || r.name    || '''::text AS name,'
                    || r.kennung::int || ' AS kennung,'
                    || p || ' AS artderfestlegung,'
+		   || CASE WHEN r.name='ax_bodenschaetzung'
+		      THEN 'bodenzahlodergruenlandgrundzahl::int AS bodenzahl,ackerzahlodergruenlandzahl::int AS ackerzahl,'
+		      ELSE 'NULL::int AS bodenzahl,NULL::int AS ackerzahl,'
+		      END
                    || ''''||f||':''||'||p||' AS klassifizierung,'
                    || 'wkb_geometry'
 		   || ' FROM ' || r.name
@@ -373,11 +379,13 @@ CREATE SEQUENCE klas_3x_pk_seq;
 SELECT 'Erzeuge Flurstücksklassifizierungen...';
 
 DELETE FROM klas_3x;
-INSERT INTO klas_3x(flsnr,pk,klf,fl,ff_entst,ff_stand)
+INSERT INTO klas_3x(flsnr,pk,klf,fl,wertz1,wertz2,ff_entst,ff_stand)
   SELECT
     to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(f.flurnummer,'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
     to_hex(nextval('klas_3x_pk_seq'::regclass)) AS pk,
     k.klassifizierung AS klf,
+    k.bodenzahl,
+    k.ackerzahl,
     sum(st_area(st_intersection(f.wkb_geometry,k.wkb_geometry)))::int AS fl,
     0 AS ff_entst,
     0 AS ff_stand
@@ -385,7 +393,7 @@ INSERT INTO klas_3x(flsnr,pk,klf,fl,ff_entst,ff_stand)
   JOIN ax_klassifizierung k ON f.wkb_geometry && k.wkb_geometry AND st_intersects(f.wkb_geometry,k.wkb_geometry)
   WHERE f.endet IS NULL AND st_area(st_intersection(f.wkb_geometry,k.wkb_geometry))::int>0
   GROUP BY
-    f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), k.klassifizierung;
+    f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), k.klassifizierung, k.bodenzahl, k.ackerzahl;
 
 SELECT alkis_dropobject('nutz_shl_pk_seq');
 CREATE SEQUENCE nutz_shl_pk_seq;
@@ -448,6 +456,6 @@ CREATE TABLE bblnr_temp AS
 
 CREATE INDEX bblnr_temp_flsnr ON bblnr_temp(flsnr);
 
-UPDATE flurst SET blbnr=(SELECT regexp_replace(array_to_string(array_agg(DISTINCT b.bezeichnung),','),'\(.{196}\).+','\\1 ...') FROM bblnr_temp b WHERE flurst.flsnr=b.flsnr);
+UPDATE flurst SET blbnr=(SELECT regexp_replace(array_to_string(array_agg(DISTINCT b.bezeichnung),','),E'\(.{196}\).+',E'\\1 ...') FROM bblnr_temp b WHERE flurst.flsnr=b.flsnr);
 
 DROP TABLE bblnr_temp;

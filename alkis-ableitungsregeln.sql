@@ -271,6 +271,10 @@ bei von:% bis:%',
 END;
 $$ LANGUAGE plpgsql;
 
+INSERT INTO alkis_linien(signaturnummer) VALUES ('6000');
+INSERT INTO alkis_flaechen(signaturnummer) VALUES ('6000');
+INSERT INTO alkis_schriften(signaturnummer) VALUES ('6000');
+
 -- Präsentationsobjekte?
 
 SELECT 'Präsentationstabellen werden erzeugt.';
@@ -7081,3 +7085,7 @@ DELETE FROM po_points WHERE signaturnummer IS NULL OR signaturnummer='6000';
 DELETE FROM po_lines WHERE signaturnummer IS NULL OR signaturnummer='6000';
 DELETE FROM po_polygons WHERE signaturnummer IS NULL OR signaturnummer='6000';
 DELETE FROM po_labels WHERE signaturnummer IS NULL OR signaturnummer='6000' OR text IS NULL;
+
+DELETE FROM alkis_linien WHERE signaturnummer='6000';
+DELETE FROM alkis_flaechen WHERE signaturnummer='6000';
+DELETE FROM alkis_schriften WHERE signaturnummer='6000';
