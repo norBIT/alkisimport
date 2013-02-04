@@ -110,6 +110,7 @@ CREATE INDEX flurst_idx4 ON flurst(lagebez);
 CREATE INDEX flurst_idx5 ON flurst(ff_stand);
 CREATE INDEX flurst_idx6 ON flurst(ff_entst);
 CREATE INDEX flurst_idx7 ON flurst(lagebez);
+CREATE INDEX flurst_idx8 ON flurst(flsnr);
 
 SELECT alkis_dropobject('str_shl');
 CREATE TABLE str_shl (
@@ -129,6 +130,7 @@ INSERT INTO str_shl(strshl,strname,gemshl)
 	  AND NOT EXISTS (SELECT * FROM ax_lagebezeichnungkatalogeintrag b WHERE b.endet IS NULL AND a.schluesselgesamt=b.schluesselgesamt AND b.beginnt<a.beginnt);
 
 CREATE INDEX str_shl_idx0 ON str_shl(strshl);
+CREATE INDEX str_shl_idx1 ON str_shl(gemshl);
 
 SELECT alkis_dropobject('strassen');
 CREATE TABLE strassen (
@@ -357,6 +359,7 @@ CREATE TABLE bestand (
     pz character(1),
     PRIMARY KEY (bestdnr)
 );
+CREATE INDEX bestand_bestdnr ON bestand(bestdnr);
 CREATE INDEX bestand_ff_entst ON bestand(ff_entst);
 CREATE INDEX bestand_ff_stand ON bestand(ff_stand);
 
@@ -493,6 +496,7 @@ CREATE TABLE eign_shl (
     eignerart character(60),
     primary key (b)
 );
+CREATE INDEX eign_shl_idx0 ON eign_shl(b);
 
 INSERT INTO eign_shl(b,eignerart)
 	SELECT
@@ -595,6 +599,7 @@ CREATE TABLE nutz_shl
 	nutzung CHAR(200),
 	primary key (nutzshl)
 );
+CREATE INDEX nutz_shl_idx0 ON nutz_shl(nutzshl);
 
 SELECT alkis_dropobject('verf_shl');
 CREATE TABLE verf_shl
@@ -603,6 +608,7 @@ CREATE TABLE verf_shl
 	verf_txt char(50),
 	PRIMARY KEY (verfshl)
 );
+CREATE INDEX verf_shl_idx0 ON verf_shl(verfshl);
 
 SELECT alkis_dropobject('vor_flst');
 CREATE TABLE vor_flst(
@@ -613,8 +619,8 @@ CREATE TABLE vor_flst(
 	ff_stand integer,
 	PRIMARY KEY (pk)
 );
-
 CREATE INDEX vor_flst_idx1 ON vor_flst(flsnr);
+CREATE INDEX vor_flst_idx2 ON vor_flst(v_flsnr);
 
 SELECT alkis_dropobject('best_lkfs');
 CREATE TABLE best_lkfs
@@ -623,6 +629,7 @@ CREATE TABLE best_lkfs
 	lkfs char(4) NOT NULL,
 	PRIMARY KEY (bestdnr,lkfs)
 );
+CREATE INDEX best_lkfs_idx0 ON best_lkfs(bestdnr);
 
 SELECT alkis_dropobject('flurst_lkfs');
 CREATE TABLE flurst_lkfs
@@ -631,6 +638,7 @@ CREATE TABLE flurst_lkfs
 	lkfs char(4) NOT NULL,
 	PRIMARY KEY (flsnr,lkfs)
 );
+CREATE INDEX flurst_lkfs_idx0 ON flurst_lkfs(flsnr);
 
 SELECT alkis_dropobject('fortf');
 CREATE TABLE fortf
@@ -646,7 +654,7 @@ CREATE TABLE fortf
 	datei char(250),
 	PRIMARY KEY (ffnr)
 );
-INSERT INTO fortf(ffnr,beschreibung) VALUES (1, 'Aus ALKIS übernommen: ');
+INSERT INTO fortf(ffnr,beschreibung) VALUES (1, 'Aus ALKIS übernommen: '||to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"'));
 
 SELECT alkis_dropobject('fina');
 CREATE TABLE fina(
@@ -654,6 +662,7 @@ CREATE TABLE fina(
 	fina_name char(200),
 	PRIMARY KEY (fina_nr)
 );
+CREATE INDEX fina_idx0 ON fina(fina_nr);
 
 SELECT alkis_dropobject('fs');
 CREATE TABLE fs(
@@ -683,6 +692,8 @@ CREATE TABLE ausfst
 	ff_stand integer,
 	primary key (pk)
 );
+CREATE INDEX ausfst_idx1 ON ausfst(flsnr);
+CREATE INDEX ausfst_idx2 ON ausfst(ausf_st);
 
 SELECT alkis_dropobject('afst_shl');
 CREATE TABLE afst_shl
@@ -692,7 +703,14 @@ CREATE TABLE afst_shl
 	PRIMARY KEY (ausf_st)
 );
 
-CREATE INDEX ausfst_idx1 ON ausfst(flsnr);
-CREATE INDEX ausfst_idx2 ON ausfst(ausf_st);
+CREATE INDEX afst_shl_idx0 afst_shl(ausf_st);
+
+UPDATE bestand
+   SET bestfl=(
+        SELECT SUM(flsfl::float8*CASE WHEN anteil IS NULL THEN 1.0 ELSE split_part(anteil,'/',1)::float8 / split_part(anteil,'/',2)::float8 END)::int
+        FROM flurst
+        JOIN eignerart ON flurst.flsnr=eignerart.flsnr
+        WHERE eignerart.bestdnr=bestand.bestdnr
+        );
 
 \i alkis-nutzung-und-klassifizierung.sql
