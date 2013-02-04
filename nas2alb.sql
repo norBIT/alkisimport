@@ -703,7 +703,7 @@ CREATE TABLE afst_shl
 	PRIMARY KEY (ausf_st)
 );
 
-CREATE INDEX afst_shl_idx0 afst_shl(ausf_st);
+CREATE INDEX afst_shl_idx0 ON afst_shl(ausf_st);
 
 UPDATE bestand
    SET bestfl=(
