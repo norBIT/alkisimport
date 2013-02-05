@@ -61,7 +61,7 @@ P=${0##*/}  # PROGNAME
 
 export LC_CTYPE=de_DE.UTF-8
 export TEMP=/tmp
-if [ -d "$B/gdal-dev" ]; then
+if command -p cygpath >/dev/null; then
 	export PATH=$B/gdal-dev/bin:$PATH
 	export GDAL_DATA=$(cygpath -w $B/gdal-dev/share/gdal)
 	TEMP=$(cygpath -w $TEMP)
@@ -379,6 +379,11 @@ EOF
 	trap "echo '$P: Fehler bei $src' >&2; src=error" EXIT
 
 	s=$(stat -c %s "$dst")
+	if (( s == 623 )); then
+		echo "SKIP $(bdate): $dst zu kurz - übersprungen"
+		continue
+	fi
+
 	(( S += s ))
 
 	echo "IMPORT $(bdate): $dst $(memunits $s)"
