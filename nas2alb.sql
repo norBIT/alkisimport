@@ -221,16 +221,6 @@ INSERT INTO gema_shl(gemashl,gemarkung)
 CREATE INDEX gema_shl_gemshl ON gema_shl(gemshl);
 CREATE INDEX gema_shl_ag_shl ON gema_shl(ag_shl);
 
-DELETE FROM str_shl WHERE NOT EXISTS (SELECT * FROM strassen WHERE str_shl.strshl=strassen.strshl);
-DELETE FROM gema_shl WHERE NOT EXISTS (SELECT * FROM flurst WHERE flurst.gemashl=gema_shl.gemashl);
-
-UPDATE gema_shl SET gemshl=(SELECT gemshl FROM flurst WHERE flurst.gemashl=gema_shl.gemashl LIMIT 1);
-
-DELETE FROM gem_shl
-  WHERE NOT EXISTS (SELECT * FROM gema_shl WHERE gema_shl.gemshl=gem_shl.gemshl)
-    AND NOT EXISTS (SELECT * FROM str_shl WHERE str_shl.gemshl=gem_shl.gemshl)
-    AND NOT EXISTS (SELECT * FROM flurst WHERE flurst.gemshl=gem_shl.gemshl);
-
 SELECT alkis_dropobject('eignerart');
 CREATE TABLE eignerart (
     flsnr character(20) NOT NULL,
@@ -485,6 +475,18 @@ CREATE INDEX eigner_idx1 ON eigner(bestdnr);
 CREATE INDEX eigner_idx2 ON eigner(name);
 CREATE INDEX eigner_ff_entst ON eigner(ff_entst);
 CREATE INDEX eigner_ff_stand ON eigner(ff_stand);
+
+DELETE FROM str_shl WHERE NOT EXISTS (SELECT * FROM strassen WHERE str_shl.strshl=strassen.strshl);
+DELETE FROM gema_shl
+	WHERE NOT EXISTS (SELECT * FROM flurst WHERE flurst.gemashl=gema_shl.gemashl)
+	  AND NOT EXISTS (SELECT * FROM bestand WHERE substr(bestdnr,1,6)=gema_shl.gemashl);
+
+UPDATE gema_shl SET gemshl=(SELECT gemshl FROM flurst WHERE flurst.gemashl=gema_shl.gemashl LIMIT 1);
+
+DELETE FROM gem_shl
+  WHERE NOT EXISTS (SELECT * FROM gema_shl WHERE gema_shl.gemshl=gem_shl.gemshl)
+    AND NOT EXISTS (SELECT * FROM str_shl WHERE str_shl.gemshl=gem_shl.gemshl)
+    AND NOT EXISTS (SELECT * FROM flurst WHERE flurst.gemshl=gem_shl.gemshl);
 
 --
 --
