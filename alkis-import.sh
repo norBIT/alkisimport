@@ -61,7 +61,7 @@ P=${0##*/}  # PROGNAME
 
 export LC_CTYPE=de_DE.UTF-8
 export TEMP=/tmp
-if command -p cygpath >/dev/null; then
+if type -p cygpath >/dev/null; then
 	export PATH=$B/gdal-dev/bin:$PATH
 	export GDAL_DATA=$(cygpath -w $B/gdal-dev/share/gdal)
 	TEMP=$(cygpath -w $TEMP)
