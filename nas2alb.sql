@@ -61,8 +61,8 @@ CREATE TABLE flurst (
 
 INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,gemflsfl,af,flurknr,baublock,flskoord,fora,fina,h1shl,h2shl,hinwshl,strshl,gemshl,hausnr,lagebez,k_anlverm,anl_verm,blbnr,n_flst,ff_entst,ff_stand,ff_datum)
    SELECT
-     to_char(land,'fm00') || to_char(gemarkungsnummer,'fm0000') || '-' || to_char(flurnummer,'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || to_char(coalesce(nenner,0),'fm000') AS flsnr,
-     to_char(zaehler,'fm00000') || '/' || to_char(coalesce(nenner,0),'fm000') AS flsnrk,
+     to_char(land,'fm00') || to_char(gemarkungsnummer,'fm0000') || '-' || to_char(flurnummer,'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || to_char(coalesce(mod(nenner,1000),0),'fm000') AS flsnr,
+     to_char(zaehler,'fm00000') || '/' || to_char(coalesce(mod(nenner,1000),0),'fm000') AS flsnrk,
      to_char(land,'fm00') || to_char(gemarkungsnummer,'fm0000') AS gemashl,
      to_char(flurnummer,'fm000') AS flr,
      substr(zeitpunktderentstehung,1,4)  || '/     -  ' AS entst,
@@ -676,7 +676,7 @@ INSERT INTO fs(fs_key,fs_obj,alb_key)
   SELECT
     ogc_fid
     ,gml_id
-    ,to_char(land,'fm00') || to_char(gemarkungsnummer,'fm0000') || '-' || to_char(flurnummer,'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || to_char(coalesce(nenner,0),'fm000')
+    ,to_char(land,'fm00') || to_char(gemarkungsnummer,'fm0000') || '-' || to_char(flurnummer,'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || to_char(coalesce(mod(nenner,1000),0),'fm000')
   FROM ax_flurstueck;
 
 CREATE INDEX fs_obj ON fs(fs_obj);
