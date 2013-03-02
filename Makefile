@@ -22,6 +22,7 @@ update: all
 		alkis-wertearten.sql \
 		gdal-dev \
 		logo.png \
+		logo.ico \
 		nas2alb.sql \
 		re \
 		refilter.py \

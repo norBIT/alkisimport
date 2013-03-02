@@ -5193,7 +5193,7 @@ FROM (
 		o.gml_id,
 		wkb_geometry AS line,
 		CASE
-		WHEN bauwerksfunktion IN (2010,2011,2070) THEN 1550
+		WHEN bauwerksfunktion IN (2010,2011,2070) THEN 2560
 		WHEN bauwerksfunktion=2012 THEN 2561
 		WHEN bauwerksfunktion=2050 THEN 2003 -- 20033650
 		WHEN bauwerksfunktion=2060 THEN 2526
@@ -5222,7 +5222,7 @@ FROM (
 		o.gml_id,
 		st_multi(wkb_geometry) AS polygon,
 		CASE
-		WHEN bauwerksfunktion IN (2010,2011,2070) THEN 2560
+		WHEN bauwerksfunktion IN (2010,2011,2070) THEN 1550
 		WHEN bauwerksfunktion=2020 THEN 1551
 		WHEN bauwerksfunktion=2030 THEN
 			CASE WHEN zustand=4000 THEN 1552 ELSE 1305 END

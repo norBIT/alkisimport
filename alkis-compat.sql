@@ -175,6 +175,13 @@ CREATE AGGREGATE st_extent(
         stype = box2d
         );
 
+CREATE AGGREGATE st_union (
+        sfunc = geom_accum,
+	basetype = geometry,
+	stype = geometry[],
+	finalfunc = unite_garray
+);
+
 CREATE FUNCTION alkis_intersect_lines( p0 geometry, p1 geometry, p2 geometry, p3 geometry ) RETURNS geometry AS $$
 DECLARE
 	d float8;
@@ -309,6 +316,10 @@ $$ LANGUAGE 'sql' IMMUTABLE;
 
 CREATE FUNCTION setsrid(geometry,integer) RETURNS geometry AS $$
   SELECT st_setsrid($1,$2);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
+CREATE FUNCTION st_ndims(geometry) RETURNS smallint AS $$
+  SELECT ndims($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
 CREATE AGGREGATE array_agg (
