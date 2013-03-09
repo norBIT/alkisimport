@@ -214,9 +214,10 @@ CREATE TABLE gema_shl (
 INSERT INTO gema_shl(gemashl,gemarkung)
 	SELECT
 		to_char(land,'fm00')||to_char(gemarkungsnummer,'fm0000') AS gemashl,
-		bezeichnung AS gemarkung
+		MIN(bezeichnung) AS gemarkung
 	FROM ax_gemarkung
-	WHERE endet IS NULL;
+	WHERE endet IS NULL
+	GROUP BY to_char(land,'fm00')||to_char(gemarkungsnummer,'fm0000');
 
 CREATE INDEX gema_shl_gemshl ON gema_shl(gemshl);
 CREATE INDEX gema_shl_ag_shl ON gema_shl(ag_shl);
@@ -709,7 +710,7 @@ CREATE INDEX afst_shl_idx0 ON afst_shl(ausf_st);
 
 UPDATE bestand
    SET bestfl=(
-        SELECT SUM(flsfl::float8*CASE WHEN anteil IS NULL THEN 1.0 ELSE split_part(anteil,'/',1)::float8 / split_part(anteil,'/',2)::float8 END)::int
+        SELECT SUM(flsfl::float8*CASE WHEN anteil IS NULL OR anteil='0/0' THEN 1.0 ELSE split_part(anteil,'/',1)::float8 / split_part(anteil,'/',2)::float8 END)::int
         FROM flurst
         JOIN eignerart ON flurst.flsnr=eignerart.flsnr
         WHERE eignerart.bestdnr=bestand.bestdnr

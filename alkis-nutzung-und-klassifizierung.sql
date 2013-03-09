@@ -436,11 +436,12 @@ INSERT INTO ausfst(flsnr,pk,ausf_st,verfnr,verfshl,ff_entst,ff_stand)
 
 DELETE FROM afst_shl;
 INSERT INTO afst_shl(ausf_st,afst_txt)
-  SELECT DISTINCT
+  SELECT
     to_char(d.land,'fm00') || d.stelle,
-    bezeichnung
+    MIN(bezeichnung)
   FROM ax_dienststelle d
-  WHERE EXISTS (SELECT * FROM ausfst WHERE ausf_st=to_char(d.land,'fm00') || d.stelle);
+  WHERE EXISTS (SELECT * FROM ausfst WHERE ausf_st=to_char(d.land,'fm00') || d.stelle)
+  GROUP BY to_char(d.land,'fm00') || d.stelle;
 
 
 SELECT 'Belege Baulastenblattnummer...';
