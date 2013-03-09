@@ -451,9 +451,9 @@ CREATE TABLE bblnr_temp AS
 	SELECT
 		to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(f.flurnummer,'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
 		b.bezeichnung
-        FROM ax_flurstueck f,ax_bauraumoderbodenordnungsrecht b
-        WHERE f.endet IS NULL AND b.endet IS NULL AND b.artderfestlegung=2610
-	  AND f.wkb_geometry && b.wkb_geometry AND st_intersects(f.wkb_geometry,b.wkb_geometry);
+        FROM ax_flurstueck f
+        JOIN ax_bauraumoderbodenordnungsrecht b ON b.endet IS NULL AND b.artderfestlegung=2610 AND f.wkb_geometry && b.wkb_geometry AND st_intersects(f.wkb_geometry,b.wkb_geometry)
+        WHERE f.endet IS NULL AND st_area(st_intersection(f.wkb_geometry,b.wkb_geometry))::int>0;
 
 CREATE INDEX bblnr_temp_flsnr ON bblnr_temp(flsnr);
 
