@@ -379,14 +379,14 @@ CREATE SEQUENCE klas_3x_pk_seq;
 SELECT 'Erzeuge Flurstücksklassifizierungen...';
 
 DELETE FROM klas_3x;
-INSERT INTO klas_3x(flsnr,pk,klf,fl,wertz1,wertz2,ff_entst,ff_stand)
+INSERT INTO klas_3x(flsnr,pk,klf,wertz1,wertz2,gemfl,ff_entst,ff_stand)
   SELECT
     to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(f.flurnummer,'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
     to_hex(nextval('klas_3x_pk_seq'::regclass)) AS pk,
     k.klassifizierung AS klf,
     k.bodenzahl,
     k.ackerzahl,
-    sum(st_area(st_intersection(f.wkb_geometry,k.wkb_geometry)))::int AS fl,
+    sum(st_area(st_intersection(f.wkb_geometry,k.wkb_geometry))) AS gemfl,
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
@@ -395,24 +395,28 @@ INSERT INTO klas_3x(flsnr,pk,klf,fl,wertz1,wertz2,ff_entst,ff_stand)
   GROUP BY
     f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), k.klassifizierung, k.bodenzahl, k.ackerzahl;
 
+UPDATE klas_3x SET fl=(gemfl*(SELECT flurst.amtlflsfl/flurst.gemflsfl FROM flurst WHERE flurst.flsnr=klas_3x.flsnr))::int;
+
 SELECT alkis_dropobject('nutz_shl_pk_seq');
 CREATE SEQUENCE nutz_shl_pk_seq;
 
 SELECT 'Erzeuge Flurstücksnutzungen...';
 
 DELETE FROM nutz_21;
-INSERT INTO nutz_21(flsnr,pk,nutzsl,fl,ff_entst,ff_stand)
+INSERT INTO nutz_21(flsnr,pk,nutzsl,gemfl,ff_entst,ff_stand)
   SELECT
     to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(f.flurnummer,'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
     to_hex(nextval('nutz_shl_pk_seq'::regclass)) AS pk,
     n.nutzung AS nutzsl,
-    sum(st_area(st_intersection(f.wkb_geometry,n.wkb_geometry)))::int AS fl,
+    sum(st_area(st_intersection(f.wkb_geometry,n.wkb_geometry))) AS gemfl,
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
   JOIN ax_tatsaechlichenutzung n ON f.wkb_geometry && n.wkb_geometry AND st_intersects(f.wkb_geometry,n.wkb_geometry)
   WHERE f.endet IS NULL AND st_area(st_intersection(f.wkb_geometry,n.wkb_geometry))::int>0
   GROUP BY f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), n.nutzung;
+
+UPDATE nutz_21 SET fl=(gemfl*(SELECT flurst.amtlflsfl/flurst.gemflsfl FROM flurst WHERE flurst.flsnr=nutz_21.flsnr))::int;
 
 SELECT alkis_dropobject('ausfst_pk_seq');
 CREATE SEQUENCE ausfst_pk_seq;

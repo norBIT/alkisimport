@@ -35,7 +35,8 @@ CREATE TABLE flurst (
     entst character(13),
     fortf character(13),
     flsfl character(9),
-    gemflsfl character(9),
+    amtlflsfl double precision,
+    gemflsfl double precision,
     af character(2),
     flurknr character(14),
     baublock character(12),
@@ -59,7 +60,7 @@ CREATE TABLE flurst (
     primary key (flsnr)
 ) WITH OIDS;
 
-INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,gemflsfl,af,flurknr,baublock,flskoord,fora,fina,h1shl,h2shl,hinwshl,strshl,gemshl,hausnr,lagebez,k_anlverm,anl_verm,blbnr,n_flst,ff_entst,ff_stand,ff_datum)
+INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl,af,flurknr,baublock,flskoord,fora,fina,h1shl,h2shl,hinwshl,strshl,gemshl,hausnr,lagebez,k_anlverm,anl_verm,blbnr,n_flst,ff_entst,ff_stand,ff_datum)
    SELECT
      to_char(land,'fm00') || to_char(gemarkungsnummer,'fm0000') || '-' || to_char(flurnummer,'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || to_char(coalesce(mod(nenner,1000),0),'fm000') AS flsnr,
      to_char(zaehler,'fm00000') || '/' || to_char(coalesce(mod(nenner,1000),0),'fm000') AS flsnrk,
@@ -67,8 +68,9 @@ INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,gemflsfl,af,flurkn
      to_char(flurnummer,'fm000') AS flr,
      substr(zeitpunktderentstehung,1,4)  || '/     -  ' AS entst,
      NULL AS fortf,
-     amtlicheflaeche AS flsfl,
-     st_area(wkb_geometry)::int::text AS gemflsfl,
+     amtlicheflaeche::int AS flsfl,
+     amtlicheflaeche AS amtlflsfl,
+     st_area(wkb_geometry) AS gemflsfl,
      '01' AS af,
      NULL AS flurknr,
      NULL AS baublock,
@@ -345,6 +347,7 @@ CREATE TABLE bestand (
     anteil character(24),
     auftlnr character(12),
     bestfl character(9),
+    amtlbestfl double precision,
     ff_entst integer NOT NULL,
     ff_stand integer,
     pz character(1),
@@ -536,6 +539,7 @@ CREATE TABLE klas_3x (
     pk character(8) NOT NULL,
     klf character(32),
     fl character(16),
+    gemfl double precision,
     klz character(10),
     wertz1 character(10),
     wertz2 character(10),
@@ -588,6 +592,7 @@ CREATE TABLE nutz_21
 	pk CHAR(8) NOT NULL,
 	nutzsl CHAR(32),
 	fl CHAR(16),
+	gemfl double precision,
 	ff_entst INTEGER,
 	ff_stand INTEGER,
 	primary key (pk)
@@ -709,11 +714,13 @@ CREATE TABLE afst_shl
 CREATE INDEX afst_shl_idx0 ON afst_shl(ausf_st);
 
 UPDATE bestand
-   SET bestfl=(
-        SELECT SUM(flsfl::float8*CASE WHEN anteil IS NULL OR anteil='0/0' THEN 1.0 ELSE split_part(anteil,'/',1)::float8 / split_part(anteil,'/',2)::float8 END)::int
+   SET amtlbestfl=(
+        SELECT SUM(amtlflsfl*CASE WHEN anteil IS NULL OR anteil='0/0' THEN 1.0 ELSE split_part(anteil,'/',1)::float8 / split_part(anteil,'/',2)::float8 END)
         FROM flurst
         JOIN eignerart ON flurst.flsnr=eignerart.flsnr
         WHERE eignerart.bestdnr=bestand.bestdnr
         );
+
+UPDATE bestand SET bestfl=amtlbestfl::int;
 
 \i alkis-nutzung-und-klassifizierung.sql
