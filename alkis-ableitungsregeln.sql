@@ -271,6 +271,9 @@ bei von:% bis:%',
 END;
 $$ LANGUAGE plpgsql;
 
+DELETE FROM alkis_linien WHERE signaturnummer='6000';
+DELETE FROM alkis_flaechen WHERE signaturnummer='6000';
+DELETE FROM alkis_schriften WHERE signaturnummer='6000';
 INSERT INTO alkis_linien(signaturnummer) VALUES ('6000');
 INSERT INTO alkis_flaechen(signaturnummer) VALUES ('6000');
 INSERT INTO alkis_schriften(signaturnummer) VALUES ('6000');
@@ -5402,7 +5405,7 @@ SELECT
 	gml_id,
 	'Vegetation' AS thema,
 	'ax_vegetationsmerkmal' AS layer,
-	st_multi(st_collect(st_line_interpolate_point(line,a.offset))) AS point,
+	st_multi(st_collect(st_line_interpolate_point(line,CASE WHEN a.offset<0 THEN 0 WHEN a.offset>1 THEN 1 ELSE a.offset END))) AS point,
 	0 AS drehwinkel,
 	signaturnummer
 FROM (

@@ -3,7 +3,7 @@ DESTDIR = //zeus/runtime/norBIT/norGIS-ALKIS-Import/
 all: alkisImportDlg.py
 
 diff:
-	diff -wur --exclude "*.pyc" --exclude Makefile --exclude alkis-import-env.cmd --exclude .git $(DESTDIR) .
+	-diff -wur --exclude "*.pyc" --exclude Makefile --exclude alkis-import-env.cmd --exclude .git $(DESTDIR) .
 
 update: all
 	rsync -avpP \
