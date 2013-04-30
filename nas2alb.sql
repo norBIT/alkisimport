@@ -413,7 +413,7 @@ CREATE TABLE eigner (
     plz_pf character(20),
     postfach character(20),
     plz character(20),
-    ort character(50),
+    ort character(200),
     land character(100),
     ff_entst integer,
     ff_stand integer,

@@ -20,6 +20,7 @@ update: all
 		alkis-signaturen.sql \
 		alkis-trigger.sql \
 		alkis-wertearten.sql \
+		alkisImportDlg.ui \
 		gdal-dev \
 		logo.png \
 		logo.ico \
