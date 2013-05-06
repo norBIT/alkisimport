@@ -10,6 +10,10 @@ CREATE FUNCTION st_geometryfromtext(text,integer) RETURNS geometry AS $$
   SELECT geometryfromtext($1,$2);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
+CREATE FUNCTION st_geomfromewkt(text) RETURNS geometry AS $$
+  SELECT geomfromewkt($1);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
 CREATE FUNCTION st_multi(geometry) RETURNS geometry AS $$
   SELECT multi($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
@@ -20,6 +24,10 @@ $$ LANGUAGE 'sql' IMMUTABLE;
 
 CREATE FUNCTION st_intersects(geometry,geometry) RETURNS BOOLEAN AS $$
   SELECT intersects($1,$2);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
+CREATE FUNCTION st_contains(geometry,geometry) RETURNS BOOLEAN AS $$
+  SELECT contains($1,$2);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
 CREATE FUNCTION st_astext(geometry) RETURNS TEXT AS $$
