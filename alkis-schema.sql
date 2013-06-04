@@ -133,9 +133,9 @@ COMMENT ON COLUMN delete.ignored      IS 'Löschsatz wurde ignoriert';
 
 CREATE TABLE alkis_beziehungen (
 	ogc_fid			serial NOT NULL,
-	beziehung_von		character(16),         --> gml_id
+	beziehung_von		character(16) NOT NULL, --> gml_id
 	beziehungsart		varchar,               --  Liste siehe unten
-	beziehung_zu		character(16),         --> gml_id
+	beziehung_zu		character(16) NOT NULL, --> gml_id
 	CONSTRAINT alkis_beziehungen_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -189,7 +189,7 @@ COMMENT ON COLUMN alkis_beziehungen.beziehungsart IS 'Typ der Beziehung zwischen
 -- ----------------------------------
 CREATE TABLE ks_sonstigesbauwerk (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -210,7 +210,7 @@ COMMENT ON TABLE  ks_sonstigesbauwerk IS 'Sonstiges Bauwerk';
 -- --------------------------------------------------------------------
 CREATE TABLE ax_anderefestlegungnachwasserrecht (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -236,7 +236,7 @@ COMMENT ON COLUMN ax_anderefestlegungnachwasserrecht.gml_id IS 'Identifikator, g
 -- ----------------------------------------------
 CREATE TABLE ax_baublock (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -258,7 +258,7 @@ COMMENT ON COLUMN ax_baublock.gml_id IS 'Identifikator, global eindeutig';
 -- -------------------------------------------------------------
 CREATE TABLE ax_besonderertopographischerpunkt (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -283,7 +283,7 @@ COMMENT ON COLUMN ax_besonderertopographischerpunkt.gml_id IS 'Identifikator, gl
 -- -------
 CREATE TABLE ax_soll (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -305,7 +305,7 @@ COMMENT ON TABLE ax_soll IS '''Soll'' ist eine runde, oft steilwandige Vertiefun
 -- ------------------
 CREATE TABLE ax_bewertung (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -330,7 +330,7 @@ COMMENT ON TABLE ax_bewertung  IS '''Bewertung'' ist die Klassifizierung einer F
 -- ---------------------------
 CREATE TABLE ax_tagesabschnitt (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -352,7 +352,7 @@ COMMENT ON TABLE ax_tagesabschnitt  IS '''Tagesabschnitt'' ist ein Ordnungskrite
 -- -----------------------------------
 CREATE TABLE ax_denkmalschutzrecht (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -380,7 +380,7 @@ COMMENT ON COLUMN ax_denkmalschutzrecht.gml_id IS 'Identifikator, global eindeut
 -- -------------------
 CREATE TABLE ax_forstrecht (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -405,7 +405,7 @@ COMMENT ON TABLE ax_forstrecht IS '''Forstrecht'' ist die auf den Grund und Bode
 -- -----------------------------------------
 CREATE TABLE ax_gebaeudeausgestaltung (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -429,7 +429,7 @@ COMMENT ON COLUMN ax_gebaeudeausgestaltung.gml_id IS 'Identifikator, global eind
 -- ----------------------------------------------
 CREATE TABLE ax_georeferenziertegebaeudeadresse (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),		-- Inhalt z.B. "2008-06-10T15:19:17Z"
 	endet 			character(20),		-- Inhalt z.B. "2008-06-10T15:19:17Z"
@@ -473,7 +473,7 @@ COMMENT ON COLUMN ax_georeferenziertegebaeudeadresse.gml_id IS 'Identifikator, g
 -- -------------------------------------------------------
 CREATE TABLE ax_grablochderbodenschaetzung (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -507,7 +507,7 @@ COMMENT ON COLUMN ax_grablochderbodenschaetzung.gml_id IS 'Identifikator, global
 
 CREATE TABLE ax_historischesflurstueckalb (
 	ogc_fid						serial NOT NULL,
-	gml_id						character(16),
+	gml_id						character(16) NOT NULL,
 
 	-- GID: AX_Flurstueck_Kerndaten
 	-- 'Flurstück_Kerndaten' enthält Eigenschaften des Flurstücks, die auch für andere Flurstücksobjektarten gelten (z.B. Historisches Flurstück).
@@ -594,7 +594,7 @@ Gleiches gilt für Flurstücksnummern ohne Nenner, hier ist der fehlende Nenner 
 -- Die "neue" Historie, die durch Fortführungen innerhalb von ALKIS entstanden ist.
 CREATE TABLE ax_historischesflurstueck (
 	ogc_fid				serial NOT NULL,
-	gml_id				character(16),
+	gml_id				character(16) NOT NULL,
 	-- GID: AX_Flurstueck_Kerndaten
 	-- 'Flurstück_Kerndaten' enthält Eigenschaften des Flurstücks, die auch für andere Flurstücksobjektarten gelten (z.B. Historisches Flurstück).
 	land 				integer,         --
@@ -690,7 +690,7 @@ COMMENT ON INDEX ax_historischesflurstueck_kennz IS 'Suche nach Flurstückskennz
 -- ------------------------------------------------------------------------
 CREATE TABLE ax_naturumweltoderbodenschutzrecht (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -717,7 +717,7 @@ COMMENT ON COLUMN ax_naturumweltoderbodenschutzrecht.gml_id IS 'Identifikator, g
 -- -----------------------------------------------------------
 CREATE TABLE ax_schutzgebietnachwasserrecht (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -744,7 +744,7 @@ COMMENT ON COLUMN ax_schutzgebietnachwasserrecht.gml_id IS 'Identifikator, globa
 -- -----------------------------------------------------------------------------------------------------
 CREATE TABLE ax_schutzgebietnachnaturumweltoderbodenschutzrecht (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -769,7 +769,7 @@ COMMENT ON COLUMN ax_schutzgebietnachnaturumweltoderbodenschutzrecht.gml_id IS '
 -- -------------------
 CREATE TABLE ax_schutzzone (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -793,7 +793,7 @@ COMMENT ON COLUMN ax_schutzzone.gml_id IS 'Identifikator, global eindeutig';
 -- ---------------------------------------
 CREATE TABLE ax_topographischelinie (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -825,7 +825,7 @@ COMMENT ON COLUMN ax_topographischelinie.gml_id IS 'Identifikator, global eindeu
 -- ----------------------------------------------
 CREATE TABLE ap_ppo (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -853,7 +853,7 @@ COMMENT ON COLUMN ap_ppo.gml_id IS 'Identifikator, global eindeutig';
 -- ----------------------------------------------
 CREATE TABLE ap_lpo (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -878,7 +878,7 @@ COMMENT ON COLUMN ap_lpo.gml_id IS 'Identifikator, global eindeutig';
 -- ----------------------------------------------
 CREATE TABLE ap_pto (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -921,7 +921,7 @@ COMMENT ON INDEX  art_idx              IS 'Suchindex auf häufig benutztem Filte
 -- ----------------------------------------------
 CREATE TABLE ap_lto (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -953,7 +953,7 @@ COMMENT ON COLUMN ap_lto.gml_id IS 'Identifikator, global eindeutig';
 -- ----------------------------------------------
 CREATE TABLE ap_darstellung (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),			-- Datumsformat
 	endet 			character(20),			-- Datumsformat
@@ -988,7 +988,7 @@ COMMENT ON COLUMN ap_darstellung.gml_id IS 'Identifikator, global eindeutig';
 -- Kennung 11001
 CREATE TABLE ax_flurstueck (
 	ogc_fid				serial NOT NULL,
-	gml_id				character(16),         -- Datenbank-Tabelle interner Schlüssel
+	gml_id				character(16) NOT NULL,  -- Datenbank-Tabelle interner Schlüssel
 --	zustaendigeStelle		varchar,               -- ZST
 
 	-- GID: AX_Flurstueck_Kerndaten
@@ -1090,7 +1090,7 @@ COMMENT ON INDEX ax_flurstueck_kennz IS 'Suche nach Flurstückskennzeichen';
 -- -----------------------------------------------------
 CREATE TABLE ax_besondereflurstuecksgrenze (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -1113,7 +1113,7 @@ COMMENT ON COLUMN ax_besondereflurstuecksgrenze.gml_id IS 'Identifikator, global
 -- ----------------------------------------------
 CREATE TABLE ax_grenzpunkt (
 	ogc_fid				serial NOT NULL,
-	gml_id				character(16),
+	gml_id				character(16) NOT NULL,
 	identifier			character(44),
 	beginnt				character(20),
 	endet 				character(20),
@@ -1150,7 +1150,7 @@ COMMENT ON COLUMN ax_grenzpunkt.gml_id IS 'Identifikator, global eindeutig';
 -- -------------------------------------------------------------
 CREATE TABLE ax_lagebezeichnungohnehausnummer (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -1183,7 +1183,7 @@ COMMENT ON COLUMN ax_lagebezeichnungohnehausnummer.gml_id IS 'Identifikator, glo
 --                  <gehoertZu<
 CREATE TABLE ax_lagebezeichnungmithausnummer (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -1212,7 +1212,7 @@ COMMENT ON COLUMN ax_lagebezeichnungmithausnummer.gml_id IS 'Identifikator, glob
 -- Nebengebäude: lfd-Nummer eines Nebengebäudes zu einer (Pseudo-) Hausnummer
 CREATE TABLE ax_lagebezeichnungmitpseudonummer (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -1246,7 +1246,7 @@ COMMENT ON COLUMN ax_lagebezeichnungmitpseudonummer.gml_id IS 'Identifikator, gl
 -- ----------------------------------------------
 CREATE TABLE ax_aufnahmepunkt (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier              character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -1273,7 +1273,7 @@ COMMENT ON COLUMN ax_aufnahmepunkt.gml_id IS 'Identifikator, global eindeutig';
 -- ----------------------------------------------
 CREATE TABLE ax_sicherungspunkt (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -1297,7 +1297,7 @@ COMMENT ON TABLE  ax_sicherungspunkt        IS 'S i c h e r u n g s p u n k t';
 -- ---------------------------------------------------
 CREATE TABLE ax_sonstigervermessungspunkt (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -1336,7 +1336,7 @@ COMMENT ON COLUMN ax_sonstigervermessungspunkt.gml_id IS 'Identifikator, global 
 -- ----------------------------------------------
 CREATE TABLE ax_punktortag (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -1365,7 +1365,7 @@ COMMENT ON COLUMN ax_punktortag.gml_id IS 'Identifikator, global eindeutig';
 -- ----------------------------------------------
 CREATE TABLE ax_punktortau (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -1396,7 +1396,7 @@ COMMENT ON COLUMN ax_punktortau.gml_id IS 'Identifikator, global eindeutig';
 -- ----------------------------------------------
 CREATE TABLE ax_punktortta (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -1429,7 +1429,7 @@ COMMENT ON COLUMN ax_punktortta.gml_id IS 'Identifikator, global eindeutig';
 -- --------------------------------------------------------------
 CREATE TABLE ax_fortfuehrungsnachweisdeckblatt (
 	ogc_fid				serial NOT NULL,
-	gml_id				character(16),
+	gml_id				character(16) NOT NULL,
 	identifier			character(44),
 	beginnt				character(20),
 	endet				character(20),
@@ -1460,7 +1460,7 @@ IS 'F o r t f u e h r u n g s n a c h w e i s / D e c k b l a t t';
 -- ---------------------------------
 CREATE TABLE ax_fortfuehrungsfall (
 	ogc_fid					serial NOT NULL,
-	gml_id					character(16),
+	gml_id					character(16) NOT NULL,
 	identifier				character(44),
 	beginnt					character(20),
 	endet					character(20),
@@ -1490,7 +1490,7 @@ COMMENT ON TABLE  ax_fortfuehrungsfall IS 'F o r t f u e h r u n g s f a l l';
 -- -----------------------
 CREATE TABLE ax_reservierung (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -1514,7 +1514,7 @@ COMMENT ON TABLE  ax_reservierung IS 'R e s e r v i e r u n g';
 -- ---------------------------------------------------
 CREATE TABLE ax_punktkennunguntergegangen (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -1537,7 +1537,7 @@ COMMENT ON TABLE  ax_punktkennunguntergegangen IS 'P u n k t k e n n u n g, unte
 -- Variante B: "Vollhistorie" ( statt ax_historischesflurstueckalb)
 CREATE TABLE ax_historischesflurstueckohneraumbezug (
 	ogc_fid				serial NOT NULL,
-	gml_id				character(16),
+	gml_id				character(16) NOT NULL,
 	-- GID: AX_Flurstueck_Kerndaten
 	-- 'Flurstück_Kerndaten' enthält Eigenschaften des Flurstücks, die auch für andere Flurstücksobjektarten gelten (z.B. Historisches Flurstück).
 	land 				integer,         --
@@ -1631,7 +1631,7 @@ CREATE INDEX idx_histfsor_nach ON ax_historischesflurstueckohneraumbezug (nachfo
 -- Buchwerk. Keine Geometrie
 CREATE TABLE ax_person (
 	ogc_fid				serial NOT NULL,
-	gml_id				character(16),
+	gml_id				character(16) NOT NULL,
 	identifier			character(44),
 	beginnt				character(20),
 	endet 				character(20),
@@ -1679,7 +1679,7 @@ COMMENT ON COLUMN ax_person.namensbestandteil IS 'enthält z.B. Titel wie "Baron
 -- Konverter versucht Tabelle noch einmal anzulegen, wenn kein (Dummy-) Eintrag in Metatabelle 'geometry_columns'.
 CREATE TABLE ax_anschrift (
 	ogc_fid				serial NOT NULL,
-	gml_id				character(16),
+	gml_id				character(16) NOT NULL,
 	identifier			character(44),
 	beginnt				character(20),
 	endet 				character(20),
@@ -1717,7 +1717,7 @@ COMMENT ON COLUMN ax_anschrift.gml_id IS 'Identifikator, global eindeutig';
 -- Buchwerk. Keine Geometrie
 CREATE TABLE ax_namensnummer (
 	ogc_fid				serial NOT NULL,
-	gml_id				character(16),
+	gml_id				character(16) NOT NULL,
 	identifier			character(44),
 	beginnt				character(20),
 	endet 				character(20),
@@ -1748,7 +1748,7 @@ COMMENT ON COLUMN ax_namensnummer.gml_id IS 'Identifikator, global eindeutig';
 -- -------------------------
 CREATE TABLE ax_buchungsblatt (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -1778,7 +1778,7 @@ COMMENT ON COLUMN ax_buchungsblatt.gml_id IS 'Identifikator, global eindeutig';
 -- -----------------------------
 CREATE TABLE ax_buchungsstelle (
 	ogc_fid				serial NOT NULL,
-	gml_id				character(16),
+	gml_id				character(16) NOT NULL,
 	identifier			character(44),
 	beginnt				character(20),
 	endet 				character(20),
@@ -1821,7 +1821,7 @@ COMMENT ON COLUMN ax_buchungsstelle.gml_id IS 'Identifikator, global eindeutig';
 --  http://www.bezreg-koeln.nrw.de/extra/33alkis/dokumente/Profile_NRW/ALKIS-OK-NRW_MAX_20090722.html
 CREATE TABLE ax_gebaeude (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -1906,7 +1906,7 @@ CREATE UNIQUE INDEX ax_gebaeude_gml ON ax_gebaeude USING btree (gml_id,beginnt);
 -- -------------
 CREATE TABLE ax_bauteil (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -1935,7 +1935,7 @@ COMMENT ON COLUMN ax_bauteil.gml_id IS 'Identifikator, global eindeutig';
 -- ----------------------------------------------
 CREATE TABLE ax_besonderegebaeudelinie (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -1958,7 +1958,7 @@ COMMENT ON COLUMN ax_besonderegebaeudelinie.gml_id IS 'Identifikator, global ein
 -- -----------------------------------------------------
 CREATE TABLE ax_firstlinie (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -1983,7 +1983,7 @@ COMMENT ON COLUMN ax_firstlinie.gml_id IS 'Identifikator, global eindeutig';
 -- -----------------------------------------------
 CREATE TABLE ax_besonderergebaeudepunkt (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2029,7 +2029,7 @@ COMMENT ON COLUMN ax_besonderergebaeudepunkt.gml_id IS 'Identifikator, global ei
 -- die ausschließlich oder vorwiegend dem Wohnen dient.
 CREATE TABLE ax_wohnbauflaeche (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2059,7 +2059,7 @@ COMMENT ON COLUMN ax_wohnbauflaeche.name            IS 'NAM "Name" ist der Eigen
 -- Industrie- und Gewerbefläche' ist eine Fläche, die vorwiegend industriellen oder gewerblichen Zwecken dient.
 CREATE TABLE ax_industrieundgewerbeflaeche (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2094,7 +2094,7 @@ COMMENT ON COLUMN ax_industrieundgewerbeflaeche.primaerenergie IS 'PEG "Primäre
 -- ----------------------------------------------
 CREATE TABLE ax_halde
 (	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2124,7 +2124,7 @@ COMMENT ON COLUMN ax_halde.zustand    IS 'ZUS "Zustand" beschreibt die Betriebsb
 -- 'Bergbaubetrieb' ist eine Fläche, die für die Förderung des Abbaugutes unter Tage genutzt wird.
 CREATE TABLE ax_bergbaubetrieb (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2154,7 +2154,7 @@ COMMENT ON COLUMN ax_bergbaubetrieb.bezeichnung IS 'BEZ "Bezeichnung" ist die vo
 -- ---------------------------------------------------
 CREATE TABLE ax_tagebaugrubesteinbruch (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2183,7 +2183,7 @@ COMMENT ON COLUMN ax_tagebaugrubesteinbruch.zustand  IS 'ZUS "Zustand" beschreib
 -- -----------------------------------------------------
 CREATE TABLE ax_flaechegemischternutzung (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2214,7 +2214,7 @@ COMMENT ON COLUMN ax_flaechegemischternutzung.zustand        IS 'ZUS "Zustand" b
 -- -------------------------------------------------------------------------------
 CREATE TABLE ax_flaechebesondererfunktionalerpraegung (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2244,7 +2244,7 @@ COMMENT ON COLUMN ax_flaechebesondererfunktionalerpraegung.zustand        IS 'ZU
 -- ---------------------------------------------------------------------------
 CREATE TABLE ax_sportfreizeitunderholungsflaeche (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2273,7 +2273,7 @@ COMMENT ON COLUMN ax_sportfreizeitunderholungsflaeche.name     IS 'NAM "Name" is
 -- ----------------
 CREATE TABLE ax_friedhof (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2305,7 +2305,7 @@ COMMENT ON COLUMN ax_friedhof.zustand   IS 'ZUS "Zustand" beschreibt die Betrieb
 -- ----------------------------------------------
 CREATE TABLE ax_strassenverkehr (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2342,7 +2342,7 @@ COMMENT ON COLUMN ax_strassenverkehr.zustand   IS 'ZUS "Zustand" beschreibt die 
 -- Zum 'Weg' gehören auch Seitenstreifen und Gräben zur Wegentwässerung.
 CREATE TABLE ax_weg (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2376,7 +2376,7 @@ COMMENT ON COLUMN ax_weg.bezeichnung  IS 'BEZ "Bezeichnung" ist die amtliche Num
 -- Platz' ist eine Verkehrsfläche in Ortschaften oder eine ebene, befestigte oder unbefestigte Fläche, die bestimmten Zwecken dient (z. B. für Verkehr, Märkte, Festveranstaltungen).
 CREATE TABLE ax_platz (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2409,7 +2409,7 @@ COMMENT ON COLUMN ax_platz.zweitname IS 'ZNM "Zweitname" ist der touristische od
 -- ----------------------------------------------
 CREATE TABLE ax_bahnverkehr (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2448,7 +2448,7 @@ COMMENT ON COLUMN ax_bahnverkehr.zustand              IS 'ZUS "Zustand" beschrei
 -- ----------------------
 CREATE TABLE ax_flugverkehr (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2482,7 +2482,7 @@ COMMENT ON COLUMN ax_flugverkehr.zustand     IS 'ZUS "Zustand" beschreibt die Be
 -- ---------------------------
 CREATE TABLE ax_schiffsverkehr (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2514,7 +2514,7 @@ COMMENT ON COLUMN ax_schiffsverkehr.zustand  IS 'ZUS "Zustand" beschreibt die Be
 -- ----------------------------------------------
 CREATE TABLE ax_landwirtschaft (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2540,7 +2540,7 @@ COMMENT ON COLUMN ax_landwirtschaft.name               IS 'NAM "Name" ist die Be
 -- ----------------------------------------------
 CREATE TABLE ax_wald (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2568,7 +2568,7 @@ COMMENT ON COLUMN ax_wald.bezeichnung IS 'BEZ "Bezeichnung" ist die von einer Fa
 -- ----------------------------------------------
 CREATE TABLE ax_gehoelz (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2597,7 +2597,7 @@ COMMENT ON COLUMN ax_gehoelz.funktion           IS 'FKT "Funktion" beschreibt, w
 -- ----------------------------------------------
 CREATE TABLE ax_heide (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2621,7 +2621,7 @@ COMMENT ON COLUMN ax_heide.name   IS 'NAM "Name" ist der Eigenname von "Heide".'
 -- ----------------------------------------------
 CREATE TABLE ax_moor (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2646,7 +2646,7 @@ COMMENT ON COLUMN ax_moor.name IS 'NAM "Name" ist der Eigenname von "Moor".';
 -- ----------------------------------------------
 CREATE TABLE ax_sumpf (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2670,7 +2670,7 @@ COMMENT ON COLUMN ax_sumpf.name   IS 'NAM "Name" ist der Eigenname von "Sumpf".'
 -- ---------------------------------------------------
 CREATE TABLE ax_unlandvegetationsloseflaeche (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2712,7 +2712,7 @@ COMMENT ON COLUMN ax_unlandvegetationsloseflaeche.funktion             IS 'FKT "
 -- der in einem oder in mehreren Abschnitten die jeweils gleiche Höhe des Wasserspiegels besitzt.
 CREATE TABLE ax_fliessgewaesser (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2740,7 +2740,7 @@ COMMENT ON COLUMN ax_fliessgewaesser.zustand  IS 'ZUS "Zustand" beschreibt die B
 -- ---------------------
 CREATE TABLE ax_hafenbecken (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2771,7 +2771,7 @@ COMMENT ON COLUMN ax_hafenbecken.nutzung  IS 'NTZ "Nutzung" gibt den Nutzerkreis
 -- allseitig umschlossene Hohlform der Landoberfläche ohne unmittelbaren Zusammenhang mit 'Meer'.
 CREATE TABLE ax_stehendesgewaesser (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2801,7 +2801,7 @@ COMMENT ON COLUMN ax_stehendesgewaesser.hydrologischesMerkmal IS 'HYD  "Hydrolog
 -- ----------------------------------------------
 CREATE TABLE ax_meer (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2856,7 +2856,7 @@ COMMENT ON COLUMN ax_meer.tidemerkmal  IS 'TID "Tidemerkmal" gibt an, ob "Meer" 
 -- ---------------------------------------------------
 CREATE TABLE ax_turm (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2881,7 +2881,7 @@ COMMENT ON COLUMN ax_turm.gml_id IS 'Identifikator, global eindeutig';
 -- ----------------------------------------------
 CREATE TABLE ax_bauwerkoderanlagefuerindustrieundgewerbe (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2907,7 +2907,7 @@ COMMENT ON COLUMN ax_bauwerkoderanlagefuerindustrieundgewerbe.gml_id IS 'Identif
 -- -----------------------------------------------------------------
 CREATE TABLE ax_vorratsbehaelterspeicherbauwerk (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2933,7 +2933,7 @@ COMMENT ON COLUMN ax_vorratsbehaelterspeicherbauwerk.gml_id IS 'Identifikator, g
 -- ---------------------------------------------------
 CREATE TABLE ax_transportanlage (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2960,7 +2960,7 @@ COMMENT ON COLUMN ax_transportanlage.gml_id IS 'Identifikator, global eindeutig'
 -- ----------------------------------------------
 CREATE TABLE ax_leitung (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -2984,7 +2984,7 @@ COMMENT ON COLUMN ax_leitung.gml_id IS 'Identifikator, global eindeutig';
 -- -----------------------------------------------------
 CREATE TABLE ax_bauwerkoderanlagefuersportfreizeitunderholung (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3009,7 +3009,7 @@ COMMENT ON COLUMN ax_bauwerkoderanlagefuersportfreizeitunderholung.gml_id IS 'Id
 -- -------------------------------------------------
 CREATE TABLE ax_historischesbauwerkoderhistorischeeinrichtung (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3034,7 +3034,7 @@ COMMENT ON COLUMN ax_historischesbauwerkoderhistorischeeinrichtung.gml_id IS 'Id
 -- ----------------------------------------------
 CREATE TABLE ax_heilquellegasquelle (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -3059,7 +3059,7 @@ COMMENT ON COLUMN ax_heilquellegasquelle.gml_id IS 'Identifikator, global eindeu
 -- ----------------------------------------------
 CREATE TABLE ax_sonstigesbauwerkodersonstigeeinrichtung (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3085,7 +3085,7 @@ COMMENT ON COLUMN ax_sonstigesbauwerkodersonstigeeinrichtung.gml_id IS 'Identifi
 -- ------------------------------------------------------------------------
 CREATE TABLE ax_einrichtunginoeffentlichenbereichen (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -3109,7 +3109,7 @@ COMMENT ON COLUMN ax_einrichtunginoeffentlichenbereichen.gml_id IS 'Identifikato
 -- Einrichtung für den Schiffsverkehr
 CREATE TABLE ax_einrichtungenfuerdenschiffsverkehr (
 	ogc_fid 		serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -3131,7 +3131,7 @@ CREATE UNIQUE INDEX ax_einrichtungenfuerdenschiffsverkehr_gml ON ax_einrichtunge
 -- -----------------------------------------------
 CREATE TABLE ax_besondererbauwerkspunkt (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3162,7 +3162,7 @@ COMMENT ON COLUMN ax_besondererbauwerkspunkt.gml_id IS 'Identifikator, global ei
 -- ------------------------------------------------
 CREATE TABLE ax_bauwerkimverkehrsbereich (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3187,7 +3187,7 @@ COMMENT ON COLUMN ax_bauwerkimverkehrsbereich.gml_id IS 'Identifikator, global e
 -- ----------------------------------------------
 CREATE TABLE ax_strassenverkehrsanlage (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3213,7 +3213,7 @@ COMMENT ON COLUMN ax_strassenverkehrsanlage.gml_id IS 'Identifikator, global ein
 -- ----------------------------------------------
 CREATE TABLE ax_wegpfadsteig (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3238,7 +3238,7 @@ COMMENT ON COLUMN ax_wegpfadsteig.gml_id IS 'Identifikator, global eindeutig';
 -- ----------------------------------------------
 CREATE TABLE ax_bahnverkehrsanlage (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3264,7 +3264,7 @@ COMMENT ON COLUMN ax_bahnverkehrsanlage.gml_id IS 'Identifikator, global eindeut
 -- --------------------------------------
 CREATE TABLE ax_seilbahnschwebebahn (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3290,7 +3290,7 @@ COMMENT ON COLUMN ax_seilbahnschwebebahn.gml_id IS 'Identifikator, global eindeu
 -- ----------------------------------------------
 CREATE TABLE ax_gleis (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3317,7 +3317,7 @@ COMMENT ON COLUMN ax_gleis.gml_id IS 'Identifikator, global eindeutig';
 -- -----------------------------------
 CREATE TABLE ax_flugverkehrsanlage (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -3347,7 +3347,7 @@ COMMENT ON COLUMN ax_flugverkehrsanlage.gml_id      IS 'Identifikator, global ei
 -- -----------------------------------------------------
 CREATE TABLE ax_bauwerkimgewaesserbereich (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3375,7 +3375,7 @@ COMMENT ON COLUMN ax_bauwerkimgewaesserbereich.gml_id IS 'Identifikator, global 
 -- ----------------------------------------------
 CREATE TABLE ax_vegetationsmerkmal (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3403,7 +3403,7 @@ COMMENT ON COLUMN ax_vegetationsmerkmal.gml_id IS 'Identifikator, global eindeut
 -- ----------------------------------------------
 CREATE TABLE ax_gewaessermerkmal (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3427,7 +3427,7 @@ COMMENT ON COLUMN ax_gewaessermerkmal.gml_id IS 'Identifikator, global eindeutig
 -- -------------------------------------------------
 CREATE TABLE ax_untergeordnetesgewaesser (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3459,7 +3459,7 @@ COMMENT ON COLUMN ax_untergeordnetesgewaesser.gml_id IS 'Identifikator, global e
 -- ---------------------------------
 CREATE TABLE ax_wasserspiegelhoehe (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3481,7 +3481,7 @@ COMMENT ON TABLE  ax_wasserspiegelhoehe  IS 'W a s s e r s p i e g e l h ö h e'
 -- -----------------------------------------------------------
 CREATE TABLE ax_schifffahrtsliniefaehrverkehr (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3510,7 +3510,7 @@ COMMENT ON TABLE  ax_schifffahrtsliniefaehrverkehr  IS 'S c h i f f f a h r t s 
 -- -----------------------------
 CREATE TABLE ax_boeschungkliff (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3534,7 +3534,7 @@ COMMENT ON COLUMN ax_boeschungkliff.gml_id IS 'Identifikator, global eindeutig';
 --AX_Boeschungsflaeche Geändert (Revisionsnummer: 1623)
 CREATE TABLE ax_boeschungsflaeche (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3557,7 +3557,7 @@ COMMENT ON COLUMN ax_boeschungsflaeche.gml_id IS 'Identifikator, global eindeuti
 -- ----------------------------------------------
 CREATE TABLE ax_dammwalldeich (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3582,7 +3582,7 @@ COMMENT ON COLUMN ax_dammwalldeich.gml_id IS 'Identifikator, global eindeutig';
 -- -------------------------
 CREATE TABLE ax_hoehleneingang (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3607,7 +3607,7 @@ COMMENT ON COLUMN ax_hoehleneingang.gml_id IS 'Identifikator, global eindeutig';
 -- Nutzung
 CREATE TABLE ax_felsenfelsblockfelsnadel (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3630,7 +3630,7 @@ COMMENT ON COLUMN ax_felsenfelsblockfelsnadel.gml_id IS 'Identifikator, global e
 -- -------
 CREATE TABLE ax_duene (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3651,7 +3651,7 @@ COMMENT ON TABLE  ax_duene IS 'D ü n e';
 -- --------------------
 CREATE TABLE ax_hoehenlinie (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3683,7 +3683,7 @@ CREATE UNIQUE INDEX ax_hoehenlinie_gml ON ax_hoehenlinie USING btree (gml_id,beg
 -- ----------------------------------------------
 CREATE TABLE ax_gelaendekante (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -3715,7 +3715,7 @@ COMMENT ON COLUMN ax_gelaendekante.gml_id IS 'Identifikator, global eindeutig';
 -- -------------------------------------------------------------
 CREATE TABLE ax_besondererhoehenpunkt (
 	ogc_fid			serial NOT NULL,
-	gml_id 			character(16),
+	gml_id 			character(16) NOT NULL,
 	identifier 		character(44),
 	beginnt 		character(20),
 	endet  			character(20),
@@ -3751,7 +3751,7 @@ COMMENT ON COLUMN ax_besondererhoehenpunkt.gml_id IS 'Identifikator, global eind
 -- -------------------------------------------------------------------
 CREATE TABLE ax_klassifizierungnachstrassenrecht (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3778,7 +3778,7 @@ COMMENT ON COLUMN ax_klassifizierungnachstrassenrecht.gml_id IS 'Identifikator, 
 -- ---------------------------------------------------------------
 CREATE TABLE ax_klassifizierungnachwasserrecht (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3805,7 +3805,7 @@ COMMENT ON COLUMN ax_klassifizierungnachwasserrecht.gml_id IS 'Identifikator, gl
 -- mit bodenbezogenen Beschränkungen, Belastungen oder anderen Eigenschaften nach öffentlichen Vorschriften.
 CREATE TABLE ax_bauraumoderbodenordnungsrecht (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3836,7 +3836,7 @@ COMMENT ON COLUMN ax_bauraumoderbodenordnungsrecht.bezeichnung IS 'BEZ, Amtlich 
 -- -----------------------------
 CREATE TABLE ax_sonstigesrecht (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3872,7 +3872,7 @@ COMMENT ON COLUMN ax_sonstigesrecht.gml_id IS 'Identifikator, global eindeutig';
 -- ----------------------------------------------
 CREATE TABLE ax_bodenschaetzung (
 	ogc_fid				serial NOT NULL,
-	gml_id				character(16),
+	gml_id				character(16) NOT NULL,
 	identifier			character(44),
 	beginnt				character(20),
 	endet 				character(20),
@@ -3904,7 +3904,7 @@ COMMENT ON COLUMN ax_bodenschaetzung.gml_id IS 'Identifikator, global eindeutig'
 -- -----------------------------------------------------------------------------------
 CREATE TABLE ax_musterlandesmusterundvergleichsstueck (
 	ogc_fid				serial NOT NULL,
-	gml_id				character(16),
+	gml_id				character(16) NOT NULL,
 	identifier			character(44),
 	beginnt				character(20),
 	endet 				character(20),
@@ -3941,7 +3941,7 @@ COMMENT ON COLUMN ax_musterlandesmusterundvergleichsstueck.gml_id IS 'Identifika
 -- ----------------------------------------------
 CREATE TABLE ax_bundesland (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -3966,7 +3966,7 @@ COMMENT ON COLUMN ax_bundesland.gml_id IS 'Identifikator, global eindeutig';
 -- ----------------------------------------------
 CREATE TABLE ax_regierungsbezirk (
 	ogc_fid				serial NOT NULL,
-	gml_id				character(16),
+	gml_id				character(16) NOT NULL,
 	identifier			character(44),
 	beginnt				character(20),
 	endet 				character(20),
@@ -3994,7 +3994,7 @@ COMMENT ON COLUMN ax_regierungsbezirk.gml_id IS 'Identifikator, global eindeutig
 -- ---------------------------
 CREATE TABLE ax_kreisregion (
 	ogc_fid				serial NOT NULL,
-	gml_id				character(16),
+	gml_id				character(16) NOT NULL,
 	identifier			character(44),
 	beginnt				character(20),
 	endet 				character(20),
@@ -4020,7 +4020,7 @@ COMMENT ON COLUMN ax_kreisregion.gml_id IS 'Identifikator, global eindeutig';
 -- ----------------------------------------------
 CREATE TABLE ax_gemeinde (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -4048,7 +4048,7 @@ COMMENT ON COLUMN ax_gemeinde.gml_id IS 'Identifikator, global eindeutig';
 -- -----------------------------------------
 CREATE TABLE ax_gemeindeteil (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -4079,7 +4079,7 @@ COMMENT ON COLUMN ax_gemeindeteil.gml_id IS 'Identifikator, global eindeutig';
 -- NREO, nur Schluesseltabelle: Geometrie entbehrlich
 CREATE TABLE ax_gemarkung (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -4108,7 +4108,7 @@ COMMENT ON COLUMN ax_gemarkung.gml_id IS 'Identifikator, global eindeutig';
 -- Schluesseltabelle: Geometrie entbehrlich
 CREATE TABLE ax_gemarkungsteilflur (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -4135,7 +4135,7 @@ COMMENT ON COLUMN ax_gemarkungsteilflur.gml_id IS 'Identifikator, global eindeut
 -- ----------------------------------------------
 CREATE TABLE ax_buchungsblattbezirk (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -4167,7 +4167,7 @@ COMMENT ON COLUMN ax_buchungsblattbezirk.gml_id IS 'Identifikator, global eindeu
 -- NREO, nur Schluesseltabelle: Geometrie entbehrlich
 CREATE TABLE ax_dienststelle (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -4196,7 +4196,7 @@ COMMENT ON COLUMN ax_dienststelle.gml_id IS 'Identifikator, global eindeutig';
 -- --------------------------------------------------------------
 CREATE TABLE ax_lagebezeichnungkatalogeintrag (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -4237,7 +4237,7 @@ COMMENT ON COLUMN ax_lagebezeichnungkatalogeintrag.bezeichnung  IS 'Straßenname
 -- -----------------------------------------------------------
 CREATE TABLE ax_kleinraeumigerlandschaftsteil (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -4262,7 +4262,7 @@ COMMENT ON COLUMN ax_kleinraeumigerlandschaftsteil.gml_id IS 'Identifikator, glo
 -- -----------------------------------------------------------
 CREATE TABLE ax_wohnplatz (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -4289,7 +4289,7 @@ COMMENT ON COLUMN ax_wohnplatz.gml_id IS 'Identifikator, global eindeutig';
 -- ----------------------------------------------
 CREATE TABLE ax_kommunalesgebiet (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
@@ -4320,7 +4320,7 @@ COMMENT ON COLUMN ax_kommunalesgebiet.gml_id IS 'Identifikator, global eindeutig
 -- -------------------
 CREATE TABLE ax_vertretung (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -4338,7 +4338,7 @@ COMMENT ON TABLE  ax_vertretung IS 'V e r t r e t u n g';
 -- ---------------------------------------------
 CREATE TABLE ax_verwaltungsgemeinschaft (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
@@ -4363,7 +4363,7 @@ COMMENT ON TABLE  ax_verwaltungsgemeinschaft  IS 'V e r w a l t u n g s g e m e 
 -- -------------------
 CREATE TABLE ax_verwaltung (
 	ogc_fid			serial NOT NULL,
-	gml_id			character(16),
+	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),

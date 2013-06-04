@@ -6744,7 +6744,7 @@ FROM (
 -- Denkmalschutzrecht (71009; RP)
 --
 
-SELECT 'Bauraum und Bauordnungsrecht wird verarbeitet.';
+SELECT 'Denkmalschutzrecht wird verarbeitet.';
 
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer)
 SELECT

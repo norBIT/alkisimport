@@ -25,6 +25,9 @@ os.putenv("OGR_SETFIELD_NUMERIC_WARNING", "ON")
 # Mindestlänge für Kreisbogensegmente
 os.putenv("OGR_ARC_MINLENGTH", "0.1" )
 
+# Verhindern, dass der GML-Treiber übernimmt
+os.putenv("OGR_SKIP", "GML" )
+
 os.putenv("PGCLIENTENCODING", "UTF8" )
 
 def which(program):

@@ -721,6 +721,6 @@ UPDATE bestand
         WHERE eignerart.bestdnr=bestand.bestdnr
         );
 
-UPDATE bestand SET bestfl=amtlbestfl::int;
+UPDATE bestand SET bestfl=amtlbestfl::int WHERE amtlbestfl<=2147483647; -- maxint
 
 \i alkis-nutzung-und-klassifizierung.sql

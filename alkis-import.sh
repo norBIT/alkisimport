@@ -11,6 +11,9 @@ export OGR_SETFIELD_NUMERIC_WARNING=ON
 # Mindestlänge für Kreisbogensegmente
 export OGR_ARC_MINLENGTH=0.1
 
+# Verhindern, das der GML-Treiber übernimmt
+export OGR_SKIP=GML
+
 export EPSG=25832
 
 bdate() {
