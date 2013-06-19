@@ -480,6 +480,8 @@ CREATE INDEX eigner_idx2 ON eigner(name);
 CREATE INDEX eigner_ff_entst ON eigner(ff_entst);
 CREATE INDEX eigner_ff_stand ON eigner(ff_stand);
 
+UPDATE eigner SET name1=regexp_replace(name1, E'\\s\\s+', ' ');
+
 DELETE FROM str_shl WHERE NOT EXISTS (SELECT * FROM strassen WHERE str_shl.strshl=strassen.strshl);
 DELETE FROM gema_shl
 	WHERE NOT EXISTS (SELECT * FROM flurst WHERE flurst.gemashl=gema_shl.gemashl)
