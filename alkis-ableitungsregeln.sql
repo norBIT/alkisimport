@@ -40,6 +40,8 @@ Links/Rechts:
 	61003 ax_dammwalldeich					Wall-, Knick kante
 */
 
+SET client_encoding TO 'UTF8';
+
 \unset ON_ERROR_STOP
 SET application_name='ALKIS-Import - Ableitungsregeln';
 \set ON_ERROR_STOP
@@ -484,7 +486,7 @@ SELECT
 	st_multi(l.wkb_geometry) AS line
 FROM ax_flurstueck o
 JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ap_lpo l ON b.beziehung_von=l.gml_id AND l.art='Pfeil' AND l.endet IS NULL
+JOIN ap_lpo l ON b.beziehung_von=l.gml_id AND l.endet IS NULL -- AND l.art='Pfeil' -- art in RP nicht immer gesetzt
 WHERE o.endet IS NULL;
 
 -- Überhaken
@@ -500,21 +502,6 @@ FROM ax_flurstueck o
 JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Haken' AND p.endet IS NULL
 WHERE o.endet IS NULL;
-
--- Flurnummer
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
-SELECT
-	o.gml_id,
-	'Flurstücke' AS thema,
-	'ax_gemarkungsteilflur' AS layer,
-	t.wkb_geometry AS point,
-	coalesce(schriftinhalt,CASE WHEN bezeichnung LIKE 'Flur %' THEN bezeichnung ELSE 'Flur '||bezeichnung END) AS text,
-	coalesce(t.signaturnummer,'4200') AS signaturnummer,
-	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung
-FROM ax_gemarkungsteilflur o
-JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BEZ' AND t.endet IS NULL
-WHERE coalesce(t.schriftinhalt,'')<>'Flur 0' AND o.endet IS NULL;
 
 --
 -- Besondere Flurstücksgrenzen (11002)
@@ -582,24 +569,28 @@ SELECT
 	'ax_grenzpunkt' AS layer,
 	st_multi(ta.wkb_geometry) AS point,
 	0 AS drehwinkel,
-	CASE
-	WHEN NOT EXISTS (SELECT * FROM ax_flurstueck f WHERE f.endet IS NULL AND f.abweichenderrechtszustand='true' AND ta.wkb_geometry && f.wkb_geometry AND st_intersects(ta.wkb_geometry,f.wkb_geometry)) THEN
-		CASE abmarkung_marke
-		WHEN 9600 THEN 3022
-		WHEN 9998 THEN 3024
-		ELSE 3020
-		END
-	ELSE
-		CASE abmarkung_marke
-		WHEN 9600 THEN 3023
-		WHEN 9998 THEN 3025
-		ELSE 3021
-		END
-	END as signaturnummer
+	CASE abmarkung_marke
+	WHEN 9600 THEN 3022
+	WHEN 9998 THEN 3024
+	ELSE 3020
+	END AS signaturnummer
 FROM ax_grenzpunkt p
 JOIN alkis_beziehungen b ON p.gml_id=b.beziehung_zu AND b.beziehungsart='istTeilVon'
 JOIN ax_punktortta ta ON b.beziehung_von=ta.gml_id AND ta.endet IS NULL
 WHERE abmarkung_marke<>9500 AND p.endet IS NULL;
+
+CREATE INDEX po_points_temp0 ON po_points(layer,signaturnummer);
+CREATE INDEX po_points_temp1 ON po_points USING gist (point);
+
+UPDATE po_points
+	SET signaturnummer=CASE signaturnummer
+		WHEN '3022' THEN '3023'
+		WHEN '3024' THEN '3025'
+		ELSE '3021'
+		END
+	WHERE layer='ax_grenzpunkt'
+	  AND EXISTS (SELECT * FROM ax_flurstueck f WHERE f.endet IS NULL AND f.abweichenderrechtszustand='true' AND po_points.point && f.wkb_geometry AND st_intersects(po_points.point,f.wkb_geometry));
+
 
 -- Grenzpunktnummern
 -- TODO: 4071/2 PNR 3001
@@ -613,7 +604,7 @@ SELECT
 	coalesce(
 		t.signaturnummer,
 		CASE
-		WHEN NOT EXISTS (SELECT * FROM ax_flurstueck f WHERE f.endet IS NULL AND f.abweichenderrechtszustand='true' AND ta.wkb_geometry && f.wkb_geometry AND st_intersects(ta.wkb_geometry,f.wkb_geometry))
+		WHEN NOT EXISTS (SELECT * FROM po_points f WHERE f.point=ta.wkb_geometry AND layer='ax_grenzpunkt' AND signaturnummer IN ('3021','3023','3025'))
 		THEN '4071'
 		ELSE '4072'
 		END
@@ -627,10 +618,60 @@ LEFT OUTER JOIN (
 ) ON p.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
 WHERE coalesce(besonderePunktnummer,'')<>'' AND p.endet IS NULL;
 
+DROP INDEX po_points_temp0;
+DROP INDEX po_points_temp1;
 
 --
 -- Lagebezeichnung ohne Hausnummer (12001)
 --
+
+SELECT 'Lagebezeichnungen werden verarbeitet.';
+
+-- Flurnummer
+INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
+SELECT
+	o.gml_id,
+	'Lagebezeichnungen' AS thema,
+	'ax_gemarkungsteilflur' AS layer,
+	t.wkb_geometry AS point,
+	coalesce(schriftinhalt,CASE WHEN bezeichnung LIKE 'Flur %' THEN bezeichnung ELSE 'Flur '||bezeichnung END) AS text,
+	coalesce(t.signaturnummer,'4200') AS signaturnummer,
+	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung
+FROM ax_gemarkungsteilflur o
+JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BEZ' AND t.endet IS NULL
+WHERE coalesce(t.schriftinhalt,'')<>'Flur 0' AND o.endet IS NULL;
+
+-- Gemarkungsnamen (RP)
+INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
+SELECT
+	o.gml_id,
+	'Lagebezeichnungen' AS thema,
+	'ax_gemarkung' AS layer,
+	t.wkb_geometry AS point,
+	coalesce(t.schriftinhalt,o.bezeichnung) AS text,
+	coalesce(t.signaturnummer,'4200') AS signaturnummer,
+	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung
+FROM ax_gemarkung o
+JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BEZ' AND t.endet IS NULL AND schriftinhalt IS NOT NULL
+WHERE o.endet IS NULL AND o.gml_id LIKE 'DERP%';
+
+-- Gemarkungsnamen (RP)
+INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
+SELECT
+	o.gml_id,
+	'Lagebezeichnungen' AS thema,
+	'ax_gemeinde' AS layer,
+	t.wkb_geometry AS point,
+	coalesce(t.schriftinhalt,o.bezeichnung) AS text,
+	coalesce(t.signaturnummer,'4200') AS signaturnummer,
+	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung
+FROM ax_gemeinde o
+JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BEZ' AND t.endet IS NULL AND schriftinhalt IS NOT NULL
+WHERE o.endet IS NULL AND o.gml_id LIKE 'DERP%';
+
 
 SELECT 'Lagebezeichnungen ohne Hausnummer werden verarbeitet.';
 
@@ -638,7 +679,7 @@ SELECT 'Lagebezeichnungen ohne Hausnummer werden verarbeitet.';
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
 SELECT
 	o.gml_id,
-	'Flurstücke' AS thema,
+	'Lagebezeichnungen' AS thema,
 	'ax_lagebezeichnungohnehausnummer' AS layer,
 	t.wkb_geometry AS point,
 	schriftinhalt AS text,
@@ -655,7 +696,7 @@ WHERE coalesce(schriftinhalt,'')<>'' AND o.endet IS NULL;
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
 SELECT
 	o.gml_id,
-	'Flurstücke' AS thema,
+	'Lagebezeichnungen' AS thema,
 	'ax_lagebezeichnungohnehausnummer' AS layer,
 	t.wkb_geometry AS point,
 	coalesce(
@@ -675,7 +716,7 @@ WHERE o.endet IS NULL;
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
 SELECT
 	o.gml_id,
-	'Flurstücke' AS thema,
+	'Lagebezeichnungen' AS thema,
 	'ax_lagebezeichnungohnehausnummer' AS layer,
 	t.wkb_geometry AS point,
 	coalesce(
@@ -695,7 +736,7 @@ WHERE o.endet IS NULL;
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
 SELECT
 	o.gml_id,
-	'Flurstücke' AS thema,
+	'Lagebezeichnungen' AS thema,
 	'ax_lagebezeichnungohnehausnummer' AS layer,
 	t.wkb_geometry AS point,
 	coalesce(
@@ -736,7 +777,7 @@ WHERE o.endet IS NULL;
 INSERT INTO po_labels(gml_id,thema,layer,line,text,signaturnummer,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
 SELECT
 	o.gml_id,
-	'Flurstücke' AS thema,
+	'Lagebezeichnungen' AS thema,
 	'ax_lagebezeichnungohnehausnummer' AS layer,
 	t.wkb_geometry AS line,
 	coalesce(
@@ -756,7 +797,7 @@ WHERE o.endet IS NULL;
 INSERT INTO po_labels(gml_id,thema,layer,line,text,signaturnummer,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
 SELECT
 	o.gml_id,
-	'Flurstücke' AS thema,
+	'Lagebezeichnungen' AS thema,
 	'ax_lagebezeichnungohnehausnummer' AS layer,
 	t.wkb_geometry AS line,
 	coalesce(
@@ -1049,6 +1090,7 @@ FROM (
 			WHEN gebaeudefunktion=9998                                              THEN 'oF'
 			WHEN o.gml_id LIKE 'DERP%' THEN
 				CASE
+				WHEN gebaeudefunktion=2513 THEN 'Wbh'
 				WHEN gebaeudefunktion IN (3011,3016,3017,3019,3024,3031,3033,3035,3036,3061,3062,3073,3074,3075,3080,3081,3092,3242) THEN
 					(select v from alkis_wertearten where element='ax_gebaeude' AND bezeichnung='gebaeudefunktion' AND k=gebaeudefunktion::text)
 				WHEN gebaeudefunktion=3022 THEN 'Schule'
@@ -1982,7 +2024,7 @@ FROM (
 				(select v from alkis_wertearten where element='ax_sportfreizeitunderholungsflaeche' AND bezeichnung='funktion' AND k=funktion::text)
 			WHEN o.gml_id LIKE 'DERP%' THEN
 				CASE
-				WHEN funktion IN (4120,4130,4140,4150,4160,4170) THEN
+				WHEN funktion IN (4120,4130,4140,4150,4160,4170,4230) THEN
 					(select v from alkis_wertearten where element='ax_sportfreizeitunderholungsflaeche' AND bezeichnung='funktion' AND k=funktion::text)
 				WHEN funktion IS NULL THEN 'Sportfläche'
 				END
@@ -5418,45 +5460,57 @@ FROM (
 		SELECT
 			gml_id,
 			bewuchs,
-			CASE
-			WHEN bewuchs IN (1100,1230,1260) THEN 0
-			WHEN bewuchs IN (1101,1102) THEN 300
-			WHEN bewuchs=1103 THEN unnest(ARRAY[300,600])
-			WHEN bewuchs IN (1210,1220) THEN 186
-			WHEN bewuchs=1230 THEN unnest(ARRAY[1000,2000])
-			END AS einzug,
-			CASE
-			WHEN bewuchs IN (1100,1101,1102,1210,1220,1260) THEN 600
-			WHEN bewuchs=1103 THEN unnest(ARRAY[1200,1200])
-			WHEN bewuchs=1210 THEN 1000
-			WHEN bewuchs=1230 THEN unnest(ARRAY[2000,2000])
-			END AS abstand,
-			CASE
-			WHEN bewuchs IN (1100,1210,1220,1260) THEN wkb_geometry
-			WHEN bewuchs=1101 THEN st_reverse(st_offsetcurve(wkb_geometry,-0.11,''::text))
-			WHEN bewuchs=1102 THEN st_offsetcurve(wkb_geometry,0.11,''::text)
-			WHEN bewuchs=1103 THEN
-				unnest(ARRAY[
-					st_reverse(st_offsetcurve(wkb_geometry,-0.11,''::text)),
-					st_offsetcurve(wkb_geometry,0.11,'')
-				])
-			WHEN bewuchs=1230 THEN
-				unnest(ARRAY[
-					wkb_geometry,
-					wkb_geometry
-				])
+			einzug,
+			abstand,
+			CASE geometrytype(line)
+			WHEN 'MULTILINESTRING' THEN (st_dump(line)).geom
+			ELSE line
 			END AS line,
-			CASE
-			WHEN bewuchs IN (1100,1101,1102,1103) THEN 3601
-			WHEN bewuchs=1210 THEN 3458
-			WHEN bewuchs=1220 THEN 3460
-			WHEN bewuchs=1230 THEN unnest(ARRAY[3458,3460])
-			WHEN bewuchs=1260 THEN 3601
-			WHEN bewuchs=1700 THEN 3607
-			END AS signaturnummer
-		FROM ax_vegetationsmerkmal o
-		WHERE o.endet IS NULL
-                  AND geometrytype(o.wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+			signaturnummer
+		FROM (
+			SELECT
+				gml_id,
+				bewuchs,
+				CASE
+				WHEN bewuchs IN (1100,1230,1260) THEN 0
+				WHEN bewuchs IN (1101,1102) THEN 300
+				WHEN bewuchs=1103 THEN unnest(ARRAY[300,600])
+				WHEN bewuchs IN (1210,1220) THEN 186
+				WHEN bewuchs=1230 THEN unnest(ARRAY[1000,2000])
+				END AS einzug,
+				CASE
+				WHEN bewuchs IN (1100,1101,1102,1210,1220,1260) THEN 600
+				WHEN bewuchs=1103 THEN unnest(ARRAY[1200,1200])
+				WHEN bewuchs=1210 THEN 1000
+				WHEN bewuchs=1230 THEN unnest(ARRAY[2000,2000])
+				END AS abstand,
+				CASE
+				WHEN bewuchs IN (1100,1210,1220,1260) THEN wkb_geometry
+				WHEN bewuchs=1101 THEN st_reverse(st_offsetcurve(wkb_geometry,-0.11,''::text))
+				WHEN bewuchs=1102 THEN st_offsetcurve(wkb_geometry,0.11,''::text)
+				WHEN bewuchs=1103 THEN
+					unnest(ARRAY[
+						st_reverse(st_offsetcurve(wkb_geometry,-0.11,''::text)),
+						st_offsetcurve(wkb_geometry,0.11,'')
+					])
+				WHEN bewuchs=1230 THEN
+					unnest(ARRAY[
+						wkb_geometry,
+						wkb_geometry
+					])
+				END AS line,
+				CASE
+				WHEN bewuchs IN (1100,1101,1102,1103) THEN 3601
+				WHEN bewuchs=1210 THEN 3458
+				WHEN bewuchs=1220 THEN 3460
+				WHEN bewuchs=1230 THEN unnest(ARRAY[3458,3460])
+				WHEN bewuchs=1260 THEN 3601
+				WHEN bewuchs=1700 THEN 3607
+				END AS signaturnummer
+			FROM ax_vegetationsmerkmal o
+			WHERE o.endet IS NULL
+			AND geometrytype(o.wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+		) AS a
 	) AS a
 ) AS a
 GROUP BY gml_id,signaturnummer;
@@ -6492,7 +6546,7 @@ FROM (
 ) AS o WHERE NOT text IS NULL;
 
 -- TODO: Kam noch nicht vor
--- RP: ax_anderefestlegungnachwasserecht (71004)
+-- RP: ax_andereklassifizierungnachwasserecht (71004)
 -- RP: ax_anderefestlegungnachwasserecht (71005)
 
 --
@@ -6857,6 +6911,35 @@ FROM (
 ) AS n WHERE NOT text IS NULL;
 
 --
+-- Landwirtschaftliche Nutzung (72004; RP)
+--
+
+INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer)
+SELECT
+	o.gml_id,
+	'Landwirtschaftliche Nutzung' AS thema,
+	'ax_bewertung' AS layer,
+	st_multi(wkb_geometry) AS polygon,
+	1704 AS signaturnummer
+FROM ax_bewertung o
+WHERE gml_id LIKE 'DERP%' AND endet IS NULL AND geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON');
+
+INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
+SELECT
+	o.gml_id,
+	'Landwirtschaftliche Nutzung' AS thema,
+	'ax_bewertung' AS layer,
+	t.wkb_geometry AS point,
+	t.schriftinhalt AS text,
+	4107 AS signaturnummer,
+	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
+FROM ax_bewertung o
+JOIN (
+	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='KLA' AND t.endet IS NULL AND t.schriftinhalt IS NOT NULL
+) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+WHERE o.gml_id LIKE 'DERP%' AND o.endet IS NULL;
+
+--
 -- Wohnplatz (74005)
 --
 
@@ -6928,9 +7011,35 @@ UPDATE po_polygons SET
 	sn_randlinie=CASE
 	           WHEN signaturnummer::int%10000 BETWEEN 2000 AND 2999 THEN signaturnummer::int%10000
 	           WHEN signaturnummer::int/10000 BETWEEN 2000 AND 2999 THEN signaturnummer::int/10000
-		   ELSE NULL
 		   END
 	WHERE signaturnummer ~ E'^[0-9]+$';
+
+--
+-- Randlinien als 'normale' Linien ergänzen
+--
+
+DELETE FROM alkis_linie WHERE signaturnummer LIKE 'rn%';
+DELETE FROM alkis_linien WHERE signaturnummer LIKE 'rn%';
+
+INSERT INTO alkis_linien(signaturnummer,darstellungsprioritaet,farbe,name,seite)
+        SELECT 'rn'||signaturnummer,darstellungsprioritaet,alkis_randlinie.farbe,name,seite
+                FROM alkis_flaechen
+                JOIN alkis_randlinie ON alkis_flaechen.randlinie=alkis_randlinie.id;
+
+CREATE TEMPORARY SEQUENCE rnlinie_seq;
+SELECT setval('rnlinie_seq',max(id)+1) FROM alkis_linie;
+
+INSERT INTO alkis_linie(signaturnummer,id,i,strichart,abschluss,scheitel,strichstaerke)
+        SELECT 'rn'||signaturnummer,nextval('rnlinie_seq'),0,strichart,abschluss,scheitel,strichstaerke
+                FROM alkis_flaechen
+                JOIN alkis_randlinie ON alkis_flaechen.randlinie=alkis_randlinie.id;
+
+DROP SEQUENCE rnlinie_seq;
+
+-- 'Randsignatur' für Flächen mit Umrandung eintragen
+UPDATE po_polygons
+	SET sn_randlinie='rn'||signaturnummer
+	WHERE EXISTS (SELECT * FROM alkis_flaechen WHERE alkis_flaechen.signaturnummer=po_polygons.signaturnummer AND NOT alkis_flaechen.randlinie IS NULL);
 
 -- Winkel in Grad berechnen
 UPDATE po_points SET drehwinkel_grad=degrees(drehwinkel);

@@ -155,7 +155,7 @@ BEGIN
 	sql := 'CREATE VIEW vobjekte AS ';
 
 	FOR c IN SELECT table_name FROM information_schema.columns WHERE column_name='gml_id' AND substr(table_name,1,3) IN ('ax_','ap_','ks_') LOOP
-		sql := sql || delim || 'SELECT gml_id,beginnt,''' || c.table_name || ''' AS table_name FROM ' || c.table_name;
+		sql := sql || delim || 'SELECT DISTINCT gml_id,beginnt,''' || c.table_name || ''' AS table_name FROM ' || c.table_name;
 		delim := ' UNION ';
 	END LOOP;
 
@@ -165,9 +165,9 @@ BEGIN
 --	CREATE INDEX vobjekte_table ON vobjekte(table_name);
 
 	CREATE VIEW vbeziehungen AS
-		SELECT	beziehung_von,(SELECT table_name FROM vobjekte WHERE gml_id=beziehung_von) AS typ_von
+		SELECT beziehung_von,(SELECT DISTINCT table_name FROM vobjekte WHERE gml_id=beziehung_von) AS typ_von
 			,beziehungsart
-			,beziehung_zu,(SELECT table_name FROM vobjekte WHERE gml_id=beziehung_zu) AS typ_zu
+			,beziehung_zu,(SELECT DISTINCT table_name FROM vobjekte WHERE gml_id=beziehung_zu) AS typ_zu
 		FROM alkis_beziehungen;
 
 --	CREATE INDEX vbeziehungen_von    ON vbeziehungen(beziehung_von);
