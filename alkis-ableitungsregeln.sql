@@ -579,6 +579,23 @@ JOIN alkis_beziehungen b ON p.gml_id=b.beziehung_zu AND b.beziehungsart='istTeil
 JOIN ax_punktortta ta ON b.beziehung_von=ta.gml_id AND ta.endet IS NULL
 WHERE abmarkung_marke<>9500 AND p.endet IS NULL;
 
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer)
+SELECT
+	p.gml_id,
+	'Flurstücke' AS thema,
+	'ax_grenzpunkt' AS layer,
+	st_multi(st_force_2d(au.wkb_geometry)) AS point,
+	0 AS drehwinkel,
+	CASE abmarkung_marke
+	WHEN 9600 THEN 3022
+	WHEN 9998 THEN 3024
+	ELSE 3020
+	END AS signaturnummer
+FROM ax_grenzpunkt p
+JOIN alkis_beziehungen b ON p.gml_id=b.beziehung_zu AND b.beziehungsart='istTeilVon'
+JOIN ax_punktortau au ON b.beziehung_von=au.gml_id AND au.endet IS NULL
+WHERE abmarkung_marke<>9500 AND p.endet IS NULL;
+
 CREATE INDEX po_points_temp0 ON po_points(layer,signaturnummer);
 CREATE INDEX po_points_temp1 ON po_points USING gist (point);
 
