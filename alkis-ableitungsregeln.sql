@@ -7164,6 +7164,23 @@ UPDATE po_points
 			'RP3440','RP3441','RP3446','RP3450','RP3452','RP3454','RP3456','RP3458','RP3460', 'RP3462','RP3470'
 		);
 
+-- RP-Flurstücksnummern mit ap_pto.art=NULL mit Bruchstrich 3m nach Norden schieben
+UPDATE po_labels
+	SET
+		layer='ax_flurstueck_nummer_rpnoart',
+		point=st_translate(point,0,3)
+	WHERE gml_id LIKE 'DERP%'
+	AND layer='ax_flurstueck_nummer'
+	AND EXISTS (SELECT * FROM alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.endet IS NULL AND t.art IS NULL WHERE po_labels.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon');
+
+UPDATE po_lines
+	SET
+		layer='ax_flurstueck_nummer_rpnoart',
+		line=st_translate(line,0,3)
+	WHERE gml_id LIKE 'DERP%'
+	AND layer='ax_flurstueck_nummer'
+	AND EXISTS (SELECT * FROM alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.endet IS NULL AND t.art IS NULL WHERE po_lines.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon');
+
 --
 -- Indizes
 --
