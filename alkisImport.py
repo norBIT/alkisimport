@@ -26,7 +26,7 @@ os.putenv("OGR_SETFIELD_NUMERIC_WARNING", "ON")
 os.putenv("OGR_ARC_MINLENGTH", "0.1" )
 
 # Verhindern, dass der GML-Treiber übernimmt
-os.putenv("OGR_SKIP", "GML" )
+os.putenv("OGR_SKIP", "GML,SEGY" )
 
 os.putenv("PGCLIENTENCODING", "UTF8" )
 

@@ -12,7 +12,7 @@ export OGR_SETFIELD_NUMERIC_WARNING=ON
 export OGR_ARC_MINLENGTH=0.1
 
 # Verhindern, das der GML-Treiber übernimmt
-export OGR_SKIP=GML
+export OGR_SKIP=GML,SEGY
 
 export EPSG=25832
 
@@ -222,7 +222,9 @@ EOF
 		echo "CREATE $(bdate)"
 		pushd "$B/$sql" >/dev/null
 		sql alkis-schema.sql
-		[ ! -r alkis-compat.sql ] || sql alkis-compat.sql
+		if [ "$DRIVER" = PostgreSQL ]; then
+			[ ! -r alkis-compat.sql ] || sql alkis-compat.sql
+		fi
 		popd >/dev/null
 
 		continue
@@ -259,6 +261,9 @@ EOF
 	options|"options"*)
 		opt=${src#options}
 		opt=${opt# }
+		if [ "$DRIVER" = OCI ]; then
+			opt="$opt -relaxedFieldNameMatch"
+		fi
 		continue
 		;;
 
