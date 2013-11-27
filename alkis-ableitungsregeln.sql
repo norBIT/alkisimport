@@ -931,7 +931,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung
 FROM ax_lagebezeichnungmitpseudonummer o
 JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art='Ort' AND t.endet IS NULL
+JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art='Ort' AND t.endet IS NULL AND schriftinhalt IS NOT NULL
 WHERE o.endet IS NULL;
 
 
