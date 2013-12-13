@@ -19,9 +19,14 @@ except:
 	print "%s: could not open %s" % (sys.argv[0], sys.argv[1])
 	exit(1)
 
-for l in f.read().splitlines():
-	if pattern.match(l):
+while True:
+	l = f.readline()
+	if l=="":
+		break
+	elif pattern.match(l):
 		continue
-	print l
+	else:
+		print l,
+		sys.stdout.flush()
 
 f.close()

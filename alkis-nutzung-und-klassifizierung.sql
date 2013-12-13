@@ -7,18 +7,13 @@ DECLARE
 	invalid INTEGER;
 BEGIN
 	BEGIN
-		SELECT count(*) INTO invalid FROM ax_flurstueck WHERE NOT st_isvalid(wkb_geometry);
+		UPDATE ax_flurstueck SET wkb_geometry=st_makevalid(wkb_geometry) WHERE NOT st_isvalid(wkb_geometry);
 	EXCEPTION
 		WHEN OTHERS THEN
-			BEGIN
-				UPDATE ax_flurstueck SET wkb_geometry=st_makevalid(wkb_geometry) WHERE NOT st_isvalid(wkb_geometry);
-				SELECT count(*) INTO invalid FROM ax_flurstueck WHERE NOT st_isvalid(wkb_geometry);
-			EXCEPTION
-				WHEN OTHERS THEN
-					RAISE EXCEPTION 'Erneute Validierungsausnahme bei ax_flurstueck.';
-			END;
+			RAISE EXCEPTION 'Validierungsausnahme in ax_flurstueck.';
 	END;
 
+	SELECT count(*) INTO invalid FROM ax_flurstueck WHERE NOT st_isvalid(wkb_geometry);
 	IF invalid > 0 THEN
 		RAISE EXCEPTION '% ungültige Geometrien in ax_flurstueck', invalid;
 	END IF;

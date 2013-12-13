@@ -3,11 +3,12 @@ DESTDIR = //zeus/runtime/norBIT/norGIS-ALKIS-Import/
 all: alkisImportDlg.py
 
 diff:
-	-diff -wur --exclude "*.pyc" --exclude Makefile --exclude alkis-import-env.cmd --exclude .git $(DESTDIR) .
+	-diff -wur --exclude "*.pyc" --exclude gdal-dev* --exclude Makefile --exclude alkis-import-env.cmd --exclude .git $(DESTDIR) .
 
 update: all
 	rsync -avpP \
 		--exclude "*.pyc" \
+		--exclude "gdal-dev" \
 		alkis-ableitungsregeln.sql \
 		alkis-compat.sql \
 		alkis-functions.sql \
@@ -24,7 +25,7 @@ update: all
 		gdal-dev \
 		logo.png \
 		logo.ico \
-		nas2alb.sql \
+		postprocessing.d/nas2alb.sql \
 		re \
 		refilter.py \
 		$(DESTDIR)

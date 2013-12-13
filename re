@@ -17,8 +17,9 @@
 ^GDAL: In GDALDestroy - unloading GDAL shared library\.\s*$
 ^psql:.*: (NOTICE|HINWEIS):  (function|Funktion) (alkis_drop\(\)|alkis_dropobject\(text\)|alkis_delete\(\)|alkis_mviews\(\)|alkis_update_schema\(\)) (does not exist, skipping|existiert nicht, wird \S+bersprungen)$
 ^psql:.*: (NOTICE|HINWEIS):  Dropping (table|view|sequence) 
-^psql:.*: (NOTICE|HINWEIS):  CREATE TABLE
+^.*: (NOTICE|HINWEIS):  CREATE TABLE
 .*drop cascades to 
+^ERROR:  relation "alkis_importlog" already exist\s*s
 ^psql:alkis-compat.sql:.*: ERROR:  function ".*" already exists with same argument types\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Funktion .* existiert bereits mit den selben Argumenttypen\s*$
 ^psql:alkis-compat.sql:.*: ERROR:  function geom_accum\(geometry\[\], geometry\) does not exist\s*$
@@ -40,7 +41,7 @@
 ^\s+public\.alkis_linie\.position SRID:0 TYPE:LINESTRING DIMS:2\s*$
 ^\(\d+ (Zeilen?|rows?)\)\s*$
 ^removed.*\.(gfs|xml)'\s*$
-^CONTEXT:  (SQL statement|SQL-Anweisung) \S+(DROP TABLE .* CASCADE|CREATE TABLE)
+^[CK]ONTEXT:  (SQL statement|SQL-Anweisung) \S+(DROP TABLE .* CASCADE|CREATE TABLE)
 PL\/pgSQL function "(alkis_dropobject|alkis_joinlines|alkis_besondereflurstuecksgrenze)" line \d+ at (EXECUTE statement|SQL statement|execute statement|EXECUTE-Anweisung|SQL-Anweisung)
 ERROR:  relation "public\.alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
 ERROR:  table "alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist

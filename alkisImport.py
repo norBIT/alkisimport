@@ -9,6 +9,7 @@ import zipfile
 import gzip
 import re
 import tempfile
+import glob
 
 from PyQt4.QtCore import QSettings, QProcess, QString, QVariant, QStringList, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QTime
 from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox
@@ -25,7 +26,7 @@ os.putenv("OGR_SETFIELD_NUMERIC_WARNING", "ON")
 # Mindestlänge für Kreisbogensegmente
 os.putenv("OGR_ARC_MINLENGTH", "0.1" )
 
-# Verhindern, dass der GML-Treiber übernimmt
+# Verhindern, dass andere GML-Treiber übernehmen
 os.putenv("OGR_SKIP", "GML,SEGY" )
 
 os.putenv("PGCLIENTENCODING", "UTF8" )
@@ -105,7 +106,6 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.pbSave.clicked.connect(self.saveList)
 		self.lstFiles.itemSelectionChanged.connect(self.selChanged)
 
-		# Bottom
 		self.pbStart.clicked.connect(self.run)
 		self.pbSaveLog.clicked.connect(self.saveLog)
 		self.pbClearLog.clicked.connect(self.clearLog)
@@ -377,7 +377,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 			else:
 				self.log( u"Fehler bei Prozeß: %d" % p.exitCode() )
 		else:
-			self.log( "Prozess abgebrochen %d" % p.exitCode() )
+			self.log( "Prozeß abgebrochen %d" % p.exitCode() )
 
 		self.logDb( "EXITCODE: %d" % p.exitCode() )
 
@@ -553,6 +553,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 						sizes[ fn ] = s
 
 					elif fn[-4:] == ".zip":
+						l = -8 if fn[-8:] == ".xml.zip" else -4
 						self.status( u"%s wird abgefragt..." % fn )
 						app.processEvents()
 
@@ -561,7 +562,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 						if len(il) <> 1:
 							raise ProcessError(u"ZIP-Archiv %s enthält mehr als eine Datei!" % fn)
 						s = il[0].file_size
-						sizes[ fn[:-4] + ".xml" ] = s
+						sizes[ fn[:l] + ".xml" ] = s
 
 					elif fn[-7:] == ".xml.gz":
 						self.status( u"%s wird abgefragt..." % fn )
@@ -593,9 +594,9 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 					self.status( u"Datenbank wird angelegt..." )
 					if not self.runSQLScript( conn, "alkis-schema.sql" ):
 						raise ProcessError(u"Anlegen der Datenbank schlug fehl.")
-					self.status( u"KompatibilitÃ¤tsfunktionen werden importiert..." )
+					self.status( u"Kompatibilitätsfunktionen werden importiert..." )
 					if not self.runSQLScript( conn, "alkis-compat.sql" ):
-						raise ProcessError(u"Import der KompatibilitÃtsfunktionen schlug fehl.")
+						raise ProcessError(u"Import der Kompatibilitätsfunktionen schlug fehl.")
 					self.cbxCreate.setChecked( False )
 					self.log( u"Datenbank angelegt." )
 
@@ -750,10 +751,11 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 						self.log( "Ableitungsregeln verarbeitet." )
 
 				if ok:
-					self.status( u"Liegenschaftsbuch-Daten werden übernommen..." )
-					ok = self.runSQLScript( conn, "nas2alb.sql" )
-					if ok:
-						self.log( u"Liegenschaftsbuch-Daten übernommen." )
+					for f in glob.glob("postprocessing.d/*.sql"):
+						self.status( u"Nachverarbeitungsskript %s wird gestartet..." % f )
+						ok = self.runSQLScript( conn, f )
+						if ok:
+							self.log( u"Nachverarbeitungsskript %s ausgeführt." % f )
 
 				if ok:
 					self.status( u"VACUUM..." )

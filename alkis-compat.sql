@@ -146,8 +146,9 @@ CREATE FUNCTION st_dump(geometry) RETURNS SETOF geometry_dump AS $$
   SELECT dump($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
+\i cleanGeometry.sql
 CREATE FUNCTION st_makevalid(geometry) RETURNS geometry AS $$
-  SELECT buffer($1,0);
+  SELECT cleanGeometry($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
 CREATE FUNCTION st_xmin(box3d) RETURNS float8 AS $$

@@ -56,6 +56,10 @@ timeunits() {
 	echo $r
 }
 
+log() {
+	tee $1 | python $B/refilter.py /dev/stdin
+}
+
 B=${0%/*}   # BASEDIR
 if [ "$0" = "$B" ]; then
 	B=.
@@ -66,8 +70,7 @@ export LC_CTYPE=de_DE.UTF-8
 export TEMP=/tmp
 if type -p cygpath >/dev/null; then
 	export PATH=$B/gdal-dev/bin:$PATH
-	export GDAL_DATA=$(cygpath -w $B/gdal-dev/share/gdal)
-	TEMP=$(cygpath -w $TEMP)
+	export GDAL_DATA=$B/gdal-dev/share/gdal
 elif [ -d "$HOME/src/gdal/apps/.libs" ]; then
 	export PATH=$HOME/src/gdal/apps/.libs:$PATH
 	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/src/gdal/.libs
@@ -94,6 +97,7 @@ ogr2ogr --version
 ogr2ogr --utility_version
 
 export CPL_DEBUG
+export B
 
 opt=
 log=
@@ -110,6 +114,10 @@ do
 	fi
 
 	case "$src" in
+	*.xml.zip)
+		s=$(unzip -qql "$src" "$(basename "$src" .xml.zip).xml"|sed -e "s/^ *//" -e "s/ .*$//")
+		;;
+
 	*.zip)
 		s=$(unzip -qql "$src" "$(basename "$src" .zip).xml"|sed -e "s/^ *//" -e "s/ .*$//")
 		;;
@@ -167,6 +175,26 @@ do
 				exit 1
 			fi
 			pg_restore -Fc -c "$1.cpgdmp" | psql "$DB"
+		}
+		export DB
+		log() {
+			n=$(psql -t -c "SELECT count(*) FROM information_schema.tables WHERE table_name='alkis_importlog'" "$DB")
+			if (( n == 0 )); then
+				psql -q -c "CREATE TABLE alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" "$DB"
+			fi
+
+			tee $1 |
+			(
+				IFS=
+				exec 5> >(python $B/refilter.py /dev/stdin >&3)
+				while read m; do
+					echo "$m" >&5
+					m=${m//\'/\'\'}
+					echo "INSERT INTO alkis_importlog(msg) VALUES (E'${m//\'/\'\'}');"
+				done
+				echo "\\q"
+			) |
+			psql -q "$DB"
 		}
 		continue
 		;;
@@ -299,7 +327,7 @@ EOF
 		log=$(bdate +$src)
 
 		echo "LOGGING TO $log $(bdate)"
-		exec 3>&1 4>&2 > >(tee $log) 2>&1
+		exec 3>&1 4>&2 > >(log $log) 2>&1
 
 		continue
 		;;
@@ -437,7 +465,7 @@ fi
 if [ "$src" != "exit" -a "$src" != "error" ]; then
 	pushd "$B" >/dev/null
 
-	for i in alkis-signaturen.sql alkis-ableitungsregeln.sql nas2alb.sql
+	for i in alkis-signaturen.sql alkis-ableitungsregeln.sql postprocessing.d/*.sql
 	do
 		if [ -r "$i" ]; then
 			echo "SQL RUNNING: $i $(bdate)"
@@ -451,7 +479,5 @@ fi
 echo "END $(bdate)"
 
 if [ -n "$log" ]; then
-	exec 1>&3 2>&4 3>/dev/null 4>/dev/null
-	python "$B/refilter.py" $log
 	echo "LOG: $log"
 fi
