@@ -22,6 +22,7 @@ update: all
 		alkis-trigger.sql \
 		alkis-wertearten.sql \
 		alkisImportDlg.ui \
+		cleanGeometry.sql \
 		gdal-dev \
 		logo.png \
 		logo.ico \
