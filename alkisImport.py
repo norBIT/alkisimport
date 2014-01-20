@@ -95,10 +95,6 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.cbEPSG.addItem( "UTM33N", "25833")
 		self.cbEPSG.setCurrentIndex( self.cbEPSG.findData( s.value( "epsg", "25832" ).toString() ) )
 
-		self.albDSN.setText( s.value( "albDSN", "" ).toString() )
-		self.albUID.setText( s.value( "albUID", "" ).toString() )
-		self.albPWD.setText( s.value( "albPWD", "" ).toString() )
-
 		self.pbAdd.clicked.connect(self.selFiles)
 		self.pbAddDir.clicked.connect(self.selDir)
 		self.pbRemove.clicked.connect(self.rmFiles)
@@ -391,10 +387,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 
 	def run(self):
-		if self.tabWidget.currentIndex()==0:
-			self.importALKIS()
-		else:
-			self.importUserData()
+		self.importALKIS()
 
 	def importALKIS(self):
 		if self.cbxDebug.isChecked():
@@ -801,94 +794,6 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 		self.db.close()
 		self.db = None
-
-	def importUserData(self):
-		if self.leSERVICE.text()<>'':
-			conn = "service=%s " % self.leSERVICE.text()
-		else:
-			if self.leHOST.text()<>'':
-				conn = "host=%s port=%s " % (self.leHOST.text(), self.lePORT.text() )
-			else:
-				conn = ""
-
-		conn += "dbname=%s user='%s' password='%s'" % (self.leDBNAME.text(), self.leUID.text(), self.lePWD.text() )
-
-		dstDb = QSqlDatabase.addDatabase( "QPSQL", "DST" )
-		dstDb.setConnectOptions( conn )
-		if not dstDb.open():
-			self.log(u"Konnte Verbindung zur ALKIS-Datenbank nicht aufbauen!")
-			return
-
-		qry = dstDb.exec_( "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='user_daten'" )
-		if not qry or not qry.next():
-			self.log( u"Konnte Existenz von Benutzerdatentabelle nicht überprüfen." )
-			return
-
-		n = qry.value(0).toInt()[0]
-		if n == 1 and self.cbxCreate.isChecked():
-			if not dstDb.exec_( "DROP TABLE user_daten" ):
-				self.log( u"Konnte Benutzerdatentabelle nicht löschen." )
-				return
-			n = 0
-			
-		if n == 0:
-			if not dstDb.exec_( "CREATE TABLE user_daten(u_nr CHAR(20) NOT NULL PRIMARY KEY, flsnr CHAR(20), flaeche CHAR(32), thema INTEGER, az CHAR(80), dokument CHAR(80), bemerkungen CHAR(255), kundennr CHAR(20), user1 CHAR(40), user2 CHAR(40), user3 CHAR(40), user4 CHAR(40), user5 CHAR(40), user6 CHAR(40), user7 CHAR(40), user8 CHAR(40), user9 CHAR(40), user10 CHAR(40))" ) or \
-			   not dstDb.exec_( "CREATE INDEX user_daten_i1 ON user_daten(flsnr)" ) or \
-			   not dstDb.exec_( "CREATE INDEX user_daten_i2 ON user_daten(kundennr)" ) or \
-			   not dstDb.exec_( "CREATE INDEX user_daten_i3 ON user_daten(thema)" ):
-				self.log( u"Konnte Benutzerdatentabelle nicht anlegen. [%s: %s]" % (dstDb.lastError().text(), dstDb.executedQuery()) )
-				return
-
-		insud = QSqlQuery(dstDb)
-		if not insud.prepare( "INSERT INTO user_daten(u_nr,flsnr,flaeche,thema,az,dokument,bemerkungen,kundennr,user1,user2,user3,user4,user5,user6,user7,user8,user9,user10) VALUES (:u_nr,:flsnr,:flaeche,:thema,:az,:dokument,:bemerkungen,:kundennr,:user1,:user2,:user3,:user4,:user5,:user6,:user7,:user8,:user9,:user10)" ):
-			self.log( u"Konnte Einfügeanweisung nicht vorbereiten [%s]" % insud.lastError().text() )
-			return
-
-		s = QSettings( "norBIT", "norGIS-ALKIS-Import" )
-		s.setValue( "service", self.leSERVICE.text() )
-		s.setValue( "host", self.leHOST.text() )
-		s.setValue( "port", self.lePORT.text() )
-		s.setValue( "dbname", self.leDBNAME.text() )
-		s.setValue( "uid", self.leUID.text() )
-		s.setValue( "pwd", self.lePWD.text() )
-
-		srcDb = QSqlDatabase.addDatabase( "QODBC", "SRC" )
-		srcDb.setDatabaseName( self.albDSN.text() )
-		srcDb.setUserName( self.albUID.text() )
-		srcDb.setPassword( self.albPWD.text() )
-		if not srcDb.open():
-			self.log(u"Konnte Verbindung zur ALB-Datenbank nicht aufbauen!")
-			return
-
-		s.setValue( "albDSN", self.albDSN.text() )
-		s.setValue( "albUID", self.albUID.text() )
-		s.setValue( "albPWD", self.albPWD.text() )
-
-		selud = QSqlQuery(srcDb)
-		if not selud.exec_( "SELECT u_nr,flsnr,flaeche,thema,az,dokument,bemerkungen,kundennr,user1,user2,user3,user4,user5,user6,user7,user8,user9,user10 FROM user_daten" ):
-			self.log( u"Konnte Abfrage nicht vorbereiten [%s]" % selud.lastError().text() )
-			return
-
-		QApplication.setOverrideCursor( Qt.WaitCursor )
-
-		i = 1
-		while selud.next():
-			for c in range(18):
-				insud.addBindValue( selud.value(c) )
-			if not insud.exec_():
-				self.log( u"Benutzerdatensatz %d konnte nicht eingefügt werden [%s/%s]" % (i, insud.lastError().text(), insud.executedQuery()) )
-				i -= 1
-				break
-			i += 1
-
-		self.log( u"%d Benutzerdatensätze kopiert." % i )
-
-		QApplication.restoreOverrideCursor()
-
-		selud = None
-		insud = None
-		srcDb = None
-		dstDb = None
 
 app = QApplication(sys.argv)
 dlg = alkisImportDlg()

@@ -14,24 +14,24 @@
    <string>ALKIS-Import</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="11" column="0">
+   <item row="10" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Protokoll:</string>
      </property>
     </widget>
    </item>
-   <item row="12" column="0" colspan="2">
+   <item row="11" column="0" colspan="2">
     <widget class="QListWidget" name="lwProtocol"/>
    </item>
-   <item row="13" column="0" colspan="2">
+   <item row="12" column="0" colspan="2">
     <widget class="QProgressBar" name="pbProgress">
      <property name="value">
       <number>24</number>
      </property>
     </widget>
    </item>
-   <item row="14" column="0" colspan="2">
+   <item row="13" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QLabel" name="leStatus">
@@ -68,7 +68,7 @@
      </item>
     </layout>
    </item>
-   <item row="16" column="0" colspan="2">
+   <item row="15" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="pbStart">
@@ -280,155 +280,74 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QTabWidget" name="tabWidget">
-     <property name="currentIndex">
-      <number>0</number>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Dateiliste</string>
      </property>
-     <widget class="QWidget" name="tab_3">
-      <attribute name="title">
-       <string>ALKIS-Import</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QGroupBox" name="groupBox_2">
-         <property name="title">
-          <string>Dateiliste</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0" rowspan="2" colspan="2">
-           <widget class="QListWidget" name="lstFiles">
-            <property name="selectionMode">
-             <enum>QAbstractItemView::ExtendedSelection</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <item>
-             <widget class="QPushButton" name="pbAdd">
-              <property name="text">
-               <string>Datei hinzufügen...</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pbAddDir">
-              <property name="text">
-               <string>Verzeichnis hinzufügen...</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pbRemove">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Gewählte entfernen</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_5">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pbSave">
-              <property name="text">
-               <string>Liste speichern...</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pbLoad">
-              <property name="text">
-               <string>Liste laden...</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_4">
-      <attribute name="title">
-       <string>Benutzerdatenmigration</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="albUID">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_15">
-         <property name="text">
-          <string>Datenquelle</string>
-         </property>
-         <property name="buddy">
-          <cstring>albDSN</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="albDSN"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_14">
-         <property name="text">
-          <string>Benutzername</string>
-         </property>
-         <property name="buddy">
-          <cstring>leUID</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_16">
-         <property name="text">
-          <string>Paßwort</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="albPWD">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="echoMode">
-          <enum>QLineEdit::Password</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0" rowspan="2" colspan="2">
+       <widget class="QListWidget" name="lstFiles">
+        <property name="selectionMode">
+         <enum>QAbstractItemView::ExtendedSelection</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QPushButton" name="pbAdd">
+          <property name="text">
+           <string>Datei hinzufügen...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pbAddDir">
+          <property name="text">
+           <string>Verzeichnis hinzufügen...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pbRemove">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Gewählte entfernen</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pbSave">
+          <property name="text">
+           <string>Liste speichern...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pbLoad">
+          <property name="text">
+           <string>Liste laden...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
@@ -453,12 +372,8 @@
   <tabstop>pbSaveLog</tabstop>
   <tabstop>pbClearLog</tabstop>
   <tabstop>pbClose</tabstop>
-  <tabstop>tabWidget</tabstop>
   <tabstop>lwProtocol</tabstop>
   <tabstop>lstFiles</tabstop>
-  <tabstop>albUID</tabstop>
-  <tabstop>albDSN</tabstop>
-  <tabstop>albPWD</tabstop>
  </tabstops>
  <resources/>
  <connections/>
