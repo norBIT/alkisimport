@@ -47,11 +47,13 @@ ERROR:  relation "public\.alkis_(stricharten|stricharten_i|schriften|randlinie|l
 ERROR:  table "alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
 ERROR:  sequence "alkis_(farben|konturen|linie|randlinie|strichart|stricharten|stricharten_i)_id_seq" does not exist
 ^.*(ERROR|FEHLER):.*application_name
-^\s+(alkis_createklassifizierung|alkis_createnutzung|alkis_checkflurstueck)\s+$
+^\s+(alkis_createklassifizierung|alkis_createnutzung|alkis_checkflurstueck|alkis_createausfuehrendestellen|ax_besondereflurstuecksgrenze)\s+$
 ^ ax_klassifizierung und ax_klassifizierungsschluessel erzeugt\.\s*$
 ^ ax_tatsaechlichenutzung und ax_tatsaechlichenutzungsschluessel erzeugt\.\s*$
-^ ax_klassifizierung und ax_klassifizierungsschluessel erzeugt\.\s*$
+^ ax_ausfuehrendestellen erzeugt\.\s*$
 ^ ax_flurstueck gepr\S+ft\.\s*$
+^ setval $
+^\s+\d+$
 ^GML: Minimum arc step angle is \d+ degrees \(was \d+\.\d+°\)\.
 ^GML: Minimum arc step segment length is \d+\.\d+ was \d\.\d+ with \d+\.\d+°\)\.
 ^GML: Minimum arc step angle is \d+ degrees \(was \d+\.\d+°; segment length \d+\.\d+\)\.

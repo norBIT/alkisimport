@@ -4965,10 +4965,9 @@ FROM (
 ) AS o WHERE NOT signaturnummer IS NULL;
 
 
-/*
+
 --
 -- Seilbahn, Schwebebahn (53006)
--- TODO: in schema aufnehmen
 --
 
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer)
@@ -4994,20 +4993,21 @@ SELECT
 	'ax_seilbahnschwebebahn' AS layer,
 	point,
 	text,
-	signaturnummer
+	signaturnummer,
+	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.signaturnummer,'4107') AS signaturnummer,
-		coalesce(t.schriftinhalt,name) AS text
+		coalesce(t.schriftinhalt,name) AS text,
+		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_seilbahnschwebebahn o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
-*/
 
 --
 -- Gleis (55006)
@@ -5166,10 +5166,8 @@ FROM (
 ) AS n WHERE NOT text IS NULL;
 
 
-/*
 --
 -- Einrichtungen für den Schiffsverkehr (53008)
--- TODO: in schema aufnehmen
 --
 
 -- Symbole
@@ -5179,6 +5177,7 @@ SELECT
 	'Verkehr' AS thema,
 	'ax_einrichtungenfuerdenschiffsverkehr' AS layer,
 	st_multi(wkb_geometry) AS point,
+	0 AS drehwinkel,
 	CASE
 	WHEN art=1420 THEN 3590
 	WHEN art=1430 THEN 3556
@@ -5198,7 +5197,7 @@ SELECT
 	wkb_geometry AS point,
 	1544 AS signaturnummer
 FROM ax_einrichtungenfuerdenschiffsverkehr
-WHERE geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL;
+WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL;
 
 -- Kilometerangaben
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
@@ -5208,7 +5207,8 @@ SELECT
 	'ax_einrichtungenfuerdenschiffsverkehr' AS layer,
 	coalesce(t.wkb_geometry,o.wkb_geometry) AS point,
 	kilometerangabe AS text,
-	coalesce(t.signaturnummer,'4101') AS signaturnummer
+	coalesce(t.signaturnummer,'4101') AS signaturnummer,
+	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM ax_einrichtungenfuerdenschiffsverkehr o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='KMA' AND t.endet IS NULL
@@ -5223,20 +5223,21 @@ SELECT
 	'ax_einrichtungenfuerdenschiffsverkehr' AS layer,
 	point,
 	text,
-	signaturnummer
+	signaturnummer,
+	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,name) AS text,
-		coalesce(t.signaturnummer,'4081') AS signaturnummer
+		coalesce(t.signaturnummer,'4081') AS signaturnummer,
+		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_einrichtungenfuerdenschiffsverkehr o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
-*/
 
 --
 -- Bauwerk im Gewässerbereich (53009)
@@ -5472,7 +5473,7 @@ FROM (
 		gml_id,
 		signaturnummer,
 		line,
-		generate_series(einzug,(st_length(line)*1000)::int,abstand)/1000.0/st_length(line) AS offset
+		generate_series(einzug,(st_length(line)*1000)::int,abstand)/100.0/st_length(line) AS offset
 	FROM (
 		SELECT
 			gml_id,
@@ -6007,10 +6008,8 @@ FROM (
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
 
-/*
 --
 -- Wasserspiegelhöhe (57001)
--- TODO: In Schema aufnehmen
 --
 
 SELECT 'Wasserspiegelhöhen werden verarbeitet.';
@@ -6038,18 +6037,16 @@ SELECT
 	'ax_wasserspiegelhoehe' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	hoehedeswasserspiegels AS text,
-	coalesce(t.signaturnummer,'4102') AS signaturnummer
+	coalesce(t.signaturnummer,'4102') AS signaturnummer,
+	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM ax_wasserspiegelhoehe o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='HWS' AND t.endet IS NULL
 ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 WHERE o.endet IS NULL AND NOT hoehedeswasserspiegels IS NULL;
-*/
 
-/*
 --
 -- Schifffahrtslinie, Fährverkehr (57002)
--- TODO: in Schema aufnehmen
 --
 
 SELECT 'Schifffahrtslinien werden verarbeitet.';
@@ -6062,14 +6059,14 @@ SELECT
 	'ax_schifffahrtsliniefaehrverkehr' AS layer,
 	st_multi(coalesce(l.wkb_geometry,o.wkb_geometry)) AS line,
 	CASE
-	WHEN art=ARRAY[1740] THEN 2592
+	WHEN o.art=ARRAY[1740] THEN 2592
 	ELSE 2609
 	END AS signaturnummer
 FROM ax_schifffahrtsliniefaehrverkehr o
 LEFT OUTER JOIN (
 	alkis_beziehungen b JOIN ap_lpo l ON b.beziehung_von=l.gml_id AND l.art='Schifffahrtslinie' AND l.endet IS NULL
 ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-WHERE o.endet IS NULL AND art IS NULL;
+WHERE o.endet IS NULL AND o.art IS NULL;
 
 -- Texte
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
@@ -6079,7 +6076,8 @@ SELECT
 	'ax_schifffahrtsliniefaehrverkehr' AS layer,
 	point,
 	text,
-	signaturnummer
+	signaturnummer,
+	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
@@ -6087,18 +6085,20 @@ FROM (
 		coalesce(
 			t.schriftinhalt,
 			CASE
-			WHEN art IN (ARRAY[1710], ARRAY[1710,1730]) THEN 'Autofähre'
-			WHEN art=ARRAY[1710,1720]                   THEN 'Eisenbahnfähre'
-			WHEN art=ARRAY[1730]                        THEN 'Personenfähre'
+			WHEN o.art IN (ARRAY[1710], ARRAY[1710,1730]) THEN 'Autofähre'
+			WHEN o.art=ARRAY[1710,1720]                   THEN 'Auto- und Eisenbahnfähre'
+			WHEN o.art IN (ARRAY[1720], ARRAY[1720,1730]) THEN 'Eisenbahnfähre'
+			WHEN o.art=ARRAY[1730]                        THEN 'Personenfähre'
 			END
-		) END AS text,
-		coalesce(t.signaturnummer,'4103') AS signaturnummer
+		) AS text,
+		coalesce(t.signaturnummer,'4103') AS signaturnummer,
+	        drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_schifffahrtsliniefaehrverkehr o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ART' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL
-) WHERE NOT text IS NULL;
+) AS a WHERE NOT text IS NULL;
 
 -- Namen
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung)
@@ -6108,20 +6108,21 @@ SELECT
 	'ax_schifffahrtsliniefaehrverkehr' AS layer,
 	point,
 	text,
-	signaturnummer
+	signaturnummer,
+        drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
-		coalesce(t.schriftinhalt,name) AS text,
-		coalesce(t.signaturnummer,'4107') AS signaturnummer
+		coalesce(t.schriftinhalt,o.name) AS text,
+		coalesce(t.signaturnummer,'4107') AS signaturnummer,
+        	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_schifffahrtsliniefaehrverkehr o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
-*/
 
 /*
 --
@@ -6214,10 +6215,8 @@ FROM (
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
-/*
 --
 -- Höhleneingang (61005)
--- TODO: Ins Schema aufnehmen
 --
 
 SELECT 'Höhleneingänge werden verarbeitet.';
@@ -6228,6 +6227,7 @@ SELECT
 	'Topographie' AS thema,
 	'ax_hoehleneingang' AS layer,
 	st_multi(wkb_geometry) AS point,
+	0 AS drehwinkel,
 	3625 AS signaturnummer
 FROM ax_hoehleneingang
 WHERE endet IS NULL;
@@ -6240,20 +6240,21 @@ SELECT
 	'ax_hoehleneingang' AS layer,
 	point,
 	text,
-	signaturnummer
+	signaturnummer,
+	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.signaturnummer,'4118') AS signaturnummer,
-		coalesce(t.schriftinhalt,name) AS text
+		coalesce(t.schriftinhalt,name) AS text,
+		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung
 	FROM ax_hoehleneingang o
 	LEFT OUTER JOIN (
 		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
 	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
-*/
 
 --
 -- Felsen, Felsblock, Felsnadel (61006)
@@ -6272,16 +6273,45 @@ SELECT
 FROM ax_felsenfelsblockfelsnadel o
 WHERE geometrytype(wkb_geometry) IN ('POINT','MULTIPOINT') AND endet IS NULL;
 
--- TODO: PNR
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer)
+-- Punktförmige Begleitsignaturen an Linien
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer)
 SELECT
-	o.gml_id,
-	'Topograpie' AS thema,
+	gml_id,
+	'Topographie' AS thema,
 	'ax_felsenfelsblockfelsnadel' AS layer,
-	st_multi(wkb_geometry) AS line,
-	3624 AS signaturnummer
-FROM ax_felsenfelsblockfelsnadel o
-WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL;
+	st_multi(st_collect(st_line_interpolate_point(line,CASE WHEN a.offset<0 THEN 0 WHEN a.offset>1 THEN 1 ELSE a.offset END))) AS point,
+	0 AS drehwinkel,
+	signaturnummer
+FROM (
+	SELECT
+		gml_id,
+		signaturnummer,
+		line,
+		generate_series(einzug,(st_length(line)*1000)::int,abstand)/100.0/st_length(line) AS offset
+	FROM (
+		SELECT
+			gml_id,
+			einzug,
+			abstand,
+			CASE geometrytype(line)
+			WHEN 'MULTILINESTRING' THEN (st_dump(line)).geom
+			ELSE line
+			END AS line,
+			signaturnummer
+		FROM (
+			SELECT
+				gml_id,
+				710 AS einzug,
+				800 AS abstand,
+				wkb_geometry AS line,
+				3634 as signaturnummer
+			FROM ax_felsenfelsblockfelsnadel o
+			WHERE o.endet IS NULL
+			AND geometrytype(o.wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+		) AS a
+	) AS a
+) AS a
+GROUP BY gml_id,signaturnummer;
 
 -- Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer)
@@ -6397,7 +6427,6 @@ FROM (
 
 --
 -- Höhenlinien (61008)
--- TODO: Ins Schema aufnehmen
 --
 
 SELECT 'Höhenlinien werden verarbeitet.';

@@ -3487,7 +3487,8 @@ CREATE TABLE ax_schifffahrtsliniefaehrverkehr (
 	endet 			character(20),
 	advstandardmodell	varchar,
 	anlass			varchar,
-	art			integer,
+	art			integer[],
+	name			varchar,
 	CONSTRAINT ax_schifffahrtsliniefaehrverkehr_pk PRIMARY KEY (ogc_fid)
 );
 
