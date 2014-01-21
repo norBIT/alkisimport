@@ -5194,7 +5194,7 @@ SELECT
 	gml_id,
 	'Verkehr' AS thema,
 	'ax_einrichtungenfuerdenschiffsverkehr' AS layer,
-	wkb_geometry AS point,
+	st_multi(wkb_geometry) AS polygon,
 	1544 AS signaturnummer
 FROM ax_einrichtungenfuerdenschiffsverkehr
 WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL;
