@@ -1395,20 +1395,21 @@ COMMENT ON COLUMN ax_punktortau.gml_id IS 'Identifikator, global eindeutig';
 -- P u n k t o r t   T A
 -- ----------------------------------------------
 CREATE TABLE ax_punktortta (
-	ogc_fid			serial NOT NULL,
-	gml_id			character(16) NOT NULL,
-	identifier		character(44),
-	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
-	anlass			varchar,
-	kartendarstellung	varchar, -- boolean
-	description		integer,
-	art			varchar[],
-	name			varchar[],
-	genauigkeitsstufe	integer,
-	vertrauenswuerdigkeit	integer,
-	koordinatenstatus	integer,
+	ogc_fid			  serial NOT NULL,
+	gml_id			  character(16) NOT NULL,
+	identifier		  character(44),
+	beginnt			  character(20),
+	endet 			  character(20),
+	advstandardmodell	  varchar,
+	anlass			  varchar,
+	kartendarstellung	  varchar, -- boolean
+	description		  integer,
+	art			  varchar[],
+	name			  varchar[],
+	genauigkeitsstufe	  integer,
+	vertrauenswuerdigkeit	  integer,
+	koordinatenstatus  	  integer,
+	ax_datenerhebung_punktort integer,
 	CONSTRAINT ax_punktortta_pk PRIMARY KEY (ogc_fid)
 );
 
