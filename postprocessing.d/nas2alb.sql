@@ -122,7 +122,7 @@ CREATE TABLE str_shl (
 );
 
 INSERT INTO str_shl(strshl,strname,gemshl)
-	SELECT
+	SELECT DISTINCT
 		to_char(land,'fm00')||regierungsbezirk||to_char(kreis,'fm00')||to_char(gemeinde,'fm000')||'    '||trim(lage) AS strshl,
 		bezeichnung,
 		to_char(land,'fm00')||regierungsbezirk||to_char(kreis,'fm00')||to_char(gemeinde,'fm000') AS gemshl
