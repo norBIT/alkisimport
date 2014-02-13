@@ -179,7 +179,8 @@ do
 		export DB
 		log() {
 			n=$(psql -t -c "SELECT count(*) FROM information_schema.tables WHERE table_name='alkis_importlog'" "$DB")
-			if (( n == 0 )); then
+			n=${n%}
+			if [ $n -eq 0 ]; then
 				psql -q -c "CREATE TABLE alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" "$DB"
 			fi
 

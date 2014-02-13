@@ -8,7 +8,6 @@ diff:
 update: all
 	rsync -avpP \
 		--exclude "*.pyc" \
-		--exclude "gdal-dev" \
 		alkis-ableitungsregeln.sql \
 		alkis-compat.sql \
 		alkis-functions.sql \
@@ -26,10 +25,22 @@ update: all
 		gdal-dev \
 		logo.png \
 		logo.ico \
-		postprocessing.d/nas2alb.sql \
+		postprocessing.d \
 		re \
 		refilter.py \
 		$(DESTDIR)
+
+diff:
+	-diff -ur \
+		--exclude="*.pyc" \
+		--exclude="*.gfs" \
+		--exclude="*.xml*" \
+		--exclude="*.log" \
+		--exclude="*.lst" \
+		--exclude="*.zip" \
+		--exclude="share" \
+		$(DESTDIR) \
+		.
 
 %.py: %.ui
 	pyuic4 -o $@ $^
