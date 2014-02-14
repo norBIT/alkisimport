@@ -242,7 +242,7 @@ CREATE TABLE eignerart (
 INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,lkfs)
 	SELECT
 		to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(f.flurnummer,'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
-		to_char(bb.land,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || bb.buchungsblattnummermitbuchstabenerweiterung AS bestdnr,
+		to_char(bb.land,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		lpad(laufendenummer,4,'0') AS bvnr,
 		buchungsart AS b,
 		coalesce(bs.zaehler || '/' || bs.nenner,bs.zaehler::text) AS anteil,
@@ -263,12 +263,10 @@ INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,l
 		JOIN ax_buchungsblatt bb ON bb.gml_id=b.beziehung_zu  AND bb.endet IS NULL
 	WHERE
 		f.endet IS NULL
---	;
--- INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,lkfs)
 	UNION
 	SELECT
 		to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(f.flurnummer,'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
-		to_char(bb.land,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || bb.buchungsblattnummermitbuchstabenerweiterung AS bestdnr,
+		to_char(bb.land,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		lpad(bs.laufendenummer,4,'0') AS bvnr,
 		bs.buchungsart AS b,
 		coalesce(bs.zaehler || '/' || bs.nenner, bs.zaehler::text) AS anteil,
@@ -322,7 +320,7 @@ CREATE SEQUENCE bem_best_pk_seq;
 
 INSERT INTO bem_best(bestdnr,pk,lnr,text,ff_entst,ff_stand)
 	SELECT
-		to_char(bb.land,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || bb.buchungsblattnummermitbuchstabenerweiterung AS bestdnr,
+		to_char(bb.land,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		to_hex(nextval('bem_best_pk_seq'::regclass)) AS pk,
 		laufendenummer AS lnr,
 		beschreibungdessondereigentums AS text,
@@ -359,7 +357,7 @@ CREATE INDEX bestand_ff_stand ON bestand(ff_stand);
 
 INSERT INTO bestand(bestdnr,gbbz,gbblnr,anteil,auftlnr,bestfl,ff_entst,ff_stand,pz)
 	SELECT
-		to_char(land,'fm00') || to_char(bezirk,'fm0000') || '-' || buchungsblattnummermitbuchstabenerweiterung AS bestdnr,
+		to_char(land,'fm00') || to_char(bezirk,'fm0000') || '-' || trim(buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		to_char(bezirk,'fm0000') AS gbbz,
 		to_char(to_number(buchungsblattnummermitbuchstabenerweiterung,'000000'),'fm000000') AS gbblnr,
 		NULL AS anteil,
@@ -377,7 +375,7 @@ INSERT INTO bestand(bestdnr,gbbz,gbblnr,anteil,auftlnr,bestfl,ff_entst,ff_stand,
 	  	SELECT *
 		FROM ax_buchungsblatt bb2
 		WHERE bb2.endet IS NULL
-		  AND bb.land=bb2.land AND bb.bezirk=bb2.bezirk AND bb.buchungsblattnummermitbuchstabenerweiterung=bb2.buchungsblattnummermitbuchstabenerweiterung
+		  AND bb.land=bb2.land AND bb.bezirk=bb2.bezirk AND trim(bb.buchungsblattnummermitbuchstabenerweiterung)=trim(bb2.buchungsblattnummermitbuchstabenerweiterung)
 	          AND bb2.beginnt<bb.beginnt
 	          AND bb2.ogc_fid<>bb.ogc_fid
 	  )
@@ -425,7 +423,7 @@ CREATE SEQUENCE eigner_pk_seq;
 
 INSERT INTO eigner(bestdnr,pk,ab,namensnr,ea,antverh,name,name1,name2,name3,name4,name5,name6,name7,name8,anrede,vorname,nachname,namensteile,ak_grade,geb_name,geb_datum,str_hnr,plz_pf,postfach,plz,ort,land,ff_entst,ff_stand)
 	SELECT
-		to_char(bb.land,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || bb.buchungsblattnummermitbuchstabenerweiterung AS bestdnr,
+		to_char(bb.land,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		to_hex(nextval('eigner_pk_seq'::regclass)) AS pk,
 		NULL AS ab,
 		laufendenummernachdin1421 AS namensnr,
