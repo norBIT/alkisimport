@@ -255,7 +255,7 @@
       <item row="0" column="4">
        <widget class="QCheckBox" name="cbxCreate">
         <property name="text">
-         <string>Datenbank anlegen</string>
+         <string>Datenbestand anlegen</string>
         </property>
        </widget>
       </item>
