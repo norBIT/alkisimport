@@ -62,7 +62,7 @@ CREATE TABLE flurst (
 
 INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl,af,flurknr,baublock,flskoord,fora,fina,h1shl,h2shl,hinwshl,strshl,gemshl,hausnr,lagebez,k_anlverm,anl_verm,blbnr,n_flst,ff_entst,ff_stand,ff_datum)
    SELECT
-     to_char(land,'fm00') || to_char(gemarkungsnummer,'fm0000') || '-' || to_char(flurnummer,'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || to_char(coalesce(mod(nenner,1000),0),'fm000') AS flsnr,
+     to_char(land,'fm00') || to_char(gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(flurnummer,0),'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || to_char(coalesce(mod(nenner,1000),0),'fm000') AS flsnr,
      to_char(zaehler,'fm00000') || '/' || to_char(coalesce(mod(nenner,1000),0),'fm000') AS flsnrk,
      to_char(land,'fm00') || to_char(gemarkungsnummer,'fm0000') AS gemashl,
      to_char(flurnummer,'fm000') AS flr,
@@ -157,7 +157,7 @@ INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 		0
 	FROM (
 		SELECT
-			to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(f.flurnummer,'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
+			to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
 			to_char(l.land,'fm00')||l.regierungsbezirk||to_char(l.kreis,'fm00')||to_char(l.gemeinde,'fm000')||'    '||trim(lage) AS strshl,
 			hausnummer AS hausnr
 		FROM
@@ -169,7 +169,7 @@ INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 			l.endet IS NULL
 	UNION
 		SELECT
-			to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(f.flurnummer,'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
+			to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
 			to_char(l.land,'fm00')||l.regierungsbezirk||to_char(l.kreis,'fm00')||to_char(l.gemeinde,'fm000')||'    '||trim(lage) AS strshl,
 			'' AS hausnr
 		FROM
@@ -241,7 +241,7 @@ CREATE TABLE eignerart (
 
 INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,lkfs)
 	SELECT
-		to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(f.flurnummer,'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
+		to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
 		to_char(bb.land,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		lpad(laufendenummer,4,'0') AS bvnr,
 		buchungsart AS b,
@@ -265,7 +265,7 @@ INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,l
 		f.endet IS NULL
 	UNION
 	SELECT
-		to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(f.flurnummer,'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
+		to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
 		to_char(bb.land,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		lpad(bs.laufendenummer,4,'0') AS bvnr,
 		bs.buchungsart AS b,
@@ -682,7 +682,7 @@ INSERT INTO fs(fs_key,fs_obj,alb_key)
   SELECT
     ogc_fid
     ,gml_id
-    ,to_char(land,'fm00') || to_char(gemarkungsnummer,'fm0000') || '-' || to_char(flurnummer,'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || to_char(coalesce(mod(nenner,1000),0),'fm000')
+    ,to_char(land,'fm00') || to_char(gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(flurnummer,0),'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || to_char(coalesce(mod(nenner,1000),0),'fm000')
   FROM ax_flurstueck;
 
 CREATE INDEX fs_obj ON fs(fs_obj);
