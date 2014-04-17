@@ -17,21 +17,6 @@
 -- Stand
 -- -----
 
--- letzte Änderungen an Version 0.6:
-
--- 2011-11-02 FJ: Neue Tabellen
--- 2011-11-04 FJ: Anpassungen fuer Buchauskunft "Historie"
--- 2011-11-21 FJ: siehe Version 0.6
--- 2011-12-16 FJ: Neue Tabelle "ax_sicherungspunkt"
--- 2012-01-16 FJ: Spalte "ap_pto.art" wird doch gebraucht.
-
--- ** Neuer Zweig PostNAS 0.7 (gdal > 1.9) **
-
--- 2012-02-28 FJ: Zusammenführen von Änderungen aus SVN (AE: Anfang Februar) mit eigener Version
---                Auskommentierte Zeilen "identifier" entfernt.
---                Feld "gemeindezugehoerigkeit" auskommentiert.
---                Bereinigung Kommentare.
-
 -- 2012-04-23 FJ  Diff zum GDAL-Patch #4555 angewendet:
 --                Siehe Mail J.E.Fischer in PostNAS-Liste vom 12.03.2012
 --                - Alle Objekte bekommen "endet"-Feld.
@@ -47,7 +32,7 @@
 --                Umschaltung mit/ohne Historie über Verknüpfung Trigger -> Function
 --                Typ 'GEOMETRY' bei Tabellen: AX_WegPfadSteig, AX_UntergeordnetesGewaesser
 
--- 2012-10-31 FJ  Trigger fuer NAS-Replace-Sätze repariert:
+-- 2012-10-31 FJ  Trigger fuer NAS-Replace-SÃ¤ätze repariert:
 --                siehe: FUNCTION delete_feature_kill()
 --                ax_historischesflurstueck.buchungsart ist Text nicht integer.
 
@@ -59,16 +44,33 @@
 --                Darüber können Tabellen aus diesem Script unterschieden werden
 --                von Tabellen, die PostNAS selbst generiert hat.
 
+-- 2013-04-22 FJ  Tabelle ax_wirtschaftlicheeinheit, Kommentare ergänzt,
+--                Felad "ax_historischesflurstueck.buchungsart" varchar statt integer
+
+-- 2013-07-10 FJ  Erweiterung alkis_beziehungen nach Vorschlag Marvin Brandt (Kreis Unna)
+--                Füllen der Felder langfristig durch PostNAS (Erweiterung?)
+--                Vorläufig mit Trigger-Funktions "update_fields_beziehungen"
+
+-- 2014-01-24 FJ  Feld "ax_datenerhebung_punktort" in "Punktort/TA/AG/AU" nach Vorschlag Marvin Brandt (Kreis Unna)
+
+-- 2014-01-29 FJ  Spalte "zeitpunktderentstehung" an allen Vorkommen auf Format "varchar".
+--                Alte auskommentierte Varianten entrümpelt. 
+--                Tabs durch Space ersetzt und Code wieder hübsch ausgerichtet.
+
+-- 2014-01-31 FJ  Erweiterungen Marvin Brand (Unna) fuer sauberes Entfernen alter Beziehungen bei "replace".
+--                Lösung über import_id.
+
 
 --  VERSIONS-NUMMER:
 
 --  Dies Schema kann NICHT mehr mit der installierbaren gdal-Version 1.9 verwendet werden.
---  Derzeit muss ogr2ogr (gdal) aus den Quellen compiliert werden, die o.g. Patch enthalten.
+--  Derzeit muss ogr2ogr (gdal) aus den Quellen compiliert werden, die o.g. Patch #4555 enthalten.
 --  Weiterführung dieses Zweiges als PostNAS 0.7
 
-
--- Zur Datenstruktur siehe Dokument:
--- http://www.bezreg-koeln.nrw.de/extra/33alkis/dokumente/Profile_NRW/5-1-1_ALKIS-OK-NRW_GDB.html
+-- ALKIS-Dokumentation (NRW):
+--  http://www.bezreg-koeln.nrw.de/extra/33alkis/alkis_nrw.htm
+--  http://www.bezreg-koeln.nrw.de/extra/33alkis/geoinfodok.htm
+--  http://www.bezreg-koeln.nrw.de/extra/33alkis/dokumente/GeoInfoDok/ALKIS/ALKIS_OK_V6-0.html
 
   SET client_encoding = 'UTF8';
   SET default_with_oids = false;
@@ -92,14 +94,15 @@
 SELECT alkis_drop();
 
 -- Tabelle delete für Lösch- und Fortführungsdatensätze
-CREATE TABLE "delete"
-(
+CREATE TABLE "delete" (
 	ogc_fid		serial NOT NULL,
 	typename	varchar,
 	featureid	character(32),
 	context		varchar,		-- delete/replace
 	safetoignore	varchar,		-- replace.safetoignore 'true'/'false'
 	replacedBy	varchar,		-- gmlid
+	anlass		varchar,
+	endet		character(20),
 	ignored		boolean DEFAULT false,	-- Satz wurde nicht verarbeitet
 	CONSTRAINT delete_pk PRIMARY KEY (ogc_fid)
 );
@@ -109,7 +112,6 @@ CREATE TABLE "delete"
 SELECT AddGeometryColumn('delete','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX delete_fid ON "delete"(featureid);
-
 
 COMMENT ON TABLE "delete"             IS 'Hilfstabelle für das Speichern von Löschinformationen.';
 COMMENT ON COLUMN delete.typename     IS 'Objektart, also Name der Tabelle, aus der das Objekt zu löschen ist.';
@@ -152,7 +154,6 @@ COMMENT ON COLUMN alkis_beziehungen.beziehung_zu  IS 'Join auf Feld gml_id versc
 COMMENT ON COLUMN alkis_beziehungen.beziehungsart IS 'Typ der Beziehung zwischen der von- und zu-Tabelle';
 
 -- Beziehungsarten:
---
 -- "an" "benennt" "bestehtAusRechtsverhaeltnissenZu" "beziehtSichAuchAuf" "dientZurDarstellungVon"
 -- "durch" "gehoertAnteiligZu" "gehoertZu" "hat" "hatAuch" "istBestandteilVon"
 -- "istGebucht" "istTeilVon" "weistAuf" "zeigtAuf" "zu"
@@ -160,7 +161,6 @@ COMMENT ON COLUMN alkis_beziehungen.beziehungsart IS 'Typ der Beziehung zwischen
 -- Hinweis:
 -- Diese Tabelle enthält für ein Kreisgebiet ca. 5 Mio. Zeilen und wird ständig benutzt.
 -- Optimierung z.B. über passende Indices ist wichtig.
-
 
 --
 -- Löschtrigger setzen
@@ -240,7 +240,7 @@ CREATE TABLE ax_baublock (
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	character(9),
+	advstandardmodell	varchar,
 	anlass			varchar,
 	baublockbezeichnung	integer,
 	CONSTRAINT ax_baublock_pk PRIMARY KEY (ogc_fid)
@@ -266,7 +266,7 @@ CREATE TABLE ax_besonderertopographischerpunkt (
 	anlass			varchar,
 	land			integer,
 	stelle			integer,
-	punktkennung		varchar, -- integer
+	punktkennung		varchar,
 	sonstigeeigenschaft	varchar[],
 	CONSTRAINT ax_besonderertopographischerpunkt_pk PRIMARY KEY (ogc_fid)
 );
@@ -298,7 +298,8 @@ SELECT AddGeometryColumn('ax_soll','wkb_geometry',:alkis_epsg,'POLYGON',2);
 CREATE INDEX ax_soll_geom_idx ON ax_soll USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_soll_gml ON ax_soll USING btree (gml_id,beginnt);
 
-COMMENT ON TABLE ax_soll IS '''Soll'' ist eine runde, oft steilwandige Vertiefung in den norddeutschen Grundmoränenlandschaften; kann durch Abschmelzen von überschütteten Toteisblöcken (Toteisloch) oder durch Schmelzen periglazialer Eislinsen entstanden sein.';
+COMMENT ON TABLE  ax_soll        IS 'S o l l';
+COMMENT ON COLUMN ax_soll.gml_id IS 'Identifikator, global eindeutig';
 
 
 -- B e w e r t u n g
@@ -320,10 +321,11 @@ SELECT AddGeometryColumn('ax_bewertung','wkb_geometry',:alkis_epsg,'GEOMETRY',2)
 CREATE INDEX ax_bewertung_geom_idx   ON ax_bewertung USING gist  (wkb_geometry);
 CREATE UNIQUE INDEX ax_bewertung_gml ON ax_bewertung USING btree (gml_id,beginnt);
 
-COMMENT ON TABLE  ax_bewertung        IS 'B e w e r t u n g';
+COMMENT ON TABLE  ax_bewertung        IS '"B e w e r t u n g"  ist die Klassifizierung einer Fläche nach dem Bewertungsgesetz (Bewertungsfläche).';
 COMMENT ON COLUMN ax_bewertung.gml_id IS 'Identifikator, global eindeutig';
 
-COMMENT ON TABLE ax_bewertung  IS '''Bewertung'' ist die Klassifizierung einer Fläche nach dem Bewertungsgesetz (Bewertungsfläche).';
+COMMENT ON COLUMN ax_bewertung.klassifizierung IS '"Klassifizierung" ist die gesetzliche Klassifizierung nach dem Bewertungsgesetz.';
+
 
 
 -- T a g e s a b s c h n i t t
@@ -361,8 +363,8 @@ CREATE TABLE ax_denkmalschutzrecht (
 	artderfestlegung	integer,
 	land			integer,
 	stelle			varchar,
-	art			varchar, -- (15)
-	name			varchar, -- (15)
+	art			varchar,
+	name			varchar,
 	CONSTRAINT ax_denkmalschutzrecht_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -399,7 +401,9 @@ CREATE INDEX ax_forstrecht_geom_idx   ON ax_forstrecht USING gist  (wkb_geometry
 CREATE UNIQUE INDEX ax_forstrecht_gml ON ax_forstrecht USING btree (gml_id,beginnt);
 CREATE INDEX ax_forstrecht_afs ON ax_forstrecht(land,stelle);
 
-COMMENT ON TABLE ax_forstrecht IS '''Forstrecht'' ist die auf den Grund und Boden bezogene Beschränkung, Belastung oder andere Eigenschaft einer Fläche nach öffentlichen, forstrechtlichen Vorschriften.';
+COMMENT ON TABLE  ax_forstrecht        IS 'F o r s t r e c h t';
+COMMENT ON COLUMN ax_forstrecht.gml_id IS 'Identifikator, global eindeutig';
+
 
 -- G e b ä u d e a u s g e s t a l t u n g
 -- -----------------------------------------
@@ -409,20 +413,24 @@ CREATE TABLE ax_gebaeudeausgestaltung (
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	character(4),
+	advstandardmodell	varchar,
 	anlass			varchar,
 	darstellung		integer,
+
+	-- Beziehung
 	zeigtauf		varchar,
+
 	CONSTRAINT ax_gebaeudeausgestaltung_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_gebaeudeausgestaltung','wkb_geometry',:alkis_epsg,'GEOMETRY',2);	-- LINESTRING/MULTILINESTRING
+SELECT AddGeometryColumn('ax_gebaeudeausgestaltung','wkb_geometry',:alkis_epsg,'GEOMETRY',2);  -- LINESTRING/MULTILINESTRING
 
 CREATE INDEX ax_gebaeudeausgestaltung_geom_idx ON ax_gebaeudeausgestaltung USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_gebaeudeausgestaltung_gml ON ax_gebaeudeausgestaltung USING btree (gml_id,beginnt);
 
-COMMENT ON TABLE  ax_gebaeudeausgestaltung        IS 'G e b ä u d e a u s g e s t a l t u n g';
-COMMENT ON COLUMN ax_gebaeudeausgestaltung.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_gebaeudeausgestaltung          IS 'G e b ä u d e a u s g e s t a l t u n g';
+COMMENT ON COLUMN ax_gebaeudeausgestaltung.gml_id   IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_gebaeudeausgestaltung.zeigtauf IS 'Beziehung zu ax_gebaeude (1): ''Gebäudeausgestaltung'' zeigt auf die zugehörige Objektart ''Gebäude''.';
 
 
 -- Georeferenzierte  G e b ä u d e a d r e s s e
@@ -431,20 +439,19 @@ CREATE TABLE ax_georeferenziertegebaeudeadresse (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
 	identifier		character(44),
-	beginnt			character(20),		-- Inhalt z.B. "2008-06-10T15:19:17Z"
-	endet 			character(20),		-- Inhalt z.B. "2008-06-10T15:19:17Z"
-							-- ISO:waere   "2008-06-10 15:19:17-00"
---	beginnt			timestamp,		-- timestamp-Format wird nicht geladen, bleibt leer
+	beginnt			character(20),	-- Inhalt z.B. "2008-06-10T15:19:17Z"
+	endet 			character(20),	-- Inhalt z.B. "2008-06-10T15:19:17Z"
+	-- ISO: waere  "2008-06-10 15:19:17-00", timestamp-Format wird nicht geladen, bleibt leer
 	advstandardmodell	varchar,
 	anlass			varchar,
-	qualitaetsangaben	integer,		-- zb: "1000" (= Massstab)
-	--			--			-- Gemeindeschluessel, bestehend aus:
-	land			integer,		-- 05 = NRW
-	regierungsbezirk	integer,		--   7
-	kreis			integer,		--    66
-	gemeinde		integer,		--      020
-	ortsteil		integer,		--         0
-	--			--			-- --
+	qualitaetsangaben	integer,	-- zb: "1000" (= Massstab)
+	--			--		-- Gemeindeschluessel, bestehend aus:
+	land			integer,	-- 05 = NRW
+	regierungsbezirk	integer,	--   7
+	kreis			integer,	--    66
+	gemeinde		integer,	--      020
+	ortsteil		integer,	--         0
+
 	postleitzahl		varchar,	-- mit fuehrenden Nullen
 	ortsnamepost		varchar,	--
 	zusatzortsname		varchar,	--
@@ -452,6 +459,10 @@ CREATE TABLE ax_georeferenziertegebaeudeadresse (
 	strassenschluessel	integer,	-- max.  5 Stellen
 	hausnummer		varchar,	-- meist 3 Stellen
 	adressierungszusatz	varchar,	-- Hausnummernzusatz-Buchstabe
+
+	-- Beziehung
+	hatauch			varchar,
+
 	CONSTRAINT ax_georeferenziertegebaeudeadresse_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -465,8 +476,9 @@ CREATE UNIQUE INDEX ax_georeferenziertegebaeudeadresse_gml ON ax_georeferenziert
 -- Suchindex Adresse
 CREATE INDEX ax_georeferenziertegebaeudeadresse_adr ON ax_georeferenziertegebaeudeadresse USING btree (strassenschluessel, hausnummer, adressierungszusatz);
 
-COMMENT ON TABLE  ax_georeferenziertegebaeudeadresse        IS 'Georeferenzierte  G e b ä u d e a d r e s s e';
-COMMENT ON COLUMN ax_georeferenziertegebaeudeadresse.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_georeferenziertegebaeudeadresse         IS 'Georeferenzierte  G e b ä u d e a d r e s s e';
+COMMENT ON COLUMN ax_georeferenziertegebaeudeadresse.gml_id  IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_georeferenziertegebaeudeadresse.hatauch IS 'Beziehung zu ax_lagebezeichnungmithausnummer (1): Die inverse Relation wird optional belegt, damit keine Implementierung unmittelbar zur Umstellung auf das neue Verfahren zur Ableitung der Hauskoordinate gezwungen wird.';
 
 
 -- G r a b l o c h   d e r   B o d e n s c h ä t z u n g
@@ -486,6 +498,10 @@ CREATE TABLE ax_grablochderbodenschaetzung (
 	nummerierungsbezirk	varchar,
 	gemarkungsnummer 	integer,
 	nummerdesgrablochs	varchar,
+
+	-- Beziehung
+	gehoertzu		varchar,
+
 	CONSTRAINT ax_grablochderbodenschaetzung_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -494,8 +510,9 @@ SELECT AddGeometryColumn('ax_grablochderbodenschaetzung','wkb_geometry',:alkis_e
 CREATE INDEX ax_grablochderbodenschaetzung_geom_idx   ON ax_grablochderbodenschaetzung USING gist  (wkb_geometry);
 CREATE UNIQUE INDEX ax_grablochderbodenschaetzung_gml ON ax_grablochderbodenschaetzung USING btree (gml_id,beginnt);
 
-COMMENT ON TABLE  ax_grablochderbodenschaetzung        IS 'G r a b l o c h   d e r   B o d e n s c h ä t z u n g';
-COMMENT ON COLUMN ax_grablochderbodenschaetzung.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_grablochderbodenschaetzung           IS 'G r a b l o c h   d e r   B o d e n s c h ä t z u n g';
+COMMENT ON COLUMN ax_grablochderbodenschaetzung.gml_id    IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_grablochderbodenschaetzung.gehoertzu IS 'Beziehung zu ax_tagesabschnitt (0..1): Jedes Grabloch einer Bodenschätzung liegt in einem Tagesabschnitt.';
 
 
 -- H i s t o r i s c h e s   F l u r s t ü c k   A L B
@@ -524,7 +541,6 @@ CREATE TABLE ax_historischesflurstueckalb (
 	zweifelhafterFlurstuecksnachweis 		varchar default 'false',	-- ZFM Boolean
 	rechtsbehelfsverfahren				varchar default 'false',	-- RBV
 	zeitpunktderentstehung				character(10),         -- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
---	gemeindezugehoerigkeit				integer,
 	gemeinde					integer,
 	-- GID: ENDE AX_Flurstueck_Kerndaten
 
@@ -543,9 +559,10 @@ CREATE TABLE ax_historischesflurstueckalb (
 	zeitpunktderentstehungdesbezugsflurstuecks	varchar,
 	laufendenummerderfortfuehrung			varchar,
 	fortfuehrungsart				varchar,
-
 	vorgaengerflurstueckskennzeichen		varchar[],
 	nachfolgerflurstueckskennzeichen		varchar[],
+	flurstuecksfolge				varchar,
+
 	CONSTRAINT ax_historischesflurstueckalb_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -561,7 +578,6 @@ CREATE INDEX idx_histfsalb_vor
 
 CREATE INDEX idx_histfsalb_nach
    ON ax_historischesflurstueckalb USING btree (nachfolgerflurstueckskennzeichen /* ASC */);
-
   COMMENT ON INDEX idx_histfsalb_vor IS 'Suchen nach Nachfolger-Flurstück';
   COMMENT ON TABLE  ax_historischesflurstueckalb        IS 'Historisches Flurstück ALB';
   COMMENT ON COLUMN ax_historischesflurstueckalb.gml_id IS 'Identifikator, global eindeutig';
@@ -585,7 +601,6 @@ Gleiches gilt für Flurstücksnummern ohne Nenner, hier ist der fehlende Nenner 
   COMMENT ON COLUMN ax_historischesflurstueckalb.zweifelhafterFlurstuecksnachweis IS 'ZFM "Zweifelhafter Flurstücksnachweis" ist eine Kennzeichnung eines Flurstücks, dessen Angaben nicht zweifelsfrei berichtigt werden können.';
   COMMENT ON COLUMN ax_historischesflurstueckalb.rechtsbehelfsverfahren    IS 'RBV "Rechtsbehelfsverfahren" ist der Hinweis darauf, dass bei dem Flurstück ein laufendes Rechtsbehelfsverfahren anhängig ist.';
   COMMENT ON COLUMN ax_historischesflurstueckalb.zeitpunktderentstehung    IS 'ZDE "Zeitpunkt der Entstehung" ist der Zeitpunkt, zu dem das Flurstück fachlich entstanden ist.';
---COMMENT ON COLUMN ax_historischesflurstueckalb.gemeindezugehoerigkeit    IS 'GDZ "Gemeindezugehörigkeit" enthält das Gemeindekennzeichen zur Zuordnung der Flustücksdaten zu einer Gemeinde.';
   COMMENT ON COLUMN ax_historischesflurstueckalb.gemeinde                  IS 'Gemeindekennzeichen zur Zuordnung der Flustücksdaten zu einer Gemeinde.';
 
 
@@ -603,13 +618,12 @@ CREATE TABLE ax_historischesflurstueck (
 	zaehler 			integer,            --    (redundant zu flurstueckskennzeichen)
 	nenner				integer,         --
 	-- daraus abgeleitet:
-	flurstueckskennzeichen	character(20),			-- Inhalt rechts mit __ auf 20 aufgefüllt
+	flurstueckskennzeichen		character(20),			-- Inhalt rechts mit __ auf 20 aufgefüllt
 	amtlicheflaeche			double precision,		-- AFL
 	abweichenderrechtszustand	varchar default 'false',	-- ARZ
 	zweifelhafterFlurstuecksnachweis varchar default 'false',	-- ZFM Boolean
 	rechtsbehelfsverfahren		varchar default 'false',	-- RBV
 	zeitpunktderentstehung		character(10),		-- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
---	gemeindezugehoerigkeit		integer,
 	gemeinde			integer,
 	-- GID: ENDE AX_Flurstueck_Kerndaten
 	identifier			character(44),
@@ -675,7 +689,6 @@ Gleiches gilt für Flurstücksnummern ohne Nenner, hier ist der fehlende Nenner 
   COMMENT ON COLUMN ax_historischesflurstueck.zweifelhafterFlurstuecksnachweis IS 'ZFM "Zweifelhafter Flurstücksnachweis" ist eine Kennzeichnung eines Flurstücks, dessen Angaben nicht zweifelsfrei berichtigt werden können.';
   COMMENT ON COLUMN ax_historischesflurstueck.rechtsbehelfsverfahren    IS 'RBV "Rechtsbehelfsverfahren" ist der Hinweis darauf, dass bei dem Flurstück ein laufendes Rechtsbehelfsverfahren anhängig ist.';
   COMMENT ON COLUMN ax_historischesflurstueck.zeitpunktderentstehung    IS 'ZDE "Zeitpunkt der Entstehung" ist der Zeitpunkt, zu dem das Flurstück fachlich entstanden ist.';
---COMMENT ON COLUMN ax_historischesflurstueck.gemeindezugehoerigkeit    IS 'GDZ "Gemeindezugehörigkeit" enthält das Gemeindekennzeichen zur Zuordnung der Flustücksdaten zu einer Gemeinde.';
   COMMENT ON COLUMN ax_historischesflurstueck.gemeinde                  IS 'GDZ "Gemeindekennzeichen zur Zuordnung der Flustücksdaten zu einer Gemeinde.';
 
 
@@ -726,7 +739,7 @@ CREATE TABLE ax_schutzgebietnachwasserrecht (
 	artderfestlegung	integer,
 	land			integer,
 	stelle			varchar,
-	art			varchar[], --(15)
+	art			varchar[],
 	name			varchar[],
 	nummerdesschutzgebietes	varchar,
 	CONSTRAINT ax_schutzgebietnachwasserrecht_pk PRIMARY KEY (ogc_fid)
@@ -776,7 +789,7 @@ CREATE TABLE ax_schutzzone (
 	advstandardmodell	varchar,
 	anlass			varchar,
 	"zone"			integer,
-	art			varchar[], --(15)
+	art			varchar[],
 	CONSTRAINT ax_schutzzone_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -829,13 +842,18 @@ CREATE TABLE ap_ppo (
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
-	advstandardmodell	varchar[],
+	advstandardmodell	varchar,  -- Array?
 	sonstigesmodell		varchar,
 	anlass			varchar,
 	signaturnummer		varchar,
 	darstellungsprioritaet  integer,
 	art			varchar,
 	drehwinkel		double precision,
+	skalierung		double precision,
+
+	-- Beziehung
+	dientzurdarstellungvon	varchar[],
+
 	CONSTRAINT ap_ppo_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -844,10 +862,11 @@ SELECT AddGeometryColumn('ap_ppo','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- P
 CREATE INDEX ap_ppo_geom_idx   ON ap_ppo USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_ppo_gml ON ap_ppo USING btree (gml_id,beginnt);
 CREATE INDEX ap_ppo_endet      ON ap_ppo USING btree (endet);
+CREATE INDEX ap_ppo_dzdv       ON ap_ppo USING btree (dientzurdarstellungvon);
 
 COMMENT ON TABLE  ap_ppo        IS 'PPO: Punktförmiges Präsentationsobjekt';
 COMMENT ON COLUMN ap_ppo.gml_id IS 'Identifikator, global eindeutig';
-
+COMMENT ON COLUMN ap_ppo.dientzurdarstellungvon IS 'Beziehung zu aa_objekt (0..*): Durch den Verweis auf einen Set beliebiger AFIS-ALKIS-ATKIS-Objekte gibt das Präsentationsobjekt an, zu wessen Präsentation es dient. Dieser Verweis kann für Fortführungen ausgenutzt werden oder zur Unterdrückung von Standardpräsentationen der zugrundeliegenden ALKIS-ATKIS-Objekte. Ein Verweis auf ein AA_Objekt vom Typ AP_GPO ist nicht zugelassen.';
 
 -- A P   L P O
 -- ----------------------------------------------
@@ -857,21 +876,27 @@ CREATE TABLE ap_lpo (
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
-	advstandardmodell	varchar[],		-- Array!
+	advstandardmodell	varchar,  -- Array?
 	anlass			varchar,
 	signaturnummer		varchar,
 	darstellungsprioritaet  integer,
 	art			varchar,
+
+	-- Beziehung
+	dientzurdarstellungvon	varchar[],
+
 	CONSTRAINT ap_lpo_pk PRIMARY KEY (ogc_fid)
 );
 SELECT AddGeometryColumn('ap_lpo','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/MULTILINESTRING
 
 CREATE INDEX ap_lpo_geom_idx   ON ap_lpo USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_lpo_gml ON ap_lpo USING btree (gml_id,beginnt);
+CREATE INDEX ap_lpo_dzdv       ON ap_lpo USING btree (dientzurdarstellungvon);
 CREATE INDEX ap_lpo_endet      ON ap_lpo USING btree (endet);
 
-COMMENT ON TABLE  ap_lpo        IS 'LPO: Linienförmiges Präsentationsobjekt';
-COMMENT ON COLUMN ap_lpo.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ap_lpo                        IS 'LPO: Linienförmiges Präsentationsobjekt';
+COMMENT ON COLUMN ap_lpo.gml_id                 IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ap_lpo.dientzurdarstellungvon IS 'Beziehung zu aa_objekt (0..*): Durch den Verweis auf einen Set beliebiger AFIS-ALKIS-ATKIS-Objekte gibt das Präsentationsobjekt an, zu wessen Präsentation es dient. Dieser Verweis kann für Fortführungen ausgenutzt werden oder zur Unterdrückung von Standardpräsentationen der zugrundeliegenden ALKIS-ATKIS-Objekte. Ein Verweis auf ein AA_Objekt vom Typ AP_GPO ist nicht zugelassen.';
 
 
 -- A P   P T O
@@ -882,17 +907,21 @@ CREATE TABLE ap_pto (
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
-	advstandardmodell	varchar[],
+	advstandardmodell	varchar,  -- Array?
 	anlass			varchar,
-	schriftinhalt		varchar,  -- (47)
+	schriftinhalt		varchar,
 	fontsperrung		double precision,
 	skalierung		double precision,
 	horizontaleausrichtung	varchar,
 	vertikaleausrichtung	varchar,
 	signaturnummer		varchar,
 	darstellungsprioritaet  integer,
-	art			varchar,  -- Inhalte z.B. "ZAE_NEN" siehe unten
+	art			varchar,		-- Inhalte z.B. "ZAE_NEN" siehe unten
 	drehwinkel		double precision,       -- falsche Masseinheit für Mapserver, im View umrechnen
+
+	-- Beziehung
+	dientzurdarstellungvon	varchar[],
+
 	CONSTRAINT ap_pto_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -900,14 +929,16 @@ SELECT AddGeometryColumn('ap_pto','wkb_geometry',:alkis_epsg,'POINT',2);
 
 CREATE INDEX ap_pto_geom_idx   ON ap_pto USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_pto_gml ON ap_pto USING btree (gml_id,beginnt);
-CREATE INDEX art_idx           ON ap_pto USING btree (art);
+CREATE INDEX ap_pto_art_idx    ON ap_pto USING btree (art);
 CREATE INDEX ap_pto_endet_idx  ON ap_pto USING btree (endet);
 CREATE INDEX ap_pto_sn_idx     ON ap_pto USING btree (signaturnummer);
+CREATE INDEX ap_pto_dzdv       ON ap_pto USING btree (dientzurdarstellungvon);
 
-COMMENT ON TABLE  ap_pto               IS 'PTO: Textförmiges Präsentationsobjekt mit punktförmiger Textgeometrie ';
-COMMENT ON COLUMN ap_pto.gml_id        IS 'Identifikator, global eindeutig';
-COMMENT ON COLUMN ap_pto.schriftinhalt IS 'Label: anzuzeigender Text';
-COMMENT ON INDEX  art_idx              IS 'Suchindex auf häufig benutztem Filterkriterium';
+COMMENT ON TABLE  ap_pto                        IS 'PTO: Textförmiges Präsentationsobjekt mit punktförmiger Textgeometrie ';
+COMMENT ON COLUMN ap_pto.gml_id                 IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ap_pto.schriftinhalt          IS 'Label: anzuzeigender Text';
+COMMENT ON COLUMN ap_pto.dientzurdarstellungvon IS 'Beziehung zu aa_objekt (0..*): Durch den Verweis auf einen Set beliebiger AFIS-ALKIS-ATKIS-Objekte gibt das Präsentationsobjekt an, zu wessen Präsentation es dient. Dieser Verweis kann für Fortführungen ausgenutzt werden oder zur Unterdrückung von Standardpräsentationen der zugrundeliegenden ALKIS-ATKIS-Objekte. Ein Verweis auf ein AA_Objekt vom Typ AP_GPO ist nicht zugelassen.';
+COMMENT ON INDEX  ap_pto_art_idx                IS 'Suchindex auf häufig benutztem Filterkriterium';
 
 
 -- Die Abfrage "select distinct art from ap_pto" liefert folgende Werte:
@@ -936,6 +967,10 @@ CREATE TABLE ap_lto (
 	vertikaleausrichtung	varchar,
 	signaturnummer		varchar,
 	darstellungsprioritaet  integer,
+
+	-- Beziehung
+	dientzurdarstellungvon	varchar[],
+
 	CONSTRAINT ap_lto_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -943,10 +978,12 @@ SELECT AddGeometryColumn('ap_lto','wkb_geometry',:alkis_epsg,'LINESTRING',2);
 
 CREATE INDEX ap_lto_geom_idx   ON ap_lto USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_lto_gml ON ap_lto USING btree (gml_id,beginnt);
+CREATE INDEX ap_lto_dzdv       ON ap_lto USING btree (dientzurdarstellungvon);
 CREATE INDEX ap_lto_endet_idx  ON ap_lto USING btree (endet);
 
-COMMENT ON TABLE  ap_lto        IS 'LTO: Textförmiges Präsentationsobjekt mit linienförmiger Textgeometrie';
-COMMENT ON COLUMN ap_lto.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ap_lto                        IS 'LTO: Textförmiges Präsentationsobjekt mit linienförmiger Textgeometrie';
+COMMENT ON COLUMN ap_lto.gml_id                 IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ap_lto.dientzurdarstellungvon IS 'Beziehung zu aa_objekt (0..*): Durch den Verweis auf einen Set beliebiger AFIS-ALKIS-ATKIS-Objekte gibt das Präsentationsobjekt an, zu wessen Präsentation es dient. Dieser Verweis kann für Fortführungen ausgenutzt werden oder zur Unterdrückung von Standardpräsentationen der zugrundeliegenden ALKIS-ATKIS-Objekte. Ein Verweis auf ein AA_Objekt vom Typ AP_GPO ist nicht zugelassen.';
 
 
 -- A P  D a r s t e l l u n g
@@ -955,14 +992,18 @@ CREATE TABLE ap_darstellung (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
 	identifier		character(44),
-	beginnt			character(20),			-- Datumsformat
-	endet 			character(20),			-- Datumsformat
-	advstandardmodell	varchar[],
+	beginnt			character(20), -- Datumsformat
+	endet 			character(20), -- Datumsformat
+	advstandardmodell	varchar,  -- Array?
 	anlass			varchar,
-	art			varchar,		-- (37)
+	art			varchar,
 	darstellungsprioritaet  integer,
 	signaturnummer		varchar,
 	positionierungsregel    integer,
+
+	-- Beziehung
+	dientzurdarstellungvon	varchar[],
+
 	CONSTRAINT ap_darstellung_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -971,9 +1012,12 @@ SELECT AddGeometryColumn('ap_darstellung','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ap_darstellung_gml ON ap_darstellung USING btree (gml_id,beginnt);
 CREATE INDEX ap_darstellung_endet_idx  ON ap_darstellung USING btree (endet);
+CREATE INDEX ap_darstellung_dzdv       ON ap_darstellung USING btree (dientzurdarstellungvon);
 
 COMMENT ON TABLE  ap_darstellung        IS 'A P  D a r s t e l l u n g';
 COMMENT ON COLUMN ap_darstellung.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ap_darstellung.dientzurdarstellungvon IS 'Beziehung zu aa_objekt (0..*): Durch den Verweis auf einen Set beliebiger AFIS-ALKIS-ATKIS-Objekte gibt das Präsentationsobjekt an, zu wessen Präsentation es dient. Dieser Verweis kann für Fortführungen ausgenutzt werden oder zur Unterdrückung von Standardpräsentationen der zugrundeliegenden ALKIS-ATKIS-Objekte. Ein Verweis auf ein AA_Objekt vom Typ AP_GPO ist nicht zugelassen.';
+
 
 
 --*** ############################################################
@@ -987,13 +1031,11 @@ COMMENT ON COLUMN ap_darstellung.gml_id IS 'Identifikator, global eindeutig';
 -- ----------------------------------------------
 -- Kennung 11001
 CREATE TABLE ax_flurstueck (
-	ogc_fid				serial NOT NULL,
-	gml_id				character(16) NOT NULL,  -- Datenbank-Tabelle interner Schlüssel
---	zustaendigeStelle		varchar,               -- ZST
+	ogc_fid                       serial NOT NULL,
+	gml_id                        character(16) NOT NULL,  -- Datenbank-Tabelle interner Schlüssel
 
 	-- GID: AX_Flurstueck_Kerndaten
-	-- 'Flurstück_Kerndaten' enthält Eigenschaften des Flurstücks, die auch für andere Flurstücksobjektarten gelten (z.B. Historisches Flurstück).
-
+	     -- 'Flurstück_Kerndaten' enthält Eigenschaften des Flurstücks, die auch für andere Flurstücksobjektarten gelten (z.B. Historisches Flurstück).
 	land 				integer,         --
 	gemarkungsnummer 		integer,            --
 	flurnummer			integer,               -- Teile des Flurstückskennzeichens
@@ -1001,13 +1043,11 @@ CREATE TABLE ax_flurstueck (
 	nenner				integer,         --
 	-- daraus abgeleitet:
 	flurstueckskennzeichen		character(20),         -- Inhalt rechts mit __ auf 20 aufgefüllt
-
 	amtlicheflaeche			double precision,      -- AFL
 	abweichenderrechtszustand	varchar default 'false', -- ARZ
 	zweifelhafterFlurstuecksnachweis varchar default 'false',-- ZFM Boolean
 	rechtsbehelfsverfahren		varchar default 'false', -- RBV
-	zeitpunktderentstehung		character(10),         -- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
-
+	zeitpunktderentstehung		varchar,         -- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
 	gemeinde			integer,
 	-- GID: ENDE AX_Flurstueck_Kerndaten
 
@@ -1016,21 +1056,23 @@ CREATE TABLE ax_flurstueck (
 	endet 				character(20),         -- Timestamp des Untergangs
 	advstandardmodell 		varchar,               -- steuert die Darstellung nach Kartentyp
 	anlass				varchar,
---	art				varchar[],   -- Wozu braucht man das? Weglassen?
-	name				varchar[],   -- 03.11.2011: array, Buchauskunft anpassen!
+	name				varchar[],
 	regierungsbezirk		integer,
 	kreis				integer,
 	stelle				varchar[],
-
--- neu aus SVN-Version 28.02.2012 hinzugefuegt
--- Dies ist noch zu ueberpruefen
 	angabenzumabschnittflurstueck	varchar[],
---	"gemeindezugehoerigkeit|ax_gemeindekennzeichen|land" integer, -- siehe "land"
 	kennungschluessel		varchar[],
 	flaechedesabschnitts		double precision[],
-
 	angabenzumabschnittnummeraktenzeichen integer[],
 	angabenzumabschnittbemerkung	varchar[],
+	flurstuecksfolge		varchar,
+
+	-- Beziehungen
+	beziehtsichaufflurstueck	varchar[],
+	zeigtauf			varchar[],
+	istgebucht			varchar,
+	weistauf			varchar[],
+	gehoertanteiligzu		varchar[],
 
 	CONSTRAINT ax_flurstueck_pk PRIMARY KEY (ogc_fid)
 );
@@ -1044,7 +1086,6 @@ CREATE INDEX ax_flurstueck_arz ON ax_flurstueck USING btree (abweichenderrechtsz
 
   COMMENT ON TABLE  ax_flurstueck                           IS '"F l u r s t u e c k" ist ein Teil der Erdoberfläche, der von einer im Liegenschaftskataster festgelegten Grenzlinie umschlossen und mit einer Nummer bezeichnet ist. Es ist die Buchungseinheit des Liegenschaftskatasters.';
   COMMENT ON COLUMN ax_flurstueck.gml_id                    IS 'Identifikator, global eindeutig';
---COMMENT ON COLUMN ax_flurstueck.zustaendigeStelle         IS 'ZST "Flurstück" wird verwaltet von "Dienststelle". Diese Attributart wird nur dann belegt, wenn eine fachliche Zuständigkeit über eine Gemarkung bzw. Gemarkungsteil/Flur nicht abgebildet werden kann. Die Attributart enthält den Dienststellenschlüssel der Stelle, die fachlich für ein Flurstück zustandig ist.';
   COMMENT ON COLUMN ax_flurstueck.flurnummer                IS 'FLN "Flurnummer" ist die von der Katasterbehörde zur eindeutigen Bezeichnung vergebene Nummer einer Flur, die eine Gruppe von zusammenhängenden Flurstücken innerhalb einer Gemarkung umfasst.';
   COMMENT ON COLUMN ax_flurstueck.zaehler                   IS 'ZAE  Dieses Attribut enthält den Zähler der Flurstücknummer';
   COMMENT ON COLUMN ax_flurstueck.nenner                    IS 'NEN  Dieses Attribut enthält den Nenner der Flurstücknummer';
@@ -1065,11 +1106,17 @@ Gleiches gilt für Flurstücksnummern ohne Nenner, hier ist der fehlende Nenner 
   COMMENT ON COLUMN ax_flurstueck.zweifelhafterFlurstuecksnachweis IS 'ZFM "Zweifelhafter Flurstücksnachweis" ist eine Kennzeichnung eines Flurstücks, dessen Angaben nicht zweifelsfrei berichtigt werden können.';
   COMMENT ON COLUMN ax_flurstueck.rechtsbehelfsverfahren    IS 'RBV "Rechtsbehelfsverfahren" ist der Hinweis darauf, dass bei dem Flurstück ein laufendes Rechtsbehelfsverfahren anhängig ist.';
   COMMENT ON COLUMN ax_flurstueck.zeitpunktderentstehung    IS 'ZDE "Zeitpunkt der Entstehung" ist der Zeitpunkt, zu dem das Flurstück fachlich entstanden ist.';
---COMMENT ON COLUMN ax_flurstueck.gemeindezugehoerigkeit    IS 'GDZ "Gemeindezugehörigkeit" enthält das Gemeindekennzeichen zur Zuordnung der Flustücksdaten zu einer Gemeinde.';
   COMMENT ON COLUMN ax_flurstueck.gemeinde                  IS 'Gemeindekennzeichen zur Zuordnung der Flustücksdaten zu einer Gemeinde.';
   COMMENT ON COLUMN ax_flurstueck.name                      IS 'Array mit Fortführungsjahr und -Nummer';
   COMMENT ON COLUMN ax_flurstueck.regierungsbezirk          IS 'Regierungsbezirk';
   COMMENT ON COLUMN ax_flurstueck.kreis                     IS 'Kreis';
+
+  COMMENT ON COLUMN ax_flurstueck.beziehtsichaufflurstueck  IS 'Beziehung zu ax_flurstueck (0..*): Es handelt sich um die inverse Relationsrichtung.';
+  COMMENT ON COLUMN ax_flurstueck.zeigtauf                  IS 'Beziehung zu ax_lagebezeichnungohnehausnummer (0..*): ''Flurstück'' zeigt auf ''Lagebezeichnung ohne Hausnummer''.';
+  COMMENT ON COLUMN ax_flurstueck.istgebucht                IS 'Beziehung zu ax_buchungsstelle (1): Ein (oder mehrere) Flurstück(e) ist (sind) unter genau einer Buchungsstelle gebucht. Bei Anteilsbuchungen ist dies nur dann möglich, wenn ein fiktives Buchungsblatt angelegt wird. Wird ein fiktives Buchunsblatt verwendet, ist die Kardinalität dieser Attributart 1..1.';
+  COMMENT ON COLUMN ax_flurstueck.weistauf                  IS 'Beziehung zu ax_lagebezeichnungmithausnummer (0..*): ''Flurstück'' weist auf ''Lagebezeichnung mit Hausnummer''.';
+  COMMENT ON COLUMN ax_flurstueck.gehoertanteiligzu         IS 'Beziehung zu ax_flurstueck (0..*): ''Flurstück'' gehört anteilig zu ''Flurstück''. Die Relationsart kommt nur vor bei Flurstücken, die eine Relation zu einer Buchungsstelle mit einer der Buchungsarten Anliegerweg, Anliegergraben oder Anliegerwasserlauf aufweisen.';
+
 
 
 -- Kennzeichen indizieren, z.B. fuer Suche aus der Historie
@@ -1085,7 +1132,6 @@ COMMENT ON INDEX ax_flurstueck_kennz IS 'Suche nach Flurstückskennzeichen';
 --  beziehtSichAufFlurstueck  --> AX_Flurstueck
 
 
-
 -- B e s o n d e r e   F l u r s t u e c k s g r e n z e
 -- -----------------------------------------------------
 CREATE TABLE ax_besondereflurstuecksgrenze (
@@ -1096,7 +1142,7 @@ CREATE TABLE ax_besondereflurstuecksgrenze (
 	endet 			character(20),
 	advstandardmodell	varchar,
 	anlass			varchar,
-	artderflurstuecksgrenze	integer[],  -- geaendert. 18.09.2011
+	artderflurstuecksgrenze	integer[],
 	CONSTRAINT ax_besondereflurstuecksgrenze_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1119,7 +1165,7 @@ CREATE TABLE ax_grenzpunkt (
 	endet 				character(20),
 	advstandardmodell		varchar,
 	anlass				varchar,
-	punktkennung			varchar, -- integer,
+	punktkennung			varchar,
 	land				integer,
 	stelle				integer,
 	abmarkung_marke			integer,
@@ -1127,10 +1173,14 @@ CREATE TABLE ax_grenzpunkt (
 	besonderepunktnummer		varchar,
 	bemerkungzurabmarkung		integer,
 	sonstigeeigenschaft		varchar[],
-	art				varchar, --(37)
+	art				varchar,
 	name				varchar[],
-	zeitpunktderentstehung		integer,
+	zeitpunktderentstehung		varchar,
 	relativehoehe			double precision,
+
+	-- Beziehung
+	zeigtauf			varchar,
+
 	CONSTRAINT ax_grenzpunkt_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1139,8 +1189,9 @@ SELECT AddGeometryColumn('ax_grenzpunkt','dummy',:alkis_epsg,'POINT',2);
 CREATE UNIQUE INDEX ax_grenzpunkt_gml ON ax_grenzpunkt USING btree (gml_id,beginnt);
 CREATE INDEX ax_grenzpunkt_abmm ON ax_grenzpunkt USING btree (abmarkung_marke);
 
-COMMENT ON TABLE  ax_grenzpunkt        IS 'G r e n z p u n k t';
-COMMENT ON COLUMN ax_grenzpunkt.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_grenzpunkt          IS 'G r e n z p u n k t';
+COMMENT ON COLUMN ax_grenzpunkt.gml_id   IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_grenzpunkt.zeigtauf IS 'Beziehung zu ax_grenzpunkt (0..1): Ein von der Geometrie der Flurstücksfläche abweichender ''Grenzpunkt'' (Sonderfall des indirekt abgemarkten Grenzpunktes) zeigt auf einen ''Grenzpunkt'', der in der Flurstücksgrenze liegt.';
 
 
 --** Objektartengruppe: Angaben zur Lage
@@ -1156,12 +1207,17 @@ CREATE TABLE ax_lagebezeichnungohnehausnummer (
 	endet 			character(20),
 	advstandardmodell	varchar,
 	anlass			varchar,
-	unverschluesselt	varchar, -- Straßenname
-	land			integer,
+	unverschluesselt	varchar,  -- Gewanne
+	land			integer,  -- Strassenschluessel
 	regierungsbezirk	integer,
 	kreis			integer,
 	gemeinde		integer,
 	lage			varchar,
+
+	-- Beziehung
+	beschreibt		varchar[],
+	gehoertzu		varchar[],
+
 	CONSTRAINT ax_lagebezeichnungohnehausnummer_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1173,8 +1229,10 @@ CREATE UNIQUE INDEX ax_lagebezeichnungohnehausnummer_gml ON ax_lagebezeichnungoh
 -- Such-Index (z.B. fuer Navigations-Programm)
 CREATE INDEX ax_lagebezeichnungohnehausnummer_key ON ax_lagebezeichnungohnehausnummer USING btree (land, regierungsbezirk, kreis, gemeinde,lage);
 
-COMMENT ON TABLE  ax_lagebezeichnungohnehausnummer        IS 'L a g e b e z e i c h n u n g   o h n e   H a u s n u m m e r';
-COMMENT ON COLUMN ax_lagebezeichnungohnehausnummer.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_lagebezeichnungohnehausnummer            IS 'L a g e b e z e i c h n u n g   o h n e   H a u s n u m m e r';
+COMMENT ON COLUMN ax_lagebezeichnungohnehausnummer.gml_id     IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_lagebezeichnungohnehausnummer.beschreibt IS 'Beziehung zu ax_historischesflurstueckohneraumbezug (0..*): Es handelt sich um die inverse Relationsrichtung.';
+COMMENT ON COLUMN ax_lagebezeichnungohnehausnummer.gehoertzu  IS 'Beziehung zu ax_flurstueck (1..*): Eine ''Lagebezeichnung ohne Hausnummer'' gehört zu einem oder mehreren ''Flurstücken''. Es handelt sich um die inverse Relationsrichtung.';
 
 
 -- L a g e b e z e i c h n u n g   m i t   H a u s n u m m e r
@@ -1193,8 +1251,16 @@ CREATE TABLE ax_lagebezeichnungmithausnummer (
 	regierungsbezirk	integer,
 	kreis			integer,
 	gemeinde		integer,
-	lage			varchar,	-- Strassenschluessel
-	hausnummer		varchar,	-- Nummer (blank) Zusatz
+	lage			varchar,  -- Strassenschluessel
+	hausnummer		varchar,  -- Nummer (blank) Zusatz
+
+	-- Beziehungen
+	hat			varchar[],
+	beziehtsichauf		varchar,
+	beziehtsichauchauf	varchar,
+	gehoertzu		varchar[],
+	weistzum		varchar,
+
 	CONSTRAINT ax_lagebezeichnungmithausnummer_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1203,8 +1269,13 @@ SELECT AddGeometryColumn('ax_lagebezeichnungmithausnummer','dummy',:alkis_epsg,'
 CREATE UNIQUE INDEX ax_lagebezeichnungmithausnummer_gml ON ax_lagebezeichnungmithausnummer USING btree (gml_id,beginnt); -- Verbindungstabellen indizieren
 CREATE INDEX ax_lagebezeichnungmithausnummer_lage       ON ax_lagebezeichnungmithausnummer USING btree (gemeinde, lage); -- Adressen-Suche nach Strasse
 
-COMMENT ON TABLE  ax_lagebezeichnungmithausnummer        IS 'L a g e b e z e i c h n u n g   m i t   H a u s n u m m e r';
-COMMENT ON COLUMN ax_lagebezeichnungmithausnummer.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_lagebezeichnungmithausnummer                    IS 'L a g e b e z e i c h n u n g   m i t   H a u s n u m m e r';
+COMMENT ON COLUMN ax_lagebezeichnungmithausnummer.gml_id             IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_lagebezeichnungmithausnummer.hat                IS 'Beziehung zu ax_historischesflurstueckohneraumbezug (0..*): Es handelt sich um die inverse Relationsrichtung.';
+COMMENT ON COLUMN ax_lagebezeichnungmithausnummer.beziehtsichauf     IS 'Beziehung zu ax_gebaeude (0..1): Eine ''Lagebezeichnung mit Hausnummer'' bezieht sich auf ein ''Gebäude''. Es handelt sich um die inverse Relationsrichtung.';
+COMMENT ON COLUMN ax_lagebezeichnungmithausnummer.beziehtsichauchauf IS 'Beziehung zu ax_georeferenziertegebaeudeadresse (0..1): Es handelt sich um die inverse Relationsrichtung.';
+COMMENT ON COLUMN ax_lagebezeichnungmithausnummer.gehoertzu          IS 'Beziehung zu ax_flurstueck (1..*): Eine ''Lagebezeichnung mit Hausnummer'' gehört zu einem oder mehreren ''Flurstücken''. Es handelt sich um die inverse Relationsrichtung.';
+COMMENT ON COLUMN ax_lagebezeichnungmithausnummer.weistzum           IS 'Beziehung zu ax_turm (0..1): Eine ''Lagebezeichnung mit Hausnummer'' weist zum ''Turm''. Es handelt sich um die inverse Relationsrichtung.';
 
 
 -- L a g e b e z e i c h n u n g   m i t  P s e u d o n u m m e r
@@ -1225,6 +1296,9 @@ CREATE TABLE ax_lagebezeichnungmitpseudonummer (
 	lage			varchar, -- Strassenschluessel
 	pseudonummer		varchar,
 	laufendenummer		varchar, -- leer, Zahl, "P2"
+
+	-- Beziehung
+	gehoertzu		varchar,
 	CONSTRAINT ax_lagebezeichnungmitpseudonummer_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1233,8 +1307,9 @@ SELECT AddGeometryColumn('ax_lagebezeichnungmitpseudonummer','dummy',:alkis_epsg
 -- Verbindungstabellen indizieren
 CREATE UNIQUE INDEX ax_lagebezeichnungmitpseudonummer_gml ON ax_lagebezeichnungmitpseudonummer USING btree (gml_id,beginnt);
 
-COMMENT ON TABLE  ax_lagebezeichnungmitpseudonummer        IS 'L a g e b e z e i c h n u n g   m i t  P s e u d o n u m m e r';
-COMMENT ON COLUMN ax_lagebezeichnungmitpseudonummer.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_lagebezeichnungmitpseudonummer           IS 'L a g e b e z e i c h n u n g   m i t  P s e u d o n u m m e r';
+COMMENT ON COLUMN ax_lagebezeichnungmitpseudonummer.gml_id    IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_lagebezeichnungmitpseudonummer.gehoertzu IS 'Beziehung zu ax_gebaeude (1): Eine ''Lagebezeichnung mit Pseudonummer'' gehört zu einem ''Gebäude''. Es handelt sich um die inverse Relationsrichtung.';
 
 
 
@@ -1258,6 +1333,10 @@ CREATE TABLE ax_aufnahmepunkt (
 	sonstigeeigenschaft	varchar[],
 	vermarkung_marke	integer,
 	relativehoehe		double precision,
+	
+	-- Beziehung
+	hat			varchar[],
+
 	CONSTRAINT ax_aufnahmepunkt_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1267,6 +1346,7 @@ CREATE UNIQUE INDEX ax_aufnahmepunkt_gml ON ax_aufnahmepunkt USING btree (gml_id
 
 COMMENT ON TABLE  ax_aufnahmepunkt        IS 'A u f n a h m e p u n k t';
 COMMENT ON COLUMN ax_aufnahmepunkt.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_aufnahmepunkt.hat    IS 'Beziehung zu ax_sicherungspunkt (0..*): ''Aufnahmepunkt'' hat ''Sicherungspunkt''.';
 
 
 -- S i c h e r u n g s p u n k t
@@ -1286,12 +1366,19 @@ CREATE TABLE ax_sicherungspunkt (
 	sonstigeeigenschaft	varchar[],
 	vermarkung_marke	integer,
 	relativehoehe		double precision,
+
+	-- Beziehungen
+	beziehtsichauf		varchar,
+	gehoertzu		varchar,
+
  	CONSTRAINT ax_sicherungspunkt_pk PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_sicherungspunkt','dummy',:alkis_epsg,'POINT',2);
 
-COMMENT ON TABLE  ax_sicherungspunkt        IS 'S i c h e r u n g s p u n k t';
+COMMENT ON TABLE  ax_sicherungspunkt                IS 'S i c h e r u n g s p u n k t';
+COMMENT ON COLUMN ax_sicherungspunkt.beziehtsichauf IS 'Beziehung zu ax_sonstigervermessungspunkt (0..1): "Sicherungspunkt" bezieht sich auf "Sonstiger Vermessungspunkt" Es handelt sich um die inverse Relationsrichtung.';
+COMMENT ON COLUMN ax_sicherungspunkt.gehoertzu      IS 'Beziehung zu ax_aufnahmepunkt (0..1): ''Sicherungspunkt'' gehört zu ''Aufnahmepunkt''. Es handelt sich um die inverse Relationsrichtung.';
 
 -- s o n s t i g e r   V e r m e s s u n g s p u n k t
 -- ---------------------------------------------------
@@ -1310,6 +1397,10 @@ CREATE TABLE ax_sonstigervermessungspunkt (
 	stelle			integer,
 	sonstigeeigenschaft	varchar[],
 	relativehoehe		double precision,
+
+	-- Beziehung
+	hat			varchar[],
+
 	CONSTRAINT ax_sonstigervermessungspunkt_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1319,6 +1410,7 @@ CREATE UNIQUE INDEX ax_sonstigervermessungspunkt_gml ON ax_sonstigervermessungsp
 
 COMMENT ON TABLE  ax_sonstigervermessungspunkt        IS 's o n s t i g e r   V e r m e s s u n g s p u n k t';
 COMMENT ON COLUMN ax_sonstigervermessungspunkt.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_sonstigervermessungspunkt.hat    IS 'Beziehung zu ax_sicherungspunkt (0..*): "Sonstiger Vermessungspunkt" hat "Sicherungspunkt"';
 
 
 --AX_Netzpunkt
@@ -1344,8 +1436,8 @@ CREATE TABLE ax_punktortag (
 	anlass			varchar,
 	art			varchar[],
 	name			varchar[],
-	kartendarstellung	varchar,	-- boolean
---	"qualitaetsangaben|ax_dqpunktort|herkunft|li_lineage|processstep" integer, -- varchar[],
+	kartendarstellung	varchar,
+	ax_datenerhebung_punktort integer,
 	genauigkeitsstufe	integer,
 	vertrauenswuerdigkeit	integer,
 	koordinatenstatus	integer,
@@ -1364,22 +1456,24 @@ COMMENT ON COLUMN ax_punktortag.gml_id IS 'Identifikator, global eindeutig';
 -- P u n k t o r t   A U
 -- ----------------------------------------------
 CREATE TABLE ax_punktortau (
-	ogc_fid			serial NOT NULL,
-	gml_id			character(16) NOT NULL,
-	identifier		character(44),
-	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
-	anlass			varchar,
-	kartendarstellung	varchar,	-- boolean
---	art			varchar, -- entbehrlich
-	name			varchar[],
---	"qualitaetsangaben|ax_dqpunktort|herkunft|li_lineage|processstep" integer,  --varchar[],
---	datetime		character(24)[],
-	individualname		varchar,
-	vertrauenswuerdigkeit	integer,
-	genauigkeitsstufe	integer,
-	koordinatenstatus	integer,
+	ogc_fid				serial NOT NULL,
+	gml_id				character(16) NOT NULL,
+	identifier			character(44),
+	beginnt				character(20),
+	endet 				character(20),
+	advstandardmodell		varchar,
+	anlass				varchar,
+	kartendarstellung		varchar,
+	ax_datenerhebung_punktort	integer,
+	name				varchar[],
+	individualname			varchar,
+	vertrauenswuerdigkeit		integer,
+	genauigkeitsstufe		integer,
+	koordinatenstatus		integer,
+
+	-- Beziehung
+	istteilvon			varchar,
+
 	CONSTRAINT ax_punktortau_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1387,6 +1481,7 @@ SELECT AddGeometryColumn('ax_punktortau','wkb_geometry',:alkis_epsg,'POINT',3); 
 
 CREATE INDEX ax_punktortau_geom_idx ON ax_punktortau USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_punktortau_gml ON ax_punktortau USING btree (gml_id,beginnt);
+CREATE INDEX ax_punktortau_itv_idx ON ax_punktortau USING btree (istteilvon);
 
 COMMENT ON TABLE  ax_punktortau        IS 'P u n k t o r t   A U';
 COMMENT ON COLUMN ax_punktortau.gml_id IS 'Identifikator, global eindeutig';
@@ -1402,14 +1497,18 @@ CREATE TABLE ax_punktortta (
 	endet 			  character(20),
 	advstandardmodell	  varchar,
 	anlass			  varchar,
-	kartendarstellung	  varchar, -- boolean
+	kartendarstellung	  varchar,
 	description		  integer,
+	ax_datenerhebung_punktort integer,
 	art			  varchar[],
 	name			  varchar[],
 	genauigkeitsstufe	  integer,
 	vertrauenswuerdigkeit	  integer,
 	koordinatenstatus  	  integer,
-	ax_datenerhebung_punktort integer,
+
+	-- Beziehung
+	istteilvon                varchar,
+
 	CONSTRAINT ax_punktortta_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1418,6 +1517,7 @@ SELECT AddGeometryColumn('ax_punktortta','wkb_geometry',:alkis_epsg,'POINT',2);
 CREATE INDEX ax_punktortta_geom_idx ON ax_punktortta USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_punktortta_gml ON ax_punktortta USING btree (gml_id,beginnt);
 CREATE INDEX ax_punktortta_endet_idx ON ax_punktortta USING btree (endet);
+CREATE INDEX ax_punktortta_itv_idx ON ax_punktortta USING btree (istteilvon);
 
 COMMENT ON TABLE  ax_punktortta        IS 'P u n k t o r t   T A';
 COMMENT ON COLUMN ax_punktortta.gml_id IS 'Identifikator, global eindeutig';
@@ -1436,16 +1536,15 @@ CREATE TABLE ax_fortfuehrungsnachweisdeckblatt (
 	endet				character(20),
 	advstandardmodell		varchar,
 	anlass				varchar,
---	art				varchar,		-- entbehrlich
 	uri				varchar,
 	fortfuehrungsfallnummernbereich	varchar,
-	land				integer, -- ingemarkung|ax_gemarkung_schluessel
-	gemarkungsnummer		integer, -- ingemarkung|ax_gemarkung_schluessel
+	land				integer,
+	gemarkungsnummer		integer,
 	laufendenummer			integer,
 	titel				varchar,
-	erstelltam			varchar,		-- Datum jjjj-mm-tt
+	erstelltam			varchar,  -- Datum jjjj-mm-tt
 	fortfuehrungsentscheidungam	varchar,
-	fortfuehrungsentscheidungvon	varchar,		-- Bearbeiter-Name und -Titel
+	fortfuehrungsentscheidungvon	varchar,  -- Bearbeiter-Name und -Titel
 	bemerkung			varchar,
 	beziehtsichauf			varchar,
 	CONSTRAINT ax_fortfuehrungsnachweisdeckblatt_pk PRIMARY KEY (ogc_fid)
@@ -1467,7 +1566,6 @@ CREATE TABLE ax_fortfuehrungsfall (
 	endet					character(20),
 	advstandardmodell			varchar,
 	anlass					varchar,
---	art					varchar,  -- entbehrlich
 	uri					varchar,
 	fortfuehrungsfallnummer			integer,
 	laufendenummer				integer,
@@ -1553,18 +1651,22 @@ CREATE TABLE ax_historischesflurstueckohneraumbezug (
 	zweifelhafterFlurstuecksnachweis varchar,              -- ZFM Boolean
 	rechtsbehelfsverfahren		integer,               -- RBV
 	zeitpunktderentstehung		character(10),         -- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
---	gemeindezugehoerigkeit		integer,
 	gemeinde			integer,
 	-- GID: ENDE AX_Flurstueck_Kerndaten
 	identifier			character(44),
 	beginnt				character(20),
 	endet 				character(20),
-	advstandardmodell		character(4),
+	advstandardmodell		varchar,
 	anlass				varchar,
---	art				varchar[], -- Array {a,b,c}
 	name				varchar[], -- Array {a,b,c}
 	nachfolgerflurstueckskennzeichen	varchar[], -- Array {a,b,c}
 	vorgaengerflurstueckskennzeichen	varchar[], -- Array {a,b,c}
+
+	-- Beziehungen
+	 gehoertanteiligzu		varchar[],
+	 weistauf			varchar[],
+	 zeigtauf			varchar[],
+	 istgebucht			varchar,
 	CONSTRAINT ax_historischesflurstueckohneraumbezug_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1590,7 +1692,6 @@ Gleiches gilt für Flurstücksnummern ohne Nenner, hier ist der fehlende Nenner 
   COMMENT ON COLUMN ax_historischesflurstueckohneraumbezug.zweifelhafterFlurstuecksnachweis IS 'ZFM "Zweifelhafter Flurstücksnachweis" ist eine Kennzeichnung eines Flurstücks, dessen Angaben nicht zweifelsfrei berichtigt werden können.';
   COMMENT ON COLUMN ax_historischesflurstueckohneraumbezug.rechtsbehelfsverfahren    IS 'RBV "Rechtsbehelfsverfahren" ist der Hinweis darauf, dass bei dem Flurstück ein laufendes Rechtsbehelfsverfahren anhängig ist.';
   COMMENT ON COLUMN ax_historischesflurstueckohneraumbezug.zeitpunktderentstehung    IS 'ZDE "Zeitpunkt der Entstehung" ist der Zeitpunkt, zu dem das Flurstück fachlich entstanden ist.';
---COMMENT ON COLUMN ax_historischesflurstueckohneraumbezug.gemeindezugehoerigkeit    IS 'GDZ "Gemeindezugehörigkeit" enthält das Gemeindekennzeichen zur Zuordnung der Flustücksdaten zu einer Gemeinde.';
   COMMENT ON COLUMN ax_historischesflurstueckohneraumbezug.gemeinde                  IS 'Gemeindekennzeichen zur Zuordnung der Flustücksdaten zu einer Gemeinde.';
   COMMENT ON COLUMN ax_historischesflurstueckohneraumbezug.anlass                    IS '?';
   COMMENT ON COLUMN ax_historischesflurstueckohneraumbezug.name                      IS 'Array mit Fortführungsjahr und -Nummer';
@@ -1600,6 +1701,10 @@ Array mit Kennzeichen im Format der Spalte "flurstueckskennzeichen"';
   COMMENT ON COLUMN ax_historischesflurstueckohneraumbezug.vorgaengerflurstueckskennzeichen
   IS '"Vorgänger-Flurstückskennzeichen" ist die Bezeichnung der Flurstücke, die dem Objekt "Historisches Flurstück ohne Raumbezugs" direkt vorangehen.
 Array mit Kennzeichen im Format der Spalte "flurstueckskennzeichen"';
+  COMMENT ON COLUMN ax_historischesflurstueckohneraumbezug.gehoertanteiligzu         IS 'Beziehung zu ax_historischesflurstueckohneraumbezug (0..*): ''Flurstück ohne Raumbezug'' gehört anteilig zu ''Flurstück ohne Raumbezug''. Die Relationsart kommt nur vor bei Flurstücken, die eine Relation zu einer Buchungsstelle mit einer der Buchungsarten Anliegerweg, Anliegergraben oder Anliegerwasserlauf aufweist.';
+  COMMENT ON COLUMN ax_historischesflurstueckohneraumbezug.weistauf                  IS 'Beziehung zu ax_lagebezeichnungmithausnummer (0..*): ''Flurstück ohne Raumbezug'' weist auf ''Lagebezeichnung mit Hausnummer''.';
+  COMMENT ON COLUMN ax_historischesflurstueckohneraumbezug.zeigtauf                  IS 'Beziehung zu ax_lagebezeichnungohnehausnummer (0..*): ''Flurstück ohne Raumbezug'' zeigt auf ''Lagebezeichnung ohne Hausnummer''.';
+  COMMENT ON COLUMN ax_historischesflurstueckohneraumbezug.istgebucht                IS 'Beziehung zu ax_buchungsstelle (0..1): Ein (oder mehrere) Flurstück(e) ist (sind) unter einer Buchungsstelle gebucht.';
 
 
 -- keine Geometrie, daher ersatzweise: Dummy-Eintrag in Metatabelle
@@ -1609,7 +1714,6 @@ CREATE INDEX ax_hist_fs_ohne_kennz ON ax_historischesflurstueckohneraumbezug USI
 COMMENT ON INDEX ax_hist_fs_ohne_kennz IS 'Suche nach Flurstückskennzeichen';
 
 -- Suche nach Vorgänger / Nachfolger
--- ++ Welche Methode für ein Array? Wirkt das bei der Suche nach einem einzelnen Wert aus dem Array?
 CREATE INDEX idx_histfsor_vor ON ax_historischesflurstueckohneraumbezug (vorgaengerflurstueckskennzeichen /* ASC */);
 -- COMMENT ON INDEX idx_histfsalb_vor IS 'Suchen nach Vorgänger-Flurstück';
 
@@ -1637,21 +1741,25 @@ CREATE TABLE ax_person (
 	beginnt				character(20),
 	endet 				character(20),
 	advstandardmodell		varchar,
-	--sonstigesmodell		varchar,
 	anlass				varchar,
-	nachnameoderfirma		varchar, --(97),
-	anrede				integer,        -- 'Anrede' ist die Anrede der Person. Diese Attributart ist optional, da Körperschaften und juristischen Person auch ohne Anrede angeschrieben werden können.
-	-- Bezeichner	Wert
-	--       Frau	1000
-	--       Herr	2000
-	--      Firma	3000
-	vorname				varchar,  --(31),
-	geburtsname			varchar,  --(36),
-	geburtsdatum			varchar,  -- Datumsformat?
+	nachnameoderfirma		varchar,
+	anrede				integer,
+	vorname				varchar,
+	geburtsname			varchar,
+	geburtsdatum			varchar,
 	namensbestandteil		varchar,
-	akademischergrad		varchar,  -- 'Akademischer Grad' ist der akademische Grad der Person (z.B. Dipl.-Ing., Dr., Prof. Dr.)
-	--art				varchar,  -- (37)  Wozu?
-	--uri				varchar,  -- Wozu ?
+	akademischergrad		varchar,
+
+	-- Beziehungen
+	hat				varchar[],
+	weistauf			varchar[],
+	wirdvertretenvon		varchar[],
+	gehoertzu			varchar[],
+	uebtaus				varchar[],
+	besitzt				varchar[],
+	zeigtauf			varchar,
+	benennt				varchar[],
+
 	CONSTRAINT ax_person_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1663,6 +1771,17 @@ CREATE UNIQUE INDEX id_ax_person_gml ON ax_person USING btree (gml_id,beginnt);
 COMMENT ON TABLE  ax_person        IS 'NREO "Person" ist eine natürliche oder juristische Person und kann z.B. in den Rollen Eigentümer, Erwerber, Verwalter oder Vertreter in Katasterangelegenheiten geführt werden.';
 COMMENT ON COLUMN ax_person.gml_id IS 'Identifikator, global eindeutig';
 COMMENT ON COLUMN ax_person.namensbestandteil IS 'enthält z.B. Titel wie "Baron"';
+COMMENT ON COLUMN ax_person.anrede IS '"Anrede" ist die Anrede der Person. Diese Attributart ist optional, da Körperschaften und juristischen Person auch ohne Anrede angeschrieben werden können.';
+COMMENT ON COLUMN ax_person.akademischergrad IS '"Akademischer Grad" ist der akademische Grad der Person (z.B. Dipl.-Ing., Dr., Prof. Dr.)';
+COMMENT ON COLUMN ax_person.hat IS 'Beziehung zu ax_anschrift (0..*): Die ''Person'' hat ''Anschrift''.';
+COMMENT ON COLUMN ax_person.weistauf IS 'Beziehung zu ax_namensnummer (0..*): Durch die Relation ''Person'' weist auf ''Namensnummer'' wird ausgedrückt, dass die Person als Eigentümer, Erbbauberechtigter oder künftiger Erwerber unter der Namensnummer eines Buchungsblattes eingetragen ist. Es handelt sich um die inverse Relationsrichtung.';
+COMMENT ON COLUMN ax_person.wirdvertretenvon IS 'Beziehung zu ax_vertretung (0..*): Die ''Person'' wird von der ''Vertretung'' in Katasterangelegenheiten vertreten.';
+COMMENT ON COLUMN ax_person.gehoertzu IS 'Beziehung zu ax_personengruppe (0..*): ''Person'' gehört zu ''Personengruppe''.';
+COMMENT ON COLUMN ax_person.uebtaus IS 'Beziehung zu ax_vertretung (0..*): Die ''Person'' übt die ''Vertretung'' in Katasterangelegenheiten aus. Es handelt sich um die inverse Relationsrichtung.';
+COMMENT ON COLUMN ax_person.besitzt IS 'Beziehung zu ax_gebaeude (0..*): Es handelt sich um die inverse Relationsrichtung.';
+COMMENT ON COLUMN ax_person.zeigtauf IS 'Beziehung zu ax_person (0..1): Die ''Person'' zeigt auf eine ''Person'' mit abweichenden Eigenschaften derselben Person. Für ein und dieselbe Person wurden zwei Objekte ''Person'' mit unterschiedlichen Attributen (z.B. Nachnamen durch Heirat geändert) angelegt. Bei Verwendung der Vollhistorie mit Hilfe des Versionierungskonzeptes werden diese Eigenschaften in verschiedenen Versionen geführt. Diese Relation wird dann nicht verwendet.';
+COMMENT ON COLUMN ax_person.benennt IS 'Beziehung zu ax_verwaltung (0..*): Die Relation ''Person'' benennt ''Verwaltung'' weist der Verwaltung eine Person zu. Es handelt sich um die inverse Relationsrichtung.';
+
 
 -- Relationen:
 -- hat:		Die 'Person' hat 'Anschrift'.
@@ -1685,14 +1804,11 @@ CREATE TABLE ax_anschrift (
 	beginnt				character(20),
 	endet 				character(20),
 	advstandardmodell		varchar,
-	--sonstigesmodell		varchar,
 	anlass				varchar,
-	--art				varchar[],
-	--uri				varchar[],
 	ort_post			varchar,
 	postleitzahlpostzustellung	varchar,
 	strasse				varchar,
-	hausnummer			varchar, -- integer
+	hausnummer			varchar,
 	bestimmungsland			varchar,
 	postleitzahlpostfach		varchar,
 	postfach			varchar,
@@ -1700,6 +1816,11 @@ CREATE TABLE ax_anschrift (
 	weitereAdressen			varchar,
 	telefon				varchar,
 	fax				varchar,
+
+	-- Beziehungen
+	beziehtsichauf			varchar[],
+	gehoertzu			varchar[],
+
 	CONSTRAINT ax_anschrift_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1709,40 +1830,51 @@ SELECT AddGeometryColumn('ax_anschrift','dummy',:alkis_epsg,'POINT',2);
 -- Index für alkis_beziehungen
 CREATE UNIQUE INDEX ax_anschrift_gml ON ax_anschrift USING btree (gml_id,beginnt);
 
-COMMENT ON TABLE  ax_anschrift        IS 'A n s c h r i f t';
-COMMENT ON COLUMN ax_anschrift.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_anschrift                IS 'A n s c h r i f t';
+COMMENT ON COLUMN ax_anschrift.gml_id         IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_anschrift.beziehtsichauf IS 'Beziehung zu ax_dienststelle (0..*): Es handelt sich um die inverse Relationsrichtung.';
+COMMENT ON COLUMN ax_anschrift.gehoertzu      IS 'Beziehung zu ax_person (0..*): Eine ''Anschrift'' gehört zu ''Person''. Es handelt sich um die inverse Relationsrichtung.';
 
 
 -- N a m e n s n u m m e r
 -- ----------------------------------------------
 -- Buchwerk. Keine Geometrie
 CREATE TABLE ax_namensnummer (
-	ogc_fid				serial NOT NULL,
-	gml_id				character(16) NOT NULL,
-	identifier			character(44),
-	beginnt				character(20),
-	endet 				character(20),
-	advstandardmodell		varchar,
-	anlass				varchar,
-	laufendenummernachdin1421	character(16),      -- 0000.00.00.00.00
-	zaehler				double precision,   -- Anteil ..
-	nenner				double precision,   --    .. als Bruch
-	eigentuemerart			integer,
-	nummer				varchar, -- immer leer ?
-	artderrechtsgemeinschaft	integer,            -- Schlüssel
-	beschriebderrechtsgemeinschaft	varchar,  -- (977)
+	ogc_fid					serial NOT NULL,
+	gml_id					character(16) NOT NULL,
+	identifier				character(44),
+	beginnt					character(20),
+	endet 					character(20),
+	advstandardmodell			varchar,
+	anlass					varchar,
+	laufendenummernachdin1421		character(16),      -- 0000.00.00.00.00
+	zaehler					double precision,   -- Anteil ..
+	nenner					double precision,   --    .. als Bruch
+	eigentuemerart				integer,
+	nummer					varchar, -- immer leer ?
+	artderrechtsgemeinschaft		integer, -- Schlüssel
+	beschriebderrechtsgemeinschaft		varchar,
+
+	-- Beziehungen
+	bestehtausrechtsverhaeltnissenzu	varchar,
+	istbestandteilvon			varchar,
+	hatvorgaenger				varchar[],
+	benennt					varchar,
+
 	CONSTRAINT ax_namensnummer_pk PRIMARY KEY (ogc_fid)
 );
-
--- Filter   istbestandteilvon <> '' or benennt <> '' or bestehtausrechtsverhaeltnissenzu <> ''
 
 SELECT AddGeometryColumn('ax_namensnummer','dummy',:alkis_epsg,'POINT',2);
 
 -- Verbindungstabellen indizieren
 CREATE UNIQUE INDEX ax_namensnummer_gml ON ax_namensnummer USING btree (gml_id,beginnt);
 
-COMMENT ON TABLE  ax_namensnummer        IS 'NREO "Namensnummer" ist die laufende Nummer der Eintragung, unter welcher der Eigentümer oder Erbbauberechtigte im Buchungsblatt geführt wird. Rechtsgemeinschaften werden auch unter AX_Namensnummer geführt.';
-COMMENT ON COLUMN ax_namensnummer.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_namensnummer                                  IS 'NREO "Namensnummer" ist die laufende Nummer der Eintragung, unter welcher der Eigentümer oder Erbbauberechtigte im Buchungsblatt geführt wird. Rechtsgemeinschaften werden auch unter AX_Namensnummer geführt.';
+COMMENT ON COLUMN ax_namensnummer.gml_id                           IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_namensnummer.bestehtausrechtsverhaeltnissenzu IS 'Beziehung zu ax_namensnummer (0..1): Die Relation ''Namensnummer'' besteht aus Rechtsverhältnissen zu ''Namensnummer'' sagt aus, dass mehrere Namensnummern zu einer Rechtsgemeinschaft gehören können. Die Rechtsgemeinschaft selbst steht unter einer eigenen AX_Namensnummer, die zu allen Namensnummern der Rechtsgemeinschaft eine Relation besitzt.';
+COMMENT ON COLUMN ax_namensnummer.istbestandteilvon                IS 'Beziehung zu ax_buchungsblatt (1): Eine ''Namensnummer'' ist Teil von einem ''Buchungsblatt''.';
+COMMENT ON COLUMN ax_namensnummer.benennt                          IS 'Beziehung zu ax_person (0..1): Durch die Relation ''Namensnummer'' benennt ''Person'' wird die Person zum Eigentümer, Erbbauberechtigten oder künftigen Erwerber.';
+COMMENT ON COLUMN ax_namensnummer.hatvorgaenger                    IS 'Beziehung zu ax_namensnummer (0..*): Die Relation ''Namensnummer'' hat Vorgänger ''Namensnummer'' gibt Auskunft darüber, aus welchen Namensnummern die aktuelle entstanden ist.';
 
 
 -- B u c h u n g s b l a t t
@@ -1755,13 +1887,17 @@ CREATE TABLE ax_buchungsblatt (
 	endet 			character(20),
 	advstandardmodell	varchar,
 	anlass			varchar,
-	buchungsblattkennzeichen	varchar, -- integer
+	buchungsblattkennzeichen	varchar,
 	land			integer,
 	bezirk			integer,
 	buchungsblattnummermitbuchstabenerweiterung	varchar,
-	blattart		integer,
+	blattart		varchar,
 	art			varchar,
 	-- name character(13),  -- immer leer?
+
+	-- Beziehung
+	bestehtaus		varchar[],
+
 	CONSTRAINT ax_buchungsblatt_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1770,9 +1906,11 @@ SELECT AddGeometryColumn('ax_buchungsblatt','dummy',:alkis_epsg,'POINT',2);
 -- Index für alkis_beziehungen
 CREATE UNIQUE INDEX ax_buchungsblatt_gml ON ax_buchungsblatt USING btree (gml_id,beginnt);
 CREATE INDEX ax_buchungsblatt_lbb ON ax_buchungsblatt USING btree (land,bezirk,buchungsblattnummermitbuchstabenerweiterung);
+CREATE INDEX ax_buchungsblatt_bsa ON ax_buchungsblatt USING btree (bestehtaus);
 
-COMMENT ON TABLE  ax_buchungsblatt        IS 'NREO "Buchungsblatt" enthält die Buchungen (Buchungsstellen und Namensnummern) des Grundbuchs und des Liegenschhaftskatasters (bei buchungsfreien Grundstücken).';
-COMMENT ON COLUMN ax_buchungsblatt.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_buchungsblatt            IS 'NREO "Buchungsblatt" enthält die Buchungen (Buchungsstellen und Namensnummern) des Grundbuchs und des Liegenschhaftskatasters (bei buchungsfreien Grundstücken).';
+COMMENT ON COLUMN ax_buchungsblatt.gml_id     IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_buchungsblatt.bestehtaus IS 'Beziehung zu ax_buchungsstelle (0..*): ''Buchungsblatt'' besteht aus ''Buchungsstelle''. Bei einem Buchungsblatt mit der Blattart ''Fiktives Blatt'' (Wert 5000) muss die Relation zu einer aufgeteilten Buchung (Wertearten 1101, 1102, 1401 bis 1403, 2201 bis 2205 und 2401 bis 2404) bestehen. Es handelt sich um die inverse Relationsrichtung.';
 
 
 -- B u c h u n g s s t e l l e
@@ -1788,12 +1926,22 @@ CREATE TABLE ax_buchungsstelle (
 	buchungsart			integer,
 	laufendenummer			varchar,
 	beschreibungdesumfangsderbuchung	character(1),
-	--art				character(37),
-	--uri				character(12),
 	zaehler				double precision,
 	nenner				double precision,
-	nummerimaufteilungsplan		varchar,   -- (32)
-	beschreibungdessondereigentums	varchar,  -- (291)
+	nummerimaufteilungsplan		varchar,
+	beschreibungdessondereigentums	varchar,
+
+	-- Beziehungen
+	istbestandteilvon		varchar,
+	durch				varchar[],
+	verweistauf			varchar[],
+	grundstueckbestehtaus		varchar[],
+	zu				varchar[],
+	an				varchar[],
+	hatvorgaenger			varchar[],
+	wirdverwaltetvon		varchar,
+	beziehtsichauf			varchar[],
+
 	CONSTRAINT ax_buchungsstelle_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1802,8 +1950,17 @@ SELECT AddGeometryColumn('ax_buchungsstelle','dummy',:alkis_epsg,'POINT',2);
 --Index für alkis_beziehungen
 CREATE UNIQUE INDEX ax_buchungsstelle_gml ON ax_buchungsstelle USING btree (gml_id,beginnt);
 
-COMMENT ON TABLE  ax_buchungsstelle        IS 'NREO "Buchungsstelle" ist die unter einer laufenden Nummer im Verzeichnis des Buchungsblattes eingetragene Buchung.';
-COMMENT ON COLUMN ax_buchungsstelle.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_buchungsstelle                       IS 'NREO "Buchungsstelle" ist die unter einer laufenden Nummer im Verzeichnis des Buchungsblattes eingetragene Buchung.';
+COMMENT ON COLUMN ax_buchungsstelle.gml_id                IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_buchungsstelle.istbestandteilvon     IS 'Beziehung zu ax_buchungsblatt (1): ''Buchungsstelle'' ist Teil von ''Buchungsblatt''. Bei ''Buchungsart'' mit einer der Wertearten für aufgeteilte Buchungen (Wertearten 1101, 1102, 1401 bis 1403, 2201 bis 2205 und 2401 bis 2404) muss die Relation zu einem ''Buchungsblatt'' und der ''Blattart'' mit der Werteart ''Fiktives Blatt'' bestehen.';
+COMMENT ON COLUMN ax_buchungsstelle.durch                 IS 'Beziehung zu ax_buchungsstelle (0..*): Eine ''Buchungsstelle'' verweist mit ''durch'' auf eine andere ''Buchungsstelle'' auf einem anderen Buchungsblatt (herrschend). Die Buchungsstelle ist belastet durch ein Recht, dass ''durch'' die andere Buchungsstelle an ihr ausgeübt wird.';
+COMMENT ON COLUMN ax_buchungsstelle.verweistauf           IS 'Beziehung zu ax_flurstueck (0..*): ''Buchungsstelle'' verweist auf ''Flurstück''.';
+COMMENT ON COLUMN ax_buchungsstelle.grundstueckbestehtaus IS 'Beziehung zu ax_flurstueck (0..*): Diese Relationsart legt fest, welche Flurstücke ein Grundstück bilden. Nur bei der ''Buchungsart'' mit den Wertearten 1100, 1101 und 1102 muss die Relationsart vorhanden sein, sofern nicht ein Objekt AX_HistorischesFlurstueckOhneRaumbezug über die Relationsart ''istGebucht'' auf die Buchungsstelle verweist. Es handelt sich um die inverse Relationsrichtung.';
+COMMENT ON COLUMN ax_buchungsstelle.zu                    IS 'Beziehung zu ax_buchungsstelle (0..*): Eine ''Buchungsstelle'' verweist mit ''zu'' auf eine andere ''Buchungsstelle'' des gleichen Buchungsblattes (herrschend).';
+COMMENT ON COLUMN ax_buchungsstelle.an                    IS 'Beziehung zu ax_buchungsstelle (0..*): Eine ''Buchungsstelle'' verweist mit ''an'' auf eine andere ''Buchungsstelle'' auf einem anderen Buchungsblatt. Die Buchungsstelle kann ein Recht (z.B. Erbbaurecht) oder einen Miteigentumsanteil ''an'' der anderen Buchungsstelle haben Die Relation zeigt stets vom begünstigten Recht zur belasteten Buchung (z.B. Erbbaurecht hat ein Recht ''an'' einem Grundstück).';
+COMMENT ON COLUMN ax_buchungsstelle.hatvorgaenger         IS 'Beziehung zu ax_buchungsstelle (0..*): Die Relation ''Buchungsstelle'' hat Vorgänger ''Buchungsstelle'' gibt Auskunft darüber, aus welchen Buchungsstellen die aktuelle Buchungsstelle entstanden ist.';
+COMMENT ON COLUMN ax_buchungsstelle.wirdverwaltetvon      IS 'Beziehung zu ax_verwaltung (0..1): Die ''Buchungsstelle'' wird verwaltet von ''Verwaltung''.';
+COMMENT ON COLUMN ax_buchungsstelle.beziehtsichauf        IS 'Beziehung zu ax_buchungsblatt (0..*): ''Buchungsstelle'' bezieht sich auf ''Buchungsblatt''.';
 
 
 --*** ############################################################
@@ -1826,31 +1983,37 @@ CREATE TABLE ax_gebaeude (
 	identifier		character(44),
 	beginnt			character(20),
 	endet 			character(20),
-	advstandardmodell	varchar[],	-- verändert [] 2012-02-03
+	advstandardmodell	varchar[],
 	anlass			varchar,
-	gebaeudefunktion	integer,	-- Werte siehe Schlüsseltabelle
+	gebaeudefunktion	integer,  -- Werte siehe Schlüsseltabelle
 	weiteregebaeudefunktion	integer[],
 	name			varchar[],
---	nutzung			varchar,	-- ???
 	bauweise		integer,
 	anzahlderoberirdischengeschosse	integer,
 	anzahlderunterirdischengeschosse	integer,
-	hochhaus		varchar,	-- Neu 2011-11-15  Boolean "true"/"false", meist aber leer
+	hochhaus                varchar,  -- "true"/"false", meist aber leer
 	objekthoehe		integer,
-	dachform		integer,	-- Neu 2011-11-15
+	dachform		integer,
 	zustand			integer,
-	geschossflaeche		integer,	-- Neu 2011-11-15
-	grundflaeche		integer,	-- Neu 2011-11-15
-	umbauterraum		integer,	-- Neu 2011-11-15
-	baujahr			integer,	-- Neu 2011-11-15
+	geschossflaeche		integer,
+	grundflaeche		integer,
+	umbauterraum		integer,
+	baujahr			integer,
 	lagezurerdoberflaeche	integer,
-	dachart			varchar,	-- Neu 2011-11-15
-	dachgeschossausbau	integer,	-- Neu 2011-11-15
-	qualitaetsangaben	varchar,	-- neu 2011-11-15
-	ax_datenerhebung	integer,	-- OBK, nicht in GeoInfoDok ??
-	description		integer,	-- neu 2012-02-02
-	art			varchar,	-- neu 2012-02-02
-	individualname		varchar,	-- neu 2012-02-02
+	dachart			varchar,
+	dachgeschossausbau	integer,
+	qualitaetsangaben	varchar,
+	ax_datenerhebung	integer,
+	description		integer,
+	art			varchar,
+	individualname		varchar,
+
+	-- Beziehungen
+	gehoertzu		varchar,
+	hat		 	varchar,
+	gehoert			varchar[],
+	zeigtauf		varchar[],
+	haengtzusammenmit	varchar,
 
 	CONSTRAINT ax_gebaeude_pk PRIMARY KEY (ogc_fid)
 );
@@ -1860,47 +2023,32 @@ SELECT AddGeometryColumn('ax_gebaeude','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 CREATE INDEX ax_gebaeude_geom_idx   ON ax_gebaeude USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_gebaeude_gml ON ax_gebaeude USING btree (gml_id,beginnt);
 
-  COMMENT ON TABLE  ax_gebaeude                    IS '"G e b ä u d e" ist ein dauerhaft errichtetes Bauwerk, dessen Nachweis wegen seiner Bedeutung als Liegenschaft erforderlich ist sowie dem Zweck der Basisinformation des Liegenschaftskatasters dient.';
-  COMMENT ON COLUMN ax_gebaeude.gml_id             IS 'Identifikator, global eindeutig';
-  COMMENT ON COLUMN ax_gebaeude.gebaeudefunktion   IS 'GFK "Gebäudefunktion" ist die zum Zeitpunkt der Erhebung vorherrschend funktionale Bedeutung des Gebäudes (Dominanzprinzip). Werte siehe ax_gebaeude_funktion';
-  COMMENT ON COLUMN ax_gebaeude.weiteregebaeudefunktion IS 'WGF "Weitere Gebäudefunktion" sind weitere Funktionen, die ein Gebäude neben der dominierenden Gebäudefunktion hat.';
-  COMMENT ON COLUMN ax_gebaeude.name             IS 'NAM "Name" ist der Eigenname oder die Bezeichnung des Gebäudes.';
---COMMENT ON COLUMN ax_gebaeude.nutzung            IS 'NTZ "Nutzung" ist die Gebäudenutzung und enthält den jeweiligen prozentualen Nutzungsanteil an der Gesamtnutzung.';
-  COMMENT ON COLUMN ax_gebaeude.bauweise           IS 'BAW "Bauweise" ist die Beschreibung der Art der Bauweise. Werte siehe ax_gebaeude_bauweise';
-  COMMENT ON COLUMN ax_gebaeude.anzahlderoberirdischengeschosse IS 'AOG "Anzahl der oberirdischen Geschosse" ist die Anzahl der oberirdischen Geschosse des Gebäudes.';
-  COMMENT ON COLUMN ax_gebaeude.anzahlderunterirdischengeschosse IS 'AUG "Anzahl der unterirdischen Geschosse" ist die Anzahl der unterirdischen Geschosse des Gebäudes.';
-  COMMENT ON COLUMN ax_gebaeude.hochhaus           IS 'HOH "Hochhaus" ist ein Gebäude, das nach Gebäudehöhe und Ausprägung als Hochhaus zu bezeichnen ist. Für Gebäude im Geschossbau gilt dieses i.d.R. ab 8 oberirdischen Geschossen, für andere Gebäude ab einer Gebäudehöhe von 22 m. Abweichungen hiervon können sich durch die Festlegungen in den länderspezifischen Bauordnungen ergeben.';
-  COMMENT ON COLUMN ax_gebaeude.objekthoehe        IS 'HHO "Objekthöhe" ist die Höhendifferenz in [m] zwischen dem höchsten Punkt der Dachkonstruktion und der festgelegten Geländeoberfläche des Gebäudes.';
-  COMMENT ON COLUMN ax_gebaeude.dachform           IS 'DAF "Dachform" beschreibt die charakteristische Form des Daches. Werte siehe ax_gebaeude_dachform';
-  COMMENT ON COLUMN ax_gebaeude.zustand            IS 'ZUS "Zustand" beschreibt die Beschaffenheit oder die Betriebsbereitschaft von "Gebäude". Diese Attributart wird nur dann optional geführt, wenn der Zustand des Gebäudes vom nutzungsfähigen Zustand abweicht. Werte siehe ax_gebaeude_zustand';
-  COMMENT ON COLUMN ax_gebaeude.geschossflaeche    IS 'GFL "Geschossfläche" ist die Gebäudegeschossfläche in [qm].';
-  COMMENT ON COLUMN ax_gebaeude.grundflaeche       IS 'GRF "Grundfläche" ist die Gebäudegrundfläche in [qm].';
-  COMMENT ON COLUMN ax_gebaeude.umbauterraum       IS 'URA "Umbauter Raum" ist der umbaute Raum [Kubikmeter] des Gebäudes.';
-  COMMENT ON COLUMN ax_gebaeude.baujahr            IS 'BJA "Baujahr" ist das Jahr der Fertigstellung oder der baulichen Veränderung des Gebäudes.';
-  COMMENT ON COLUMN ax_gebaeude.lagezurerdoberflaeche IS 'OFL "Lage zur Erdoberfläche" ist die Angabe der relativen Lage des Gebäudes zur Erdoberfläche. Diese Attributart wird nur bei nicht ebenerdigen Gebäuden geführt. 1200=Unter der Erdoberfläche, 1400=Aufgeständert';
-  COMMENT ON COLUMN ax_gebaeude.dachart            IS 'DAA "Dachart" gibt die Art der Dacheindeckung (z.B. Reetdach) an.';
-  COMMENT ON COLUMN ax_gebaeude.dachgeschossausbau IS 'DGA "Dachgeschossausbau" ist ein Hinweis auf den Ausbau bzw. die Ausbaufähigkeit des Dachgeschosses.';
-  COMMENT ON COLUMN ax_gebaeude.qualitaetsangaben  IS 'QAG Angaben zur Herkunft der Informationen (Erhebungsstelle). Die Information ist konform zu den Vorgaben aus ISO 19115 zu repräsentieren.';
+COMMENT ON TABLE  ax_gebaeude                                  IS '"G e b ä u d e" ist ein dauerhaft errichtetes Bauwerk, dessen Nachweis wegen seiner Bedeutung als Liegenschaft erforderlich ist sowie dem Zweck der Basisinformation des Liegenschaftskatasters dient.';
+COMMENT ON COLUMN ax_gebaeude.gml_id                           IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_gebaeude.gebaeudefunktion                 IS 'GFK "Gebäudefunktion" ist die zum Zeitpunkt der Erhebung vorherrschend funktionale Bedeutung des Gebäudes (Dominanzprinzip). Werte siehe ax_gebaeude_funktion';
+COMMENT ON COLUMN ax_gebaeude.weiteregebaeudefunktion          IS 'WGF "Weitere Gebäudefunktion" sind weitere Funktionen, die ein Gebäude neben der dominierenden Gebäudefunktion hat.';
+COMMENT ON COLUMN ax_gebaeude.name                             IS 'NAM "Name" ist der Eigenname oder die Bezeichnung des Gebäudes.';
+COMMENT ON COLUMN ax_gebaeude.bauweise                         IS 'BAW "Bauweise" ist die Beschreibung der Art der Bauweise. Werte siehe ax_gebaeude_bauweise';
+COMMENT ON COLUMN ax_gebaeude.anzahlderoberirdischengeschosse  IS 'AOG "Anzahl der oberirdischen Geschosse" ist die Anzahl der oberirdischen Geschosse des Gebäudes.';
+COMMENT ON COLUMN ax_gebaeude.anzahlderunterirdischengeschosse IS 'AUG "Anzahl der unterirdischen Geschosse" ist die Anzahl der unterirdischen Geschosse des Gebäudes.';
+COMMENT ON COLUMN ax_gebaeude.hochhaus                         IS 'HOH "Hochhaus" ist ein Gebäude, das nach Gebäudehöhe und Ausprägung als Hochhaus zu bezeichnen ist. Für Gebäude im Geschossbau gilt dieses i.d.R. ab 8 oberirdischen Geschossen, für andere Gebäude ab einer Gebäudehöhe von 22 m. Abweichungen hiervon können sich durch die Festlegungen in den länderspezifischen Bauordnungen ergeben.';
+COMMENT ON COLUMN ax_gebaeude.objekthoehe                      IS 'HHO "Objekthöhe" ist die Höhendifferenz in [m] zwischen dem höchsten Punkt der Dachkonstruktion und der festgelegten Geländeoberfläche des Gebäudes.';
+COMMENT ON COLUMN ax_gebaeude.dachform                         IS 'DAF "Dachform" beschreibt die charakteristische Form des Daches. Werte siehe ax_gebaeude_dachform';
+COMMENT ON COLUMN ax_gebaeude.zustand                          IS 'ZUS "Zustand" beschreibt die Beschaffenheit oder die Betriebsbereitschaft von "Gebäude". Diese Attributart wird nur dann optional geführt, wenn der Zustand des Gebäudes vom nutzungsfähigen Zustand abweicht. Werte siehe ax_gebaeude_zustand';
+COMMENT ON COLUMN ax_gebaeude.geschossflaeche                  IS 'GFL "Geschossfläche" ist die Gebäudegeschossfläche in [qm].';
+COMMENT ON COLUMN ax_gebaeude.grundflaeche                     IS 'GRF "Grundfläche" ist die Gebäudegrundfläche in [qm].';
+COMMENT ON COLUMN ax_gebaeude.umbauterraum                     IS 'URA "Umbauter Raum" ist der umbaute Raum [Kubikmeter] des Gebäudes.';
+COMMENT ON COLUMN ax_gebaeude.baujahr                          IS 'BJA "Baujahr" ist das Jahr der Fertigstellung oder der baulichen Veränderung des Gebäudes.';
+COMMENT ON COLUMN ax_gebaeude.lagezurerdoberflaeche            IS 'OFL "Lage zur Erdoberfläche" ist die Angabe der relativen Lage des Gebäudes zur Erdoberfläche. Diese Attributart wird nur bei nicht ebenerdigen Gebäuden geführt. 1200=Unter der Erdoberfläche, 1400=Aufgeständert';
+COMMENT ON COLUMN ax_gebaeude.dachart                          IS 'DAA "Dachart" gibt die Art der Dacheindeckung (z.B. Reetdach) an.';
+COMMENT ON COLUMN ax_gebaeude.dachgeschossausbau               IS 'DGA "Dachgeschossausbau" ist ein Hinweis auf den Ausbau bzw. die Ausbaufähigkeit des Dachgeschosses.';
+COMMENT ON COLUMN ax_gebaeude.qualitaetsangaben                IS 'QAG Angaben zur Herkunft der Informationen (Erhebungsstelle). Die Information ist konform zu den Vorgaben aus ISO 19115 zu repräsentieren.';
+COMMENT ON COLUMN ax_gebaeude.gehoertzu                        IS 'Beziehung zu ax_gebaeude (0..1): ''Gebäude'' gehört zu ''Gebäude'', wenn die Gebäude baulich zusammen gehören und im Gegensatz zum Bauteil eine gleichrangige Bedeutung haben.';
+COMMENT ON COLUMN ax_gebaeude.hat                              IS 'Beziehung zu ax_lagebezeichnungmitpseudonummer (0..1): ''Gebäude'' hat ''Lagebezeichnung mit Pseudonummer''.';
+COMMENT ON COLUMN ax_gebaeude.gehoert                          IS 'Beziehung zu ax_person (0..*): ''Gebäude'' gehört ''Person''. Die Relation kommt nur vor, wenn unabhängig von Eintragungen im Grundbuch (''Buchungsstelle'' mit der Attributart ''Buchungsart'') für das Gebäude ein Eigentum nach BGB begründet ist.';
+COMMENT ON COLUMN ax_gebaeude.zeigtauf                         IS 'Beziehung zu ax_lagebezeichnungmithausnummer (0..*): ''Gebäude'' zeigt auf ''Lagebezeichnung mit Hausnummer''.';
+COMMENT ON COLUMN ax_gebaeude.haengtzusammenmit                IS 'Beziehung zu ax_gebaeude (0..1): Es handelt sich um die inverse Relationsrichtung.';
 
-
--- Wie oft kommt welcher Typ von Gebäude-Geometrie vor?
---
---  CREATE VIEW gebauede_geometrie_arten AS
---    SELECT geometrytype(wkb_geometry) AS geotyp,
---           COUNT(ogc_fid)             AS anzahl
---      FROM ax_gebaeude
---  GROUP BY geometrytype(wkb_geometry);
--- Ergebnis: nur 3 mal MULTIPOLYGON in einer Gemeinde, Rest POLYGON
-
--- Welche sind das?
---  CREATE VIEW gebauede_geometrie_multipolygone AS
---    SELECT ogc_fid,
---           astext(wkb_geometry) AS geometrie
---      FROM ax_gebaeude
---     WHERE geometrytype(wkb_geometry) = 'MULTIPOLYGON';
-
--- GeometryFromText('MULTIPOLYGON((( AUSSEN ), ( INNEN1 ), ( INNEN2 )))', srid)
--- GeometryFromText('MULTIPOLYGON((( AUSSEN1 )),(( AUSSEN2)))', srid)
 
 
 -- B a u t e i l
@@ -1992,8 +2140,8 @@ CREATE TABLE ax_besonderergebaeudepunkt (
 	anlass			varchar,
 	land			integer,
 	stelle			integer,
-	punktkennung		varchar, -- integer,
-	art			varchar, --(37)
+	punktkennung		varchar,
+	art			varchar,
 	name			varchar[],
 	sonstigeeigenschaft 	varchar[],
 	CONSTRAINT ax_besonderergebaeudepunkt_pk PRIMARY KEY (ogc_fid)
@@ -2069,9 +2217,9 @@ CREATE TABLE ax_industrieundgewerbeflaeche (
 	funktion		integer,
 	name			varchar,
 	zustand			integer,
-	foerdergut		integer, -- Die Attributart 'Fördergut' kann nur in Verbindung mit der Attributart 'Funktion' und der Werteart 2510 vorkommen.
-	primaerenergie		integer, -- Die Attributart 'Primärenergie' kann nur in Verbindung mit der Attributart 'Funktion' und den Wertearten 2530, 2531, 2532, 2570, 2571 und 2572 vorkommen.
-	lagergut		integer, -- Die Attributart 'Lagergut' kann nur in Verbindung mit der Attributart 'Funktion' und der Werteart 1740 vorkommen.
+	foerdergut		integer,
+	primaerenergie		integer,
+	lagergut		integer,
 	CONSTRAINT ax_industrieundgewerbeflaeche_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -2093,8 +2241,8 @@ COMMENT ON COLUMN ax_industrieundgewerbeflaeche.primaerenergie IS 'PEG "Primäre
 
 -- H a l d e
 -- ----------------------------------------------
-CREATE TABLE ax_halde
-(	ogc_fid			serial NOT NULL,
+CREATE TABLE ax_halde (
+	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
 	identifier		character(44),
 	beginnt			character(20),
@@ -2316,11 +2464,11 @@ CREATE TABLE ax_strassenverkehr (
 	name			varchar,
 	zweitname		varchar,
 	zustand			integer,
-	land			integer,	-- neu 2012-02-28
-	regierungsbezirk	integer,	-- neu 2012-02-28
-	kreis			integer,	-- neu 2012-02-28
-	gemeinde		integer,	-- neu 2012-02-28
-	lage			varchar,	-- neu 2012-02-28
+	land			integer,
+	regierungsbezirk	integer,
+	kreis			integer,
+	gemeinde		integer,
+	lage			varchar,
 	CONSTRAINT ax_strassenverkehr_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -2352,11 +2500,11 @@ CREATE TABLE ax_weg (
 	funktion		integer,
 	name			varchar,
 	bezeichnung		varchar,
-	land			integer,	-- neu 2012-02-28
-	regierungsbezirk	integer,	-- neu 2012-02-28
-	kreis			integer,	-- neu 2012-02-28
-	gemeinde		integer,	-- neu 2012-02-28
-	lage			varchar,	-- neu 2012-02-28
+	land			integer,
+	regierungsbezirk	integer,
+	kreis			integer,
+	gemeinde		integer,
+	lage			varchar,
 	CONSTRAINT ax_weg_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -2386,11 +2534,11 @@ CREATE TABLE ax_platz (
 	funktion		integer,
 	name			varchar,
 	zweitname		varchar,
-	land			integer,	-- neu 2012-02-28
-	regierungsbezirk	integer,	-- neu 2012-02-28
-	kreis			integer,	-- neu 2012-02-28
-	gemeinde		integer,	-- neu 2012-02-28
-	lage			varchar,	-- neu 2012-02-28
+	land			integer,
+	regierungsbezirk	integer,
+	kreis			integer,
+	gemeinde		integer,
+	lage			varchar,
 	CONSTRAINT ax_platz_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -2504,8 +2652,7 @@ COMMENT ON TABLE  ax_schiffsverkehr          IS '"S c h i f f s v e r k e h r"  
 COMMENT ON COLUMN ax_schiffsverkehr.gml_id   IS 'Identifikator, global eindeutig';
 COMMENT ON COLUMN ax_schiffsverkehr.funktion IS 'FKT "Funktion" ist die zum Zeitpunkt der Erhebung vorherrschende Nutzung von "Schiffsverkehr".';
 COMMENT ON COLUMN ax_schiffsverkehr.name     IS 'NAM "Name" ist der Eigenname von "Schiffsverkehr".';
-COMMENT ON COLUMN ax_schiffsverkehr.zustand  IS 'ZUS "Zustand" beschreibt die Betriebsbereitschaft von "Schiffsverkehr".';
--- Diese Attributart kann nur in Verbindung mit der Attributart 'Funktion' und der Werteart 5620 vorkommen.
+COMMENT ON COLUMN ax_schiffsverkehr.zustand  IS 'ZUS "Zustand" beschreibt die Betriebsbereitschaft von "Schiffsverkehr". Diese Attributart kann nur in Verbindung mit der Attributart "Funktion" und der Werteart 5620 vorkommen.';
 
 
 --** Objektartengruppe:Vegetation (in Objektbereich:Tatsächliche Nutzung)
@@ -2690,8 +2837,7 @@ CREATE UNIQUE INDEX ax_unlandvegetationsloseflaeche_gml ON ax_unlandvegetationsl
 
 COMMENT ON TABLE  ax_unlandvegetationsloseflaeche        IS '"Unland/Vegetationslose Fläche" ist eine Fläche, die dauerhaft landwirtschaftlich nicht genutzt wird, wie z.B. nicht aus dem Geländerelief herausragende Felspartien, Sand- oder Eisflächen, Uferstreifen längs von Gewässern und Sukzessionsflächen.';
 COMMENT ON COLUMN ax_unlandvegetationsloseflaeche.gml_id IS 'Identifikator, global eindeutig';
--- Die Attributart 'Oberflächenmaterial' kann nur im Zusammenhang mit der Attributart 'Funktion' und der Werteart 1000 vorkommen.
-COMMENT ON COLUMN ax_unlandvegetationsloseflaeche.oberflaechenmaterial IS 'OFM "Oberflächenmaterial" ist die Beschaffenheit des Bodens von "Unland/Vegetationslose Fläche".';
+COMMENT ON COLUMN ax_unlandvegetationsloseflaeche.oberflaechenmaterial IS 'OFM "Oberflächenmaterial" ist die Beschaffenheit des Bodens von "Unland/Vegetationslose Fläche". Die Attributart "Oberflächenmaterial" kann nur im Zusammenhang mit der Attributart "Funktion" und der Werteart 1000 vorkommen.';
 COMMENT ON COLUMN ax_unlandvegetationsloseflaeche.name                 IS 'NAM "Name" ist die Bezeichnung oder der Eigenname von "Unland/ VegetationsloseFlaeche".';
 COMMENT ON COLUMN ax_unlandvegetationsloseflaeche.funktion             IS 'FKT "Funktion" ist die erkennbare Art von "Unland/Vegetationslose Fläche".';
 
@@ -2866,6 +3012,10 @@ CREATE TABLE ax_turm (
 	bauwerksfunktion	integer,
 	zustand			integer,
 	name			varchar,
+
+	-- Beziehung
+	zeigtauf		varchar,
+
 	CONSTRAINT ax_turm_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -2874,8 +3024,9 @@ SELECT AddGeometryColumn('ax_turm','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 CREATE INDEX ax_turm_geom_idx ON ax_turm USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_turm_gml ON ax_turm USING btree (gml_id,beginnt);
 
-COMMENT ON TABLE  ax_turm        IS 'T u r m';
-COMMENT ON COLUMN ax_turm.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_turm           IS 'T u r m';
+COMMENT ON COLUMN ax_turm.gml_id   IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_turm.zeigtauf IS 'Beziehung zu ax_lagebezeichnungmithausnummer (0..*): ''Turm'' zeigt auf eine ''Lagebezeichnung mit Hausnummer''.';
 
 
 -- Bauwerk oder Anlage fuer Industrie und Gewerbe
@@ -3066,10 +3217,14 @@ CREATE TABLE ax_sonstigesbauwerkodersonstigeeinrichtung (
 	endet 			character(20),
 	advstandardmodell	varchar,
 	anlass			varchar,
---	art			varchar,	-- Inhalt = "urn:adv:fachdatenverbindung:AA_Antrag" oder leer, wozu?
-	description		integer,		-- neu 03.02.2012
-	name			varchar,	-- Lippe immer leer, RLP "Relationsbelegung bei Nachmigration"
+	description		integer,
+	name			varchar,  -- Lippe immer leer, RLP "Relationsbelegung bei Nachmigration"
 	bauwerksfunktion	integer,
+
+	-- Beziehungen
+	gehoertzubauwerk	varchar,
+	gehoertzu		varchar,
+
 	CONSTRAINT ax_sonstigesbauwerkodersonstigeeinrichtung_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -3078,8 +3233,10 @@ SELECT AddGeometryColumn('ax_sonstigesbauwerkodersonstigeeinrichtung','wkb_geome
 CREATE INDEX ax_sonstigesbauwerkodersonstigeeinrichtung_geom_idx ON ax_sonstigesbauwerkodersonstigeeinrichtung USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_sonstigesbauwerkodersonstigeeinrichtung_gml ON ax_sonstigesbauwerkodersonstigeeinrichtung USING btree (gml_id,beginnt);
 
-COMMENT ON TABLE  ax_sonstigesbauwerkodersonstigeeinrichtung        IS 'sonstiges Bauwerk oder sonstige Einrichtung';
-COMMENT ON COLUMN ax_sonstigesbauwerkodersonstigeeinrichtung.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_sonstigesbauwerkodersonstigeeinrichtung                  IS 'sonstiges Bauwerk oder sonstige Einrichtung';
+COMMENT ON COLUMN ax_sonstigesbauwerkodersonstigeeinrichtung.gml_id           IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_sonstigesbauwerkodersonstigeeinrichtung.gehoertzubauwerk IS 'Beziehung zu ax_bauwerkeeinrichtungenundsonstigeangaben (0..1): ''AX_SonstigesBauwerkOderSonstigeEinrichtung'' kann einem anderen Bauwerk zugeordnet werden.';
+COMMENT ON COLUMN ax_sonstigesbauwerkodersonstigeeinrichtung.gehoertzu        IS 'Beziehung zu ax_gebaeude (0..1): ''AX_SonstigesBauwerkOderSonstigeEinrichtung'' kann einem Gebäude zugeordnet werden, soweit dies fachlich erforderlich ist.';
 
 
 -- E i n r i c h t u n g  i n  Ö f f e n t l i c h e n  B e r e i c h e n
@@ -3126,6 +3283,9 @@ SELECT AddGeometryColumn('ax_einrichtungenfuerdenschiffsverkehr','wkb_geometry',
 
 CREATE INDEX ax_einrichtungenfuerdenschiffsverkehr_geom_idx ON ax_einrichtungenfuerdenschiffsverkehr USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_einrichtungenfuerdenschiffsverkehr_gml ON ax_einrichtungenfuerdenschiffsverkehr USING btree (gml_id,beginnt);
+
+COMMENT ON TABLE  ax_einrichtungenfuerdenschiffsverkehr        IS 'E i n r i c h t u n g e n   f ü r  d e n  S c h i f f s v e r k e h r';
+COMMENT ON COLUMN ax_einrichtungenfuerdenschiffsverkehr.gml_id IS 'Identifikator, global eindeutig';
 
 
 -- B e s o n d e r e r   B a u w e r k s p u n k t
@@ -3649,6 +3809,7 @@ CREATE UNIQUE INDEX ax_duene_gml ON ax_duene USING btree (gml_id,beginnt);
 
 COMMENT ON TABLE  ax_duene IS 'D ü n e';
 
+
 -- H ö h e n l i n i e
 -- --------------------
 CREATE TABLE ax_hoehenlinie (
@@ -3667,6 +3828,9 @@ SELECT AddGeometryColumn('ax_hoehenlinie','wkb_geometry',:alkis_epsg,'LINESTRING
 
 CREATE INDEX ax_hoehenlinie_geom_idx ON ax_hoehenlinie USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_hoehenlinie_gml ON ax_hoehenlinie USING btree (gml_id,beginnt);
+
+COMMENT ON TABLE  ax_hoehenlinie        IS 'H ö h e n l i n i e';
+COMMENT ON COLUMN ax_hoehenlinie.gml_id IS 'Identifikator, global eindeutig';
 
 
 
@@ -3692,11 +3856,14 @@ CREATE TABLE ax_gelaendekante (
 	advstandardmodell	varchar,
 	sonstigesmodell		varchar,
 	anlass			varchar,
-	istteilvon		varchar, -- Beziehung?
 	artdergelaendekante	integer,
 	ax_dqerfassungsmethode	integer,
 	identifikation		integer,
 	art			integer,
+
+	-- Beziehung
+	istteilvon		varchar,
+
 	CONSTRAINT ax_gelaendekante_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -3813,7 +3980,7 @@ CREATE TABLE ax_bauraumoderbodenordnungsrecht (
 	endet 			character(20),
 	advstandardmodell	varchar,
 	anlass			varchar,
-	art			varchar, -- (15)
+	art			varchar,
 	name			varchar,
 	artderfestlegung	integer,
 	land			integer,
@@ -3830,7 +3997,7 @@ CREATE UNIQUE INDEX ax_bauraumoderbodenordnungsrecht_gml ON ax_bauraumoderbodeno
 COMMENT ON TABLE  ax_bauraumoderbodenordnungsrecht             IS 'REO: Bau-, Raum- oder Bodenordnungsrecht';
 COMMENT ON COLUMN ax_bauraumoderbodenordnungsrecht.gml_id      IS 'Identifikator, global eindeutig';
 COMMENT ON COLUMN ax_bauraumoderbodenordnungsrecht.artderfestlegung IS 'ADF';
-COMMENT ON COLUMN ax_bauraumoderbodenordnungsrecht.name      IS 'NAM, Eigenname von "Bau-, Raum- oder Bodenordnungsrecht"';
+COMMENT ON COLUMN ax_bauraumoderbodenordnungsrecht.name        IS 'NAM, Eigenname von "Bau-, Raum- oder Bodenordnungsrecht"';
 COMMENT ON COLUMN ax_bauraumoderbodenordnungsrecht.bezeichnung IS 'BEZ, Amtlich festgelegte Verschlüsselung von "Bau-, Raum- oder Bodenordnungsrecht"';
 
 
@@ -3849,11 +4016,9 @@ CREATE TABLE ax_sonstigesrecht (
 	stelle			varchar,
 	bezeichnung		varchar,
 	characterstring		varchar,
-	art			varchar,  --(15)
+	art			varchar,
 	name			varchar,
 	funktion		integer,
---	"qualitaetsangaben|ax_dqmitdatenerhebung|herkunft|li_lineage|pro" varchar,
---	datetime		varchar,
 	CONSTRAINT ax_sonstigesrecht_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -3880,12 +4045,12 @@ CREATE TABLE ax_bodenschaetzung (
 	endet 				character(20),
 	advstandardmodell		varchar,
 	anlass				varchar,
-	art				varchar, -- (15)
+	art				varchar,
 	name				varchar,
 	kulturart			integer,
 	bodenart			integer,
 	zustandsstufeoderbodenstufe	integer,
-	entstehungsartoderklimastufewasserverhaeltnisse	integer[], -- veraendert [] 2012-02-03
+	entstehungsartoderklimastufewasserverhaeltnisse	integer[],
 	bodenzahlodergruenlandgrundzahl	integer,
 	ackerzahlodergruenlandzahl	integer,
 	sonstigeangaben			integer[],
@@ -3898,8 +4063,17 @@ SELECT AddGeometryColumn('ax_bodenschaetzung','wkb_geometry',:alkis_epsg,'GEOMET
 CREATE INDEX ax_bodenschaetzung_geom_idx ON ax_bodenschaetzung USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_bodenschaetzung_gml ON ax_bodenschaetzung USING btree (gml_id,beginnt);
 
-COMMENT ON TABLE  ax_bodenschaetzung        IS 'B o d e n s c h ä t z u n g';
-COMMENT ON COLUMN ax_bodenschaetzung.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_bodenschaetzung              IS '"B o d e n s c h ä t z u n g" ist die kleinste Einheit einer bodengeschätzten Fläche nach dem Bodenschätzungsgesetz, für die eine Ertragsfähigkeit im Liegenschaftskataster nachzuweisen ist (Bodenschätzungsfläche). Ausgenommen sind Musterstücke, Landesmusterstücke und Vergleichsstücke der Bodenschätzung.';
+
+COMMENT ON COLUMN ax_bodenschaetzung.gml_id       IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_bodenschaetzung.kulturart    IS '"Kulturart" ist die bestandskräftig festgesetzte landwirtschaftliche Nutzungsart entsprechend dem Acker- oder Grünlandschätzungsrahmen.';
+COMMENT ON COLUMN ax_bodenschaetzung.bodenart     IS '"Bodenart" ist die nach den Durchführungsbestimmungen zum Bodenschätzungsgesetz (Schätzungsrahmen) festgelegte Bezeichnung der Bodenart.';
+COMMENT ON COLUMN ax_bodenschaetzung.zustandsstufeoderbodenstufe     IS '"Zustandsstufe oder Bodenstufe" ist die nach den Schätzungsrahmen festgelegte Bezeichnung der Zustands- oder Bodenstufe.';
+COMMENT ON COLUMN ax_bodenschaetzung.entstehungsartoderklimastufewasserverhaeltnisse IS '"Entstehungsart oder Klimastufe/Wasserverhältnisse" ist die nach den Schätzungsrahmen festgelegte Bezeichnung der Entstehungsart oder der Klimastufe und der Wasserverhältnisse.';
+COMMENT ON COLUMN ax_bodenschaetzung.bodenzahlodergruenlandgrundzahl IS '"Bodenzahl oder Grünlandgrundzahl" ist die Wertzahl nach dem Acker- oder Grünlandschätzungsrahmen';
+COMMENT ON COLUMN ax_bodenschaetzung.ackerzahlodergruenlandzahl      IS '"Ackerzahl oder Grünlandzahl" ist die "Bodenzahl oder Grünlandgrundzahl" einschließlich Ab- und Zurechnungen nach dem Bodenschätzungsgesetz.';
+COMMENT ON COLUMN ax_bodenschaetzung.sonstigeangaben                 IS '"Sonstige Angaben" ist der Nachweis von Besonderheiten einer bodengeschätzten Fläche.';
+COMMENT ON COLUMN ax_bodenschaetzung.jahreszahl   IS '"Jahreszahl" ist das Jahr, in dem eine Neukultur oder Tiefkultur angelegt worden ist.';
 
 
 -- M u s t e r -,  L a n d e s m u s t e r -   u n d   V e r g l e i c h s s t u e c k
@@ -3925,14 +4099,21 @@ CREATE TABLE ax_musterlandesmusterundvergleichsstueck (
 	CONSTRAINT ax_musterlandesmusterundvergleichsstueck_pk PRIMARY KEY (ogc_fid)
 );
 
-
 SELECT AddGeometryColumn('ax_musterlandesmusterundvergleichsstueck','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/POINT
 
-CREATE INDEX ax_musterlandesmusterundvergleichsstueck_geom_idx ON ax_musterlandesmusterundvergleichsstueck USING gist (wkb_geometry);
+CREATE INDEX ax_musterlandesmusterundvergleichsstueck_geom_idx   ON ax_musterlandesmusterundvergleichsstueck USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_musterlandesmusterundvergleichsstueck_gml ON ax_musterlandesmusterundvergleichsstueck USING btree (gml_id,beginnt);
 
-COMMENT ON TABLE  ax_musterlandesmusterundvergleichsstueck        IS 'Muster-, Landesmuster- und Vergleichsstueck';
-COMMENT ON COLUMN ax_musterlandesmusterundvergleichsstueck.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_musterlandesmusterundvergleichsstueck           IS '"Muster-, Landesmuster- und Vergleichsstück" ist eine besondere bodengeschätzte Fläche nach dem Bodenschätzungsgesetz, für die eine Ertragsfähigkeit im Liegenschaftskataster nachzuweisen ist.';
+COMMENT ON COLUMN ax_musterlandesmusterundvergleichsstueck.gml_id    IS 'Identifikator, global eindeutig';
+
+COMMENT ON COLUMN ax_musterlandesmusterundvergleichsstueck.merkmal   IS '"Merkmal" ist die Kennzeichnung zur Unterscheidung von Musterstück, Landesmusterstück und Vergleichsstück.';
+COMMENT ON COLUMN ax_musterlandesmusterundvergleichsstueck.kulturart IS '"Kulturart" ist die bestandskräftig festgesetzte landwirtschaftliche Nutzungsart entsprechend dem Acker- oder Grünlandschätzungsrahmen.';
+COMMENT ON COLUMN ax_musterlandesmusterundvergleichsstueck.bodenart  IS '"Bodenart" ist die nach den Durchführungsbestimmungen zum Bodenschätzungsgesetz (Schätzungsrahmen) festgelegte Bezeichnung der Bodenart.';
+COMMENT ON COLUMN ax_musterlandesmusterundvergleichsstueck.zustandsstufeoderbodenstufe     IS '"Zustandsstufe oder Bodenstufe" ist die nach den Schätzungsrahmen festgelegte Bezeichnung der Zustands- oder Bodenstufe.';
+COMMENT ON COLUMN ax_musterlandesmusterundvergleichsstueck.entstehungsartoderklimastufewasserverhaeltnisse IS '"Entstehungsart oder Klimastufe/Wasserverhältnisse" ist die nach den Schätzungsrahmen festgelegte Bezeichnung der Entstehungsart oder der Klimastufe und der Wasserverhältnisse.';
+COMMENT ON COLUMN ax_musterlandesmusterundvergleichsstueck.bodenzahlodergruenlandgrundzahl IS '"Bodenzahl oder Grünlandgrundzahl" ist die Wertzahl nach dem Acker- oder Grünlandschätzungsrahmen.';
+COMMENT ON COLUMN ax_musterlandesmusterundvergleichsstueck.ackerzahlodergruenlandzahl      IS '"Ackerzahl oder Grünlandzahl" ist die "Bodenzahl oder Grünlandgrundzahl" einschließlich Ab- und Zurechnungen nach dem Bodenschätzungsgesetz.';
 
 
 --** Objektartengruppe: Kataloge
@@ -3950,7 +4131,7 @@ CREATE TABLE ax_bundesland (
 	advstandardmodell	varchar,
 	anlass			varchar,
 	schluesselgesamt	integer,
-	bezeichnung		varchar, --(22)
+	bezeichnung		varchar,
 	land			integer,
 	stelle			varchar,
 	CONSTRAINT ax_bundesland_pk PRIMARY KEY (ogc_fid)
@@ -4090,8 +4271,7 @@ CREATE TABLE ax_gemarkung (
 	schluesselgesamt	integer,
 	bezeichnung		varchar,
 	land			integer,
-	gemarkungsnummer	integer,  -- Key
---	"istamtsbezirkvon|ax_dienststelle_schluessel|land" integer,
+	gemarkungsnummer	integer,
 	stelle			integer,
 	CONSTRAINT ax_gemarkung_pk PRIMARY KEY (ogc_fid)
 );
@@ -4117,7 +4297,7 @@ CREATE TABLE ax_gemarkungsteilflur (
 	advstandardmodell	varchar,
 	anlass			varchar,
 	schluesselgesamt	integer,
-	bezeichnung		varchar, -- integer,
+	bezeichnung		varchar,
 	land			integer,
 	gemarkung		integer,
 	gemarkungsteilflur	integer,
@@ -4147,7 +4327,6 @@ CREATE TABLE ax_buchungsblattbezirk (
 	bezeichnung		varchar,
 	land			integer,
 	bezirk			integer,
---	"gehoertzu|ax_dienststelle_schluessel|land" integer,
 	stelle			varchar,
 	CONSTRAINT ax_buchungsblattbezirk_pk PRIMARY KEY (ogc_fid)
 );
@@ -4177,11 +4356,14 @@ CREATE TABLE ax_dienststelle (
 	sonstigesmodell		varchar,
 	anlass			varchar,
 	schluesselgesamt	varchar,
-	bezeichnung		varchar, -- 102
+	bezeichnung		varchar,
 	land			integer,
 	stelle			varchar,
 	stellenart		integer,
-	-- hat character	varying,
+
+	-- Beziehung
+	hat			varchar,
+
 	CONSTRAINT ax_dienststelle_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -4192,6 +4374,7 @@ CREATE UNIQUE INDEX ax_dienststelle_gml ON ax_dienststelle USING btree (gml_id,b
 
 COMMENT ON TABLE  ax_dienststelle        IS 'D i e n s t s t e l l e';
 COMMENT ON COLUMN ax_dienststelle.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_dienststelle.hat    IS 'Beziehung zu ax_anschrift (0..1): ''Dienststelle'' hat eine Anschrift.';
 
 
 -- L a g e b e z e i c h n u n g s - K a t a l o g e i n t r a g
@@ -4318,6 +4501,9 @@ COMMENT ON COLUMN ax_kommunalesgebiet.gml_id IS 'Identifikator, global eindeutig
 --AX_Gebiet
 -- ** Tabelle bisher noch nicht generiert
 
+-- ENDE Objektartengruppe  Administrative Gebietseinheiten
+
+
 -- V e r t r e t u n g
 -- -------------------
 CREATE TABLE ax_vertretung (
@@ -4326,14 +4512,23 @@ CREATE TABLE ax_vertretung (
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar(4),
+	advstandardmodell	varchar,
 	anlass			varchar,
+
+	-- Beziehung
+	vertritt		varchar[],
+	haengtan		varchar,
+	beziehtsichauf		varchar[],
+
 	CONSTRAINT ax_vertretung_pk PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_vertretung','dummy',:alkis_epsg,'POINT',2);
 
-COMMENT ON TABLE  ax_vertretung IS 'V e r t r e t u n g';
+COMMENT ON TABLE  ax_vertretung                IS 'V e r t r e t u n g';
+COMMENT ON COLUMN ax_vertretung.vertritt       IS 'Beziehung zu ax_person (1..*): Die Relation ''Vertretung'' vertritt ''Person'' sagt aus, welche Person durch die Vertretung vertreten wird. Es handelt sich um die inverse Relationsrichtung.';
+COMMENT ON COLUMN ax_vertretung.haengtan       IS 'Beziehung zu ax_person (1): Die Relation ''Vertretung'' hängt an ''Person'' sagt aus, welche Person die Vertretung wahrnimmt.';
+COMMENT ON COLUMN ax_vertretung.beziehtsichauf IS 'Beziehung zu ax_flurstueck (0..*): Die Relation ''Vertretung'' bezieht sich auf ''Flurstück'' sagt aus, für welche Flurstücke die Vertretung wahrgenommen wird.';
 
 
 -- V e r w a l t u n g s g e m e i n s c h a f t
@@ -4344,7 +4539,7 @@ CREATE TABLE ax_verwaltungsgemeinschaft (
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar(4),
+	advstandardmodell	varchar,
 	anlass			varchar,
 	schluesselgesamt	integer,
 	bezeichnung		varchar,
@@ -4369,14 +4564,21 @@ CREATE TABLE ax_verwaltung (
 	identifier		character(44),
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar(4),
+	advstandardmodell	varchar,
 	anlass			varchar,
+
+	-- Beziehungen
+	beziehtsichauf		varchar[],
+	haengtan		varchar,
+
 	CONSTRAINT ax_verwaltung_pk PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_verwaltung','dummy',:alkis_epsg,'POINT',2);
 
-COMMENT ON TABLE  ax_verwaltung  IS 'V e r w a l t u n g';
+COMMENT ON TABLE  ax_verwaltung                IS 'V e r w a l t u n g';
+COMMENT ON COLUMN ax_verwaltung.beziehtsichauf IS 'Beziehung zu ax_buchungsstelle (1..*): Durch die Relation ''Verwaltung'' bezieht sich auf ''Buchungsstelle'' wird augedrückt, für welche Buchungsstellen die Verwaltung bestellt wurde. Es handelt sich um die inverse Relationsrichtung.';
+COMMENT ON COLUMN ax_verwaltung.haengtan       IS 'Beziehung zu ax_person (1): Durch die Relation ''Verwaltung'' hängt an ''Person'' wird die Verwaltung namentlich benannt.';
 
 
 --*** ############################################################
@@ -4425,6 +4627,25 @@ COMMENT ON TABLE  ax_verwaltung  IS 'V e r w a l t u n g';
 -- In allen Tabellen die Objekte Löschen, die ein Ende-Datum haben
 -- SELECT alkis_delete_all_endet();
 
+/*
+Nicht abgebildete Beziehungen aus alkis_relationsart:
+
+ALTER TABLE ax_benutzer ADD COLUMN ist varchar;
+ALTER TABLE ax_benutzer ADD COLUMN gehoertzu varchar;
+COMMENT ON COLUMN ax_benutzer.ist IS 'Beziehung zu ax_person (1): ''Benutzer'' ist ''Person''.';
+COMMENT ON COLUMN ax_benutzer.gehoertzu IS 'Beziehung zu ax_benutzergruppe (1): ''Benutzer'' gehört zu ''Benutzergruppe''.';
+
+ALTER TABLE ax_benutzergruppe ADD COLUMN bestehtaus varchar[];
+COMMENT ON COLUMN ax_benutzergruppe.bestehtaus IS 'Beziehung zu ax_benutzer (1..*): Benutzer in der Benutzergruppe. Es handelt sich um die inverse Relationsrichtung.';
+
+ALTER TABLE ax_fortfuehrungsnachweisdeckblatt ADD COLUMN beziehtsichauf varchar[];
+COMMENT ON COLUMN ax_fortfuehrungsnachweisdeckblatt.beziehtsichauf IS 'Beziehung zu ax_fortfuehrungsfall (1..*): ''Fortführungsnachweis-Deckblatt'' bezieht sich auf ''Fortführungfall''. Das Fortführungsnachweis-Deckblatt klammert alle in einem Fortführungsnachweis beschriebenen Fortführungsfälle.';
+
+ALTER TABLE ax_personengruppe ADD COLUMN bestehtaus varchar[];
+COMMENT ON COLUMN ax_personengruppe.bestehtaus IS 'Beziehung zu ax_person (2..*): Ein Objekt ''Personengruppe'' besteht aus Objekten ''Person''. Es handelt sich um die inverse Relationsrichtung.';
+*/
+
 --
 --          THE  (happy)  END
 --
+

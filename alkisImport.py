@@ -103,6 +103,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.lstFiles.itemSelectionChanged.connect(self.selChanged)
 
 		self.pbStart.clicked.connect(self.run)
+		self.pbLoadLog.clicked.connect(self.loadLog)
 		self.pbSaveLog.clicked.connect(self.saveLog)
 		self.pbClearLog.clicked.connect(self.clearLog)
 		self.pbClose.clicked.connect(self.accept)
@@ -113,6 +114,8 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.canceled = False
 		self.running = False
 		self.logqry = None
+
+		self.reFilter = None
 
 
 	def loadRe(self):
@@ -182,7 +185,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		lastDir = s.value( "lastDir", "." ).toString()
 
 		dir = QFileDialog.getExistingDirectory( self, u"Verzeichnis mit NAS-Dateien wählen", lastDir )
-		if dir is None: 
+		if dir is None:
 			return
 
 		s.setValue( "lastDir", dir )
@@ -237,11 +240,16 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 	def log(self, msg):
 		self.logDb( msg )
+		self.logDlg( msg )
 
+	def logDlg(self, msg, ts = None):
 		if len(msg)>300:
 			msg=msg[:300] + "..."
 
-		self.lwProtocol.addItem( QDateTime.currentDateTime().toString( Qt.ISODate ) + " " + msg )
+		if not ts:
+			ts = QDateTime.currentDateTime()
+
+		self.lwProtocol.addItem( ts.toString( Qt.ISODate ) + " " + msg )
 
 		app.processEvents()
 		self.lwProtocol.scrollToBottom()
@@ -259,6 +267,23 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 			self.log( u"Datenbank-Protokollierung fehlgeschlagen [%s: %s]" % (err, msg ) )
 			self.logqry = logqry
+
+	def loadLog(self):
+		conn = self.connectDb()
+		if not conn:
+			QMessageBox.critical(self, "norGIS-ALKIS-Import", "Konnte keine Datenbankverbindung aufbauen!", QMessageBox.Cancel )
+			return
+
+		qry = self.db.exec_( "SELECT ts,msg FROM alkis_importlog ORDER BY n" )
+		if not qry:
+			QMessageBox.critical(self, "norGIS-ALKIS-Import", "Konnte Protokoll nicht abfragen!", QMessageBox.Cancel )
+			return
+
+		while qry.next():
+			if self.keep( qry.value(1).toString() ):
+				self.logDlg( qry.value(1).toString(), qry.value(0).toTime() )
+
+		self.db.disconnect()
 
 	def saveLog(self):
 		save = QFileDialog.getSaveFileName(self, u"Protokolldatei angeben", ".", "Protokoll-Dateien (*.log)" )
@@ -294,6 +319,9 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 			self.canceled = True
 
 	def keep(self,l):
+		if not self.reFilter:
+			self.loadRe()
+
 		if self.reFilter.match(l):
 			return False
 		else:
@@ -373,7 +401,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 			else:
 				self.log( u"Fehler bei Prozeß: %d" % p.exitCode() )
 		else:
-			self.log( "Prozeß abgebrochen %d" % p.exitCode() )
+			self.log( u"Prozeß abgebrochen: %d" % p.exitCode() )
 
 		self.logDb( "EXITCODE: %d" % p.exitCode() )
 
@@ -388,6 +416,25 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 	def run(self):
 		self.importALKIS()
+
+	def connectDb(self):
+		if self.leSERVICE.text()<>'':
+			conn = "service=%s " % self.leSERVICE.text()
+		else:
+			if self.leHOST.text()<>'':
+				conn = "host=%s port=%s " % (self.leHOST.text(), self.lePORT.text() )
+			else:
+				conn = ""
+
+		conn += "dbname=%s user='%s' password='%s'" % (self.leDBNAME.text(), self.leUID.text(), self.lePWD.text() )
+
+		self.db = QSqlDatabase.addDatabase( "QPSQL" )
+		self.db.setConnectOptions( conn )
+		if not self.db.open():
+			self.log(u"Konnte Datenbankverbindung nicht aufbauen!")
+			return None
+
+		return conn
 
 	def importALKIS(self):
 		if self.cbxDebug.isChecked():
@@ -413,15 +460,6 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.epsg=self.cbEPSG.itemData( self.cbEPSG.currentIndex() ).toString()
 		s.setValue( "epsg", self.epsg)
 
-		if self.leSERVICE.text()<>'':
-			conn = "service=%s " % self.leSERVICE.text()
-		else:
-			if self.leHOST.text()<>'':
-				conn = "host=%s port=%s " % (self.leHOST.text(), self.lePORT.text() )
-			else:
-				conn = ""
-
-		conn += "dbname=%s user='%s' password='%s'" % (self.leDBNAME.text(), self.leUID.text(), self.lePWD.text() )
 
 		self.running = True
 		self.canceled = False
@@ -450,10 +488,8 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 			self.lstFiles.clearSelection()
 
-			self.db = QSqlDatabase.addDatabase( "QPSQL" )
-			self.db.setConnectOptions( conn )
-			if not self.db.open():
-				self.log(u"Konnte Datenbankverbindung nicht aufbauen!")
+			conn = self.connectDb()
+			if conn is None:
 				break
 
 			qry = self.db.exec_( "SET application_name='ALKIS-Import - Frontend" )
@@ -483,6 +519,12 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 				if not qry:
 					self.log( u"Konnte Protokolltabelle nicht anlegen [%s]" % qry.lastError().text() )
 					break
+			elif self.cbxClearProtocol.isChecked():
+				qry = self.db.exec_( "DELETE FROM alkis_importlog" )
+				if not qry:
+					self.log( u"Konnte Protokolltabelle nicht leeren [%s]" % qry.lastError().text() )
+					break
+				self.cbxCreate.setChecked( False )
 
 			qry = self.db.exec_( "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='alkis_beziehungen'" )
 			if not qry or not qry.next():
@@ -660,7 +702,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 					try:
 						os.unlink( src[:-4] + ".gfs" )
-					except:
+					except OSError, e:
 						pass
 
 					if size==623:

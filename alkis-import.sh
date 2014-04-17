@@ -57,7 +57,7 @@ timeunits() {
 }
 
 log() {
-	tee $1 | python $B/refilter.py /dev/stdin
+	tee $1 | python $B/refilter.py
 }
 
 B=${0%/*}   # BASEDIR
@@ -67,7 +67,6 @@ fi
 P=${0##*/}  # PROGNAME
 
 export LC_CTYPE=de_DE.UTF-8
-export TEMP=/tmp
 if type -p cygpath >/dev/null; then
 	export PATH=$B/gdal-dev/bin:$PATH
 	export GDAL_DATA=$B/gdal-dev/share/gdal
@@ -187,7 +186,7 @@ do
 			tee $1 |
 			(
 				IFS=
-				exec 5> >(python $B/refilter.py /dev/stdin >&3)
+				exec 5> >(python $B/refilter.py >&3)
 				while read m; do
 					echo "$m" >&5
 					m=${m//\'/\'\'}

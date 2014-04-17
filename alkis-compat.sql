@@ -82,6 +82,10 @@ CREATE FUNCTION st_line_interpolate_point(geometry,float8) RETURNS geometry AS $
   SELECT line_interpolate_point($1,$2);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
+CREATE FUNCTION st_lineinterpolatepoint(geometry,float8) RETURNS geometry AS $$
+  SELECT st_line_interpolate_point($1,$2);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
 CREATE FUNCTION st_reverse(geometry) RETURNS geometry AS $$
   SELECT reverse($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
@@ -90,7 +94,7 @@ CREATE FUNCTION st_length(geometry) RETURNS float8 AS $$
   SELECT length($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
-CREATE FUNCTION st_force_2d(geometry) RETURNS geometry AS $$
+CREATE FUNCTION st_force2d(geometry) RETURNS geometry AS $$
   SELECT force_2d($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
 

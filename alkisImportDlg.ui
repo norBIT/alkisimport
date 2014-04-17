@@ -93,7 +93,7 @@
      <item>
       <widget class="QPushButton" name="pbSaveLog">
        <property name="text">
-        <string>Protokoll speichern...</string>
+        <string>Protokolldatei speichern...</string>
        </property>
       </widget>
      </item>
@@ -113,7 +113,27 @@
      <item>
       <widget class="QPushButton" name="pbClearLog">
        <property name="text">
-        <string>Protokoll löschen</string>
+        <string>Protokollfenster leeren</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_6">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbLoadLog">
+       <property name="text">
+        <string>Protokolltabelle laden</string>
        </property>
       </widget>
      </item>
@@ -262,17 +282,24 @@
       <item row="7" column="1">
        <widget class="QComboBox" name="cbEPSG"/>
       </item>
-      <item row="5" column="4">
+      <item row="7" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Koordinatensystem</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="4">
        <widget class="QCheckBox" name="cbxDebug">
         <property name="text">
          <string>Debugging aktivieren</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="label_5">
+      <item row="5" column="4">
+       <widget class="QCheckBox" name="cbxClearProtocol">
         <property name="text">
-         <string>Koordinatensystem</string>
+         <string>Protokolltabelle löschen</string>
         </property>
        </widget>
       </item>
@@ -362,7 +389,6 @@
   <tabstop>lePORT</tabstop>
   <tabstop>cbxCreate</tabstop>
   <tabstop>cbxSkipFailures</tabstop>
-  <tabstop>cbxDebug</tabstop>
   <tabstop>pbAdd</tabstop>
   <tabstop>pbAddDir</tabstop>
   <tabstop>pbRemove</tabstop>

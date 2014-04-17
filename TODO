@@ -1,0 +1,4 @@
+* Unterschiedliche Maßstäbe unterstützen (advstandardmodell)
+ * QGIS/mapserver: Maßstabsabhängige Klassen
+ * CAD: Maßstabsauswahl für Zeichenfunktion
+* wfs:Update (Historie: ändern von endet und anlass) unterstützen

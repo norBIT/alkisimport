@@ -386,12 +386,12 @@ INSERT INTO klas_3x(flsnr,pk,klf,wertz1,wertz2,gemfl,ff_entst,ff_stand)
     k.klassifizierung AS klf,
     k.bodenzahl,
     k.ackerzahl,
-    sum(st_area(st_intersection(f.wkb_geometry,k.wkb_geometry))) AS gemfl,
+    sum(st_area(st_intersection(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(k.wkb_geometry,0.001,0.001)))) AS gemfl,
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
-  JOIN ax_klassifizierung k ON f.wkb_geometry && k.wkb_geometry AND st_intersects(f.wkb_geometry,k.wkb_geometry)
-  WHERE f.endet IS NULL AND st_area(st_intersection(f.wkb_geometry,k.wkb_geometry))::int>0
+  JOIN ax_klassifizierung k ON f.wkb_geometry && k.wkb_geometry AND st_intersects(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(k.wkb_geometry,0.001,0.001))
+  WHERE f.endet IS NULL AND st_area(st_intersection(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(k.wkb_geometry,0.001,0.001)))::int>0
   GROUP BY
     f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), k.klassifizierung, k.bodenzahl, k.ackerzahl;
 
@@ -408,12 +408,12 @@ INSERT INTO nutz_21(flsnr,pk,nutzsl,gemfl,ff_entst,ff_stand)
     to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
     to_hex(nextval('nutz_shl_pk_seq'::regclass)) AS pk,
     n.nutzung AS nutzsl,
-    sum(st_area(st_intersection(f.wkb_geometry,n.wkb_geometry))) AS gemfl,
+    sum(st_area(st_intersection(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(n.wkb_geometry,0.001,0.001)))) AS gemfl,
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
-  JOIN ax_tatsaechlichenutzung n ON f.wkb_geometry && n.wkb_geometry AND st_intersects(f.wkb_geometry,n.wkb_geometry)
-  WHERE f.endet IS NULL AND st_area(st_intersection(f.wkb_geometry,n.wkb_geometry))::int>0
+  JOIN ax_tatsaechlichenutzung n ON f.wkb_geometry && n.wkb_geometry AND st_intersects(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(n.wkb_geometry,0.001,0.001))
+  WHERE f.endet IS NULL AND st_area(st_intersection(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(n.wkb_geometry,0.001,0.001)))::int>0
   GROUP BY f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), n.nutzung;
 
 UPDATE nutz_21 SET fl=(gemfl*(SELECT flurst.amtlflsfl/flurst.gemflsfl FROM flurst WHERE flurst.flsnr=nutz_21.flsnr))::int;
@@ -434,8 +434,8 @@ INSERT INTO ausfst(flsnr,pk,ausf_st,verfnr,verfshl,ff_entst,ff_stand)
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
-  JOIN ax_ausfuehrendestellen s ON f.wkb_geometry && s.wkb_geometry AND st_intersects(f.wkb_geometry,s.wkb_geometry)
-  WHERE f.endet IS NULL AND st_area(st_intersection(f.wkb_geometry,s.wkb_geometry))::int>0
+  JOIN ax_ausfuehrendestellen s ON f.wkb_geometry && s.wkb_geometry AND st_intersects(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(s.wkb_geometry,0.001,0.001))
+  WHERE f.endet IS NULL AND st_area(st_intersection(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(s.wkb_geometry,0.001,0.001)))::int>0
   GROUP BY f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), s.ausfuehrendestelle;
 
 DELETE FROM afst_shl;
@@ -456,8 +456,8 @@ CREATE TABLE bblnr_temp AS
 		to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
 		b.bezeichnung
         FROM ax_flurstueck f
-        JOIN ax_bauraumoderbodenordnungsrecht b ON b.endet IS NULL AND b.artderfestlegung=2610 AND f.wkb_geometry && b.wkb_geometry AND st_intersects(f.wkb_geometry,b.wkb_geometry)
-        WHERE f.endet IS NULL AND st_area(st_intersection(f.wkb_geometry,b.wkb_geometry))::int>0;
+        JOIN ax_bauraumoderbodenordnungsrecht b ON b.endet IS NULL AND b.artderfestlegung=2610 AND f.wkb_geometry && b.wkb_geometry AND st_intersects(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(b.wkb_geometry,0.001,0.001))
+        WHERE f.endet IS NULL AND st_area(st_intersection(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(b.wkb_geometry,0.001,0.001)))::int>0;
 
 CREATE INDEX bblnr_temp_flsnr ON bblnr_temp(flsnr);
 
