@@ -281,8 +281,7 @@ BEGIN
 	CREATE TABLE v_schutzgebietnachwasserrecht AS
 		SELECT z.ogc_fid,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
 		FROM ax_schutzgebietnachwasserrecht s
-		JOIN alkis_beziehungen b ON s.gml_id=b.beziehung_zu AND b.beziehungsart='istTeilVon'
-		JOIN ax_schutzzone z ON b.beziehung_von=z.gml_id AND z.endet IS NULL
+		JOIN ax_schutzzone z ON z.istteilvon=s.gml_id AND z.endet IS NULL
 		WHERE s.endet IS NULL;
 	CREATE TEMP SEQUENCE a;
 	UPDATE v_schutzgebietnachwasserrecht SET ogc_fid=nextval('a');
@@ -291,8 +290,7 @@ BEGIN
 	CREATE TABLE v_schutzgebietnachnaturumweltoderbodenschutzrecht AS
 		SELECT z.ogc_fid,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
 		FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht s
-		JOIN alkis_beziehungen b ON s.gml_id=b.beziehung_zu AND b.beziehungsart='istTeilVon'
-		JOIN ax_schutzzone z ON b.beziehung_von=z.gml_id AND z.endet IS NULL
+		JOIN ax_schutzzone z ON z.istteilvon=s.gml_id AND z.endet IS NULL
 		WHERE s.endet IS NULL;
 	DROP SEQUENCE a;
 	CREATE TEMP SEQUENCE a;

@@ -158,7 +158,7 @@ do
 		DB=${src#PG:}
 		DRIVER=PostgreSQL
 		sql() {
-			pushd "$B"
+			pushd "$B" >/dev/null
 			psql -P pager=off -v alkis_epsg=$EPSG -q -f "$1" "$DB"
 			popd >/dev/null
 		}
@@ -205,7 +205,7 @@ do
 		user=${DB%%/*}
 		DRIVER=OCI
 		sql() {
-			pushd "$B/oci"
+			pushd "$B/oci" >/dev/null
 			if [ -f "$1" ]; then
 				sqlplus "$DB" @$1 $EPSG
 			else
@@ -415,7 +415,7 @@ EOF
 	trap "echo '$P: Fehler bei $src' >&2; src=error" EXIT
 
 	s=$(stat -c %s "$dst")
-	if (( s == 623 )); then
+	if (( s == 623 || s == 712 )); then
 		echo "SKIP $(bdate): $dst zu kurz - übersprungen"
 		continue
 	fi

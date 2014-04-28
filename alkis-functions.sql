@@ -268,6 +268,7 @@ $$ LANGUAGE plpgsql;
 -- aktuelle oder auch historische Objekte in der Datenbank geführt werden sollen.
 
 -- Löschsatz verarbeiten (MIT Historie)
+-- context='update'        => "endet" auf übergebene Zeit setzen und anlass festhalten
 -- context='delete'        => "endet" auf aktuelle Zeit setzen
 -- context='replace'       => "endet" des ersetzten auf "beginnt" des neuen Objekts setzen
 CREATE OR REPLACE FUNCTION delete_feature_hist() RETURNS TRIGGER AS $$
@@ -377,12 +378,15 @@ BEGIN
 		IF endete IS NULL OR beginnt=endete THEN
 			RAISE EXCEPTION 'Objekt % wird durch Objekt % ersetzt (leere Lebensdauer?).', alt_id, neu_id;
 		END IF;
+	ELSIF NEW.context='update' THEN
+		endete := NEW.endet;
 	ELSE
-		RAISE EXCEPTION '%: Ungültiger Kontext % (''delete'' oder ''replace'' erwartet).', NEW.featureid, NEW.context;
+		RAISE EXCEPTION '%: Ungültiger Kontext % (''delete'', ''replace'' oder ''update'' erwartet).', NEW.featureid, NEW.context;
 	END IF;
 
 	s   := 'UPDATE ' || NEW.typename
 	    || ' SET endet=''' || endete || ''''
+	    || ',anlass=''' || coalesce(NEW.anlass,'000000') || ''''
 	    || ' WHERE gml_id=''' || alt_id || ''''
 	    || ' AND beginnt=''' || beginnt || ''''
 	    || ' AND endet IS NULL';
@@ -518,5 +522,11 @@ BEGIN
 		EXECUTE 'DELETE FROM ' || c.table_name || ' WHERE NOT endet IS NULL';
 		-- RAISE NOTICE 'Lösche ''endet'' in: %', c.table_name;
 	END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION alkis_exception() RETURNS void AS $$
+BEGIN
+	RAISE EXCEPTION 'raising deliberate exception';
 END;
 $$ LANGUAGE plpgsql;

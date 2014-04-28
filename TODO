@@ -2,3 +2,7 @@
  * QGIS/mapserver: Maßstabsabhängige Klassen
  * CAD: Maßstabsauswahl für Zeichenfunktion
 * wfs:Update (Historie: ändern von endet und anlass) unterstützen
+* Test mit frühereren PostgreSQL-Version (gin-Indizes, <@...)
+* Cast von gml_id auf varchar entfernen
+* Fortführung testen (wg. gml_id: character(n) => varchar)
+* Testimport (advstandardmodell/alkis_modelle)

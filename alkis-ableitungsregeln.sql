@@ -55,6 +55,18 @@ SET application_name='ALKIS-Import - Ableitungsregeln';
 
 \i alkis-wertearten.sql
 
+SELECT alkis_dropobject('alkis_modelle');
+CREATE TABLE alkis_modelle(
+	advstandardmodell varchar PRIMARY KEY,
+	minscale integer,
+	maxscale integer
+);
+
+INSERT INTO alkis_modelle(advstandardmodell,minscale,maxscale) VALUES ('DLKM',0,NULL);
+INSERT INTO alkis_modelle(advstandardmodell,minscale,maxscale) VALUES ('DKKM500',0,750);
+INSERT INTO alkis_modelle(advstandardmodell,minscale,maxscale) VALUES ('DKKM1000',750,1500);
+INSERT INTO alkis_modelle(advstandardmodell,minscale,maxscale) VALUES ('DKKM2000',1500,NULL);
+
 SELECT alkis_dropobject('alkis_positionierungsregeln');
 CREATE TABLE alkis_positionierungsregeln(
 	id INTEGER PRIMARY KEY,
@@ -179,7 +191,7 @@ BEGIN
 		INSERT INTO alkis_joinlines(ogc_fid,gml_id,line,visited)
 			SELECT ogc_fid,gml_id,wkb_geometry AS line,false AS visited
 			FROM ax_besondereflurstuecksgrenze
-			WHERE adf = ANY (artderflurstuecksgrenze) AND endet IS NULL;
+			WHERE ARRAY[adf] <@ artderflurstuecksgrenze AND endet IS NULL;
 
 		GET DIAGNOSTICS n = ROW_COUNT;
 
@@ -309,7 +321,8 @@ CREATE TABLE po_points(
 	signaturnummer varchar,
 	drehwinkel double precision DEFAULT 0,
 	advstandardmodell varchar,
-	drehwinkel_grad double precision
+	drehwinkel_grad double precision,
+	FOREIGN KEY (advstandardmodell) REFERENCES alkis_modelle(advstandardmodell)
 );
 
 SELECT AddGeometryColumn('po_points','point', :alkis_epsg, 'MULTIPOINT', 2);
@@ -323,7 +336,8 @@ CREATE TABLE po_lines(
 	layer varchar NOT NULL,
 	signaturnummer varchar,
 	advstandardmodell varchar,
-	FOREIGN KEY (signaturnummer) REFERENCES alkis_linien(signaturnummer)
+	FOREIGN KEY (signaturnummer) REFERENCES alkis_linien(signaturnummer),
+	FOREIGN KEY (advstandardmodell) REFERENCES alkis_modelle(advstandardmodell)
 );
 
 SELECT AddGeometryColumn('po_lines','line', :alkis_epsg, 'MULTILINESTRING', 2);
@@ -340,7 +354,8 @@ CREATE TABLE po_polygons(
 	sn_randlinie varchar,
 	advstandardmodell varchar,
 	FOREIGN KEY (sn_flaeche) REFERENCES alkis_flaechen(signaturnummer),
-	FOREIGN KEY (sn_randlinie) REFERENCES alkis_linien(signaturnummer)
+	FOREIGN KEY (sn_randlinie) REFERENCES alkis_linien(signaturnummer),
+	FOREIGN KEY (advstandardmodell) REFERENCES alkis_modelle(advstandardmodell)
 );
 
 SELECT AddGeometryColumn('po_polygons','polygon', :alkis_epsg, 'MULTIPOLYGON', 2);
@@ -366,7 +381,8 @@ CREATE TABLE po_labels(
 	size_umn integer,
 	darstellungsprioritaet integer,
 	advstandardmodell varchar,
-	FOREIGN KEY (signaturnummer) REFERENCES alkis_schriften(signaturnummer)
+	FOREIGN KEY (signaturnummer) REFERENCES alkis_schriften(signaturnummer),
+	FOREIGN KEY (advstandardmodell) REFERENCES alkis_modelle(advstandardmodell)
 );
 
 SELECT AddGeometryColumn('po_labels','point', :alkis_epsg, 'POINT', 2);
@@ -424,10 +440,9 @@ SELECT
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	coalesce(replace(t.schriftinhalt,'-','/'),o.zaehler||'/'||o.nenner,o.zaehler::text) AS text,
 	t.signaturnummer AS signaturnummer,
-	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung, t.advstandardmodell
+	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung, unnest(t.advstandardmodell)
 FROM ax_flurstueck o
-JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZAE_NEN' AND t.endet IS NULL AND t.signaturnummer IN ('4113','4122','6000')
+JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ZAE_NEN' AND t.endet IS NULL AND t.signaturnummer IN ('4113','4122','6000')
 WHERE o.endet IS NULL;
 
 -- Zähler
@@ -440,11 +455,9 @@ SELECT
 	st_translate(coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)), 0, 0.40) AS point,
 	coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',1),o.zaehler::text) AS text,
 	coalesce(t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4112' ELSE '4111' END) AS signaturnummer,
-	t.drehwinkel, 'zentrisch'::text AS horizontaleausrichtung, 'Basis'::text AS vertikaleausrichtung, t.skalierung, t.fontsperrung, t.advstandardmodell
+	t.drehwinkel, 'zentrisch'::text AS horizontaleausrichtung, 'Basis'::text AS vertikaleausrichtung, t.skalierung, t.fontsperrung, unnest(t.advstandardmodell)
 FROM ax_flurstueck o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.endet IS NULL
 WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122','6000');
 
 -- Nenner
@@ -461,11 +474,9 @@ FROM (
 		st_translate(coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)), 0, -0.40) AS point,
 		coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2)::text,o.nenner::text) AS text,
 		coalesce(t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4112' ELSE '4111' END) AS signaturnummer,
-		0 AS drehwinkel, 'zentrisch'::text AS horizontaleausrichtung, 'oben'::text AS vertikaleausrichtung, t.skalierung, t.fontsperrung, t.advstandardmodell
+		0 AS drehwinkel, 'zentrisch'::text AS horizontaleausrichtung, 'oben'::text AS vertikaleausrichtung, t.skalierung, t.fontsperrung, unnest(t.advstandardmodell) AS advstandardmodell
 	FROM ax_flurstueck o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122','6000')
 ) AS foo
 WHERE NOT text IS NULL;
@@ -491,11 +502,9 @@ FROM (
 			coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',1),o.zaehler::text)) AS lenn,
 			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2),o.nenner::text)) AS lenz,
-			coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+			unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 		FROM ax_flurstueck o
-		LEFT OUTER JOIN (
-			alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.endet IS NULL
-		) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.endet IS NULL
 		WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122','6000')
 	) AS bruchstrich0 WHERE lenz>0 AND lenn>0
 ) AS bruchstrich1;
@@ -508,10 +517,9 @@ SELECT
 	'ax_flurstueck_zuordnung' AS layer,
 	st_multi(l.wkb_geometry) AS line,
 	CASE WHEN o.abweichenderrechtszustand='true' THEN 2005 ELSE 2004 END AS signaturnummer,
-	coalesce(l.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(l.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_flurstueck o
-JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ap_lpo l ON b.beziehung_von=l.gml_id AND l.endet IS NULL -- AND l.art='Pfeil' -- art in RP nicht immer gesetzt
+JOIN ap_lpo l ON ARRAY[o.gml_id::varchar] <@ l.dientzurdarstellungvon AND l.endet IS NULL -- AND l.art='Pfeil' -- art in RP nicht immer gesetzt
 WHERE o.endet IS NULL;
 
 -- Überhaken
@@ -525,8 +533,7 @@ SELECT
 	CASE WHEN o.abweichenderrechtszustand='true' THEN 3011 ELSE 3010 END AS signaturnummer,
 	p.advstandardmodell AS advstandardmodell
 FROM ax_flurstueck o
-JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Haken' AND p.endet IS NULL
+JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='Haken' AND p.endet IS NULL
 WHERE o.endet IS NULL;
 
 --
@@ -549,7 +556,7 @@ SELECT
 FROM ax_besondereflurstuecksgrenze o
 JOIN ax_flurstueck a ON o.wkb_geometry && a.wkb_geometry AND st_intersects(o.wkb_geometry,a.wkb_geometry) AND a.endet IS NULL
 JOIN ax_flurstueck b ON o.wkb_geometry && b.wkb_geometry AND st_intersects(o.wkb_geometry,b.wkb_geometry) AND b.endet IS NULL
-WHERE '1000' = ANY (artderflurstuecksgrenze) AND a.ogc_fid<b.ogc_fid AND o.endet IS NULL;
+WHERE ARRAY[1000] <@ artderflurstuecksgrenze AND a.ogc_fid<b.ogc_fid AND o.endet IS NULL;
 
 -- Nicht festgestellte Grenze
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,advstandardmodell)
@@ -566,11 +573,7 @@ SELECT
 FROM ax_besondereflurstuecksgrenze o
 JOIN ax_flurstueck a ON o.wkb_geometry && a.wkb_geometry AND st_intersects(o.wkb_geometry,a.wkb_geometry) AND a.endet IS NULL
 JOIN ax_flurstueck b ON o.wkb_geometry && b.wkb_geometry AND st_intersects(o.wkb_geometry,b.wkb_geometry) AND b.endet IS NULL
-WHERE (
-        '2001' = ANY (artderflurstuecksgrenze)
-     OR '2003' = ANY (artderflurstuecksgrenze)
-     OR '2004' = ANY (artderflurstuecksgrenze)
-  ) AND a.ogc_fid<b.ogc_fid AND o.endet IS NULL;
+WHERE ARRAY[2001,2003,2004] && artderflurstuecksgrenze AND a.ogc_fid<b.ogc_fid AND o.endet IS NULL;
 
 
 SELECT alkis_dropobject('alkis_joinlines');
@@ -604,8 +607,7 @@ SELECT
 	END AS signaturnummer,
 	coalesce(ta.advstandardmodell,p.advstandardmodell) AS advstandardmodell
 FROM ax_grenzpunkt p
-JOIN alkis_beziehungen b ON p.gml_id=b.beziehung_zu AND b.beziehungsart='istTeilVon'
-JOIN ax_punktortta ta ON b.beziehung_von=ta.gml_id AND ta.endet IS NULL
+JOIN ax_punktortta ta ON p.gml_id=ta.istteilvon AND ta.endet IS NULL
 WHERE abmarkung_marke<>9500 AND p.endet IS NULL;
 
 /*
@@ -623,8 +625,7 @@ SELECT
 	END AS signaturnummer,
 	coalesce(au.advstandardmodell,p.advstandardmodell) AS advstandardmodell
 FROM ax_grenzpunkt p
-JOIN alkis_beziehungen b ON p.gml_id=b.beziehung_zu AND b.beziehungsart='istTeilVon'
-JOIN ax_punktortau au ON b.beziehung_von=au.gml_id AND au.endet IS NULL
+JOIN ax_punktortau au ON p.gml_id=au.istteilvon AND au.endet IS NULL
 WHERE abmarkung_marke<>9500 AND p.endet IS NULL;
 */
 
@@ -664,13 +665,10 @@ SELECT
 		ELSE '4072'
 		END
 	) AS signaturnummer,
-	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung, t.advstandardmodell
+	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung, unnest(t.advstandardmodell) AS advstandardmodell
 FROM ax_grenzpunkt p
-JOIN alkis_beziehungen bo ON p.gml_id=bo.beziehung_zu
-JOIN ax_punktortta ta ON bo.beziehung_von=ta.gml_id AND ta.endet IS NULL AND bo.beziehungsart='istTeilVon'
-LEFT OUTER JOIN (
-	alkis_beziehungen bt JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.endet IS NULL
-) ON p.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
+JOIN ax_punktortta ta ON p.gml_id=ta.istteilvon AND ta.endet IS NULL
+LEFT OUTER JOIN ap_pto t ON ARRAY[p.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.endet IS NULL
 WHERE coalesce(besonderePunktnummer,'')<>'' AND p.endet IS NULL;
 
 DROP INDEX po_points_temp0;
@@ -691,10 +689,9 @@ SELECT
 	t.wkb_geometry AS point,
 	coalesce(schriftinhalt,CASE WHEN bezeichnung LIKE 'Flur %' THEN bezeichnung ELSE 'Flur '||bezeichnung END) AS text,
 	coalesce(t.signaturnummer,'4200') AS signaturnummer,
-	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung, t.advstandardmodell
+	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung, unnest(t.advstandardmodell)
 FROM ax_gemarkungsteilflur o
-JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BEZ' AND t.endet IS NULL
+JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='BEZ' AND t.endet IS NULL
 WHERE coalesce(t.schriftinhalt,'')<>'Flur 0' AND o.endet IS NULL;
 
 -- Gemarkungsnamen (RP)
@@ -706,10 +703,9 @@ SELECT
 	t.wkb_geometry AS point,
 	coalesce(t.schriftinhalt,o.bezeichnung) AS text,
 	coalesce(t.signaturnummer,'4200') AS signaturnummer,
-	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung, t.advstandardmodell
+	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung, unnest(t.advstandardmodell)
 FROM ax_gemarkung o
-JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BEZ' AND t.endet IS NULL AND schriftinhalt IS NOT NULL
+JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='BEZ' AND t.endet IS NULL AND schriftinhalt IS NOT NULL
 WHERE o.endet IS NULL AND o.gml_id LIKE 'DERP%';
 
 -- Gemarkungsnamen (RP)
@@ -721,10 +717,9 @@ SELECT
 	t.wkb_geometry AS point,
 	coalesce(t.schriftinhalt,o.bezeichnung) AS text,
 	coalesce(t.signaturnummer,'4200') AS signaturnummer,
-	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung, t.advstandardmodell
+	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung, unnest(t.advstandardmodell)
 FROM ax_gemeinde o
-JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BEZ' AND t.endet IS NULL AND schriftinhalt IS NOT NULL
+JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='BEZ' AND t.endet IS NULL AND schriftinhalt IS NOT NULL
 WHERE o.endet IS NULL AND o.gml_id LIKE 'DERP%';
 
 SELECT 'Lagebezeichnungen ohne Hausnummer werden verarbeitet.';
@@ -739,10 +734,9 @@ SELECT
 	schriftinhalt AS text,
 	coalesce(t.signaturnummer,'4160') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-	coalesce(t.advstandardmodell,o.advstandardmodell)
+	unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_lagebezeichnungohnehausnummer o
-JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND art='Ort' AND t.endet IS NULL
+JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND art='Ort' AND t.endet IS NULL
 WHERE coalesce(schriftinhalt,'')<>'' AND o.endet IS NULL;
 
 -- Lagebezeichnungen
@@ -761,10 +755,9 @@ SELECT
 		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	coalesce(t.signaturnummer,'4206') AS signaturnummer,
-	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, coalesce(t.advstandardmodell,o.advstandardmodell)
+	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell]))
 FROM ax_lagebezeichnungohnehausnummer o
-JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art='Gewanne' AND t.endet IS NULL
+JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='Gewanne' AND t.endet IS NULL
 WHERE o.endet IS NULL;
 
 -- Straße/Weg
@@ -781,10 +774,9 @@ SELECT
 		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	coalesce(t.signaturnummer,'4107') AS signaturnummer,
-	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, coalesce(t.advstandardmodell,o.advstandardmodell)
+	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell]))
 FROM ax_lagebezeichnungohnehausnummer o
-JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Strasse','Weg','Straße') AND t.endet IS NULL  -- Straße wird in TH verwendet
+JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art IN ('Strasse','Weg','Straße') AND t.endet IS NULL  -- Straße wird in TH verwendet
 WHERE o.endet IS NULL;
 
 -- Platz/Bahnverkehr
@@ -801,10 +793,9 @@ SELECT
 		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	coalesce(t.signaturnummer,'4141') AS signaturnummer,
-	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, coalesce(t.advstandardmodell,o.advstandardmodell)
+	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell]))
 FROM ax_lagebezeichnungohnehausnummer o
-JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Platz','Bahnverkehr') AND t.endet IS NULL
+JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art IN ('Platz','Bahnverkehr') AND t.endet IS NULL
 WHERE o.endet IS NULL;
 
 -- Fließgewässer/Stehendes Gewässer
@@ -821,10 +812,9 @@ SELECT
 		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	coalesce(signaturnummer,'4117') AS signaturnummer,
-	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, coalesce(t.advstandardmodell,o.advstandardmodell)
+	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell]))
 FROM ax_lagebezeichnungohnehausnummer o
-JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Fliessgewaesser','StehendesGewaesser') AND t.endet IS NULL
+JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art IN ('Fliessgewaesser','StehendesGewaesser') AND t.endet IS NULL
 WHERE o.endet IS NULL;
 
 -- ohne Hausnummer auf Linie
@@ -842,10 +832,9 @@ SELECT
 		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	4107 AS signaturnummer,
-	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, coalesce(t.advstandardmodell,o.advstandardmodell)
+	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell]))
 FROM ax_lagebezeichnungohnehausnummer o
-JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_lto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Strasse','Weg','Straße') AND t.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000' -- Straße wird in TH verwendet
+JOIN ap_lto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art IN ('Strasse','Weg','Straße') AND t.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000' -- Straße wird in TH verwendet
 WHERE o.endet IS NULL;
 
 -- Platz/Bahnverkehr, Text auf Linien
@@ -862,10 +851,9 @@ SELECT
 		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	4141 AS signaturnummer,
-	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, coalesce(t.advstandardmodell,o.advstandardmodell)
+	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell]))
 FROM ax_lagebezeichnungohnehausnummer o
-JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu
-JOIN ap_lto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Platz','Bahnverkehr') AND t.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000'
+JOIN ap_lto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art IN ('Platz','Bahnverkehr') AND t.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 -- Fließgewässer/Stehendes Gewässer, Text auf Linien
@@ -882,10 +870,9 @@ SELECT
 		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	coalesce(t.signaturnummer,'4117') AS signaturnummer,
-	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, coalesce(t.advstandardmodell,o.advstandardmodell)
+	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell]))
 FROM ax_lagebezeichnungohnehausnummer o
-JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_lto t ON bt.beziehung_von=t.gml_id AND t.art IN ('Fliessgewaesser','StehendesGewaesser') AND t.endet IS NULL
+JOIN ap_lto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art IN ('Fliessgewaesser','StehendesGewaesser') AND t.endet IS NULL
 WHERE o.endet IS NULL;
 
 
@@ -904,10 +891,9 @@ SELECT
 	t.wkb_geometry AS point,
 	schriftinhalt AS text,
 	coalesce(t.signaturnummer,'4160') AS signaturnummer,
-	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, coalesce(t.advstandardmodell,o.advstandardmodell)
+	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell]))
 FROM ax_lagebezeichnungmithausnummer o
-JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND art='Ort' AND t.endet IS NULL
+JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND art='Ort' AND t.endet IS NULL
 WHERE coalesce(schriftinhalt,'')<>'' AND o.endet IS NULL;
 
 -- mit Hausnummer (bezieht sich auf Gebäude, Turm oder Flurstück)
@@ -923,16 +909,12 @@ SELECT
 	ELSE coalesce(tx.schriftinhalt,'HsNr. '||hausnummer)
 	END AS text,
 	coalesce(tx.signaturnummer,'4070') AS signaturnummer,
-	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, coalesce(t.advstandardmodell,o.advstandardmodell)
+	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, unnest(coalesce(tx.advstandardmodell,ARRAY[o.advstandardmodell]))
 FROM ax_lagebezeichnungmithausnummer o
-JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto tx ON bt.beziehung_von=tx.gml_id AND tx.art='HNR'
-JOIN (
-	alkis_beziehungen bg
-	LEFT OUTER JOIN ax_turm t       ON bg.beziehung_von=t.gml_id AND t.endet IS NULL
-	LEFT OUTER JOIN ax_gebaeude g   ON bg.beziehung_von=g.gml_id AND g.endet IS NULL
-	LEFT OUTER JOIN ax_flurstueck f ON bg.beziehung_von=f.gml_id AND f.endet IS NULL
-) ON o.gml_id=bg.beziehung_zu AND bg.beziehungsart='zeigtAuf' AND NOT coalesce(t.ogc_fid,g.ogc_fid,f.ogc_fid,'6000') IS NULL
+JOIN ap_pto tx ON ARRAY[o.gml_id::varchar] <@ tx.dientzurdarstellungvon AND tx.art='HNR'
+LEFT OUTER JOIN ax_turm     t   ON o.gml_id=t.zeigtauf AND NOT t.endet IS NULL
+LEFT OUTER JOIN ax_gebaeude g   ON ARRAY[o.gml_id::varchar] <@ g.zeigtauf AND NOT g.endet IS NULL
+LEFT OUTER JOIN ax_flurstueck f ON ARRAY[o.gml_id::varchar] <@ f.zeigtauf AND NOT f.endet IS NULL
 WHERE o.endet IS NULL;
 
 
@@ -951,10 +933,9 @@ SELECT
 	t.wkb_geometry AS point,
 	coalesce('('||laufendenummer||')','P'||pseudonummer) AS text,
 	coalesce(t.signaturnummer,'4070') AS signaturnummer,
-	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, coalesce(t.advstandardmodell,o.advstandardmodell)
+	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell]))
 FROM ax_lagebezeichnungmitpseudonummer o
-JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art='PNR' AND t.endet IS NULL
+JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='PNR' AND t.endet IS NULL
 WHERE o.endet IS NULL;
 
 -- Lagebezeichnung mit Pseudonummer, Ortsteil
@@ -966,10 +947,9 @@ SELECT
 	t.wkb_geometry AS point,
 	schriftinhalt AS text,
 	coalesce(t.signaturnummer,'4160') AS signaturnummer,
-	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, coalesce(t.advstandardmodell,o.advstandardmodell)
+	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell]))
 FROM ax_lagebezeichnungmitpseudonummer o
-JOIN alkis_beziehungen bt ON o.gml_id=bt.beziehung_zu AND bt.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON bt.beziehung_von=t.gml_id AND t.art='Ort' AND t.endet IS NULL AND schriftinhalt IS NOT NULL
+JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='Ort' AND t.endet IS NULL AND schriftinhalt IS NOT NULL
 WHERE o.endet IS NULL;
 
 
@@ -1114,12 +1094,8 @@ FROM (
 	FROM ax_gebaeude
 	WHERE endet IS NULL
 ) AS o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='GFK' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-LEFT OUTER JOIN (
-	alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='GFK' AND d.endet IS NULL
-) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='GFK' AND p.endet IS NULL
+LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='GFK' AND d.endet IS NULL
 WHERE NOT o.signaturnummer IS NULL;
 
 -- Gebäudebeschriftungen
@@ -1166,18 +1142,14 @@ FROM (
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.vertikaleausrichtung ELSE n.vertikaleausrichtung END AS vertikaleausrichtung,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.skalierung ELSE n.skalierung END AS skalierung,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.fontsperrung ELSE n.fontsperrung END AS fontsperrung,
-		CASE WHEN name IS NULL AND n.advstandardmodell IS NULL THEN t.advstandardmodell ELSE n.advstandardmodell END AS advstandardmodell
+		CASE WHEN name IS NULL AND n.advstandardmodell IS NULL THEN unnest(t.advstandardmodell) ELSE unnest(n.advstandardmodell) END AS advstandardmodell
 	FROM (
 		SELECT gml_id, wkb_geometry, gebaeudefunktion, unnest(coalesce(name,ARRAY[NULL])) AS name
 		FROM ax_gebaeude
 		WHERE endet IS NULL
 	) AS o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='GFK' AND t.endet IS NULL
-        ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_pto n ON c.beziehung_von=n.gml_id AND n.art='NAM' AND n.endet IS NULL
-        ) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='GFK' AND t.endet IS NULL
+	LEFT OUTER JOIN ap_pto n ON ARRAY[o.gml_id::varchar] <@ n.dientzurdarstellungvon AND n.art='NAM' AND n.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
 
 -- Weitere Gebäudefunktion
@@ -1228,9 +1200,7 @@ FROM (
 		WHERE NOT weiteregebaeudefunktion IS NULL AND endet IS NULL
 	) AS o
 ) AS o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='GFK' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='GFK' AND p.endet IS NULL
 WHERE NOT o.signaturnummer IS NULL;
 
 -- Weitere Gebäudefunktionsbeschriftungen
@@ -1267,12 +1237,8 @@ FROM (
 		FROM ax_gebaeude o
 		WHERE endet IS NULL
 	) AS o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='GFK' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_pto n ON c.beziehung_von=n.gml_id AND n.art='NAM' AND n.endet IS NULL
-        ) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='GFK' AND t.endet IS NULL
+	LEFT OUTER JOIN ap_pto n ON ARRAY[o.gml_id::varchar] <@ n.dientzurdarstellungvon AND n.art='NAM' AND n.endet IS NULL
 	WHERE NOT gebaeudefunktion IS NULL
 ) AS o
 WHERE NOT text IS NULL;
@@ -1290,9 +1256,7 @@ SELECT
 	coalesce(t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN 4112 ELSE 4111 END) AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung, advstandardmodell
 FROM ax_gebaeude o
-LEFT OUTER JOIN (
-  alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZAE_NEN' AND (t.signaturnummer IS NULL OR t.signaturnummer IN ('4122','4123')) AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ZAE_NEN' AND (t.signaturnummer IS NULL OR t.signaturnummer IN ('4122','4123')) AND t.endet IS NULL
 WHERE NOT name IS NULL AND o.endet IS NULL;
 */
 
@@ -1308,9 +1272,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	unnest(coalesce(ARRAY[t.advstandardmodell],o.advstandardmodell))
 FROM ax_gebaeude o
-LEFT OUTER JOIN (
-  alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='AOG_AUG' AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='AOG_AUG' AND t.endet IS NULL
 WHERE (NOT anzahlderoberirdischengeschosse IS NULL OR NOT anzahlderunterirdischengeschosse IS NULL) AND o.endet IS NULL;
 
 -- Dachform
@@ -1341,9 +1303,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	unnest(coalesce(ARRAY[t.advstandardmodell],o.advstandardmodell))
 FROM ax_gebaeude o
-LEFT OUTER JOIN (
-  alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='DAF' AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='DAF' AND t.endet IS NULL
 WHERE NOT dachform IS NULL AND o.endet IS NULL;
 
 -- Gebäudezustände
@@ -1365,9 +1325,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	unnest(coalesce(ARRAY[t.advstandardmodell],o.advstandardmodell)) AS advstandardmodell
 FROM ax_gebaeude o
-LEFT OUTER JOIN (
-  alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZUS' AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ZUS' AND t.endet IS NULL
 WHERE zustand IN (2200,2300,3000,4000) AND o.endet IS NULL;
 
 
@@ -1433,9 +1391,7 @@ SELECT
 	coalesce(p.signaturnummer,'3336') AS signaturnummer,
 	unnest(coalesce(ARRAY[p.advstandardmodell],o.advstandardmodell)) AS advstandardmodell
 FROM ax_bauteil o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BAT' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='BAT' AND p.endet IS NULL
 WHERE bauart=2100 AND o.endet IS NULL;
 
 -- Gebäudeteildachform
@@ -1466,9 +1422,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	unnest(coalesce(ARRAY[t.advstandardmodell],o.advstandardmodell)) AS advstandardmodell
 FROM ax_bauteil o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='DAF' AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='DAF' AND t.endet IS NULL
 WHERE NOT dachform IS NULL AND o.endet IS NULL;
 
 -- Gebäudeteil, oberirdische Geschosse
@@ -1483,9 +1437,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	unnest(coalesce(ARRAY[t.advstandardmodell],o.advstandardmodell)) AS advstandardmodell
 FROM ax_bauteil o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='AOG' AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='AOG' AND t.endet IS NULL
 WHERE NOT anzahlderoberirdischengeschosse IS NULL AND o.endet IS NULL;
 
 -- Besondere Gebäudelinien
@@ -1498,7 +1450,7 @@ SELECT
 	2305 AS signaturnummer,
 	advstandardmodell
 FROM ax_besonderegebaeudelinie
-WHERE '1000' = ANY (beschaffenheit) AND endet IS NULL;
+WHERE ARRAY[1000] <@ beschaffenheit AND endet IS NULL;
 
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,advstandardmodell)
 SELECT
@@ -1509,7 +1461,7 @@ SELECT
 	2302 AS signaturnummer,
 	advstandardmodell
 FROM ax_besonderegebaeudelinie
-WHERE '4000' = ANY (beschaffenheit) AND endet IS NULL;
+WHERE ARRAY[4000] <@ beschaffenheit AND endet IS NULL;
 
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,advstandardmodell)
 SELECT
@@ -1561,11 +1513,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_wohnbauflaeche o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-        ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS n WHERE NOT text IS NULL;
 
@@ -1603,11 +1553,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_industrieundgewerbeflaeche o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-        ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS i WHERE NOT text IS NULL;
 
@@ -1677,11 +1625,9 @@ FROM (
 		END AS text,
 		coalesce(t.signaturnummer,'4140') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_industrieundgewerbeflaeche o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='FKT' AND t.endet IS NULL
-        ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='FKT' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS i WHERE NOT text IS NULL;
 
@@ -1709,14 +1655,10 @@ FROM (
 			WHEN funktion=2540           THEN '3404'
 			END
 		) AS signaturnummer,
-		coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_industrieundgewerbeflaeche o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
-        ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='FKT' AND d.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='FKT' AND p.endet IS NULL
+	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='FKT' AND d.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o
 WHERE NOT signaturnummer IS NULL;
@@ -1757,11 +1699,9 @@ FROM (
 			'Halde'
 		) AS text,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_halde o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='Halde_LGT' AND t.endet IS NULL
-        ) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='Halde_LGT' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o
 WHERE NOT text IS NULL;
@@ -1783,11 +1723,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_halde o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
 
@@ -1823,11 +1761,9 @@ FROM (
 		coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
 		coalesce(p.signaturnummer,CASE WHEN zustand=2100 THEN '3406' ELSE '3505' END) AS signaturnummer,
-		coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bergbaubetrieb o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ZUS' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='ZUS' AND p.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS b;
 
@@ -1851,11 +1787,9 @@ FROM (
 		) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bergbaubetrieb o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='AGT' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='AGT' AND t.endet IS NULL
 	WHERE NOT abbaugut IS NULL AND o.endet IS NULL
 ) AS b
 WHERE NOT text IS NULL;
@@ -1877,11 +1811,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bergbaubetrieb o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS h WHERE NOT text IS NULL;
 
@@ -1925,11 +1857,9 @@ FROM (
 		) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_tagebaugrubesteinbruch o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='AGT' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='AGT' AND t.endet IS NULL
 	WHERE NOT abbaugut IS NULL AND o.endet IS NULL
 ) AS b
 WHERE NOT text IS NULL;
@@ -1943,11 +1873,9 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(p.signaturnummer,'3407') AS signaturnummer,
-	coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_tagebaugrubesteinbruch o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='FKT' AND p.endet IS NULL
 WHERE o.endet IS NULL;
 
 -- Tagebau, Namen
@@ -1967,11 +1895,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_tagebaugrubesteinbruch o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
 
@@ -2008,11 +1934,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_flaechegemischternutzung o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS n WHERE NOT text IS NULL;
 
@@ -2050,11 +1974,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_flaechebesondererfunktionalerpraegung o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
 
@@ -2078,10 +2000,9 @@ FROM (
 		) AS text,
 		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_industrieundgewerbeflaeche o
-	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='FKT' AND t.endet IS NULL
+	JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='FKT' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND funktion=1300 AND o.gml_id LIKE 'DERP%'
 ) AS i WHERE NOT text IS NULL;
 
@@ -2133,14 +2054,10 @@ FROM (
 			END
 		) AS text,
 		coalesce(t.signaturnummer,n.signaturnummer,'4140') AS signaturnummer,
-		t.drehwinkel,t.horizontaleausrichtung,t.vertikaleausrichtung,t.skalierung,t.fontsperrung, t.advstandardmodell
+		t.drehwinkel,t.horizontaleausrichtung,t.vertikaleausrichtung,t.skalierung,t.fontsperrung, unnest(t.advstandardmodell) AS advstandardmodell
 	FROM ax_sportfreizeitunderholungsflaeche o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='FKT' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_pto n ON c.beziehung_von=n.gml_id AND n.art='NAM' AND n.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='FKT' AND t.endet IS NULL
+	LEFT OUTER JOIN ap_pto n ON ARRAY[o.gml_id::varchar] <@ n.dientzurdarstellungvon AND n.art='NAM' AND n.endet IS NULL
 	WHERE name IS NULL AND n.schriftinhalt IS NULL AND o.endet IS NULL
 ) AS o
 WHERE NOT text IS NULL;
@@ -2175,14 +2092,10 @@ FROM (
 			WHEN funktion=4470           THEN '3423'
 			END
 		) AS signaturnummer,
-		coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_sportfreizeitunderholungsflaeche o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='FKT' AND d.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='FKT' AND p.endet IS NULL
+	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='FKT' AND d.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT signaturnummer IS NULL;
 
@@ -2203,11 +2116,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_sportfreizeitunderholungsflaeche o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS n WHERE NOT text IS NULL;
 
@@ -2242,14 +2153,10 @@ FROM (
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,n.signaturnummer,'4140') AS signaturnummer,
-		t.drehwinkel,t.horizontaleausrichtung,t.vertikaleausrichtung,t.skalierung,t.fontsperrung, t.advstandardmodell
+		t.drehwinkel,t.horizontaleausrichtung,t.vertikaleausrichtung,t.skalierung,t.fontsperrung, unnest(t.advstandardmodell) AS advstandardmodell
 	FROM ax_friedhof o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='Friedhof' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_pto n ON c.beziehung_von=n.gml_id AND n.art='NAM' AND n.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='Friedhof' AND t.endet IS NULL
+	LEFT OUTER JOIN ap_pto n ON ARRAY[o.gml_id::varchar] <@ n.dientzurdarstellungvon AND n.art='NAM' AND n.endet IS NULL
 	WHERE name IS NULL AND n.schriftinhalt IS NULL AND o.endet IS NULL
 ) AS n WHERE NOT text IS NULL;
 
@@ -2270,11 +2177,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_friedhof o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE NOT name IS NULL OR NOT t.schriftinhalt IS NULL AND o.endet IS NULL
 ) AS n;
 
@@ -2323,11 +2228,9 @@ FROM (
 		) AS text,
 		coalesce(t.signaturnummer,'4100') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_strassenverkehr o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='FKT' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='FKT' AND t.endet IS NULL
 	WHERE  funktion=4130 AND o.endet IS NULL
 ) AS n WHERE NOT text IS NULL;
 
@@ -2348,11 +2251,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.zweitname) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_strassenverkehr o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZNM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ZNM' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS n WHERE NOT text IS NULL;
 
@@ -2397,14 +2298,10 @@ FROM (
 			WHEN funktion=5260           THEN '3430'
 			END
 		) AS signaturnummer,
-		coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_weg o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='FKT' AND d.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='FKT' AND p.endet IS NULL
+	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='FKT' AND d.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT signaturnummer IS NULL;
 
@@ -2447,11 +2344,9 @@ FROM (
 			WHEN funktion=5330 THEN '3436'
 			END
 		) AS signaturnummer,
-		coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_platz o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='FKT' AND p.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o
 WHERE NOT signaturnummer IS NULL;
@@ -2476,11 +2371,9 @@ FROM (
 		) AS text,
 		coalesce(t.signaturnummer,'4140') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_platz o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.endet IS NULL -- AND t.art='FKT' -- fehlt in RP
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.endet IS NULL -- AND t.art='FKT' -- fehlt in RP
 	WHERE o.endet IS NULL -- AND funktion IN (5340,5350)
 ) AS n WHERE NOT text IS NULL;
 
@@ -2501,11 +2394,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.zweitname) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_platz o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZNM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ZNM' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS n WHERE NOT text IS NULL;
 
@@ -2551,11 +2442,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.zweitname) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bahnverkehr o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZNM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ZNM' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS n WHERE NOT text IS NULL;
 
@@ -2598,11 +2487,9 @@ FROM (
 			WHEN funktion=5550 THEN '3439'
 			END
 		) AS signaturnummer,
-		coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_flugverkehr o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ART' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='ART' AND p.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o
 WHERE NOT signaturnummer IS NULL;
@@ -2624,11 +2511,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4200') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_flugverkehr o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -2666,11 +2551,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_schiffsverkehr o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -2698,10 +2581,9 @@ FROM (
 		) AS text,
 		coalesce(t.signaturnummer,'4140') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_schiffsverkehr o
-	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='FKT' AND t.endet IS NULL
+	JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='FKT' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND o.gml_id LIKE 'DERP%'
 ) AS i WHERE NOT text IS NULL;
 
@@ -2768,14 +2650,10 @@ FROM (
 			WHEN vegetationsmerkmal=1052 THEN '3454'
 			END
 		) AS signaturnummer,
-		coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_landwirtschaft o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='VEG' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='VEG' AND d.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='VEG' AND p.endet IS NULL
+	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='VEG' AND d.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT signaturnummer IS NULL;
 
@@ -2796,11 +2674,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4208') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_landwirtschaft o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -2846,14 +2722,10 @@ FROM (
 			WHEN vegetationsmerkmal IN (1300,1310,1320) THEN '3462'
 			END
 		) AS signaturnummer,
-		coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_wald o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='VEG' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='VEG' AND d.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='VEG' AND p.endet IS NULL
+	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='VEG' AND d.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o
 WHERE NOT signaturnummer IS NULL;
@@ -2875,11 +2747,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4209') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_wald o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -2923,14 +2793,10 @@ FROM (
 			WHEN vegetationsmerkmal=1400                THEN '3472'
 			END
 		) AS signaturnummer,
-		coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_gehoelz o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='VEG' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='VEG' AND d.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='VEG' AND p.endet IS NULL
+	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='VEG' AND d.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o
 WHERE NOT signaturnummer IS NULL;
@@ -2952,11 +2818,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4209') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_gehoelz o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -2985,14 +2849,10 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(d.signaturnummer,'3474') AS signaturnummer,
-	coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_heide o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Heide' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-LEFT OUTER JOIN (
-	alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='Heide' AND d.endet IS NULL
-) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='Heide' AND p.endet IS NULL
+LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='Heide' AND d.endet IS NULL
 WHERE o.endet IS NULL;
 
 -- Heide, Namen
@@ -3012,11 +2872,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4209') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_heide o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -3046,14 +2904,10 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(d.signaturnummer,p.signaturnummer,'3476') AS signaturnummer,
-	coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_moor o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Moor' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-LEFT OUTER JOIN (
-	alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='Moor' AND d.endet IS NULL
-) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='Moor' AND p.endet IS NULL
+LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='Moor' AND d.endet IS NULL
 WHERE o.endet IS NULL;
 
 -- Moor, Namen
@@ -3073,11 +2927,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4209') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_moor o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -3106,14 +2958,10 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(d.signaturnummer,p.signaturnummer,'3478') AS signaturnummer,
-	coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_sumpf o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Sumpf' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-LEFT OUTER JOIN (
-	alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='Sumpf' AND d.endet IS NULL
-) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='Sumpf' AND p.endet IS NULL
+LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='Sumpf' AND d.endet IS NULL
 WHERE o.endet IS NULL;
 
 -- Sumpf, Namen
@@ -3133,11 +2981,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4209') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_sumpf o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -3199,14 +3045,10 @@ FROM (
 				END
 			END
 		) AS signaturnummer,
-		coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_unlandvegetationsloseflaeche o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='OFM' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='OFM' AND d.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='OFM' AND p.endet IS NULL
+	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='OFM' AND d.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT signaturnummer IS NULL;
 
@@ -3231,14 +3073,10 @@ FROM (
 			CASE WHEN oberflaechenmaterial IN (1110,1120) THEN '4151' ELSE '4150' END
 		) AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_unlandvegetationsloseflaeche o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='NAM' AND d.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
+	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='NAM' AND d.endet IS NULL
 ) AS n WHERE NOT text IS NULL;
 
 
@@ -3270,10 +3108,9 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(p.signaturnummer,'3488') AS signaturnummer,
-	coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_fliessgewaesser o
-JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Fließpfeil' AND p.endet IS NULL
+JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='Fließpfeil' AND p.endet IS NULL
 WHERE o.endet IS NULL AND coalesce(zustand,0)<>4000;
 
 -- Fließgewäesser, Symbol
@@ -3285,14 +3122,10 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(d.signaturnummer,p.signaturnummer,'3490') AS signaturnummer,
-	coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_fliessgewaesser o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-LEFT OUTER JOIN (
-	alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='FKT' AND d.endet IS NULL
-) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='FKT' AND p.endet IS NULL
+LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='FKT' AND d.endet IS NULL
 WHERE o.endet IS NULL AND funktion=8300 AND zustand=4000;
 
 
@@ -3321,11 +3154,9 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(p.signaturnummer,'3490') AS signaturnummer,
-	coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_hafenbecken o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='FKT' AND p.endet IS NULL
 WHERE o.endet IS NULL;
 
 -- Hafenbecken, Namen
@@ -3345,11 +3176,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4211') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_hafenbecken o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -3382,14 +3211,10 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(d.signaturnummer,p.signaturnummer,'3490') AS signaturnummer,
-	coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_stehendesgewaesser o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-LEFT OUTER JOIN (
-	alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='FKT' AND d.endet IS NULL
-) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='FKT' AND p.endet IS NULL
+LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='FKT' AND d.endet IS NULL
 WHERE o.endet IS NULL;
 
 
@@ -3418,14 +3243,10 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(d.signaturnummer,p.signaturnummer,'3490') AS signaturnummer,
-	coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_meer o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-LEFT OUTER JOIN (
-	alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='FKT' AND d.endet IS NULL
-) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='FKT' AND p.endet IS NULL
+LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='FKT' AND d.endet IS NULL
 WHERE o.endet IS NULL;
 
 -- Meer, Namen
@@ -3445,11 +3266,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4286') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_meer o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -3496,11 +3315,9 @@ FROM (
 		) AS text,
 		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_turm o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BWF_ZUS' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='BWF_ZUS' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS n WHERE NOT text IS NULL;
 
@@ -3521,11 +3338,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4074') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_turm o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -3599,11 +3414,9 @@ FROM (
 			WHEN bauwerksfunktion=1400           THEN '3521'
 			END
 		) AS signaturnummer,
-		coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauwerkoderanlagefuerindustrieundgewerbe o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='FKT' AND p.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT signaturnummer IS NULL AND NOT point IS NULL;
 
@@ -3633,11 +3446,9 @@ FROM (
 			END
 		) AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauwerkoderanlagefuerindustrieundgewerbe o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BWF' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='BWF' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS n WHERE NOT signaturnummer IS NULL AND text IS NULL;
 
@@ -3658,11 +3469,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauwerkoderanlagefuerindustrieundgewerbe o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -3687,11 +3496,9 @@ FROM (
 		END AS text,
 		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauwerkoderanlagefuerindustrieundgewerbe o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZUS' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ZUS' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND zustand IN (2100,2200,4200)
 ) AS n;
 
@@ -3745,14 +3552,10 @@ FROM (
 		)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
 		coalesce(d.signaturnummer,p.signaturnummer,'3522') AS signaturnummer,
-		coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_vorratsbehaelterspeicherbauwerk o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Vorratsbehaelter' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='Vorratsbehaelter' AND d.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='Vorratsbehaelter' AND p.endet IS NULL
+	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='Vorratsbehaelter' AND d.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o;
 
@@ -3773,11 +3576,9 @@ FROM (
 		coalesce(t.schriftinhalt,name) AS text,
 		coalesce(t.signaturnummer,'4107') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_vorratsbehaelterspeicherbauwerk o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -3840,11 +3641,9 @@ FROM (
 		(select v from alkis_wertearten where element='ax_vorratsbehaelterspeicherbauwerk' AND bezeichnung='produkt' AND k=produkt::text) AS text,
 		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_transportanlage o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='PRO' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='PRO' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT produkt IS NULL
 ) AS n
 WHERE NOT text IS NULL;
@@ -3879,11 +3678,9 @@ SELECT
 	'Erdkabel' AS text,
 	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-	coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_leitung o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BWF' AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='BWF' AND t.endet IS NULL
 WHERE bauwerksfunktion=1111 AND o.endet IS NULL;
 
 -- Anschrieb Spannungsebene
@@ -3896,11 +3693,9 @@ SELECT
 	spannungsebene || CASE WHEN o.gml_id LIKE 'DERP%' THEN ' kV' ELSE ' KV' END AS text,
 	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-	coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_leitung o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='SPG' AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='SPG' AND t.endet IS NULL
 WHERE o.endet IS NULL AND NOT spannungsebene IS NULL;
 
 
@@ -3959,11 +3754,9 @@ FROM (
 		END AS text,
 		coalesce(t.signaturnummer,'4100') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauwerkoderanlagefuersportfreizeitunderholung o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BWF' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='BWF' AND t.endet IS NULL
 	WHERE o.endet IS NULL
  ) AS o WHERE NOT text IS NULL;
 
@@ -3989,11 +3782,9 @@ FROM (
 			WHEN bauwerksfunktion=1490 THEN '3525'
 			END
 		) AS signaturnummer,
-		coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauwerkoderanlagefuersportfreizeitunderholung o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BWF' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='BWF' AND p.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT signaturnummer IS NULL;
 
@@ -4014,11 +3805,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauwerkoderanlagefuersportfreizeitunderholung o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -4050,11 +3839,9 @@ FROM (
 		END AS text,
 		coalesce(t.signaturnummer,'4100') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauwerkoderanlagefuersportfreizeitunderholung o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='SPO' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='SPO' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT sportart IS NULL
 ) AS n WHERE NOT text IS NULL;
 
@@ -4067,11 +3854,9 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(p.signaturnummer,'3409') AS signaturnummer,
-	coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_bauwerkoderanlagefuersportfreizeitunderholung o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='SPO' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='SPO' AND p.endet IS NULL
 WHERE o.endet IS NULL AND sportart=1080;
 
 
@@ -4145,11 +3930,9 @@ FROM (
 			WHEN archaeologischertyp=1300 THEN '3528'
 			END
 		) AS signaturnummer,
-		coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_historischesbauwerkoderhistorischeeinrichtung o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ATP' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='ATP' AND p.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT signaturnummer IS NULL;
 
@@ -4193,14 +3976,10 @@ FROM (
 		END AS text,
 		coalesce(t.signaturnummer,n.signaturnummer,'4070') AS signaturnummer,
 		t.drehwinkel,t.horizontaleausrichtung,t.vertikaleausrichtung,t.skalierung,t.fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_historischesbauwerkoderhistorischeeinrichtung o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ATP' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_pto n ON c.beziehung_von=n.gml_id AND n.art='NAM' AND n.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ATP' AND t.endet IS NULL
+	LEFT OUTER JOIN ap_pto n ON ARRAY[o.gml_id::varchar] <@ n.dientzurdarstellungvon AND n.art='NAM' AND n.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
 
@@ -4221,11 +4000,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4074') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_historischesbauwerkoderhistorischeeinrichtung o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -4266,11 +4043,9 @@ FROM (
 		END AS text,
 		coalesce(t.signaturnummer,'4073') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_heilquellegasquelle o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ART' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ART' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS n;
 
@@ -4291,11 +4066,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4108') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_heilquellegasquelle o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -4389,11 +4162,9 @@ FROM (
 			WHEN bauwerksfunktion=1783                                                            THEN '3540'
 			END
 		) AS signaturnummer,
-		coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_sonstigesbauwerkodersonstigeeinrichtung o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BWF' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='BWF' AND p.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT signaturnummer IS NULL;
 
@@ -4433,11 +4204,9 @@ FROM (
 			END
 		) AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_sonstigesbauwerkodersonstigeeinrichtung o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BWF' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='BWF' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS n WHERE NOT text IS NULL AND NOT signaturnummer IS NULL;
 
@@ -4465,11 +4234,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4107') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_sonstigesbauwerkodersonstigeeinrichtung o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -4570,11 +4337,9 @@ FROM (
 			WHEN o.art=2200 THEN '3567'
 			END
 		) AS signaturnummer,
-		coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_einrichtunginoeffentlichenbereichen o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ART' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='ART' AND p.endet IS NULL
 	WHERE o.endet IS NULL AND geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON')
 ) AS o WHERE NOT signaturnummer IS NULL;
 
@@ -4607,11 +4372,9 @@ SELECT
 	'OD' AS text,
 	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-	coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_einrichtunginoeffentlichenbereichen o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ART' AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ART' AND t.endet IS NULL
 WHERE o.endet IS NULL AND o.art=1420;
 
 -- Texte
@@ -4624,11 +4387,9 @@ SELECT
 	kilometerangabe AS text,
 	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-	coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_einrichtunginoeffentlichenbereichen o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='KMA' AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='KMA' AND t.endet IS NULL
 WHERE o.endet IS NULL AND NOT kilometerangabe IS NULL;
 
 
@@ -4728,11 +4489,9 @@ FROM (
 		coalesce(t.schriftinhalt,'Schutzgalerie') AS text,
 		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauwerkimverkehrsbereich o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BWF' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='BWF' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND bauwerksfunktion=1880
 ) AS n;
 
@@ -4745,11 +4504,9 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,o.wkb_geometry)) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(p.signaturnummer,'3573') AS signaturnummer,
-	coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_bauwerkimverkehrsbereich o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BWF' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='BWF' AND p.endet IS NULL
 WHERE o.endet IS NULL AND bauwerksfunktion=1910;
 
 -- Namen
@@ -4769,11 +4526,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4107') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauwerkimverkehrsbereich o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n;
 
@@ -4794,11 +4549,9 @@ FROM (
 		'(außer Betrieb)'::text AS text,
 		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauwerkimverkehrsbereich o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND zustand=2100
 ) AS n;
 
@@ -4861,11 +4614,9 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(p.signaturnummer,'3574') AS signaturnummer,
-	coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_strassenverkehrsanlage o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BEZ' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='BEZ' AND p.endet IS NULL
 WHERE o.endet IS NULL AND NOT bezeichnung IS NULL;
 
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,advstandardmodell)
@@ -4877,11 +4628,9 @@ SELECT
 	bezeichnung AS text,
 	coalesce(t.signaturnummer,'4052') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-	coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_strassenverkehrsanlage o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BEZ_TEXT' AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='BEZ_TEXT' AND t.endet IS NULL
 WHERE o.endet IS NULL AND NOT bezeichnung IS NULL;
 
 -- Furt Texte
@@ -4901,11 +4650,9 @@ FROM (
 		(select v from alkis_wertearten where element='ax_strassenverkehrsanlage' AND bezeichnung='art' AND k=o.art::text) AS text,
 		coalesce(t.signaturnummer,'4100') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_strassenverkehrsanlage o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ART' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ART' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND o.art=2000
 ) AS n WHERE NOT text IS NULL;
 
@@ -4926,11 +4673,9 @@ FROM (
 		coalesce(t.schriftinhalt,name) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_strassenverkehrsanlage o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL OR NOT t.schriftinhalt IS NULL
 ) AS n WHERE NOT text IS NULL;
 
@@ -5014,11 +4759,9 @@ FROM (
 			WHEN o.art=1111 THEN '3576'
 			END
 		) AS signaturnummer,
-		coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_wegpfadsteig o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ART' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='ART' AND p.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT signaturnummer IS NULL;
 
@@ -5039,11 +4782,9 @@ FROM (
 		coalesce(t.schriftinhalt,name) AS text,
 		coalesce(t.signaturnummer,'4109') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_wegpfadsteig o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
@@ -5063,11 +4804,9 @@ FROM (
 		t.wkb_geometry AS line,
 		coalesce(t.schriftinhalt,name) AS text,
 		horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_wegpfadsteig o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_lto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_lto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
@@ -5126,12 +4865,8 @@ FROM (
 		CASE WHEN name IS NULL AND n.fontsperrung IS NULL THEN t.fontsperrung ELSE n.fontsperrung END AS fontsperrung,
 		CASE WHEN name IS NULL AND n.advstandardmodell IS NULL THEN t.advstandardmodell ELSE n.advstandardmodell END AS advstandardmodell
 	FROM ax_bahnverkehrsanlage o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BFK' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_pto n ON c.beziehung_von=n.gml_id AND n.art='NAM' AND n.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='BFK' AND t.endet IS NULL
+	LEFT OUTER JOIN ap_pto n ON ARRAY[o.gml_id::varchar] <@ n.dientzurdarstellungvon AND n.art='NAM' AND n.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS n WHERE NOT text IS NULL;
 
@@ -5188,11 +4923,9 @@ FROM (
 				END
 			END
 		) AS signaturnummer,
-		coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bahnverkehrsanlage o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BKT' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='BKT' AND p.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT signaturnummer IS NULL;
 
@@ -5235,11 +4968,9 @@ FROM (
 		coalesce(t.signaturnummer,'4107') AS signaturnummer,
 		coalesce(t.schriftinhalt,name) AS text,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_seilbahnschwebebahn o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
@@ -5268,10 +4999,9 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(p.signaturnummer,'3587') AS signaturnummer,
-	coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_gleis o
-JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ART' AND p.endet IS NULL
+JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='ART' AND p.endet IS NULL
 WHERE o.endet IS NULL AND geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND NOT bahnkategorie IS NULL AND o.art=1200;
 
 -- Gleis, Linien
@@ -5342,11 +5072,9 @@ FROM (
 		coalesce(t.schriftinhalt,name) AS text,
 		coalesce(t.signaturnummer,'4107') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_gleis o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
@@ -5376,10 +5104,9 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(p.signaturnummer,'3588') AS signaturnummer,
-	coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_flugverkehrsanlage o
-JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ART' AND p.endet IS NULL
+JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='ART' AND p.endet IS NULL
 WHERE o.endet IS NULL AND o.art=5531;
 
 -- Namen
@@ -5399,11 +5126,9 @@ FROM (
 		coalesce(t.schriftinhalt,name) AS text,
 		coalesce(t.signaturnummer,'4107') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_flugverkehrsanlage o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL OR NOT t.schriftinhalt IS NULL
 ) AS n WHERE NOT text IS NULL;
 
@@ -5453,11 +5178,9 @@ SELECT
 	kilometerangabe AS text,
 	coalesce(t.signaturnummer,'4101') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-	coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_einrichtungenfuerdenschiffsverkehr o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='KMA' AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='KMA' AND t.endet IS NULL
 WHERE o.endet IS NULL AND NOT kilometerangabe IS NULL;
 
 -- Namen
@@ -5477,11 +5200,9 @@ FROM (
 		coalesce(t.schriftinhalt,name) AS text,
 		coalesce(t.signaturnummer,'4081') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_einrichtungenfuerdenschiffsverkehr o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
@@ -5575,10 +5296,9 @@ FROM (
 			WHEN bauwerksfunktion=2131 THEN '3482'
 			END
 		) AS signaturnummer,
-		coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauwerkimgewaesserbereich o
-	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BWF' AND p.endet IS NULL
+	JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='BWF' AND p.endet IS NULL
 	WHERE o.endet IS NULL AND geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON')
 ) AS o WHERE NOT signaturnummer IS NULL;
 
@@ -5622,11 +5342,9 @@ FROM (
 		(select v from alkis_wertearten where element='ax_bauwerkimgewaesserbereich' AND bezeichnung='bauwerksfunktion' AND k=o.bauwerksfunktion::text) AS text,
 		coalesce(t.signaturnummer,'4105') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauwerkimgewaesserbereich o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BWF' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='BWF' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND bauwerksfunktion=2020
 ) AS n WHERE NOT text IS NULL;
 
@@ -5652,11 +5370,9 @@ FROM (
 		END AS text,
 		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauwerkimgewaesserbereich o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ZUS' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ZUS' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND bauwerksfunktion IN (2030,2040) AND NOT zustand IS NULL
 ) AS n WHERE NOT text IS NULL;
 
@@ -5677,11 +5393,9 @@ FROM (
 		coalesce(t.schriftinhalt,name) AS text,
 		coalesce(t.signaturnummer,'4074') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauwerkimgewaesserbereich o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
@@ -5848,14 +5562,10 @@ FROM (
 			WHEN bewuchs=1800          THEN '3609'
 			END
 		) AS signaturnummer,
-		coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_vegetationsmerkmal o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='BWS' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='BWS' AND d.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='BWS' AND p.endet IS NULL
+	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='BWS' AND d.endet IS NULL
 	WHERE o.endet IS NULL AND geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON')
 ) AS o WHERE NOT signaturnummer IS NULL;
 
@@ -5880,10 +5590,9 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(p.signaturnummer,'3478') AS signaturnummer,
-	coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_vegetationsmerkmal o
-JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ZUS' AND p.endet IS NULL
+JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='ZUS' AND p.endet IS NULL
 WHERE o.endet IS NULL AND geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND zustand=5000;
 
 -- Schneise, Text
@@ -5896,11 +5605,9 @@ SELECT
 	'Schneise' AS text,
 	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-	coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_vegetationsmerkmal o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BWS' AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='BWS' AND t.endet IS NULL
 WHERE o.endet IS NULL AND geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND bewuchs=1300;
 
 -- Namen
@@ -5920,11 +5627,9 @@ FROM (
 		coalesce(t.schriftinhalt,name) AS text,
 		coalesce(t.signaturnummer,'4074') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_vegetationsmerkmal o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
@@ -6030,14 +5735,10 @@ FROM (
 			WHEN o.art=1660 THEN '3490'
 			END
 		) AS signaturnummer,
-		coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_gewaessermerkmal o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='ART' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='ART' AND d.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='ART' AND p.endet IS NULL
+	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='ART' AND d.endet IS NULL
 	WHERE o.endet IS NULL AND geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON')
 ) AS o WHERE NOT signaturnummer IS NULL;
 
@@ -6064,11 +5765,9 @@ FROM (
 		'Qu'::text AS text,
 		coalesce(t.signaturnummer,'4103') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_gewaessermerkmal o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ART' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ART' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND o.art=1610
 ) AS n WHERE NOT text IS NULL;
 
@@ -6095,11 +5794,9 @@ FROM (
 			END
 		)AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_gewaessermerkmal o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL AND NOT signaturnummer IS NULL;
 
@@ -6203,14 +5900,10 @@ FROM (
 				END
 			END
 		) AS signaturnummer,
-		coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_untergeordnetesgewaesser o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='FKT' AND p.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	LEFT OUTER JOIN (
-		alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='FKT' AND d.endet IS NULL
-	) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='FKT' AND p.endet IS NULL
+	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='FKT' AND d.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT point IS NULL;
 
@@ -6237,11 +5930,9 @@ FROM (
 		(select v from alkis_wertearten where element='ax_untergeordnetesgewaesser' AND bezeichnung='lagezurerdoberflaeche' AND k=lagezurerdoberflaeche::text) AS text,
 		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_untergeordnetesgewaesser o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='OFL' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='OFL' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND lagezurerdoberflaeche IN (1800,1810)
 ) AS o WHERE NOT text IS NULL;
 
@@ -6265,11 +5956,9 @@ FROM (
 		'Graben'::text AS text,
 		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_untergeordnetesgewaesser o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='FKT' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='FKT' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND funktion=1013 AND lagezurerdoberflaeche IS NULL AND hydrologischesmerkmal=3000
 ) AS o WHERE NOT text IS NULL;
 
@@ -6290,11 +5979,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4117') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_untergeordnetesgewaesser o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
 
@@ -6313,11 +6000,9 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,o.wkb_geometry)) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(p.signaturnummer,'3623') AS signaturnummer,
-	coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_wasserspiegelhoehe o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='SYMBOL' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='SYMBOL' AND p.endet IS NULL
 WHERE o.endet IS NULL AND NOT hoehedeswasserspiegels IS NULL;
 
 -- Wasserspiegeltext
@@ -6330,11 +6015,9 @@ SELECT
 	hoehedeswasserspiegels AS text,
 	coalesce(t.signaturnummer,'4102') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-	coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_wasserspiegelhoehe o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='HWS' AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='HWS' AND t.endet IS NULL
 WHERE o.endet IS NULL AND NOT hoehedeswasserspiegels IS NULL;
 
 --
@@ -6354,11 +6037,9 @@ SELECT
 	WHEN o.art=ARRAY[1740] THEN 2592
 	ELSE 2609
 	END AS signaturnummer,
-	coalesce(l.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(l.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_schifffahrtsliniefaehrverkehr o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_lpo l ON b.beziehung_von=l.gml_id AND l.art='Schifffahrtslinie' AND l.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_lpo l ON ARRAY[o.gml_id::varchar] <@ l.dientzurdarstellungvon AND l.art='Schifffahrtslinie' AND l.endet IS NULL
 WHERE o.endet IS NULL AND o.art IS NULL;
 
 -- Texte
@@ -6386,11 +6067,9 @@ FROM (
 		) AS text,
 		coalesce(t.signaturnummer,'4103') AS signaturnummer,
 	        drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_schifffahrtsliniefaehrverkehr o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ART' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ART' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS a WHERE NOT text IS NULL;
 
@@ -6411,11 +6090,9 @@ FROM (
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(t.signaturnummer,'4107') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_schifffahrtsliniefaehrverkehr o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
@@ -6453,11 +6130,9 @@ FROM (
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,name) AS text,
 		coalesce(t.signaturnummer,'4118') AS signaturnummer,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_boeschungsliniekliff o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 */
@@ -6508,11 +6183,9 @@ FROM (
 		coalesce(t.schriftinhalt,name) AS text,
 		coalesce(t.signaturnummer,'4109') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_dammwalldeich o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
@@ -6551,11 +6224,9 @@ FROM (
 		coalesce(t.signaturnummer,'4118') AS signaturnummer,
 		coalesce(t.schriftinhalt,name) AS text,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_hoehleneingang o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
@@ -6642,14 +6313,10 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(p.signaturnummer,'3627') AS signaturnummer,
-	coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_felsenfelsblockfelsnadel o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Felsen' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-LEFT OUTER JOIN (
-	alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='Felsen' AND d.endet IS NULL
-) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='Felsen' AND p.endet IS NULL
+LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='Felsen' AND d.endet IS NULL
 WHERE o.endet IS NULL AND geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON');
 
 -- Namen
@@ -6669,11 +6336,9 @@ FROM (
 		coalesce(t.schriftinhalt,name) AS text,
 		coalesce(t.signaturnummer,'4118') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_felsenfelsblockfelsnadel o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
@@ -6704,14 +6369,10 @@ SELECT
 	st_multi(coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(p.signaturnummer,'3484') AS signaturnummer,
-	coalesce(d.advstandardmodell,p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(d.advstandardmodell,p.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_duene o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_ppo p ON b.beziehung_von=p.gml_id AND p.art='Duene' AND p.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-LEFT OUTER JOIN (
-	alkis_beziehungen c JOIN ap_darstellung d ON c.beziehung_von=d.gml_id AND d.art='Duene' AND d.endet IS NULL
-) ON o.gml_id=c.beziehung_zu AND c.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id::varchar] <@ p.dientzurdarstellungvon AND p.art='Duene' AND p.endet IS NULL
+LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id::varchar] <@ d.dientzurdarstellungvon AND d.art='Duene' AND d.endet IS NULL
 WHERE o.endet IS NULL;
 
 -- Namen
@@ -6731,11 +6392,9 @@ FROM (
 		coalesce(t.signaturnummer,'4118') AS signaturnummer,
 		coalesce(t.schriftinhalt,name) AS text,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_duene o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
@@ -6774,11 +6433,9 @@ SELECT
 	hoehevonhoehenlinie AS text,
 	coalesce(t.signaturnummer,'4104') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-	coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_hoehenlinie o
-LEFT OUTER JOIN (
-	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='HHL' AND t.endet IS NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='HHL' AND t.endet IS NULL
 WHERE o.endet IS NULL AND NOT hoehevonhoehenlinie IS NULL;
 
 --
@@ -6797,8 +6454,7 @@ SELECT
 	3629 AS signaturnummer,
 	coalesce(p.advstandardmodell,o.advstandardmodell) AS advstandardmodell
 FROM ax_besonderertopographischerpunkt o
-JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ax_punktortau p ON b.beziehung_von=p.gml_id AND p.endet IS NULL
+JOIN ax_punktortau p ON o.gml_id=p.istteilvon AND p.endet IS NULL
 WHERE o.endet IS NULL;
 
 -- Text
@@ -6812,10 +6468,9 @@ SELECT
 	coalesce(schriftinhalt,punktkennung) AS text,
 	coalesce(t.signaturnummer,'4104') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-	coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_besonderertopographischerpunkt o
-JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='UPO' AND t.endet IS NULL
+JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='UPO' AND t.endet IS NULL
 WHERE o.endet IS NULL;
 
 --
@@ -6876,10 +6531,9 @@ FROM (
 		bezeichnung AS text,
 		coalesce(t.signaturnummer,'4140') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_klassifizierungnachstrassenrecht o
-	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='BEZ' AND t.endet IS NULL
+	JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='BEZ' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
 
@@ -6906,10 +6560,9 @@ FROM (
 		schriftinhalt AS text,
 		coalesce(t.signaturnummer,'4140') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_klassifizierungnachwasserrecht o
-	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.endet IS NULL
+	JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
 
@@ -6983,11 +6636,9 @@ FROM (
 			END
 		) AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_naturumweltoderbodenschutzrecht o
-	JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ADF' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ADF' AND t.endet IS NULL
 	WHERE (artderfestlegung=1621 OR (o.gml_id LIKE 'DERP%' AND artderfestlegung IN (1610,1612,1621,1622,1632,1634,1641,1642,1653,1655,1656,1662))) AND o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
 
@@ -7008,11 +6659,9 @@ FROM (
 		'"' || coalesce(t.schriftinhalt,name) || '"' AS text,
 		coalesce(t.signaturnummer,'4143') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_naturumweltoderbodenschutzrecht o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
@@ -7049,10 +6698,9 @@ FROM (
 		t.wkb_geometry AS point,
 		(select v from alkis_wertearten where element='ax_schutzgebietnachnaturumweltoderbodenschutzrecht ' AND bezeichnung='artderfestlegung' AND k=artderfestlegung::text) AS text,
 		coalesce(t.signaturnummer,'4143') AS signaturnummer,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht o
-	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ADF' AND t.endet IS NULL
+	JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ADF' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
 
@@ -7072,9 +6720,7 @@ FROM (
 		'"' || name || '"' AS text,
 		coalesce(t.signaturnummer,'4143') AS signaturnummer
 	FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n WHERE NOT text IS NULL;
 */
@@ -7132,11 +6778,9 @@ FROM (
 			END
 		) AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauraumoderbodenordnungsrecht o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ADF' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ADF' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
 
@@ -7162,11 +6806,9 @@ FROM (
 		|| ' "' || name || '"' AS text,
 		coalesce(t.signaturnummer,'4144') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_bauraumoderbodenordnungsrecht o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL AND artderfestlegung IN (1750,1840,2100,2110,2120,2130,2140,2150)
 ) AS n WHERE NOT text IS NULL;
 
@@ -7206,10 +6848,9 @@ FROM (
 		END AS text,
 		coalesce(t.signaturnummer,'RP4144') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_denkmalschutzrecht o
-	JOIN alkis_beziehungen b ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
-	JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ADF' AND t.endet IS NULL
+	JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ADF' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND o.gml_id LIKE 'DERP%'
 ) AS o WHERE NOT text IS NULL;
 
@@ -7258,11 +6899,9 @@ FROM (
 		END AS text,
 		coalesce(t.signaturnummer,'4144') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_sonstigesrecht o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='ART' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='ART' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL AND artderfestlegung=4720)
 ) AS n WHERE NOT text IS NULL;
 
@@ -7283,11 +6922,9 @@ FROM (
 		'Truppenübungsplatz "' || name || '"' AS text,
 		coalesce(t.signaturnummer,'4144') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_sonstigesrecht o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND (NOT name IS NULL AND artderfestlegung=4720)
 ) AS n WHERE NOT text IS NULL;
 
@@ -7315,11 +6952,9 @@ SELECT
 	t.schriftinhalt AS text,
 	4107 AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-	coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+	unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 FROM ax_bewertung o
-JOIN (
-	alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='KLA' AND t.endet IS NULL AND t.schriftinhalt IS NOT NULL
-) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='KLA' AND t.endet IS NULL AND t.schriftinhalt IS NOT NULL
 WHERE o.gml_id LIKE 'DERP%' AND o.endet IS NULL;
 
 --
@@ -7344,11 +6979,9 @@ FROM (
 		name AS text,
 		coalesce(t.signaturnummer,'4200') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell,o.advstandardmodell) AS advstandardmodell
+		unnest(coalesce(t.advstandardmodell,ARRAY[o.advstandardmodell])) AS advstandardmodell
 	FROM ax_wohnplatz o
-	LEFT OUTER JOIN (
-		alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.art='NAM' AND t.endet IS NULL
-	) ON o.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon'
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n WHERE NOT text IS NULL;
 
@@ -7541,7 +7174,7 @@ UPDATE po_labels
 		point=st_translate(point,0,3)
 	WHERE gml_id LIKE 'DERP%'
 	AND layer='ax_flurstueck_nummer'
-	AND EXISTS (SELECT * FROM alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.endet IS NULL AND t.art IS NULL WHERE po_labels.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon');
+	AND EXISTS (SELECT * FROM ap_pto t WHERE ARRAY[po_labels.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art IS NULL);
 
 UPDATE po_lines
 	SET
@@ -7549,7 +7182,7 @@ UPDATE po_lines
 		line=st_translate(line,0,3)
 	WHERE gml_id LIKE 'DERP%'
 	AND layer='ax_flurstueck_nummer'
-	AND EXISTS (SELECT * FROM alkis_beziehungen b JOIN ap_pto t ON b.beziehung_von=t.gml_id AND t.endet IS NULL AND t.art IS NULL WHERE po_lines.gml_id=b.beziehung_zu AND b.beziehungsart='dientZurDarstellungVon');
+	AND EXISTS (SELECT * FROM ap_pto t WHERE ARRAY[po_lines.gml_id::varchar] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art IS NULL);
 
 --
 -- Indizes
@@ -7605,8 +7238,7 @@ DELETE FROM po_points WHERE signaturnummer IS NULL OR signaturnummer='6000';
 DELETE FROM po_lines WHERE signaturnummer IS NULL OR signaturnummer='6000';
 DELETE FROM po_polygons WHERE signaturnummer IS NULL OR signaturnummer='6000';
 
--- TODO verschiedene 'advstandardmodell'e erhalten und in Clients unterstützen
-DELETE FROM po_labels WHERE signaturnummer IS NULL OR signaturnummer='6000' OR text IS NULL OR advstandardmodell='DKKM2000';
+DELETE FROM po_labels WHERE signaturnummer IS NULL OR signaturnummer='6000' OR text IS NULL;
 
 DELETE FROM alkis_linien WHERE signaturnummer='6000';
 DELETE FROM alkis_flaechen WHERE signaturnummer='6000';
