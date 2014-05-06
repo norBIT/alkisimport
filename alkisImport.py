@@ -16,7 +16,7 @@ import tempfile
 import glob
 
 from PyQt4.QtCore import QSettings, QProcess, QVariant, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QTime
-from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox
+from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox, QFont
 from PyQt4.QtSql import QSqlDatabase, QSqlQuery, QSqlError, QSql
 
 from alkisImportDlg import Ui_Dialog
@@ -114,6 +114,10 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.pbClearLog.clicked.connect(self.clearLog)
 		self.pbClose.clicked.connect(self.accept)
 		self.pbProgress.setValue( 0 )
+
+		f = QFont("Monospace")
+		f.setStyleHint( QFont.TypeWriter )
+		self.lwProtocol.setFont( f )
 
 		self.status("")
 
