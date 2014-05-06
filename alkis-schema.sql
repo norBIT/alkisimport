@@ -24,8 +24,8 @@
 --                - Feld 'identifier'.
 --                - "character varying" durch "varchar" ersetzt.
 --                - Keine direkten Änderungen an 'geometry_columns' (wegen PostGIS 2)
---                - DELETE:  Feld endet = aktuelle Zeit
---                - REPLACE: Feld endet = beginnt des ersetzenden Objektes
+--                - DELETE:  Feld endet	= aktuelle Zeit
+--                - REPLACE: Feld endet	= beginnt des ersetzenden Objektes
 --                - "delete_feature()" ist nun ein Trigger
 
 -- 2012-04-24 FJ  Datei alkis-funktions aus Diff zum GDAL-Patch #4555 hier integriert
@@ -63,7 +63,7 @@
 
 --  VERSIONS-NUMMER:
 
---  Dies Schema kann NICHT mehr mit der installierbaren gdal-Version 1.9 verwendet werden.
+--  Dies Schema kann NICHT mehr mit der installierbaren gdal-Version 1.9 verwendet	werden.
 --  Derzeit muss ogr2ogr (gdal) aus den Quellen compiliert werden, die o.g. Patch #4555 enthalten.
 --  Weiterführung dieses Zweiges als PostNAS 0.7
 
@@ -92,6 +92,9 @@
 
 -- Alle Tabellen löschen
 SELECT alkis_drop();
+
+-- Alle Tabellen löschen
+SELECT alkis_create_bwsrs(:alkis_epsg);
 
 -- Tabelle delete für Lösch- und Fortführungsdatensätze
 CREATE TABLE "delete" (
@@ -135,9 +138,9 @@ COMMENT ON COLUMN delete.ignored      IS 'Löschsatz wurde ignoriert';
 
 CREATE TABLE alkis_beziehungen (
 	ogc_fid			serial NOT NULL,
-	beziehung_von		character(16) NOT NULL, --> gml_id
+	beziehung_von		varchar NOT NULL, --> gml_id
 	beziehungsart		varchar,               --  Liste siehe unten
-	beziehung_zu		character(16) NOT NULL, --> gml_id
+	beziehung_zu		varchar NOT NULL, --> gml_id
 	CONSTRAINT alkis_beziehungen_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -181,7 +184,7 @@ COMMENT ON COLUMN alkis_beziehungen.beziehungsart IS 'Typ der Beziehung zwischen
 -- COMMENT ON DATABASE *** IS 'ALKIS - PostNAS 0.7';
 
 -- ===========================================================
---  		A L K I S  -  L a y e r
+--		A L K I S  -  L a y e r
 -- ===========================================================
 
 
@@ -190,9 +193,10 @@ COMMENT ON COLUMN alkis_beziehungen.beziehungsart IS 'Typ der Beziehung zwischen
 CREATE TABLE ks_sonstigesbauwerk (
 	ogc_fid			serial NOT NULL,
 	gml_id			varchar NOT NULL,
+	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	sonstigesmodell 	varchar,
+	sonstigesmodell		varchar,
 	anlass			varchar,
 	bauwerksfunktion	integer,
 	CONSTRAINT ks_sonstigesbauwerk_pk PRIMARY KEY (ogc_fid)
@@ -212,8 +216,9 @@ CREATE TABLE ax_anderefestlegungnachwasserrecht (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
 	land			integer,
@@ -239,7 +244,8 @@ CREATE TABLE ax_baublock (
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	baublockbezeichnung	integer,
 	CONSTRAINT ax_baublock_pk PRIMARY KEY (ogc_fid)
@@ -260,8 +266,9 @@ CREATE TABLE ax_besonderertopographischerpunkt (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	land			integer,
 	stelle			integer,
@@ -285,8 +292,9 @@ CREATE TABLE ax_soll (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	name			varchar,
 	CONSTRAINT ax_soll_pk PRIMARY KEY (ogc_fid)
@@ -308,8 +316,9 @@ CREATE TABLE ax_bewertung (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	klassifizierung		integer,
 	CONSTRAINT ax_bewertung_pk PRIMARY KEY (ogc_fid)
@@ -334,8 +343,9 @@ CREATE TABLE ax_tagesabschnitt (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	tagesabschnittsnummer	varchar,
 	CONSTRAINT ax_tagesabschnitt_pk PRIMARY KEY (ogc_fid)
@@ -356,8 +366,9 @@ CREATE TABLE ax_denkmalschutzrecht (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
 	land			integer,
@@ -385,7 +396,8 @@ CREATE TABLE ax_forstrecht (
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
 	besonderefunktion	integer,
@@ -412,7 +424,8 @@ CREATE TABLE ax_gebaeudeausgestaltung (
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	darstellung		integer,
 
@@ -439,9 +452,10 @@ CREATE TABLE ax_georeferenziertegebaeudeadresse (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),	-- Inhalt z.B. "2008-06-10T15:19:17Z"
-	endet 			character(20),	-- Inhalt z.B. "2008-06-10T15:19:17Z"
+	endet			character(20),	-- Inhalt z.B. "2008-06-10T15:19:17Z"
 	-- ISO: waere  "2008-06-10 15:19:17-00", timestamp-Format wird nicht geladen, bleibt leer
-	advstandardmodell	varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	qualitaetsangaben	integer,	-- zb: "1000" (= Massstab)
 	--			--		-- Gemeindeschluessel, bestehend aus:
@@ -483,23 +497,25 @@ COMMENT ON COLUMN ax_georeferenziertegebaeudeadresse.hatauch IS 'Beziehung zu ax
 -- G r a b l o c h   d e r   B o d e n s c h ä t z u n g
 -- -------------------------------------------------------
 CREATE TABLE ax_grablochderbodenschaetzung (
-	ogc_fid			serial NOT NULL,
-	gml_id			varchar NOT NULL,
-	identifier		varchar,
-	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
-	anlass			varchar,
-	art			varchar,
-	name			varchar,
-	bedeutung		integer[],
-	land			integer,
-	nummerierungsbezirk	varchar,
-	gemarkungsnummer 	integer,
-	nummerdesgrablochs	varchar,
+	ogc_fid				serial NOT NULL,
+	gml_id				varchar NOT NULL,
+	identifier			varchar,
+	beginnt				character(20),
+	endet				character(20),
+	advstandardmodell		varchar[],
+	sonstigesmodell			varchar[],
+	anlass				varchar,
+	art				varchar,
+	name				varchar,
+	bedeutung			integer[],
+	land				integer,
+	nummerierungsbezirk		varchar,
+	gemarkungsnummer		integer,
+	nummerdesgrablochs		varchar,
+	bodenzahlOderGruenlandgrundzahl integer,
 
 	-- Beziehung
-	gehoertzu		varchar,
+	gehoertzu			varchar,
 
 	CONSTRAINT ax_grablochderbodenschaetzung_pk PRIMARY KEY (ogc_fid)
 );
@@ -527,17 +543,17 @@ CREATE TABLE ax_historischesflurstueckalb (
 
 	-- GID: AX_Flurstueck_Kerndaten
 	-- 'Flurstück_Kerndaten' enthält Eigenschaften des Flurstücks, die auch für andere Flurstücksobjektarten gelten (z.B. Historisches Flurstück).
-	land 						integer,         --
-	gemarkungsnummer 				integer,            --
+	land						integer,         --
+	gemarkungsnummer				integer,            --
 	flurnummer					integer,               -- Teile des Flurstückskennzeichens
-	zaehler 					integer,            --    (redundant zu flurstueckskennzeichen)
+	zaehler						integer,            --    (redundant zu flurstueckskennzeichen)
 	nenner						integer,         --
 	-- daraus abgeleitet:
 	flurstueckskennzeichen				character(20),         -- Inhalt rechts mit __ auf 20 aufgefüllt
 
 	amtlicheflaeche					double precision,      -- AFL
 	abweichenderrechtszustand			varchar default 'false',	-- ARZ
-	zweifelhafterFlurstuecksnachweis 		varchar default 'false',	-- ZFM Boolean
+	zweifelhafterFlurstuecksnachweis		varchar default 'false',	-- ZFM Boolean
 	rechtsbehelfsverfahren				varchar default 'false',	-- RBV
 	zeitpunktderentstehung				character(10),         -- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
 	gemeinde					integer,
@@ -545,8 +561,9 @@ CREATE TABLE ax_historischesflurstueckalb (
 
 	identifier					varchar,
 	beginnt						character(20),
-	endet 						character(20),
-	advstandardmodell				varchar,
+	endet						character(20),
+	advstandardmodell				varchar[],
+	sonstigesmodell					varchar[],
 	anlass						varchar,
 	name						varchar[],
 	blattart					integer,
@@ -605,41 +622,43 @@ COMMENT ON COLUMN ax_historischesflurstueckalb.gemeinde                  IS 'Gem
 -- ------------------------------
 -- Die "neue" Historie, die durch Fortführungen innerhalb von ALKIS entstanden ist.
 CREATE TABLE ax_historischesflurstueck (
-	ogc_fid				serial NOT NULL,
-	gml_id				varchar NOT NULL,
+	ogc_fid						serial NOT NULL,
+	gml_id						varchar NOT NULL,
 	-- GID: AX_Flurstueck_Kerndaten
 	-- 'Flurstück_Kerndaten' enthält Eigenschaften des Flurstücks, die auch für andere Flurstücksobjektarten gelten (z.B. Historisches Flurstück).
-	land 				integer,         --
-	gemarkungsnummer 		integer,            --
-	flurnummer			integer,               -- Teile des Flurstückskennzeichens
-	zaehler 			integer,            --    (redundant zu flurstueckskennzeichen)
-	nenner				integer,         --
+	land						integer,         --
+	gemarkungsnummer				integer,            --
+	flurnummer					integer,               -- Teile des Flurstückskennzeichens
+	zaehler						integer,            --    (redundant zu flurstueckskennzeichen)
+	nenner						integer,         --
 	-- daraus abgeleitet:
-	flurstueckskennzeichen		character(20),			-- Inhalt rechts mit __ auf 20 aufgefüllt
-	amtlicheflaeche			double precision,		-- AFL
-	abweichenderrechtszustand	varchar default 'false',	-- ARZ
-	zweifelhafterFlurstuecksnachweis varchar default 'false',	-- ZFM Boolean
-	rechtsbehelfsverfahren		varchar default 'false',	-- RBV
-	zeitpunktderentstehung		character(10),		-- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
-	gemeinde			integer,
+	flurstueckskennzeichen				character(20),			-- Inhalt rechts mit __ auf 20 aufgefüllt
+	amtlicheflaeche					double precision,		-- AFL
+	abweichenderrechtszustand			varchar default 'false',	-- ARZ
+	zweifelhafterFlurstuecksnachweis		varchar default 'false',	-- ZFM Boolean
+	rechtsbehelfsverfahren				varchar default 'false',	-- RBV
+	zeitpunktderentstehung				character(10),		-- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
+	gemeinde					integer,
 	-- GID: ENDE AX_Flurstueck_Kerndaten
-	identifier			varchar,
-	beginnt				character(20),
-	endet 				character(20),
-	advstandardmodell		varchar,
-	anlass				varchar,
-	art				varchar[],
-	name				varchar[],
-	regierungsbezirk		integer,
-	kreis				integer,
-	vorgaengerflurstueckskennzeichen	varchar[],
-	nachfolgerflurstueckskennzeichen	varchar[],
-	blattart			integer,
-	buchungsart			integer,
-	buchungsblattkennzeichen	varchar[],
-	bezirk				integer,
-	buchungsblattnummermitbuchstabenerweiterung	varchar[], -- hier länger als (7)!
-	laufendenummerderbuchungsstelle	integer,
+	identifier					varchar,
+	beginnt						character(20),
+	endet						character(20),
+	advstandardmodell				varchar[],
+	sonstigesmodell					varchar[],
+	anlass						varchar,
+	art						varchar[],
+	name						varchar[],
+	regierungsbezirk				integer,
+	kreis						integer,
+	vorgaengerflurstueckskennzeichen		varchar[],
+	nachfolgerflurstueckskennzeichen		varchar[],
+	blattart					integer,
+	buchungsart					varchar,
+	buchungsblattkennzeichen			varchar[],
+	bezirk						integer,
+	buchungsblattnummermitbuchstabenerweiterung	varchar[],
+	laufendenummerderbuchungsstelle			integer,
+        zeitpunktderhistorisierung                      varchar,
 	CONSTRAINT ax_historischesflurstueck_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -702,8 +721,9 @@ CREATE TABLE ax_naturumweltoderbodenschutzrecht (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
 	land			integer,
@@ -729,8 +749,9 @@ CREATE TABLE ax_schutzgebietnachwasserrecht (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
 	land			integer,
@@ -756,8 +777,9 @@ CREATE TABLE ax_schutzgebietnachnaturumweltoderbodenschutzrecht (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
 	land			integer,
@@ -781,8 +803,9 @@ CREATE TABLE ax_schutzzone (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	"zone"			integer,
 	art			varchar[],
@@ -810,8 +833,9 @@ CREATE TABLE ax_topographischelinie (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	liniendarstellung	integer,
 	sonstigeeigenschaft	varchar,
@@ -842,9 +866,9 @@ CREATE TABLE ap_ppo (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
+	endet			character(20),
 	advstandardmodell	varchar[],
-	sonstigesmodell		varchar,
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	signaturnummer		varchar,
 	darstellungsprioritaet  integer,
@@ -862,7 +886,7 @@ SELECT AddGeometryColumn('ap_ppo','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- P
 
 CREATE INDEX ap_ppo_geom_idx   ON ap_ppo USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_ppo_gml ON ap_ppo USING btree (gml_id,beginnt);
-CREATE INDEX ap_ppo_endet      ON ap_ppo USING btree (endet);
+CREATE INDEX ap_ppo_endet     ON ap_ppo USING btree (endet);
 CREATE INDEX ap_ppo_dzdv       ON ap_ppo USING gin (dientzurdarstellungvon);
 
 COMMENT ON TABLE  ap_ppo        IS 'PPO: Punktförmiges Präsentationsobjekt';
@@ -876,8 +900,9 @@ CREATE TABLE ap_lpo (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
+	endet			character(20),
 	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	signaturnummer		varchar,
 	darstellungsprioritaet  integer,
@@ -893,7 +918,7 @@ SELECT AddGeometryColumn('ap_lpo','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- L
 CREATE INDEX ap_lpo_geom_idx   ON ap_lpo USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_lpo_gml ON ap_lpo USING btree (gml_id,beginnt);
 CREATE INDEX ap_lpo_dzdv       ON ap_lpo USING gin (dientzurdarstellungvon);
-CREATE INDEX ap_lpo_endet      ON ap_lpo USING btree (endet);
+CREATE INDEX ap_lpo_endet     ON ap_lpo USING btree (endet);
 
 COMMENT ON TABLE  ap_lpo                        IS 'LPO: Linienförmiges Präsentationsobjekt';
 COMMENT ON COLUMN ap_lpo.gml_id                 IS 'Identifikator, global eindeutig';
@@ -907,8 +932,9 @@ CREATE TABLE ap_pto (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
+	endet			character(20),
 	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	schriftinhalt		varchar,
 	fontsperrung		double precision,
@@ -922,6 +948,7 @@ CREATE TABLE ap_pto (
 
 	-- Beziehung
 	dientzurdarstellungvon	varchar[],
+	hat			varchar,
 
 	CONSTRAINT ap_pto_pk PRIMARY KEY (ogc_fid)
 );
@@ -934,11 +961,13 @@ CREATE INDEX ap_pto_art_idx    ON ap_pto USING btree (art);
 CREATE INDEX ap_pto_endet_idx  ON ap_pto USING btree (endet);
 CREATE INDEX ap_pto_sn_idx     ON ap_pto USING btree (signaturnummer);
 CREATE INDEX ap_pto_dzdv       ON ap_pto USING gin (dientzurdarstellungvon);
+CREATE INDEX ap_pto_hat        ON ap_pto USING btree (hat);
 
 COMMENT ON TABLE  ap_pto                        IS 'PTO: Textförmiges Präsentationsobjekt mit punktförmiger Textgeometrie ';
 COMMENT ON COLUMN ap_pto.gml_id                 IS 'Identifikator, global eindeutig';
 COMMENT ON COLUMN ap_pto.schriftinhalt          IS 'Label: anzuzeigender Text';
 COMMENT ON COLUMN ap_pto.dientzurdarstellungvon IS 'Beziehung zu aa_objekt (0..*): Durch den Verweis auf einen Set beliebiger AFIS-ALKIS-ATKIS-Objekte gibt das Präsentationsobjekt an, zu wessen Präsentation es dient. Dieser Verweis kann für Fortführungen ausgenutzt werden oder zur Unterdrückung von Standardpräsentationen der zugrundeliegenden ALKIS-ATKIS-Objekte. Ein Verweis auf ein AA_Objekt vom Typ AP_GPO ist nicht zugelassen.';
+COMMENT ON COLUMN ap_pto.hat                    IS 'Beziehung zu ap_lpo (0..1): Die Relation ermöglicht es, einem textförmigen Präsentationsobjekt ein linienförmiges Präsentationsobjekt zuzuweisen. Einziger bekannter Anwendungsfall ist der Zuordnungspfeil. Die Anwendung dieser Relation ist nur zugelassen, wenn sie im entsprechenden Signaturenkatalog beschrieben ist. ';
 COMMENT ON INDEX  ap_pto_art_idx                IS 'Suchindex auf häufig benutztem Filterkriterium';
 
 
@@ -956,9 +985,9 @@ CREATE TABLE ap_lto (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
+	endet			character(20),
 	advstandardmodell	varchar[],
-	sonstigesmodell		varchar,
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	art			varchar,
 	schriftinhalt		varchar,
@@ -971,6 +1000,7 @@ CREATE TABLE ap_lto (
 
 	-- Beziehung
 	dientzurdarstellungvon	varchar[],
+	hat			varchar,
 
 	CONSTRAINT ap_lto_pk PRIMARY KEY (ogc_fid)
 );
@@ -980,11 +1010,13 @@ SELECT AddGeometryColumn('ap_lto','wkb_geometry',:alkis_epsg,'LINESTRING',2);
 CREATE INDEX ap_lto_geom_idx   ON ap_lto USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_lto_gml ON ap_lto USING btree (gml_id,beginnt);
 CREATE INDEX ap_lto_dzdv       ON ap_lto USING gin (dientzurdarstellungvon);
+CREATE INDEX ap_lto_hat        ON ap_lto USING btree (hat);
 CREATE INDEX ap_lto_endet_idx  ON ap_lto USING btree (endet);
 
 COMMENT ON TABLE  ap_lto                        IS 'LTO: Textförmiges Präsentationsobjekt mit linienförmiger Textgeometrie';
 COMMENT ON COLUMN ap_lto.gml_id                 IS 'Identifikator, global eindeutig';
 COMMENT ON COLUMN ap_lto.dientzurdarstellungvon IS 'Beziehung zu aa_objekt (0..*): Durch den Verweis auf einen Set beliebiger AFIS-ALKIS-ATKIS-Objekte gibt das Präsentationsobjekt an, zu wessen Präsentation es dient. Dieser Verweis kann für Fortführungen ausgenutzt werden oder zur Unterdrückung von Standardpräsentationen der zugrundeliegenden ALKIS-ATKIS-Objekte. Ein Verweis auf ein AA_Objekt vom Typ AP_GPO ist nicht zugelassen.';
+COMMENT ON COLUMN ap_lto.hat                    IS 'Beziehung zu ap_lpo (0..1): Die Relation ermöglicht es, einem textförmigen Präsentationsobjekt ein linienförmiges Präsentationsobjekt zuzuweisen. Einziger bekannter Anwendungsfall ist der Zuordnungspfeil. Die Anwendung dieser Relation ist nur zugelassen, wenn sie im entsprechenden Signaturenkatalog beschrieben ist. ';
 
 
 -- A P  D a r s t e l l u n g
@@ -994,8 +1026,9 @@ CREATE TABLE ap_darstellung (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20), -- Datumsformat
-	endet 			character(20), -- Datumsformat
+	endet			character(20), -- Datumsformat
 	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	art			varchar,
 	darstellungsprioritaet  integer,
@@ -1032,48 +1065,49 @@ COMMENT ON COLUMN ap_darstellung.dientzurdarstellungvon IS 'Beziehung zu aa_obje
 -- ----------------------------------------------
 -- Kennung 11001
 CREATE TABLE ax_flurstueck (
-	ogc_fid                       serial NOT NULL,
-	gml_id                        varchar NOT NULL,  -- Datenbank-Tabelle interner Schlüssel
+	ogc_fid					serial NOT NULL,
+	gml_id					varchar NOT NULL,  -- Datenbank-Tabelle interner Schlüssel
 
 	-- GID: AX_Flurstueck_Kerndaten
 	     -- 'Flurstück_Kerndaten' enthält Eigenschaften des Flurstücks, die auch für andere Flurstücksobjektarten gelten (z.B. Historisches Flurstück).
-	land 				integer,         --
-	gemarkungsnummer 		integer,            --
-	flurnummer			integer,               -- Teile des Flurstückskennzeichens
-	zaehler 			integer,            --    (redundant zu flurstueckskennzeichen)
-	nenner				integer,         --
+	land					integer,         --
+	gemarkungsnummer			integer,            --
+	flurnummer				integer,               -- Teile des Flurstückskennzeichens
+	zaehler					integer,            --    (redundant zu flurstueckskennzeichen)
+	nenner					integer,         --
 	-- daraus abgeleitet:
-	flurstueckskennzeichen		character(20),         -- Inhalt rechts mit __ auf 20 aufgefüllt
-	amtlicheflaeche			double precision,      -- AFL
-	abweichenderrechtszustand	varchar default 'false', -- ARZ
-	zweifelhafterFlurstuecksnachweis varchar default 'false',-- ZFM Boolean
-	rechtsbehelfsverfahren		varchar default 'false', -- RBV
-	zeitpunktderentstehung		varchar,         -- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
-	gemeinde			integer,
+	flurstueckskennzeichen			character(20),         -- Inhalt rechts mit __ auf 20 aufgefüllt
+	amtlicheflaeche				double precision,      -- AFL
+	abweichenderrechtszustand		varchar default 'false', -- ARZ
+	zweifelhafterFlurstuecksnachweis	varchar default 'false',-- ZFM Boolean
+	rechtsbehelfsverfahren			varchar default 'false', -- RBV
+	zeitpunktderentstehung			varchar,         -- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
+	gemeinde				integer,
 	-- GID: ENDE AX_Flurstueck_Kerndaten
 
-	identifier			varchar,         -- global eindeutige Objektnummer
-	beginnt				character(20),         -- Timestamp der Entstehung
-	endet 				character(20),         -- Timestamp des Untergangs
-	advstandardmodell 		varchar,               -- steuert die Darstellung nach Kartentyp
-	anlass				varchar,
-	name				varchar[],
-	regierungsbezirk		integer,
-	kreis				integer,
-	stelle				varchar[],
-	angabenzumabschnittflurstueck	varchar[],
-	kennungschluessel		varchar[],
-	flaechedesabschnitts		double precision[],
-	angabenzumabschnittnummeraktenzeichen integer[],
-	angabenzumabschnittbemerkung	varchar[],
-	flurstuecksfolge		varchar,
+	identifier				varchar,         -- global eindeutige Objektnummer
+	beginnt					character(20),         -- Timestamp der Entstehung
+	endet					character(20),         -- Timestamp des Untergangs
+	advstandardmodell			varchar[],
+	sonstigesmodell				varchar[],               -- steuert die Darstellung nach Kartentyp
+	anlass					varchar,
+	name					varchar[],
+	regierungsbezirk			integer,
+	kreis					integer,
+	stelle					varchar[],
+	angabenzumabschnittflurstueck		varchar[],
+	kennungschluessel			varchar[],
+	flaechedesabschnitts			double precision[],
+	angabenzumabschnittnummeraktenzeichen	integer[],
+	angabenzumabschnittbemerkung		varchar[],
+	flurstuecksfolge			varchar,
 
 	-- Beziehungen
-	beziehtsichaufflurstueck	varchar[],
-	zeigtauf			varchar[],
-	istgebucht			varchar,
-	weistauf			varchar[],
-	gehoertanteiligzu		varchar[],
+	beziehtsichaufflurstueck		varchar[],
+	zeigtauf				varchar[],
+	istgebucht				varchar,
+	weistauf				varchar[],
+	gehoertanteiligzu			varchar[],
 
 	CONSTRAINT ax_flurstueck_pk PRIMARY KEY (ogc_fid)
 );
@@ -1144,8 +1178,9 @@ CREATE TABLE ax_besondereflurstuecksgrenze (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderflurstuecksgrenze	integer[],
 	CONSTRAINT ax_besondereflurstuecksgrenze_pk PRIMARY KEY (ogc_fid)
@@ -1168,8 +1203,9 @@ CREATE TABLE ax_grenzpunkt (
 	gml_id				varchar NOT NULL,
 	identifier			varchar,
 	beginnt				character(20),
-	endet 				character(20),
-	advstandardmodell		varchar,
+	endet				character(20),
+	advstandardmodell		varchar[],
+	sonstigesmodell			varchar[],
 	anlass				varchar,
 	punktkennung			varchar,
 	land				integer,
@@ -1207,23 +1243,25 @@ COMMENT ON COLUMN ax_grenzpunkt.zeigtauf IS 'Beziehung zu ax_grenzpunkt (0..1): 
 -- L a g e b e z e i c h n u n g   o h n e   H a u s n u m m e r
 -- -------------------------------------------------------------
 CREATE TABLE ax_lagebezeichnungohnehausnummer (
-	ogc_fid			serial NOT NULL,
-	gml_id			varchar NOT NULL,
-	identifier		varchar,
-	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
-	anlass			varchar,
-	unverschluesselt	varchar,  -- Gewanne
-	land			integer,  -- Strassenschluessel
-	regierungsbezirk	integer,
-	kreis			integer,
-	gemeinde		integer,
-	lage			varchar,
+	ogc_fid				serial NOT NULL,
+	gml_id				varchar NOT NULL,
+	identifier			varchar,
+	beginnt				character(20),
+	endet				character(20),
+	advstandardmodell		varchar[],
+	sonstigesmodell			varchar[],
+	anlass				varchar,
+	unverschluesselt		varchar,  -- Gewanne
+	land				integer,  -- Strassenschluessel
+	regierungsbezirk		integer,
+	kreis				integer,
+	gemeinde			integer,
+	lage				varchar,
+	zusatzZurLagebezeichnung	varchar,
 
 	-- Beziehung
-	beschreibt		varchar[],
-	gehoertzu		varchar[],
+	beschreibt			varchar[],
+	gehoertzu			varchar[],
 
 	CONSTRAINT ax_lagebezeichnungohnehausnummer_pk PRIMARY KEY (ogc_fid)
 );
@@ -1253,8 +1291,9 @@ CREATE TABLE ax_lagebezeichnungmithausnummer (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	land			integer,
 	regierungsbezirk	integer,
@@ -1300,8 +1339,9 @@ CREATE TABLE ax_lagebezeichnungmitpseudonummer (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	land			integer,
 	regierungsbezirk	integer,
@@ -1340,8 +1380,9 @@ CREATE TABLE ax_aufnahmepunkt (
 	gml_id			varchar NOT NULL,
 	identifier              varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	punktkennung		varchar,   --integer ist zu klein,
 	land			integer,
@@ -1374,7 +1415,8 @@ CREATE TABLE ax_sicherungspunkt (
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	name			varchar,
 	punktkennung		varchar,
@@ -1388,7 +1430,7 @@ CREATE TABLE ax_sicherungspunkt (
 	beziehtsichauf		varchar,
 	gehoertzu		varchar,
 
- 	CONSTRAINT ax_sicherungspunkt_pk PRIMARY KEY (ogc_fid)
+	CONSTRAINT ax_sicherungspunkt_pk PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_sicherungspunkt','dummy',:alkis_epsg,'POINT',2);
@@ -1404,8 +1446,9 @@ CREATE TABLE ax_sonstigervermessungspunkt (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	vermarkung_marke	integer,
 	punktkennung		varchar, -- integer,
@@ -1449,8 +1492,9 @@ CREATE TABLE ax_punktortag (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	art			varchar[],
 	name			varchar[],
@@ -1459,6 +1503,11 @@ CREATE TABLE ax_punktortag (
 	genauigkeitsstufe	integer,
 	vertrauenswuerdigkeit	integer,
 	koordinatenstatus	integer,
+	hinweise		varchar,
+
+        -- Beziehungen
+	istteilvon		varchar,
+
 	CONSTRAINT ax_punktortag_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -1466,6 +1515,7 @@ SELECT AddGeometryColumn('ax_punktortag','wkb_geometry',:alkis_epsg,'POINT',2);
 
 CREATE INDEX ax_punktortag_geom_idx ON ax_punktortag USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_punktortag_gml ON ax_punktortag USING btree (gml_id,beginnt);
+CREATE INDEX ax_punktortag_itv_idx ON ax_punktortag USING btree (istteilvon);
 
 COMMENT ON TABLE  ax_punktortag        IS 'P u n k t o r t   AG';
 COMMENT ON COLUMN ax_punktortag.gml_id IS 'Identifikator, global eindeutig';
@@ -1478,8 +1528,9 @@ CREATE TABLE ax_punktortau (
 	gml_id				varchar NOT NULL,
 	identifier			varchar,
 	beginnt				character(20),
-	endet 				character(20),
-	advstandardmodell		varchar,
+	endet				character(20),
+	advstandardmodell		varchar[],
+	sonstigesmodell			varchar[],
 	anlass				varchar,
 	kartendarstellung		varchar,
 	ax_datenerhebung_punktort	integer,
@@ -1488,6 +1539,7 @@ CREATE TABLE ax_punktortau (
 	vertrauenswuerdigkeit		integer,
 	genauigkeitsstufe		integer,
 	koordinatenstatus		integer,
+	hinweise			varchar,
 
 	-- Beziehung
 	istteilvon			varchar,
@@ -1512,8 +1564,9 @@ CREATE TABLE ax_punktortta (
 	gml_id			  varchar NOT NULL,
 	identifier		  varchar,
 	beginnt			  character(20),
-	endet 			  character(20),
-	advstandardmodell	  varchar,
+	endet			  character(20),
+	advstandardmodell	  varchar[],
+	sonstigesmodell		  varchar[],
 	anlass			  varchar,
 	kartendarstellung	  varchar,
 	description		  integer,
@@ -1522,7 +1575,8 @@ CREATE TABLE ax_punktortta (
 	name			  varchar[],
 	genauigkeitsstufe	  integer,
 	vertrauenswuerdigkeit	  integer,
-	koordinatenstatus  	  integer,
+	koordinatenstatus	  integer,
+	hinweise		  varchar,
 
 	-- Beziehung
 	istteilvon                varchar,
@@ -1552,7 +1606,8 @@ CREATE TABLE ax_fortfuehrungsnachweisdeckblatt (
 	identifier			varchar,
 	beginnt				character(20),
 	endet				character(20),
-	advstandardmodell		varchar,
+	advstandardmodell		varchar[],
+	sonstigesmodell			varchar[],
 	anlass				varchar,
 	uri				varchar,
 	fortfuehrungsfallnummernbereich	varchar,
@@ -1582,7 +1637,8 @@ CREATE TABLE ax_fortfuehrungsfall (
 	identifier				varchar,
 	beginnt					character(20),
 	endet					character(20),
-	advstandardmodell			varchar,
+	advstandardmodell			varchar[],
+	sonstigesmodell				varchar[],
 	anlass					varchar,
 	uri					varchar,
 	fortfuehrungsfallnummer			integer,
@@ -1611,7 +1667,8 @@ CREATE TABLE ax_reservierung (
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	art			integer,
 	nummer			varchar,
@@ -1636,8 +1693,8 @@ CREATE TABLE ax_punktkennunguntergegangen (
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar,
-	sonstigesmodell		varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	punktkennung		varchar,
 	art			integer,
@@ -1654,38 +1711,39 @@ COMMENT ON TABLE  ax_punktkennunguntergegangen IS 'P u n k t k e n n u n g, unte
 
 -- Variante B: "Vollhistorie" ( statt ax_historischesflurstueckalb)
 CREATE TABLE ax_historischesflurstueckohneraumbezug (
-	ogc_fid				serial NOT NULL,
-	gml_id				varchar NOT NULL,
+	ogc_fid					serial NOT NULL,
+	gml_id					varchar NOT NULL,
 	-- GID: AX_Flurstueck_Kerndaten
 	-- 'Flurstück_Kerndaten' enthält Eigenschaften des Flurstücks, die auch für andere Flurstücksobjektarten gelten (z.B. Historisches Flurstück).
-	land 				integer,         --
-	gemarkungsnummer 		integer,            --
-	flurnummer			integer,               -- Teile des Flurstückskennzeichens
-	zaehler 			integer,            --    (redundant zu flurstueckskennzeichen)
-	nenner				integer,         --
+	land					integer,         --
+	gemarkungsnummer			integer,            --
+	flurnummer				integer,               -- Teile des Flurstückskennzeichens
+	zaehler					integer,            --    (redundant zu flurstueckskennzeichen)
+	nenner					integer,         --
 	-- daraus abgeleitet:
-	flurstueckskennzeichen		character(20),         -- Inhalt rechts mit __ auf 20 aufgefüllt
-	amtlicheflaeche			double precision,      -- AFL
-	abweichenderrechtszustand	varchar,               -- ARZ
-	zweifelhafterFlurstuecksnachweis varchar,              -- ZFM Boolean
-	rechtsbehelfsverfahren		integer,               -- RBV
-	zeitpunktderentstehung		character(10),         -- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
-	gemeinde			integer,
+	flurstueckskennzeichen			character(20),         -- Inhalt rechts mit __ auf 20 aufgefüllt
+	amtlicheflaeche				double precision,      -- AFL
+	abweichenderrechtszustand		varchar,               -- ARZ
+	zweifelhafterFlurstuecksnachweis	varchar,              -- ZFM Boolean
+	rechtsbehelfsverfahren			integer,               -- RBV
+	zeitpunktderentstehung			character(10),         -- ZDE  Inhalt jjjj-mm-tt  besser Format date ?
+	gemeinde				integer,
 	-- GID: ENDE AX_Flurstueck_Kerndaten
-	identifier			varchar,
-	beginnt				character(20),
-	endet 				character(20),
-	advstandardmodell		varchar,
-	anlass				varchar,
-	name				varchar[], -- Array {a,b,c}
+	identifier				varchar,
+	beginnt					character(20),
+	endet					character(20),
+	advstandardmodell			varchar[],
+	sonstigesmodell				varchar[],
+	anlass					varchar,
+	name					varchar[], -- Array {a,b,c}
 	nachfolgerflurstueckskennzeichen	varchar[], -- Array {a,b,c}
 	vorgaengerflurstueckskennzeichen	varchar[], -- Array {a,b,c}
 
 	-- Beziehungen
-	gehoertanteiligzu		varchar[],
-	weistauf			varchar[],
-	zeigtauf			varchar[],
-	istgebucht			varchar,
+	gehoertanteiligzu			varchar[],
+	weistauf				varchar[],
+	zeigtauf				varchar[],
+	istgebucht				varchar,
 
 	CONSTRAINT ax_historischesflurstueckohneraumbezug_pk PRIMARY KEY (ogc_fid)
 );
@@ -1763,8 +1821,9 @@ CREATE TABLE ax_person (
 	gml_id				varchar NOT NULL,
 	identifier			varchar,
 	beginnt				character(20),
-	endet 				character(20),
-	advstandardmodell		varchar,
+	endet				character(20),
+	advstandardmodell		varchar[],
+	sonstigesmodell			varchar[],
 	anlass				varchar,
 	nachnameoderfirma		varchar,
 	anrede				integer,
@@ -1834,8 +1893,9 @@ CREATE TABLE ax_anschrift (
 	gml_id				varchar NOT NULL,
 	identifier			varchar,
 	beginnt				character(20),
-	endet 				character(20),
-	advstandardmodell		varchar,
+	endet				character(20),
+	advstandardmodell		varchar[],
+	sonstigesmodell			varchar[],
 	anlass				varchar,
 	ort_post			varchar,
 	postleitzahlpostzustellung	varchar,
@@ -1848,6 +1908,7 @@ CREATE TABLE ax_anschrift (
 	weitereAdressen			varchar,
 	telefon				varchar,
 	fax				varchar,
+	organisationName		varchar,
 
 	-- Beziehungen
 	beziehtsichauf			varchar[],
@@ -1878,8 +1939,9 @@ CREATE TABLE ax_namensnummer (
 	gml_id					varchar NOT NULL,
 	identifier				varchar,
 	beginnt					character(20),
-	endet 					character(20),
-	advstandardmodell			varchar,
+	endet					character(20),
+	advstandardmodell			varchar[],
+	sonstigesmodell				varchar[],
 	anlass					varchar,
 	laufendenummernachdin1421		character(16),      -- 0000.00.00.00.00
 	zaehler					double precision,   -- Anteil ..
@@ -1922,8 +1984,9 @@ CREATE TABLE ax_buchungsblatt (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	buchungsblattkennzeichen	varchar,
 	land			integer,
@@ -1954,31 +2017,33 @@ COMMENT ON COLUMN ax_buchungsblatt.bestehtaus IS 'Beziehung zu ax_buchungsstelle
 -- B u c h u n g s s t e l l e
 -- -----------------------------
 CREATE TABLE ax_buchungsstelle (
-	ogc_fid				serial NOT NULL,
-	gml_id				varchar NOT NULL,
-	identifier			varchar,
-	beginnt				character(20),
-	endet 				character(20),
-	advstandardmodell		varchar,
-	anlass				varchar,
-	buchungsart			integer,
-	laufendenummer			varchar,
+	ogc_fid					serial NOT NULL,
+	gml_id					varchar NOT NULL,
+	identifier				varchar,
+	beginnt					character(20),
+	endet					character(20),
+	advstandardmodell			varchar[],
+	sonstigesmodell				varchar[],
+	anlass					varchar,
+	buchungsart				integer,
+	laufendenummer				varchar,
 	beschreibungdesumfangsderbuchung	character(1),
-	zaehler				double precision,
-	nenner				double precision,
-	nummerimaufteilungsplan		varchar,
-	beschreibungdessondereigentums	varchar,
+	zaehler					double precision,
+	nenner					double precision,
+	nummerimaufteilungsplan			varchar,
+	beschreibungdessondereigentums		varchar,
+	buchungstext				varchar,
 
 	-- Beziehungen
-	istbestandteilvon		varchar,
-	durch				varchar[],
-	verweistauf			varchar[],
-	grundstueckbestehtaus		varchar[],
-	zu				varchar[],
-	an				varchar[],
-	hatvorgaenger			varchar[],
-	wirdverwaltetvon		varchar,
-	beziehtsichauf			varchar[],
+	istbestandteilvon			varchar,
+	durch					varchar[],
+	verweistauf				varchar[],
+	grundstueckbestehtaus			varchar[],
+	zu					varchar[],
+	an					varchar[],
+	hatvorgaenger				varchar[],
+	wirdverwaltetvon			varchar,
+	beziehtsichauf				varchar[],
 
 	CONSTRAINT ax_buchungsstelle_pk PRIMARY KEY (ogc_fid)
 );
@@ -2029,8 +2094,9 @@ CREATE TABLE ax_gebaeude (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
+	endet			character(20),
 	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	gebaeudefunktion	integer,  -- Werte siehe Schlüsseltabelle
 	weiteregebaeudefunktion	integer[],
@@ -2039,7 +2105,7 @@ CREATE TABLE ax_gebaeude (
 	anzahlderoberirdischengeschosse	integer,
 	anzahlderunterirdischengeschosse	integer,
 	hochhaus                varchar,  -- "true"/"false", meist aber leer
-	objekthoehe		integer,
+	objekthoehe		double precision,
 	dachform		integer,
 	zustand			integer,
 	geschossflaeche		integer,
@@ -2057,7 +2123,7 @@ CREATE TABLE ax_gebaeude (
 
 	-- Beziehungen
 	gehoertzu		varchar,
-	hat		 	varchar,
+	hat			varchar,
 	gehoert			varchar[],
 	zeigtauf		varchar[],
 	haengtzusammenmit	varchar,
@@ -2110,7 +2176,7 @@ CREATE TABLE ax_bauteil (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
+	endet			character(20),
 	advstandardmodell	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar,
@@ -2139,8 +2205,9 @@ CREATE TABLE ax_besonderegebaeudelinie (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	beschaffenheit		integer[],
 	anlass			varchar,
 	CONSTRAINT ax_besonderegebaeudelinie_pk PRIMARY KEY (ogc_fid)
@@ -2163,9 +2230,9 @@ CREATE TABLE ax_firstlinie (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
-	sonstigesmodell		varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	art			varchar,
 	uri			varchar,
@@ -2188,15 +2255,16 @@ CREATE TABLE ax_besonderergebaeudepunkt (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	land			integer,
 	stelle			integer,
 	punktkennung		varchar,
 	art			varchar,
 	name			varchar[],
-	sonstigeeigenschaft 	varchar[],
+	sonstigeeigenschaft	varchar[],
 	CONSTRAINT ax_besonderergebaeudepunkt_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -2234,8 +2302,9 @@ CREATE TABLE ax_wohnbauflaeche (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderbebauung		integer,
 	zustand			integer,
@@ -2264,8 +2333,9 @@ CREATE TABLE ax_industrieundgewerbeflaeche (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	funktion		integer,
 	name			varchar,
@@ -2299,8 +2369,9 @@ CREATE TABLE ax_halde (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	lagergut		integer,
 	name			varchar,
@@ -2329,8 +2400,9 @@ CREATE TABLE ax_bergbaubetrieb (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	abbaugut		integer,
 	name			varchar,
@@ -2359,8 +2431,9 @@ CREATE TABLE ax_tagebaugrubesteinbruch (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	abbaugut		integer,
 	name			varchar,
@@ -2388,8 +2461,9 @@ CREATE TABLE ax_flaechegemischternutzung (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderbebauung		integer,
 	funktion		integer,
@@ -2419,8 +2493,9 @@ CREATE TABLE ax_flaechebesondererfunktionalerpraegung (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	funktion		integer,
 	artderbebauung		integer,
@@ -2449,8 +2524,9 @@ CREATE TABLE ax_sportfreizeitunderholungsflaeche (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	funktion		integer,
 	zustand			integer,
@@ -2478,8 +2554,9 @@ CREATE TABLE ax_friedhof (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	funktion		integer,
 	name			varchar,
@@ -2510,8 +2587,9 @@ CREATE TABLE ax_strassenverkehr (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	funktion		integer,
 	name			varchar,
@@ -2522,6 +2600,7 @@ CREATE TABLE ax_strassenverkehr (
 	kreis			integer,
 	gemeinde		integer,
 	lage			varchar,
+	unverschluesselt	varchar,
 	CONSTRAINT ax_strassenverkehr_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -2547,8 +2626,9 @@ CREATE TABLE ax_weg (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	funktion		integer,
 	name			varchar,
@@ -2558,6 +2638,7 @@ CREATE TABLE ax_weg (
 	kreis			integer,
 	gemeinde		integer,
 	lage			varchar,
+	unverschluesselt	varchar,
 	CONSTRAINT ax_weg_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -2581,8 +2662,9 @@ CREATE TABLE ax_platz (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	funktion		integer,
 	name			varchar,
@@ -2592,6 +2674,7 @@ CREATE TABLE ax_platz (
 	kreis			integer,
 	gemeinde		integer,
 	lage			varchar,
+	unverschluesselt	varchar,
 	CONSTRAINT ax_platz_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -2614,8 +2697,9 @@ CREATE TABLE ax_bahnverkehr (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	funktion		integer,
 	bahnkategorie		integer,
@@ -2640,7 +2724,7 @@ COMMENT ON TABLE  ax_bahnverkehr        IS '"B a h n v e r k e h r"  umfasst all
 COMMENT ON COLUMN ax_bahnverkehr.gml_id               IS 'Identifikator, global eindeutig';
 COMMENT ON COLUMN ax_bahnverkehr.funktion             IS 'FKT "Funktion" ist die objektiv feststellbare Nutzung von "Bahnverkehr".';
 COMMENT ON COLUMN ax_bahnverkehr.bahnkategorie        IS 'BKT "Bahnkategorie" beschreibt die Art des Verkehrsmittels.';
-COMMENT ON COLUMN ax_bahnverkehr.bezeichnung          IS 'BEZ "Bezeichnung" ist die Angabe der Orte, in denen die Bahnlinie beginnt und endet (z. B. "Bahnlinie Frankfurt - Würzburg").';
+COMMENT ON COLUMN ax_bahnverkehr.bezeichnung          IS 'BEZ "Bezeichnung" ist die Angabe der Orte, in denen die Bahnlinie beginnt und endet	(z. B. "Bahnlinie Frankfurt - Würzburg").';
 COMMENT ON COLUMN ax_bahnverkehr.nummerderbahnstrecke IS 'NRB "Nummer der Bahnstrecke" ist die von der Bahn AG festgelegte Verschlüsselung der Bahnstrecke.';
 COMMENT ON COLUMN ax_bahnverkehr.zweitname            IS 'ZNM "Zweitname" ist der von der Lagebezeichnung abweichende Name von "Bahnverkehr" (z. B. "Höllentalbahn").';
 COMMENT ON COLUMN ax_bahnverkehr.zustand              IS 'ZUS "Zustand" beschreibt die Betriebsbereitschaft von "Bahnverkehr".';
@@ -2653,10 +2737,11 @@ CREATE TABLE ax_flugverkehr (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
-	funktion 		integer,
+	funktion		integer,
 	art			integer,
 	name			varchar,
 	bezeichnung		varchar,
@@ -2687,8 +2772,9 @@ CREATE TABLE ax_schiffsverkehr (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	funktion		integer,
 	name			varchar,
@@ -2718,8 +2804,9 @@ CREATE TABLE ax_landwirtschaft (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	vegetationsmerkmal	integer,
 	name			varchar,
@@ -2744,8 +2831,9 @@ CREATE TABLE ax_wald (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	vegetationsmerkmal	integer,
 	name			varchar,
@@ -2772,9 +2860,10 @@ CREATE TABLE ax_gehoelz (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
-	anlass 			varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
+	anlass			varchar,
 	vegetationsmerkmal	integer,
 	name			varchar,
 	funktion		integer,
@@ -2801,8 +2890,9 @@ CREATE TABLE ax_heide (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	name			varchar,
 	CONSTRAINT ax_heide_pk PRIMARY KEY (ogc_fid)
@@ -2825,8 +2915,9 @@ CREATE TABLE ax_moor (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	name			varchar,
 	CONSTRAINT ax_moor_pk PRIMARY KEY (ogc_fid)
@@ -2850,8 +2941,9 @@ CREATE TABLE ax_sumpf (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	name			varchar,
 	CONSTRAINT ax_sumpf_pk PRIMARY KEY (ogc_fid)
@@ -2874,8 +2966,9 @@ CREATE TABLE ax_unlandvegetationsloseflaeche (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	oberflaechenmaterial	integer,
 	name			varchar,
@@ -2915,12 +3008,14 @@ CREATE TABLE ax_fliessgewaesser (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	funktion		integer,
 	name			varchar,
 	zustand			integer,
+	unverschluesselt	varchar,
 	CONSTRAINT ax_fliessgewaesser_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -2943,8 +3038,9 @@ CREATE TABLE ax_hafenbecken (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	funktion		integer,
 	name			varchar,
@@ -2974,13 +3070,15 @@ CREATE TABLE ax_stehendesgewaesser (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	funktion		integer,
 	name			varchar,
 	gewaesserkennziffer	varchar,
 	hydrologischesMerkmal	integer,
+	unverschluesselt	varchar,
 	CONSTRAINT ax_stehendesgewaesser_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -3004,8 +3102,9 @@ CREATE TABLE ax_meer (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	funktion		integer,
 	name			varchar,
@@ -3059,8 +3158,9 @@ CREATE TABLE ax_turm (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	bauwerksfunktion	integer,
 	zustand			integer,
@@ -3090,8 +3190,9 @@ CREATE TABLE ax_bauwerkoderanlagefuerindustrieundgewerbe (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	bauwerksfunktion	integer,
 	name			varchar,
@@ -3116,8 +3217,9 @@ CREATE TABLE ax_vorratsbehaelterspeicherbauwerk (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	speicherinhalt		integer,
 	bauwerksfunktion	integer,
@@ -3142,8 +3244,9 @@ CREATE TABLE ax_transportanlage (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	bauwerksfunktion	integer,
 	lagezurerdoberflaeche	integer,
@@ -3169,8 +3272,9 @@ CREATE TABLE ax_leitung (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	bauwerksfunktion	integer,
 	spannungsebene		integer,
@@ -3193,8 +3297,9 @@ CREATE TABLE ax_bauwerkoderanlagefuersportfreizeitunderholung (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	bauwerksfunktion	integer,
 	sportart		integer,
@@ -3218,8 +3323,8 @@ CREATE TABLE ax_historischesbauwerkoderhistorischeeinrichtung (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	archaeologischertyp	integer,
@@ -3244,8 +3349,8 @@ CREATE TABLE ax_heilquellegasquelle (
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar,
-	sonstigesmodell		varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	art			integer,
 	name			varchar,
@@ -3268,15 +3373,17 @@ CREATE TABLE ax_sonstigesbauwerkodersonstigeeinrichtung (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	description		integer,
-	name			varchar,  -- Lippe immer leer, RLP "Relationsbelegung bei Nachmigration"
+	name			varchar,  -- Lippe immer leer, RP "Relationsbelegung bei Nachmigration"
 	bauwerksfunktion	integer,
+	funktion		integer,
 
 	-- Beziehungen
-	gehoertzubauwerk	varchar,
+	gehoertZuBauwerk	varchar,
 	gehoertzu		varchar,
 
 	CONSTRAINT ax_sonstigesbauwerkodersonstigeeinrichtung_pk PRIMARY KEY (ogc_fid)
@@ -3286,12 +3393,12 @@ SELECT AddGeometryColumn('ax_sonstigesbauwerkodersonstigeeinrichtung','wkb_geome
 
 CREATE INDEX ax_sonstigesbauwerkodersonstigeeinrichtung_geom_idx ON ax_sonstigesbauwerkodersonstigeeinrichtung USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_sonstigesbauwerkodersonstigeeinrichtung_gml ON ax_sonstigesbauwerkodersonstigeeinrichtung USING btree (gml_id,beginnt);
-CREATE INDEX ax_sonstigesbauwerkodersonstigeeinrichtung_gzb ON ax_sonstigesbauwerkodersonstigeeinrichtung USING btree (gehoertzubauwerk);
+CREATE INDEX ax_sonstigesbauwerkodersonstigeeinrichtung_gzb ON ax_sonstigesbauwerkodersonstigeeinrichtung USING btree (gehoertZuBauwerk);
 CREATE INDEX ax_sonstigesbauwerkodersonstigeeinrichtung_gz ON ax_sonstigesbauwerkodersonstigeeinrichtung USING btree (gehoertzu);
 
 COMMENT ON TABLE  ax_sonstigesbauwerkodersonstigeeinrichtung                  IS 'sonstiges Bauwerk oder sonstige Einrichtung';
 COMMENT ON COLUMN ax_sonstigesbauwerkodersonstigeeinrichtung.gml_id           IS 'Identifikator, global eindeutig';
-COMMENT ON COLUMN ax_sonstigesbauwerkodersonstigeeinrichtung.gehoertzubauwerk IS 'Beziehung zu ax_bauwerkeeinrichtungenundsonstigeangaben (0..1): ''AX_SonstigesBauwerkOderSonstigeEinrichtung'' kann einem anderen Bauwerk zugeordnet werden.';
+COMMENT ON COLUMN ax_sonstigesbauwerkodersonstigeeinrichtung.gehoertZuBauwerk IS 'Beziehung zu ax_bauwerkeeinrichtungenundsonstigeangaben (0..1): ''AX_SonstigesBauwerkOderSonstigeEinrichtung'' kann einem anderen Bauwerk zugeordnet werden.';
 COMMENT ON COLUMN ax_sonstigesbauwerkodersonstigeeinrichtung.gehoertzu        IS 'Beziehung zu ax_gebaeude (0..1): ''AX_SonstigesBauwerkOderSonstigeEinrichtung'' kann einem Gebäude zugeordnet werden, soweit dies fachlich erforderlich ist.';
 
 
@@ -3303,8 +3410,8 @@ CREATE TABLE ax_einrichtunginoeffentlichenbereichen (
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar,
-	sonstigesmodell		varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	art			integer,
 	kilometerangabe         varchar,
@@ -3322,12 +3429,13 @@ COMMENT ON COLUMN ax_einrichtunginoeffentlichenbereichen.gml_id IS 'Identifikato
 
 -- Einrichtung für den Schiffsverkehr
 CREATE TABLE ax_einrichtungenfuerdenschiffsverkehr (
-	ogc_fid 		serial NOT NULL,
+	ogc_fid			serial NOT NULL,
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	art			integer,
 	kilometerangabe		varchar,
@@ -3351,8 +3459,9 @@ CREATE TABLE ax_besondererbauwerkspunkt (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet				character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	punktkennung		varchar,
 	land			integer,
@@ -3382,8 +3491,9 @@ CREATE TABLE ax_bauwerkimverkehrsbereich (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	bauwerksfunktion	integer,
 	name                    varchar,
@@ -3407,8 +3517,8 @@ CREATE TABLE ax_strassenverkehrsanlage (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	art			integer,
@@ -3433,8 +3543,8 @@ CREATE TABLE ax_wegpfadsteig (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	art			integer,
@@ -3458,8 +3568,8 @@ CREATE TABLE ax_bahnverkehrsanlage (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	bahnhofskategorie	integer,
@@ -3484,8 +3594,8 @@ CREATE TABLE ax_seilbahnschwebebahn (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	bahnkategorie		integer,
@@ -3510,8 +3620,8 @@ CREATE TABLE ax_gleis (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	bahnkategorie		integer,
@@ -3538,8 +3648,8 @@ CREATE TABLE ax_flugverkehrsanlage (
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar,
-	sonstigesmodell		varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	art			integer,
 	oberflaechenmaterial	integer,
@@ -3567,8 +3677,9 @@ CREATE TABLE ax_bauwerkimgewaesserbereich (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	bauwerksfunktion	integer,
 	name			varchar,
@@ -3595,8 +3706,9 @@ CREATE TABLE ax_vegetationsmerkmal (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	bewuchs			integer,
 	zustand			integer,
@@ -3623,8 +3735,9 @@ CREATE TABLE ax_gewaessermerkmal (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	art			integer,
 	name			varchar,
@@ -3647,8 +3760,9 @@ CREATE TABLE ax_untergeordnetesgewaesser (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	funktion		integer,
 	lagezurerdoberflaeche	integer,
@@ -3679,8 +3793,9 @@ CREATE TABLE ax_wasserspiegelhoehe (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	hoehedeswasserspiegels	double precision,
 	CONSTRAINT ax_wasserspiegelhoehe_pk PRIMARY KEY (ogc_fid)
@@ -3701,8 +3816,9 @@ CREATE TABLE ax_schifffahrtsliniefaehrverkehr (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	art			integer[],
 	name			varchar,
@@ -3731,8 +3847,8 @@ CREATE TABLE ax_boeschungkliff (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	objekthoehe		double precision,
@@ -3755,10 +3871,14 @@ CREATE TABLE ax_boeschungsflaeche (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar,
+
+	-- Beziehung
+	istteilvon		varchar,
+
 	CONSTRAINT ax_boeschungsflaeche_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -3766,6 +3886,7 @@ SELECT AddGeometryColumn('ax_boeschungsflaeche','wkb_geometry',:alkis_epsg,'GEOM
 
 CREATE INDEX ax_boeschungsflaeche_geom_idx ON ax_boeschungsflaeche USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_boeschungsflaeche_gml ON ax_boeschungsflaeche USING btree (gml_id,beginnt);
+CREATE INDEX ax_boeschungsflaeche_itv        ON ax_boeschungsflaeche USING btree (istteilvon);
 
 COMMENT ON TABLE  ax_boeschungsflaeche        IS 'B ö s c h u n g s f l ä c h e';
 COMMENT ON COLUMN ax_boeschungsflaeche.gml_id IS 'Identifikator, global eindeutig';
@@ -3778,8 +3899,9 @@ CREATE TABLE ax_dammwalldeich (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	art			integer,
 	name			varchar,
@@ -3803,8 +3925,9 @@ CREATE TABLE ax_hoehleneingang (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	name			varchar,
 	ax_datenerhebung	integer,
@@ -3828,8 +3951,9 @@ CREATE TABLE ax_felsenfelsblockfelsnadel (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	name			varchar,
 	CONSTRAINT ax_felsenfelsblockfelsnadel_pk PRIMARY KEY (ogc_fid)
@@ -3851,8 +3975,9 @@ CREATE TABLE ax_duene (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	name			varchar,
 	CONSTRAINT ax_duene_pk PRIMARY KEY (ogc_fid)
@@ -3873,8 +3998,9 @@ CREATE TABLE ax_hoehenlinie (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	hoehevonhoehenlinie	double precision,
 	CONSTRAINT ax_hoehenlinie_pk PRIMARY KEY (ogc_fid)
@@ -3909,8 +4035,8 @@ CREATE TABLE ax_gelaendekante (
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar,
-	sonstigesmodell		varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artdergelaendekante	integer,
 	ax_dqerfassungsmethode	integer,
@@ -3927,6 +4053,7 @@ SELECT AddGeometryColumn('ax_gelaendekante','wkb_geometry',:alkis_epsg,'LINESTRI
 
 CREATE INDEX ax_gelaendekante_geom_idx ON ax_gelaendekante USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_gelaendekante_gml ON ax_gelaendekante USING btree (gml_id,beginnt);
+CREATE INDEX ax_gelaendekante_itv_idx ON ax_gelaendekante USING btree (istteilvon);
 
 COMMENT ON TABLE  ax_gelaendekante        IS 'G e l ä n d e k a n t e';
 COMMENT ON COLUMN ax_gelaendekante.gml_id IS 'Identifikator, global eindeutig';
@@ -3940,12 +4067,12 @@ COMMENT ON COLUMN ax_gelaendekante.gml_id IS 'Identifikator, global eindeutig';
 -- -------------------------------------------------------------
 CREATE TABLE ax_besondererhoehenpunkt (
 	ogc_fid			serial NOT NULL,
-	gml_id 			varchar NOT NULL,
-	identifier 		varchar,
-	beginnt 		character(20),
-	endet  			character(20),
-	advstandardmodell	varchar,
-	sonstigesmodell		varchar,
+	gml_id			varchar NOT NULL,
+	identifier		varchar,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	besonderebedeutung	integer,
 	CONSTRAINT ax_besondererhoehenpunkt_pk PRIMARY KEY (ogc_fid)
@@ -3979,8 +4106,9 @@ CREATE TABLE ax_klassifizierungnachstrassenrecht (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
 	land			integer,
@@ -4006,8 +4134,9 @@ CREATE TABLE ax_klassifizierungnachwasserrecht (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
 	land			integer,
@@ -4033,8 +4162,9 @@ CREATE TABLE ax_bauraumoderbodenordnungsrecht (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	art			varchar,
 	name			varchar,
@@ -4042,6 +4172,7 @@ CREATE TABLE ax_bauraumoderbodenordnungsrecht (
 	land			integer,
 	stelle			varchar,
 	bezeichnung		varchar,
+	datumanordnung		varchar,
 	CONSTRAINT ax_bauraumoderbodenordnungsrecht_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -4064,8 +4195,9 @@ CREATE TABLE ax_sonstigesrecht (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
 	land			integer,
@@ -4098,8 +4230,9 @@ CREATE TABLE ax_bodenschaetzung (
 	gml_id				varchar NOT NULL,
 	identifier			varchar,
 	beginnt				character(20),
-	endet 				character(20),
-	advstandardmodell		varchar,
+	endet				character(20),
+	advstandardmodell		varchar[],
+	sonstigesmodell			varchar[],
 	anlass				varchar,
 	art				varchar,
 	name				varchar,
@@ -4139,8 +4272,9 @@ CREATE TABLE ax_musterlandesmusterundvergleichsstueck (
 	gml_id				varchar NOT NULL,
 	identifier			varchar,
 	beginnt				character(20),
-	endet 				character(20),
-	advstandardmodell		varchar,
+	endet				character(20),
+	advstandardmodell		varchar[],
+	sonstigesmodell			varchar[],
 	anlass				varchar,
 	merkmal				integer,
 	nummer				integer,
@@ -4183,8 +4317,9 @@ CREATE TABLE ax_bundesland (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	schluesselgesamt	integer,
 	bezeichnung		varchar,
@@ -4208,8 +4343,9 @@ CREATE TABLE ax_regierungsbezirk (
 	gml_id				varchar NOT NULL,
 	identifier			varchar,
 	beginnt				character(20),
-	endet 				character(20),
-	advstandardmodell		varchar,
+	endet				character(20),
+	advstandardmodell		varchar[],
+	sonstigesmodell			varchar[],
 	anlass				varchar,
 	schluesselgesamt		integer,
 	bezeichnung			varchar,
@@ -4236,8 +4372,9 @@ CREATE TABLE ax_kreisregion (
 	gml_id				varchar NOT NULL,
 	identifier			varchar,
 	beginnt				character(20),
-	endet 				character(20),
-	advstandardmodell		varchar,
+	endet				character(20),
+	advstandardmodell		varchar[],
+	sonstigesmodell			varchar[],
 	anlass				varchar,
 	schluesselgesamt		integer,
 	bezeichnung			varchar,
@@ -4262,8 +4399,9 @@ CREATE TABLE ax_gemeinde (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	schluesselgesamt	integer,
 	bezeichnung		varchar,
@@ -4271,6 +4409,11 @@ CREATE TABLE ax_gemeinde (
 	regierungsbezirk	integer,
 	kreis			integer,
 	gemeinde		integer,
+	stelle			integer,
+
+	-- Beziehungen
+	istamtsbezirkvon        varchar[],
+
 	CONSTRAINT ax_gemeinde_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -4278,9 +4421,11 @@ SELECT AddGeometryColumn('ax_gemeinde','dummy',:alkis_epsg,'POINT',2);
 
 -- Index für alkis_beziehungen
 CREATE UNIQUE INDEX ax_gemeinde_gml ON ax_gemeinde USING btree (gml_id,beginnt);
+CREATE INDEX ax_gemeinde_iabv ON ax_gemeinde USING gin (istamtsbezirkvon);
 
 COMMENT ON TABLE  ax_gemeinde        IS 'G e m e i n d e';
 COMMENT ON COLUMN ax_gemeinde.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_gemeinde.istamtsbezirkvon IS 'Beziehung zu ax_dienststelle (0..*): ''Bundesland'' ist Verwaltungsbezirk einer Dienststelle.';
 
 
 -- G e m e i n d e t e i l
@@ -4291,7 +4436,8 @@ CREATE TABLE ax_gemeindeteil (
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	schluesselgesamt	double precision,
 	bezeichnung		varchar,
@@ -4321,8 +4467,9 @@ CREATE TABLE ax_gemarkung (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
+	endet			character(20),
 	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	schluesselgesamt	integer,
 	bezeichnung		varchar,
@@ -4349,8 +4496,9 @@ CREATE TABLE ax_gemarkungsteilflur (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	schluesselgesamt	integer,
 	bezeichnung		varchar,
@@ -4376,14 +4524,19 @@ CREATE TABLE ax_buchungsblattbezirk (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	schluesselgesamt	integer,
 	bezeichnung		varchar,
 	land			integer,
 	bezirk			integer,
 	stelle			varchar,
+
+	-- Beziehung
+	gehoertzu               varchar,
+
 	CONSTRAINT ax_buchungsblattbezirk_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -4394,9 +4547,11 @@ CREATE UNIQUE INDEX ax_buchungsblattbezirk_gml ON ax_buchungsblattbezirk USING b
 -- Such-Index auf Land + Bezirk
 -- Der Verweis von ax_buchungsblatt hat keine alkis_beziehung.
 CREATE INDEX ax_buchungsblattbez_key ON ax_buchungsblattbezirk USING btree (land, bezirk);
+CREATE INDEX ax_buchungsblattbez_ghz ON ax_buchungsblattbezirk USING btree (gehoertzu);
 
-COMMENT ON TABLE  ax_buchungsblattbezirk        IS 'Buchungsblatt- B e z i r k';
-COMMENT ON COLUMN ax_buchungsblattbezirk.gml_id IS 'Identifikator, global eindeutig';
+COMMENT ON TABLE  ax_buchungsblattbezirk           IS 'Buchungsblatt- B e z i r k';
+COMMENT ON COLUMN ax_buchungsblattbezirk.gml_id    IS 'Identifikator, global eindeutig';
+COMMENT ON COLUMN ax_buchungsblattbezirk.gehoertzu IS 'Beziehung zu ax_dienststelle (0..1): Buchungsblattbezirk" wird von einem Grundbuchamt verwaltet, das im Katalog der Dienststellen geführt wird. Die Relation wird nur gebildet, wenn die Dienststelle ein Grundbuchamt ist.';
 
 
 -- D i e n s t s t e l l e
@@ -4407,9 +4562,9 @@ CREATE TABLE ax_dienststelle (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
-	sonstigesmodell		varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	schluesselgesamt	varchar,
 	bezeichnung		varchar,
@@ -4440,8 +4595,9 @@ CREATE TABLE ax_lagebezeichnungkatalogeintrag (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	schluesselgesamt	varchar,
 	bezeichnung		varchar,
@@ -4481,8 +4637,8 @@ CREATE TABLE ax_kleinraeumigerlandschaftsteil (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	landschaftstyp		integer,
@@ -4506,8 +4662,9 @@ CREATE TABLE ax_wohnplatz (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	name			varchar,
 	CONSTRAINT ax_wohnplatz_pk PRIMARY KEY (ogc_fid)
@@ -4533,8 +4690,9 @@ CREATE TABLE ax_kommunalesgebiet (
 	gml_id			varchar NOT NULL,
 	identifier		varchar,
 	beginnt			character(20),
-	endet 			character(20),
-	advstandardmodell	varchar,
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	schluesselgesamt	varchar,
 	land			integer,
@@ -4568,7 +4726,8 @@ CREATE TABLE ax_vertretung (
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 
 	-- Beziehung
@@ -4595,7 +4754,8 @@ CREATE TABLE ax_verwaltungsgemeinschaft (
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	schluesselgesamt	integer,
 	bezeichnung		varchar,
@@ -4620,7 +4780,8 @@ CREATE TABLE ax_verwaltung (
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	advstandardmodell	varchar,
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 
 	-- Beziehungen

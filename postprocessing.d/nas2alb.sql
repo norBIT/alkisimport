@@ -188,11 +188,10 @@ CREATE TABLE gem_shl (
 INSERT INTO gem_shl(gemshl,gemname)
 	SELECT
 		to_char(schluesselgesamt,'fm00000000') AS gemshl,
-		bezeichnung AS gemname
+		min(bezeichnung) AS gemname
 	FROM ax_gemeinde a
 	WHERE endet IS NULL
-	  -- Nur nötig, weil Kataloge nicht vernünfigt geführt werden und doppelte Einträge vorkommen
-	  AND NOT EXISTS (SELECT * FROM ax_gemeinde b WHERE b.endet IS NULL AND a.schluesselgesamt=b.schluesselgesamt AND b.beginnt<a.beginnt);
+	GROUP BY to_char(schluesselgesamt,'fm00000000');
 
 CREATE INDEX gem_shl_idx0 ON gem_shl(gemshl);
 

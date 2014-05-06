@@ -15,6 +15,7 @@ export OGR_ARC_MINLENGTH=0.1
 export OGR_SKIP=GML,SEGY
 
 export EPSG=25832
+export CRS=EPSG:$EPSG
 
 bdate() {
 	local t=$1
@@ -70,11 +71,14 @@ export LC_CTYPE=de_DE.UTF-8
 if type -p cygpath >/dev/null; then
 	export PATH=$B/gdal-dev/bin:$PATH
 	export GDAL_DATA=$B/gdal-dev/share/gdal
-elif [ -d "$HOME/src/gdal/apps/.libs" ]; then
-	export PATH=$HOME/src/gdal/apps/.libs:$PATH
-	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/src/gdal/.libs
-	export GDAL_DATA=/usr/share/gdal/1.10
+elif [ -d "$HOME/src/gdal/gdal/apps/.libs" ]; then
+	GDALHOME=$HOME/src/gdal/gdal
+	export PATH=$GDALHOME/apps/.libs:$PATH
+	export LD_LIBRARY_PATH=$GDALHOME/.libs:$LD_LIBRARY_PATH
+	export GDAL_DATA=$GDALHOME/data
 fi
+
+export TEMP=${TEMP:-/tmp}
 
 F=$1
 if [ -z "$F" ]; then
@@ -138,12 +142,9 @@ do
 	(( S1 += s ))
 done <$F
 
-if (( S1 == 0 )); then
-       echo "$P: Keine Daten zu importieren"
-       exit 0
+if (( S1 > 0 )); then
+	echo "$P: Unkomprimierte Gesamtgröße: $(memunits $S1)"
 fi
-
-echo "$P: Unkomprimierte Gesamtgröße: $(memunits $S1)"
 
 while read src
 do
@@ -238,6 +239,15 @@ EOF
 
 	"epsg "*)
 		EPSG=${src#epsg }
+
+		case "$EPSG" in
+		13146[67])
+			export PROJ_LIB=$B CRS=+init=custom:$EPSG
+			;;
+		*)
+			;;
+		esac
+
 		continue
 		;;
 
@@ -365,7 +375,7 @@ EOF
 		continue
 		;;
 
-	exit)
+	exit|postprocess)
 		break
 		;;
 
@@ -424,13 +434,13 @@ EOF
 
 	echo "IMPORT $(bdate): $dst $(memunits $s)"
 
-	echo RUNNING: ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs EPSG:$EPSG "$dst"
+	echo RUNNING: ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs $CRS "$dst"
 	t0=$(bdate +%s)
 	if [ -z "$T0" ]; then T0=$t0; fi
 	if [ -n "$GDB" ]; then
-		gdb --args ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs EPSG:$EPSG "$dst" </dev/tty >/dev/tty 2>&1
+		gdb --args ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs $CRS "$dst" </dev/tty >/dev/tty 2>&1
 	else
-		ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs EPSG:$EPSG "$dst"
+		ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs $CRS "$dst"
 	fi
 	t1=$(bdate +%s)
 

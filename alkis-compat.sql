@@ -341,3 +341,23 @@ CREATE AGGREGATE array_agg (
 	stype = anyarray,
 	initcond = '{}'
 );
+
+CREATE FUNCTION array_length(anyarray,integer) RETURNS integer AS $$
+DECLARE
+  res integer;
+BEGIN
+  BEGIN
+    IF $2=1 THEN
+      SELECT count(*) INTO res FROM (SELECT unnest($1)) AS foo;
+    ELSIF $2>1 THEN
+      SELECT array_length($1[1],$2-1) INTO res;
+    ELSE
+      res := NULL;
+    END IF;
+  EXCEPTION
+    WHEN OTHERS THEN
+      res := NULL;
+  END;
+  RETURN res;
+END;
+$$ LANGUAGE plpgsql;

@@ -1,6 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
 
+import sip
+for c in [ "QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant" ]:
+        sip.setapi(c,2)
+
 import sys
 import os
 import traceback
@@ -11,7 +15,7 @@ import re
 import tempfile
 import glob
 
-from PyQt4.QtCore import QSettings, QProcess, QString, QVariant, QStringList, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QTime
+from PyQt4.QtCore import QSettings, QProcess, QVariant, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QTime
 from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox
 from PyQt4.QtSql import QSqlDatabase, QSqlQuery, QSqlError, QSql
 
@@ -24,12 +28,12 @@ os.putenv("GML_FIELDTYPES", "ALWAYS_STRING")
 os.putenv("OGR_SETFIELD_NUMERIC_WARNING", "ON")
 
 # Mindestlänge für Kreisbogensegmente
-os.putenv("OGR_ARC_MINLENGTH", "0.1" )
+os.putenv("OGR_ARC_MINLENGTH", "0.1")
 
 # Verhindern, dass andere GML-Treiber übernehmen
-os.putenv("OGR_SKIP", "GML,SEGY" )
+os.putenv("OGR_SKIP", "GML,SEGY")
 
-os.putenv("PGCLIENTENCODING", "UTF8" )
+os.putenv("PGCLIENTENCODING", "UTF8")
 
 def which(program):
 	def is_exe(fpath):
@@ -81,19 +85,21 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 		s = QSettings( "norBIT", "norGIS-ALKIS-Import" )
 
-		self.leSERVICE.setText( s.value( "service", "" ).toString() )
-		self.leHOST.setText( s.value( "host", "" ).toString() )
-		self.lePORT.setText( s.value( "port", "5432" ).toString() )
-		self.leDBNAME.setText( s.value( "dbname", "" ).toString() )
-		self.leUID.setText( s.value( "uid", "" ).toString() )
-		self.lePWD.setText( s.value( "pwd", "" ).toString() )
-		self.lstFiles.addItems( s.value( "files", QVariant.fromList( QStringList() ) ).toStringList() )
-		self.cbxSkipFailures.setChecked( s.value( "skipfailures", False ).toBool() )
-		self.cbxDebug.setChecked( s.value( "debug", False ).toBool() )
+		self.leSERVICE.setText( s.value( "service", "" ) )
+		self.leHOST.setText( s.value( "host", "" ) )
+		self.lePORT.setText( s.value( "port", "5432" ) )
+		self.leDBNAME.setText( s.value( "dbname", "" ) )
+		self.leUID.setText( s.value( "uid", "" ) )
+		self.lePWD.setText( s.value( "pwd", "" ) )
+		self.lstFiles.addItems( s.value( "files", [] ) or [] )
+		self.cbxSkipFailures.setChecked( s.value( "skipfailures", False, type=bool ) )
+		self.cbxDebug.setChecked( s.value( "debug", False, type=bool ) )
 
 		self.cbEPSG.addItem( "UTM32N", "25832")
 		self.cbEPSG.addItem( "UTM33N", "25833")
-		self.cbEPSG.setCurrentIndex( self.cbEPSG.findData( s.value( "epsg", "25832" ).toString() ) )
+		self.cbEPSG.addItem( "3GK2 (BW)", "131466")
+		self.cbEPSG.addItem( "3GK3 (BW)", "131467")
+		self.cbEPSG.setCurrentIndex( self.cbEPSG.findData( s.value( "epsg", "25832" ) ) )
 
 		self.pbAdd.clicked.connect(self.selFiles)
 		self.pbAddDir.clicked.connect(self.selDir)
@@ -165,7 +171,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 	def selFiles(self):
 		s = QSettings( "norBIT", "norGIS-ALKIS-Import" )
-		lastDir = s.value( "lastDir", "." ).toString()
+		lastDir = s.value( "lastDir", "." )
 
 		files = QFileDialog.getOpenFileNames( self, u"NAS-Dateien wählen", lastDir, "NAS-Dateien (*.xml *.xml.gz *.zip)")
 		if files is None:
@@ -182,7 +188,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 	def selDir(self):
 		s = QSettings( "norBIT", "norGIS-ALKIS-Import" )
-		lastDir = s.value( "lastDir", "." ).toString()
+		lastDir = s.value( "lastDir", "." )
 
 		dir = QFileDialog.getExistingDirectory( self, u"Verzeichnis mit NAS-Dateien wählen", lastDir )
 		if dir is None:
@@ -280,8 +286,8 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 			return
 
 		while qry.next():
-			if self.keep( qry.value(1).toString() ):
-				self.logDlg( qry.value(1).toString(), qry.value(0).toTime() )
+			if self.keep( qry.value(1) ):
+				self.logDlg( qry.value(1), qry.value(0) )
 
 		self.db.disconnect()
 
@@ -334,11 +340,12 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		if not current:
 			current = ""
 
-		r = QString.fromUtf8( output )
+		#r = str(output).decode('utf-8')
+		r = output.data().decode('utf-8')
 
 		lines = r.split("\n")
 
-		if not r.endsWith("\n"):
+		if not r.endswith("\n"):
 			lastline = lines.takeLast()
 		else:
 			lastline = ""
@@ -351,16 +358,15 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 			current = ""
 
 		for l in lines:
-			l = unicode( l )
 			if self.keep(l):
-				self.log( "> %s|" % l )
+				self.log( u"> %s|" % l )
 			else:
 				self.logDb( l )
 
 		return current + lastline
 
 	def runProcess(self, args):
-		self.logDb( "BEFEHL: '%s'" % ( "' '".join(args) ) )
+		self.logDb( u"BEFEHL: '%s'" % ( u"' '".join(args) ) )
 
 		currout = ""
 		currerr = ""
@@ -413,7 +419,6 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 	def runSQLScript(self, conn, fn):
 		return self.runProcess([self.psql, "-v", "alkis_epsg=%s" % self.epsg, "-q", "-f", fn, conn])
 
-
 	def run(self):
 		self.importALKIS()
 
@@ -438,9 +443,10 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 	def importALKIS(self):
 		if self.cbxDebug.isChecked():
+			self.log( u"Debug-Ausgaben aktiv." )
 			os.putenv("CPL_DEBUG", "ON" )
 		else:
-			os.putenv("CPL_DEBUG", "" )
+			os.unsetenv("CPL_DEBUG")
 
 		files = []
 		for i in range(self.lstFiles.count()):
@@ -454,12 +460,11 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		s.setValue( "uid", self.leUID.text() )
 		s.setValue( "pwd", self.lePWD.text() )
 		s.setValue( "files", files )
-		s.setValue( "skipfailures", self.cbxSkipFailures.isChecked() )
-		s.setValue( "debug", self.cbxDebug.isChecked() )
+		s.setValue( "skipfailures", self.cbxSkipFailures.isChecked()==True )
+		s.setValue( "debug", self.cbxDebug.isChecked()==True )
 
-		self.epsg=self.cbEPSG.itemData( self.cbEPSG.currentIndex() ).toString()
+		self.epsg = int( self.cbEPSG.itemData( self.cbEPSG.currentIndex() ) )
 		s.setValue( "epsg", self.epsg)
-
 
 		self.running = True
 		self.canceled = False
@@ -500,21 +505,21 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 				self.log(u"Konnte PostgreSQL-Version nicht bestimmen!")
 				break
 
-			self.log( "PostgreSQL-Version: %s" % qry.value(0).toString() )
+			self.log( "PostgreSQL-Version: %s" % qry.value(0) )
 
 			qry = self.db.exec_( "SELECT postgis_version()" )
 			if not qry or not qry.next():
 				self.log(u"Konnte PostGIS-Version nicht bestimmen!")
 				break
 
-			self.log( "PostGIS-Version: %s" % qry.value(0).toString() )
+			self.log( "PostGIS-Version: %s" % qry.value(0) )
 
 			qry = self.db.exec_( "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='alkis_importlog'" )
 			if not qry or not qry.next():
 				self.log( u"Konnte Existenz von Protokolltabelle nicht überprüfen." )
 				break
 
-			if qry.value(0).toInt()[0] == 0:
+			if int( qry.value(0) ) == 0:
 				qry = self.db.exec_( "CREATE TABLE alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" )
 				if not qry:
 					self.log( u"Konnte Protokolltabelle nicht anlegen [%s]" % qry.lastError().text() )
@@ -531,7 +536,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 				self.log( u"Konnte Existenz des ALKIS-Schema nicht überprüfen." )
 				break
 
-			if not self.cbxCreate.isChecked() and qry.value(0).toInt()[0] == 0:
+			if not self.cbxCreate.isChecked() and int( qry.value(0) ) == 0:
 				self.cbxCreate.setChecked( True )
 				self.log( u"Keine ALKIS-Daten vorhanden - Datenbank muß angelegt werden." )
 				break
@@ -628,7 +633,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 				if self.cbxCreate.isChecked():
 					self.status( u"Datenbank wird angelegt..." )
 					if not self.runSQLScript( conn, "alkis-schema.sql" ):
-						raise ProcessError(u"Anlegen der Datenbank schlug fehl.")
+						raise ProcessError(u"Anlegen des Datenbestands schlug fehl.")
 					self.status( u"Kompatibilitätsfunktionen werden importiert..." )
 					if not self.runSQLScript( conn, "alkis-compat.sql" ):
 						raise ProcessError(u"Import der Kompatibilitätsfunktionen schlug fehl.")
@@ -710,12 +715,18 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 						self.log( u"Kurze Datei %s übersprungen." % fn )
 						continue
 
+					if self.epsg==131466 or self.epsg==131467:
+						srs = "+init=custom:%d" % self.epsg
+						os.putenv( "PROJ_LIB", "." )
+					else:
+						srs = "EPSG:%d" % self.epsg
+
 					args = [self.ogr2ogr,
 						"-f", "PostgreSQL",
 						"-append",
 						"-update",
 						"PG:%s" % conn,
-						"-a_srs", "EPSG:%s" % self.epsg
+						"-a_srs", srs
 						]
 
 					if self.cbxSkipFailures.isChecked():

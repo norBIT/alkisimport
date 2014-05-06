@@ -4,5 +4,5 @@ call "%OSGEO4W_ROOT%"\bin\o4w_env.bat
 PATH=%CD%\gdal-dev\bin;%PATH%
 SET GDAL_DATA=%CD%\gdal-dev\share\gdal
 SET PYTHONPATH=%CD%\gdal-dev\pymod;%PYTHONPATH%
-cd %PROGRAMFILES%\norBIT\ALKIS-Import
+cd %PROGRAMFILES%\norBIT\norGIS-ALKIS-Import
 start "ALKIS-Import" /B pythonw alkisImport.py

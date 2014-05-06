@@ -112,6 +112,46 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+SELECT alkis_dropobject('alkis_create_bwsrs');
+CREATE FUNCTION alkis_create_bwsrs(id INTEGER) RETURNS varchar AS $$
+DECLARE
+	n INTEGER;
+BEGIN
+	SELECT count(*) INTO n FROM spatial_ref_sys WHERE srid=id;
+	IF n=1 THEN
+		RETURN NULL;
+	END IF;
+
+	IF has_table_privilege('spatial_ref_sys', 'INSERT') THEN
+		RAISE EXCEPTION 'Darf fehlendes Koordinatensystem % nicht einfügen.', id;
+	END IF;
+
+	IF id=131466 THEN
+		-- DE_DHDN_3GK2_BW100
+		INSERT INTO spatial_ref_sys(srid,auth_name,auth_srid,srtext,proj4text)
+			SELECT
+				131466,auth_name,131466
+				,replace(replace(srtext,'PARAMETER["false_easting",2500000]','PARAMETER["false_easting",500000]'),'"EPSG","31466"','"EPSG","131466"')
+				,replace(proj4text,'+x_0=2500000','+x_0=500000')
+			FROM spatial_ref_sys
+			WHERE srid=31466
+			  AND NOT EXISTS (SELECT * FROM spatial_ref_sys WHERE srid=131466);
+	END IF;
+
+	IF id=131467 THEN
+		-- DE_DHDN_3GK3_BW100
+		INSERT INTO spatial_ref_sys(srid,auth_name,auth_srid,srtext,proj4text)
+			SELECT
+				131467,auth_name,131467
+				,replace(replace(srtext,'PARAMETER["false_easting",3500000]','PARAMETER["false_easting",500000]'),'"EPSG","31467"','"EPSG","131467"')
+				,replace(proj4text,'+x_0=3500000','+x_0=500000')
+			FROM spatial_ref_sys
+			WHERE srid=31467
+			  AND NOT EXISTS (SELECT * FROM spatial_ref_sys WHERE srid=131467);
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
 -- Alle ALKIS-Tabellen leeren
 SELECT alkis_dropobject('alkis_delete');
 CREATE FUNCTION alkis_delete() RETURNS varchar AS $$
@@ -318,11 +358,11 @@ BEGIN
 
 	IF beginnt IS NULL THEN
 		IF NEW.context = 'delete' OR NEW.safetoignore = 'true' THEN
-			RAISE NOTICE 'Kein Beginndatum fuer Objekt % gefunden - ignoriert.', alt_id;
+			RAISE NOTICE 'Kein Beginndatum für Objekt % gefunden - ignoriert.', alt_id;
 			NEW.ignored := true;
 			RETURN NEW;
 		ELSE
-			RAISE EXCEPTION 'Kein Beginndatum fuer Objekt % gefunden.', alt_id;
+			RAISE EXCEPTION 'Kein Beginndatum für Objekt % gefunden.', alt_id;
 		END IF;
 	END IF;
 
@@ -340,8 +380,6 @@ BEGIN
 
 		IF length(NEW.replacedBy)=32 THEN
 			-- Beginnt-Datum aus Timestamp
-			neu_id := substr(NEW.replacedBy, 1, 16);
-
 			IF NEW.featureid<>NEW.replacedBy THEN
 				endete  := substr(NEW.replacedBy, 17, 4) || '-'
 					|| substr(NEW.replacedBy, 21, 2) || '-'
@@ -351,28 +389,35 @@ BEGIN
 					|| substr(NEW.replacedBy, 30, 2) || 'Z'
 					;
 			END IF;
-		ELSIF length(NEW.replacedBy)=16 THEN
-			neu_id  := NEW.replacedBy;
 		ELSIF length(NEW.replacedBy)<>16 THEN
 			RAISE EXCEPTION '%: Länge 16 oder 32 statt % erwartet.', NEW.replacedBy, length(NEW.replacedBy);
 		END IF;
 
+		neu_id := NEW.replacedBy;
 		IF endete IS NULL THEN
 			-- Beginnt-Datum des neuesten Eintrag, der nicht untergegangen ist
 			-- => Enddatum für vorherigen Satz
 			EXECUTE 'SELECT max(beginnt) FROM ' || NEW.typename
-				|| ' WHERE gml_id=''' || neu_id || ''''
+				|| ' WHERE gml_id=''' || NEW.replacedBy || ''''
 				|| ' AND beginnt>''' || beginnt || ''''
 				|| ' AND endet IS NULL'
 				INTO endete;
+			IF endete IS NULL AND length(NEW.replacedBy)=32 THEN
+				EXECUTE 'SELECT max(beginnt) FROM ' || NEW.typename
+					|| ' WHERE gml_id=''' || substr(NEW.replacedBy, 1, 16) || ''''
+					|| ' AND beginnt>''' || beginnt || ''''
+					|| ' AND endet IS NULL'
+				INTO endete;
+				neu_id := substr(NEW.replacedBy, 1, 16);
+			END IF;
 		END IF;
 
-		IF alt_id<>neu_id THEN
+		IF alt_id<>substr(neu_id, 1, 16) THEN
 			RAISE NOTICE 'Objekt % wird durch Objekt % ersetzt.', alt_id, neu_id;
 		END IF;
 
 		IF endete IS NULL THEN
-			RAISE NOTICE 'Kein Beginndatum fuer Objekt % gefunden.', neu_id;
+			RAISE NOTICE 'Kein Beginndatum für Objekt % gefunden.', NEW.replacedBy;
 		END IF;
 
 		IF endete IS NULL OR beginnt=endete THEN
@@ -387,13 +432,24 @@ BEGIN
 	s   := 'UPDATE ' || NEW.typename
 	    || ' SET endet=''' || endete || ''''
 	    || ',anlass=''' || coalesce(NEW.anlass,'000000') || ''''
-	    || ' WHERE gml_id=''' || alt_id || ''''
+	    || ' WHERE gml_id=''' || NEW.featureid || ''''
 	    || ' AND beginnt=''' || beginnt || ''''
 	    || ' AND endet IS NULL';
 	EXECUTE s;
 	GET DIAGNOSTICS n = ROW_COUNT;
+	IF n=0 AND alt_id<>NEW.featureid THEN
+		s   := 'UPDATE ' || NEW.typename
+		    || ' SET endet=''' || endete || ''''
+	            || ',anlass=''' || coalesce(NEW.anlass,'000000') || ''''
+	            || ' WHERE gml_id=''' || alt_id || ''''
+	            || ' AND beginnt=''' || beginnt || ''''
+	            || ' AND endet IS NULL';
+		EXECUTE s;
+		GET DIAGNOSTICS n = ROW_COUNT;
+	END IF;
+
 	IF n<>1 THEN
-		RAISE NOTICE 'SQL: %', s;
+		RAISE NOTICE 'SQL[%<>1]: %', n, s;
 		IF NEW.context = 'delete' OR NEW.safetoignore = 'true' THEN
 			RAISE NOTICE '%: Untergangsdatum von % Objekten statt einem auf % gesetzt - ignoriert', NEW.featureid, n, endete;
 			NEW.ignored := true;
