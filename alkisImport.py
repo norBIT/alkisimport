@@ -305,7 +305,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 			return
 
 		for i in range(0, self.lwProtocol.count()):
-			f.write( self.lwProtocol.item(i).text().toLocal8Bit() )
+			f.write( self.lwProtocol.item(i).text() )
 			f.write( "\n" )
 		f.close()
 
@@ -443,6 +443,8 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 			self.log(u"Konnte Datenbankverbindung nicht aufbauen!")
 			return None
 
+		self.db.exec_( "SET STANDARD_CONFORMING_STRINGS TO ON" )
+
 		return conn
 
 	def importALKIS(self):
@@ -529,11 +531,12 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 					self.log( u"Konnte Protokolltabelle nicht anlegen [%s]" % qry.lastError().text() )
 					break
 			elif self.cbxClearProtocol.isChecked():
-				qry = self.db.exec_( "DELETE FROM alkis_importlog" )
+				qry = self.db.exec_( "TRUNCATE alkis_importlog" )
 				if not qry:
 					self.log( u"Konnte Protokolltabelle nicht leeren [%s]" % qry.lastError().text() )
 					break
-				self.cbxCreate.setChecked( False )
+				self.cbxClearProtocol.setChecked( False )
+				self.log( u"Protokolltabelle gelöscht." )
 
 			qry = self.db.exec_( "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='alkis_beziehungen'" )
 			if not qry or not qry.next():

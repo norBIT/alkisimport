@@ -2,23 +2,52 @@
 SET application_name='ALKIS-Import - Nutzungen & Klassifizierungen';
 \set ON_ERROR_STOP
 
-CREATE OR REPLACE FUNCTION alkis_checkflurstueck() RETURNS VARCHAR AS $$
+CREATE OR REPLACE FUNCTION alkis_intersects(g0 GEOMETRY, g1 GEOMETRY, error TEXT) RETURNS BOOLEAN AS $$
 DECLARE
-	invalid INTEGER;
+	res BOOLEAN;
+BEGIN
+	SELECT st_intersects(g0,g1) INTO res;
+	RETURN res;
+EXCEPTION WHEN OTHERS THEN
+	RAISE NOTICE 'st_intersects-Ausnahme bei %', error;
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION alkis_intersection(g0 GEOMETRY, g1 GEOMETRY, error TEXT) RETURNS GEOMETRY AS $$
+DECLARE
+	res GEOMETRY;
+BEGIN
+	SELECT st_intersection(g0,g1) INTO res;
+	RETURN res;
+EXCEPTION WHEN OTHERS THEN
+	RAISE NOTICE 'st_intersection-Ausnahme bei: %', error;
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION alkis_fixgeometry(t TEXT) RETURNS VARCHAR AS $$
+DECLARE
+	n INTEGER;
 BEGIN
 	BEGIN
-		UPDATE ax_flurstueck SET wkb_geometry=st_makevalid(wkb_geometry) WHERE NOT st_isvalid(wkb_geometry);
-	EXCEPTION
-		WHEN OTHERS THEN
-			RAISE EXCEPTION 'Validierungsausnahme in ax_flurstueck.';
+		EXECUTE 'UPDATE '||t||' SET wkb_geometry=st_makevalid(wkb_geometry) WHERE NOT st_isvalid(wkb_geometry)';
+		GET DIAGNOSTICS n = ROW_COUNT;
+		IF n > 0 THEN
+			RAISE NOTICE '% Geometrien in % korrigiert.', n, t;
+		END IF;
+
+		RETURN '% geprüft (% ungültige Geometrien).', t, n;
+	EXCEPTION WHEN OTHERS THEN
+		BEGIN
+			EXECUTE 'SELECT count(*) FROM '||t||' WHERE NOT st_isvalid(wkb_geometry)' INTO n;
+			IF n > 0 THEN
+				RAISE EXCEPTION '% defekte Geometrien in % gefunden - Ausnahme bei Korrektur.', n, t;
+			END IF;
+		EXCEPTION WHEN OTHERS THEN
+			RAISE EXCEPTION 'Ausnahme bei Bestimmung defekter Geometrien in %.', t;
+		END;
 	END;
-
-	SELECT count(*) INTO invalid FROM ax_flurstueck WHERE NOT st_isvalid(wkb_geometry);
-	IF invalid > 0 THEN
-		RAISE EXCEPTION '% ungültige Geometrien in ax_flurstueck', invalid;
-	END IF;
-
-	RETURN 'ax_flurstueck geprüft.';
 END;
 $$ LANGUAGE plpgsql;
 
@@ -46,22 +75,7 @@ BEGIN
                 FROM alkis_elemente
                 WHERE 'ax_tatsaechlichenutzung' = ANY (abgeleitet_aus)
         LOOP
-		BEGIN
-			EXECUTE 'SELECT count(*) FROM '||r.name||' WHERE NOT st_isvalid(wkb_geometry)' INTO invalid;
-		EXCEPTION
-			WHEN OTHERS THEN
-				BEGIN
-					EXECUTE 'UPDATE '||r.name||' SET wkb_geometry=st_makevalid(wkb_geometry) WHERE NOT st_isvalid(wkb_geometry)';
-					EXECUTE 'SELECT count(*) FROM '||r.name||' WHERE NOT st_isvalid(wkb_geometry)' INTO invalid;
-				EXCEPTION
-					WHEN OTHERS THEN
-						RAISE EXCEPTION 'Erneute Validierungsausnahme in %', r.name;
-				END;
-		END;
-
-		IF invalid > 0 THEN
-			RAISE EXCEPTION '% ungültige Geometrien in %', invalid, r.name;
-		END IF;
+		-- SELECT alkis_fixgeometry(r.name);
 
 		f := CASE r.name
 		     WHEN 'ax_halde'					THEN 'NULL'
@@ -193,21 +207,7 @@ BEGIN
                 FROM alkis_elemente
                 WHERE name IN ('ax_bodenschaetzung','ax_bewertung','ax_klassifizierungnachwasserrecht','ax_klassifizierungnachstrassenrecht')
         LOOP
-		BEGIN
-			EXECUTE 'SELECT count(*) FROM '||r.name||' WHERE NOT st_isvalid(wkb_geometry)' INTO invalid;
-		EXCEPTION
-			WHEN OTHERS THEN
-				BEGIN
-					EXECUTE 'UPDATE '||r.name||' SET wkb_geometry=st_makevalid(wkb_geometry) WHERE NOT st_isvalid(wkb_geometry)';
-					EXECUTE 'SELECT count(*) FROM '||r.name||' WHERE NOT st_isvalid(wkb_geometry)' INTO invalid;
-				EXCEPTION
-					WHEN OTHERS THEN RAISE EXCEPTION 'Validierungsausnahme in %', r.name;
-				END;
-		END;
-
-		IF invalid > 0 THEN
-			RAISE EXCEPTION '% ungültige Geometrien in %', invalid, r.name;
-		END IF;
+		-- SELECT alkis_fixgeometry(r.name);
 
 	        f := CASE r.name
 		     WHEN 'ax_bodenschaetzung' THEN 'b'
@@ -316,21 +316,8 @@ BEGIN
 	FOR i IN array_lower(r,1)..array_upper(r,1)
         LOOP
 		name := r[i];
-		BEGIN
-			EXECUTE 'SELECT count(*) FROM '||name||' WHERE NOT st_isvalid(wkb_geometry)' INTO invalid;
-		EXCEPTION
-			WHEN OTHERS THEN
-				BEGIN
-					EXECUTE 'UPDATE '||name||' SET wkb_geometry=st_makevalid(wkb_geometry) WHERE NOT st_isvalid(wkb_geometry)';
-					EXECUTE 'SELECT count(*) FROM '||name||' WHERE NOT st_isvalid(wkb_geometry)' INTO invalid;
-				EXCEPTION
-					WHEN OTHERS THEN RAISE EXCEPTION 'Validierungsausnahme in %', name;
-				END;
-		END;
 
-		IF invalid > 0 THEN
-			RAISE EXCEPTION '% ungültige Geometrien in %', invalid, name;
-		END IF;
+		-- SELECT alkis_fixgeometry(name);
 
 		v := v
 		  || d
@@ -351,16 +338,16 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT 'Prüfe Flurstücksgeometrien...';
-SELECT alkis_checkflurstueck();
+-- SELECT 'Prüfe Flurstücksgeometrien...';
+-- SELECT alkis_fixgeometry('ax_flurstueck');
 
-SELECT 'Prüfe Klassifizierungen...';
+SELECT 'Erzeuge Sicht für Klassifizierungen...';
 SELECT alkis_createklassifizierung();
 
-SELECT 'Prüfe tatsächliche Nutzungen...';
+SELECT 'Erzeuge Sicht für tatsächliche Nutzungen...';
 SELECT alkis_createnutzung();
 
-SELECT 'Prüfe ausführende Stellen...';
+SELECT 'Erzeuge Sicht für ausführende Stellen...';
 SELECT alkis_createausfuehrendestellen();
 
 DELETE FROM kls_shl;
@@ -374,7 +361,7 @@ INSERT INTO nutz_shl(nutzshl,nutzung)
 SELECT alkis_dropobject('klas_3x_pk_seq');
 CREATE SEQUENCE klas_3x_pk_seq;
 
-SELECT 'Erzeuge Flurstücksklassifizierungen...';
+SELECT 'Bestimme Flurstücksklassifizierungen...';
 
 DELETE FROM klas_3x;
 INSERT INTO klas_3x(flsnr,pk,klf,wertz1,wertz2,gemfl,ff_entst,ff_stand)
@@ -384,12 +371,12 @@ INSERT INTO klas_3x(flsnr,pk,klf,wertz1,wertz2,gemfl,ff_entst,ff_stand)
     k.klassifizierung AS klf,
     k.bodenzahl,
     k.ackerzahl,
-    sum(st_area(st_intersection(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(k.wkb_geometry,0.001,0.001)))) AS gemfl,
+    sum(st_area(alkis_intersection(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_klassifizierung:'||k.ogc_fid))) AS gemfl,
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
-  JOIN ax_klassifizierung k ON f.wkb_geometry && k.wkb_geometry AND st_intersects(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(k.wkb_geometry,0.001,0.001))
-  WHERE f.endet IS NULL AND st_area(st_intersection(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(k.wkb_geometry,0.001,0.001)))::int>0
+  JOIN ax_klassifizierung k ON f.wkb_geometry && k.wkb_geometry AND alkis_intersects(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_klassifizierung:'||k.ogc_fid)
+  WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_klassifizierung:'||k.ogc_fid))::int>0
   GROUP BY
     f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), k.klassifizierung, k.bodenzahl, k.ackerzahl;
 
@@ -398,7 +385,7 @@ UPDATE klas_3x SET fl=(gemfl*(SELECT flurst.amtlflsfl/flurst.gemflsfl FROM flurs
 SELECT alkis_dropobject('nutz_shl_pk_seq');
 CREATE SEQUENCE nutz_shl_pk_seq;
 
-SELECT 'Erzeuge Flurstücksnutzungen...';
+SELECT 'Bestimme Flurstücksnutzungen...';
 
 DELETE FROM nutz_21;
 INSERT INTO nutz_21(flsnr,pk,nutzsl,gemfl,ff_entst,ff_stand)
@@ -406,12 +393,12 @@ INSERT INTO nutz_21(flsnr,pk,nutzsl,gemfl,ff_entst,ff_stand)
     to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
     to_hex(nextval('nutz_shl_pk_seq'::regclass)) AS pk,
     n.nutzung AS nutzsl,
-    sum(st_area(st_intersection(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(n.wkb_geometry,0.001,0.001)))) AS gemfl,
+    sum(st_area(alkis_intersection(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_tatsaechlichenutzung:'||n.ogc_fid))) AS gemfl,
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
-  JOIN ax_tatsaechlichenutzung n ON f.wkb_geometry && n.wkb_geometry AND st_intersects(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(n.wkb_geometry,0.001,0.001))
-  WHERE f.endet IS NULL AND st_area(st_intersection(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(n.wkb_geometry,0.001,0.001)))::int>0
+  JOIN ax_tatsaechlichenutzung n ON f.wkb_geometry && n.wkb_geometry AND alkis_intersects(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_tatsaechlichenutzung:'||n.ogc_fid)
+  WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_tatsaechlichenutzung:'||n.ogc_fid))::int>0
   GROUP BY f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), n.nutzung;
 
 UPDATE nutz_21 SET fl=(gemfl*(SELECT flurst.amtlflsfl/flurst.gemflsfl FROM flurst WHERE flurst.flsnr=nutz_21.flsnr))::int;
@@ -419,7 +406,7 @@ UPDATE nutz_21 SET fl=(gemfl*(SELECT flurst.amtlflsfl/flurst.gemflsfl FROM flurs
 SELECT alkis_dropobject('ausfst_pk_seq');
 CREATE SEQUENCE ausfst_pk_seq;
 
-SELECT 'Erzeuge ausführende Stellen...';
+SELECT 'Bestimme ausführende Stellen für Flurstücke...';
 
 DELETE FROM ausfst;
 INSERT INTO ausfst(flsnr,pk,ausf_st,verfnr,verfshl,ff_entst,ff_stand)
@@ -432,8 +419,8 @@ INSERT INTO ausfst(flsnr,pk,ausf_st,verfnr,verfshl,ff_entst,ff_stand)
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
-  JOIN ax_ausfuehrendestellen s ON f.wkb_geometry && s.wkb_geometry AND st_intersects(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(s.wkb_geometry,0.001,0.001))
-  WHERE f.endet IS NULL AND st_area(st_intersection(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(s.wkb_geometry,0.001,0.001)))::int>0
+  JOIN ax_ausfuehrendestellen s ON f.wkb_geometry && s.wkb_geometry AND alkis_intersects(f.wkb_geometry,s.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_ausfuehrendestellen:'||s.ogc_fid)
+  WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,s.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_ausfuehrendestellen:'||s.ogc_fid))::int>0
   GROUP BY f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), s.ausfuehrendestelle;
 
 DELETE FROM afst_shl;
@@ -454,8 +441,8 @@ CREATE TABLE bblnr_temp AS
 		to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
 		b.bezeichnung
         FROM ax_flurstueck f
-        JOIN ax_bauraumoderbodenordnungsrecht b ON b.endet IS NULL AND b.artderfestlegung=2610 AND f.wkb_geometry && b.wkb_geometry AND st_intersects(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(b.wkb_geometry,0.001,0.001))
-        WHERE f.endet IS NULL AND st_area(st_intersection(st_snaptogrid(f.wkb_geometry,0.001,0.001),st_snaptogrid(b.wkb_geometry,0.001,0.001)))::int>0;
+        JOIN ax_bauraumoderbodenordnungsrecht b ON b.endet IS NULL AND b.artderfestlegung=2610 AND f.wkb_geometry && b.wkb_geometry AND alkis_intersects(f.wkb_geometry,b.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_bauraumoderbodenordnungsrecht:'||b.ogc_fid)
+        WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,b.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_bauraumoderbodenordnungsrecht:'||b.ogc_fid))::int>0;
 
 CREATE INDEX bblnr_temp_flsnr ON bblnr_temp(flsnr);
 

@@ -2,6 +2,10 @@ CREATE FUNCTION unnest(anyarray) RETURNS SETOF anyelement AS $$
   SELECT $1[i] FROM generate_series(array_lower($1,1), array_upper($1,1)) i;
 $$ LANGUAGE 'sql' IMMUTABLE;
 
+CREATE FUNCTION st_snaptogrid(geometry,float8,float8) RETURNS geometry AS $$
+  SELECT snaptogrid($1,$2,$3);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
 CREATE FUNCTION st_geomfromtext(text,integer) RETURNS geometry AS $$
   SELECT geomfromtext($1,$2);
 $$ LANGUAGE 'sql' IMMUTABLE;

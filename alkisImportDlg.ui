@@ -373,19 +373,29 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>leSERVICE</tabstop>
+  <tabstop>leHOST</tabstop>
+  <tabstop>lePORT</tabstop>
   <tabstop>leDBNAME</tabstop>
   <tabstop>leUID</tabstop>
+  <tabstop>lePWD</tabstop>
+  <tabstop>cbxCreate</tabstop>
+  <tabstop>cbxSkipFailures</tabstop>
+  <tabstop>cbxClearProtocol</tabstop>
+  <tabstop>cbxDebug</tabstop>
+  <tabstop>cbEPSG</tabstop>
+  <tabstop>lstFiles</tabstop>
   <tabstop>pbAdd</tabstop>
   <tabstop>pbAddDir</tabstop>
   <tabstop>pbRemove</tabstop>
   <tabstop>pbSave</tabstop>
   <tabstop>pbLoad</tabstop>
+  <tabstop>lwProtocol</tabstop>
   <tabstop>pbStart</tabstop>
   <tabstop>pbSaveLog</tabstop>
   <tabstop>pbClearLog</tabstop>
+  <tabstop>pbLoadLog</tabstop>
   <tabstop>pbClose</tabstop>
-  <tabstop>lwProtocol</tabstop>
-  <tabstop>lstFiles</tabstop>
  </tabstops>
  <resources/>
  <connections/>

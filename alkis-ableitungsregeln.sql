@@ -7215,7 +7215,7 @@ UPDATE po_labels
 	SET
 		drehwinkel_grad=degrees(drehwinkel),
 		color_umn=(SELECT alkis_farben.umn FROM alkis_farben JOIN alkis_schriften ON alkis_schriften.farbe=alkis_farben.id WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),
-		font_umn=(
+		font_umn=coalesce((
 			SELECT
 				CASE
 				WHEN art = 'Arial' AND effekt IS NULL AND coalesce(fontsperrung,0)=0 THEN
@@ -7232,7 +7232,7 @@ UPDATE po_labels
 				END
 			FROM alkis_schriften
 			WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer
-		),
+		),'arial'),
 		size_umn=0.25/0.0254*skalierung*(SELECT grad_pt FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),
 		alignment_dxf=coalesce(
 			CASE

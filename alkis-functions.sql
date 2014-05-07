@@ -122,7 +122,7 @@ BEGIN
 		RETURN NULL;
 	END IF;
 
-	IF has_table_privilege('spatial_ref_sys', 'INSERT') THEN
+	IF NOT has_table_privilege('spatial_ref_sys', 'INSERT') THEN
 		RAISE EXCEPTION 'Darf fehlendes Koordinatensystem % nicht einfügen.', id;
 	END IF;
 
@@ -136,6 +136,7 @@ BEGIN
 			FROM spatial_ref_sys
 			WHERE srid=31466
 			  AND NOT EXISTS (SELECT * FROM spatial_ref_sys WHERE srid=131466);
+		RETURN 'Koordinatensystem '||id||' angelegt.';
 	END IF;
 
 	IF id=131467 THEN
@@ -148,7 +149,10 @@ BEGIN
 			FROM spatial_ref_sys
 			WHERE srid=31467
 			  AND NOT EXISTS (SELECT * FROM spatial_ref_sys WHERE srid=131467);
+		RETURN 'Koordinatensystem '||id||' angelegt.';
 	END IF;
+
+	RAISE EXCEPTION 'Nicht erwartetes Koordinatensystem %.', id;
 END;
 $$ LANGUAGE plpgsql;
 

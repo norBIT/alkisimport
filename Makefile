@@ -1,4 +1,4 @@
-DESTDIR = //zeus/runtime/norBIT/norGIS-ALKIS-Import/
+DESTDIR = //zeus/runtime/norBIT/norGIS-ALKIS-Import/unstable
 
 all: alkisImportDlg.py
 
@@ -23,6 +23,7 @@ update: all
 		logo.png \
 		logo.ico \
 		postprocessing.d \
+		custom \
 		re \
 		refilter.py \
 		$(DESTDIR)

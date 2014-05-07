@@ -196,7 +196,7 @@ CREATE TABLE ks_sonstigesbauwerk (
 	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
-	sonstigesmodell		varchar,
+	sonstigesmodell		varchar[],
 	anlass			varchar,
 	bauwerksfunktion	integer,
 	CONSTRAINT ks_sonstigesbauwerk_pk PRIMARY KEY (ogc_fid)
