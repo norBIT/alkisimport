@@ -4,6 +4,7 @@ all: alkisImportDlg.py
 
 update: all
 	rsync -avpP \
+		$(O) \
 		--exclude "*.pyc" \
 		alkis-ableitungsregeln.sql \
 		alkis-compat.sql \
@@ -30,6 +31,8 @@ update: all
 
 diff:
 	-diff -ur \
+		--exclude=".git" \
+		--exclude=".gitignore" \
 		--exclude="*.pyc" \
 		--exclude="*.gfs" \
 		--exclude="*.xml*" \

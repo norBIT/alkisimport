@@ -306,7 +306,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 		for i in range(0, self.lwProtocol.count()):
 			f.write( self.lwProtocol.item(i).text() )
-			f.write( "\n" )
+			f.write( os.linesep )
 		f.close()
 
 	def clearLog(self):
