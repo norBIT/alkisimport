@@ -161,7 +161,7 @@ INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 			to_char(l.land,'fm00')||l.regierungsbezirk||to_char(l.kreis,'fm00')||to_char(l.gemeinde,'fm000')||'    '||trim(lage) AS strshl,
 			hausnummer AS hausnr
 		FROM ax_lagebezeichnungmithausnummer l
-		JOIN ax_flurstueck f ON ARRAY[l.gml_id::varchar] <@ f.weistauf AND f.endet IS NULL
+		JOIN ax_flurstueck f ON ARRAY[l.gml_id] <@ f.weistauf AND f.endet IS NULL
 		WHERE NOT l.lage IS NULL AND l.endet IS NULL
 	UNION
 		SELECT
@@ -169,7 +169,7 @@ INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 			to_char(l.land,'fm00')||l.regierungsbezirk||to_char(l.kreis,'fm00')||to_char(l.gemeinde,'fm000')||'    '||trim(lage) AS strshl,
 			'' AS hausnr
 		FROM ax_lagebezeichnungohnehausnummer l
-		JOIN ax_flurstueck f ON ARRAY[l.gml_id::varchar] <@ f.zeigtauf AND f.endet IS NULL
+		JOIN ax_flurstueck f ON ARRAY[l.gml_id] <@ f.zeigtauf AND f.endet IS NULL
 		WHERE NOT l.lage IS NULL AND l.endet IS NULL
 	) AS foo;
 
@@ -262,7 +262,7 @@ INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,l
 		NULL AS lkfs
 	FROM ax_flurstueck f
 	JOIN ax_buchungsstelle bs0 ON bs0.gml_id=f.istgebucht AND bs0.endet IS NULL
-	JOIN ax_buchungsstelle bs  ON ARRAY[bs.gml_id::varchar] <@ bs0.an AND bs.endet IS NULL
+	JOIN ax_buchungsstelle bs  ON ARRAY[bs0.gml_id] <@ bs.an AND bs.endet IS NULL
 	JOIN ax_buchungsblatt bb ON bb.gml_id=bs.istbestandteilvon AND bb.endet IS NULL
 	WHERE f.endet IS NULL
 	;
@@ -421,8 +421,8 @@ INSERT INTO eigner(bestdnr,pk,ab,namensnr,ea,antverh,name,name1,name2,name3,name
 		0 AS ff_fortf
 	FROM ax_namensnummer nn
 	JOIN ax_buchungsblatt bb ON bb.gml_id=nn.istbestandteilvon AND bb.endet IS NULL
-	LEFT OUTER JOIN ax_person p ON p.gml_id::varchar=nn.benennt AND p.endet IS NULL
-	LEFT OUTER JOIN ax_anschrift an ON ARRAY[an.gml_id::varchar] <@ p.hat AND an.endet IS NULL
+	LEFT OUTER JOIN ax_person p ON p.gml_id=nn.benennt AND p.endet IS NULL
+	LEFT OUTER JOIN ax_anschrift an ON ARRAY[an.gml_id] <@ p.hat AND an.endet IS NULL
 	WHERE nn.endet IS NULL;
 
 CREATE INDEX eigner_idx1 ON eigner(bestdnr);

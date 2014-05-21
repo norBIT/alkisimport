@@ -886,7 +886,7 @@ SELECT AddGeometryColumn('ap_ppo','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- P
 
 CREATE INDEX ap_ppo_geom_idx   ON ap_ppo USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_ppo_gml ON ap_ppo USING btree (gml_id,beginnt);
-CREATE INDEX ap_ppo_endet     ON ap_ppo USING btree (endet);
+CREATE INDEX ap_ppo_endet      ON ap_ppo USING btree (endet);
 CREATE INDEX ap_ppo_dzdv       ON ap_ppo USING gin (dientzurdarstellungvon);
 
 COMMENT ON TABLE  ap_ppo        IS 'PPO: Punktförmiges Präsentationsobjekt';

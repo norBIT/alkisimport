@@ -425,10 +425,10 @@ EOF
 	trap "echo '$P: Fehler bei $src' >&2; src=error" EXIT
 
 	s=$(stat -c %s "$dst")
-	if (( s == 623 || s == 712 )); then
-		echo "SKIP $(bdate): $dst zu kurz - übersprungen"
-		continue
-	fi
+#	if (( s == 623 || s == 712 )); then
+#		echo "SKIP $(bdate): $dst zu kurz - übersprungen"
+#		continue
+#	fi
 
 	(( S += s ))
 

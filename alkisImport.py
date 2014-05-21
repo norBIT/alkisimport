@@ -717,10 +717,10 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 					except OSError, e:
 						pass
 
-					if size==623 or size==712:
-						item.setSelected( True )
-						self.log( u"Kurze Datei %s übersprungen." % fn )
-						continue
+					#if size==623 or size==712:
+					#	item.setSelected( True )
+					#	self.log( u"Kurze Datei %s übersprungen." % fn )
+					#	continue
 
 					if self.epsg==131466 or self.epsg==131467:
 						srs = "+init=custom:%d" % self.epsg

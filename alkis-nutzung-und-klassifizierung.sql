@@ -145,14 +145,15 @@ BEGIN
 		END IF;
 
 		nv := nv
-                   || d
-                   || 'SELECT '
-                   || 'ogc_fid*32+' || i ||' AS ogc_fid,'
-		   || '''' || r.name    || '''::text AS name,'
-                   || r.kennung::int || ' AS kennung,'
-                   || f || '::text AS funktion,'
-                   || ''''||r.kennung|| '''||coalesce('':''||'||f||','''')::text AS nutzung,'
-                   || 'wkb_geometry'
+		   || d
+		   || 'SELECT '
+		   || 'ogc_fid*32+' || i ||' AS ogc_fid,'
+		   || '''' || r.name || '''::text AS name,'
+		   || 'gml_id,'
+		   || r.kennung::int || ' AS kennung,'
+		   || f || '::text AS funktion,'
+		   || ''''||r.kennung|| '''||coalesce('':''||'||f||','''')::text AS nutzung,'
+		   || 'wkb_geometry'
 		   || ' FROM ' || r.name
 		   || ' WHERE endet IS NULL'
 		   ;
@@ -227,18 +228,19 @@ BEGIN
 		     END;
 
 		nv := nv
-                   || d
-                   || 'SELECT '
-                   || 'ogc_fid*4+' || i || ' AS ogc_fid,'
+		   || d
+		   || 'SELECT '
+		   || 'ogc_fid*4+' || i || ' AS ogc_fid,'
 		   || '''' || r.name    || '''::text AS name,'
-                   || r.kennung::int || ' AS kennung,'
-                   || p || ' AS artderfestlegung,'
+		   || 'gml_id,'
+		   || r.kennung::int || ' AS kennung,'
+		   || p || ' AS artderfestlegung,'
 		   || CASE WHEN r.name='ax_bodenschaetzung'
 		      THEN 'bodenzahlodergruenlandgrundzahl::int AS bodenzahl,ackerzahlodergruenlandzahl::int AS ackerzahl,'
 		      ELSE 'NULL::int AS bodenzahl,NULL::int AS ackerzahl,'
 		      END
-                   || ''''||f||':''||'||p||' AS klassifizierung,'
-                   || 'wkb_geometry'
+		   || ''''||f||':''||'||p||' AS klassifizierung,'
+		   || 'wkb_geometry'
 		   || ' FROM ' || r.name
 		   || ' WHERE endet IS NULL'
 		   ;
@@ -279,7 +281,7 @@ BEGIN
 
 	PERFORM alkis_dropobject('v_schutzgebietnachwasserrecht');
 	CREATE TABLE v_schutzgebietnachwasserrecht AS
-		SELECT z.ogc_fid,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
+		SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
 		FROM ax_schutzgebietnachwasserrecht s
 		JOIN ax_schutzzone z ON z.istteilvon=s.gml_id AND z.endet IS NULL
 		WHERE s.endet IS NULL;
@@ -288,7 +290,7 @@ BEGIN
 
 	PERFORM alkis_dropobject('v_schutzgebietnachnaturumweltoderbodenschutzrecht');
 	CREATE TABLE v_schutzgebietnachnaturumweltoderbodenschutzrecht AS
-		SELECT z.ogc_fid,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
+		SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
 		FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht s
 		JOIN ax_schutzzone z ON z.istteilvon=s.gml_id AND z.endet IS NULL
 		WHERE s.endet IS NULL;
@@ -324,6 +326,7 @@ BEGIN
 		  || 'SELECT '
 		  || 'ogc_fid*16+' || i || ' AS ogc_fid,'
 		  || '''' || name || '''::text AS name,'
+		  || 'gml_id,'
 		  || 'to_char(land,''fm00'') || stelle AS ausfuehrendestelle,'
 		  || 'wkb_geometry'
 		  || ' FROM ' || name
@@ -371,12 +374,12 @@ INSERT INTO klas_3x(flsnr,pk,klf,wertz1,wertz2,gemfl,ff_entst,ff_stand)
     k.klassifizierung AS klf,
     k.bodenzahl,
     k.ackerzahl,
-    sum(st_area(alkis_intersection(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_klassifizierung:'||k.ogc_fid))) AS gemfl,
+    sum(st_area(alkis_intersection(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||k.name||':'||k.gml_id))) AS gemfl,
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
-  JOIN ax_klassifizierung k ON f.wkb_geometry && k.wkb_geometry AND alkis_intersects(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_klassifizierung:'||k.ogc_fid)
-  WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_klassifizierung:'||k.ogc_fid))::int>0
+  JOIN ax_klassifizierung k ON f.wkb_geometry && k.wkb_geometry AND alkis_intersects(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||k.name||':'||k.gml_id)
+  WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||k.name||':'||k.gml_id))::int>0
   GROUP BY
     f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), k.klassifizierung, k.bodenzahl, k.ackerzahl;
 
@@ -393,12 +396,12 @@ INSERT INTO nutz_21(flsnr,pk,nutzsl,gemfl,ff_entst,ff_stand)
     to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
     to_hex(nextval('nutz_shl_pk_seq'::regclass)) AS pk,
     n.nutzung AS nutzsl,
-    sum(st_area(alkis_intersection(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_tatsaechlichenutzung:'||n.ogc_fid))) AS gemfl,
+    sum(st_area(alkis_intersection(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id))) AS gemfl,
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
-  JOIN ax_tatsaechlichenutzung n ON f.wkb_geometry && n.wkb_geometry AND alkis_intersects(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_tatsaechlichenutzung:'||n.ogc_fid)
-  WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_tatsaechlichenutzung:'||n.ogc_fid))::int>0
+  JOIN ax_tatsaechlichenutzung n ON f.wkb_geometry && n.wkb_geometry AND alkis_intersects(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id)
+  WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id))::int>0
   GROUP BY f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), n.nutzung;
 
 UPDATE nutz_21 SET fl=(gemfl*(SELECT flurst.amtlflsfl/flurst.gemflsfl FROM flurst WHERE flurst.flsnr=nutz_21.flsnr))::int;
@@ -419,8 +422,8 @@ INSERT INTO ausfst(flsnr,pk,ausf_st,verfnr,verfshl,ff_entst,ff_stand)
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
-  JOIN ax_ausfuehrendestellen s ON f.wkb_geometry && s.wkb_geometry AND alkis_intersects(f.wkb_geometry,s.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_ausfuehrendestellen:'||s.ogc_fid)
-  WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,s.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_ausfuehrendestellen:'||s.ogc_fid))::int>0
+  JOIN ax_ausfuehrendestellen s ON f.wkb_geometry && s.wkb_geometry AND alkis_intersects(f.wkb_geometry,s.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||s.name||':'||s.gml_id)
+  WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,s.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||s.name||':'||s.gml_id))::int>0
   GROUP BY f.land, f.gemarkungsnummer, f.flurnummer, f.zaehler, coalesce(f.nenner,0), s.ausfuehrendestelle;
 
 DELETE FROM afst_shl;
@@ -441,8 +444,8 @@ CREATE TABLE bblnr_temp AS
 		to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
 		b.bezeichnung
         FROM ax_flurstueck f
-        JOIN ax_bauraumoderbodenordnungsrecht b ON b.endet IS NULL AND b.artderfestlegung=2610 AND f.wkb_geometry && b.wkb_geometry AND alkis_intersects(f.wkb_geometry,b.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_bauraumoderbodenordnungsrecht:'||b.ogc_fid)
-        WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,b.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_bauraumoderbodenordnungsrecht:'||b.ogc_fid))::int>0;
+        JOIN ax_bauraumoderbodenordnungsrecht b ON b.endet IS NULL AND b.artderfestlegung=2610 AND f.wkb_geometry && b.wkb_geometry AND alkis_intersects(f.wkb_geometry,b.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_bauraumoderbodenordnungsrecht:'||b.gml_id)
+        WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,b.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_bauraumoderbodenordnungsrecht:'||b.gml_id))::int>0;
 
 CREATE INDEX bblnr_temp_flsnr ON bblnr_temp(flsnr);
 
