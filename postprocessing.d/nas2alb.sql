@@ -423,7 +423,7 @@ INSERT INTO eigner(bestdnr,pk,ab,namensnr,ea,antverh,name,name1,name2,name3,name
 	JOIN ax_buchungsblatt bb ON bb.gml_id=nn.istbestandteilvon AND bb.endet IS NULL
 	LEFT OUTER JOIN ax_person p ON p.gml_id=nn.benennt AND p.endet IS NULL
 	LEFT OUTER JOIN ax_anschrift an ON ARRAY[an.gml_id] <@ p.hat AND an.endet IS NULL
-	WHERE nn.endet IS NULL;
+	WHERE nn.endet IS NULL AND nn.laufendenummernachdin1421 IS NOT NULL;
 
 CREATE INDEX eigner_idx1 ON eigner(bestdnr);
 CREATE INDEX eigner_idx2 ON eigner(name);
