@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>906</width>
+    <width>1019</width>
     <height>595</height>
    </rect>
   </property>
@@ -201,6 +201,16 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="pbSelectAll">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string>Alle wählen</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_5">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -388,6 +398,7 @@
   <tabstop>pbAdd</tabstop>
   <tabstop>pbAddDir</tabstop>
   <tabstop>pbRemove</tabstop>
+  <tabstop>pbSelectAll</tabstop>
   <tabstop>pbSave</tabstop>
   <tabstop>pbLoad</tabstop>
   <tabstop>lwProtocol</tabstop>

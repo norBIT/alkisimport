@@ -15,7 +15,7 @@ import re
 import tempfile
 import glob
 
-from PyQt4.QtCore import QSettings, QProcess, QVariant, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QTime
+from PyQt4.QtCore import QSettings, QProcess, QVariant, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QTime, QByteArray
 from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox, QFont
 from PyQt4.QtSql import QSqlDatabase, QSqlQuery, QSqlError, QSql
 
@@ -83,6 +83,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.setWindowIcon( QIcon('logo.png') )
 		self.setWindowFlags( Qt.WindowMinimizeButtonHint )
 
+
 		s = QSettings( "norBIT", "norGIS-ALKIS-Import" )
 
 		self.leSERVICE.setText( s.value( "service", "" ) )
@@ -104,6 +105,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.pbAdd.clicked.connect(self.selFiles)
 		self.pbAddDir.clicked.connect(self.selDir)
 		self.pbRemove.clicked.connect(self.rmFiles)
+		self.pbSelectAll.clicked.connect( self.lstFiles.selectAll )
 		self.pbLoad.clicked.connect(self.loadList)
 		self.pbSave.clicked.connect(self.saveList)
 		self.lstFiles.itemSelectionChanged.connect(self.selChanged)
@@ -118,15 +120,18 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		f = QFont("Monospace")
 		f.setStyleHint( QFont.TypeWriter )
 		self.lwProtocol.setFont( f )
+		self.lwProtocol.setUniformItemSizes(True)
 
 		self.status("")
 
+		self.restoreGeometry( s.value("geometry", QByteArray(), type=QByteArray) )
+
 		self.canceled = False
 		self.running = False
+		self.skipScroll = False
 		self.logqry = None
 
 		self.reFilter = None
-
 
 	def loadRe(self):
 		f = open("re", "r")
@@ -194,17 +199,18 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		s = QSettings( "norBIT", "norGIS-ALKIS-Import" )
 		lastDir = s.value( "lastDir", "." )
 
-		dir = QFileDialog.getExistingDirectory( self, u"Verzeichnis mit NAS-Dateien wählen", lastDir )
-		if dir is None:
+		d = QFileDialog.getExistingDirectory( self, u"Verzeichnis mit NAS-Dateien wählen", lastDir )
+		if d is None or d == '':
+			QMessageBox.critical(self, u"norGIS-ALKIS-Import", u"Kein eindeutiges Verzeichnis gewählt!", QMessageBox.Cancel )
 			return
 
-		s.setValue( "lastDir", dir )
+		s.setValue( "lastDir", d )
 
 		QApplication.setOverrideCursor( Qt.WaitCursor )
 
 		self.status( "Verzeichnis wird durchsucht..." )
 
-		self.lstFiles.addItems( sorted( getFiles( "\.(xml|xml\.gz|zip)$", dir ) ) )
+		self.lstFiles.addItems( sorted( getFiles( "\.(xml|xml\.gz|zip)$", d ) ) )
 
 		self.status("")
 
@@ -259,10 +265,12 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		if not ts:
 			ts = QDateTime.currentDateTime()
 
-		self.lwProtocol.addItem( ts.toString( Qt.ISODate ) + " " + msg )
+		for m in msg.splitlines():
+			self.lwProtocol.addItem( ts.toString( Qt.ISODate ) + " " + m )
 
 		app.processEvents()
-		self.lwProtocol.scrollToBottom()
+		if not self.skipScroll:
+			self.lwProtocol.scrollToBottom()
 
 	def logDb(self, msg):
 		if not self.logqry:
@@ -279,6 +287,9 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 			self.logqry = logqry
 
 	def loadLog(self):
+		QApplication.setOverrideCursor( Qt.WaitCursor )
+		self.lwProtocol.setUpdatesEnabled(False)
+
 		conn = self.connectDb()
 		if not conn:
 			QMessageBox.critical(self, "norGIS-ALKIS-Import", "Konnte keine Datenbankverbindung aufbauen!", QMessageBox.Cancel )
@@ -289,11 +300,20 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 			QMessageBox.critical(self, "norGIS-ALKIS-Import", "Konnte Protokoll nicht abfragen!", QMessageBox.Cancel )
 			return
 
+		self.skipScroll = True
+
 		while qry.next():
 			if self.keep( qry.value(1) ):
 				self.logDlg( qry.value(1), qry.value(0) )
 
-		self.db.disconnect()
+		self.skipScroll = False
+
+		self.logDlg( "Protokoll geladen." )
+
+		self.lwProtocol.scrollToBottom()
+
+		self.lwProtocol.setUpdatesEnabled(True)
+		QApplication.restoreOverrideCursor()
 
 	def saveLog(self):
 		save = QFileDialog.getSaveFileName(self, u"Protokolldatei angeben", ".", "Protokoll-Dateien (*.log)" )
@@ -305,7 +325,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 			return
 
 		for i in range(0, self.lwProtocol.count()):
-			f.write( self.lwProtocol.item(i).text() )
+			f.write( self.lwProtocol.item(i).text().encode( "utf-8", "ignore" ) )
 			f.write( os.linesep )
 		f.close()
 
@@ -314,6 +334,8 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 	def accept(self):
 		if not self.running:
+			s = QSettings( "norBIT", "norGIS-ALKIS-Import" )
+			s.setValue( "geometry", self.saveGeometry() )
 			QDialog.accept(self)
 
 	def closeEvent(self, e):
@@ -484,8 +506,6 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.pbRemove.setDisabled(True)
 		self.pbLoad.setDisabled(True)
 		self.pbSave.setDisabled(True)
-
-		self.lwProtocol.setUniformItemSizes(True)
 
 		self.lstFiles.itemSelectionChanged.disconnect(self.selChanged)
 
@@ -842,8 +862,6 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 		self.pbLoad.setEnabled(True)
 		self.pbSave.setEnabled(True)
 		self.selChanged()
-
-		self.lwProtocol.setUniformItemSizes(False)
 
 		self.lstFiles.itemSelectionChanged.connect(self.selChanged)
 
