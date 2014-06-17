@@ -66,7 +66,6 @@ BEGIN
 	kv := E'CREATE VIEW ax_tatsaechlichenutzungsschluessel AS\n  ';
 	d := '';
 
-        -- In allen Tabellen die Objekte Löschen, die ein Ende-Datum haben
         i := 0;
         FOR r IN
                 SELECT
@@ -274,7 +273,7 @@ DECLARE
 	f VARCHAR;
 	p VARCHAR;
 	i INTEGER;
-	name VARCHAR;
+	n VARCHAR;
 	invalid INTEGER;
 BEGIN
 	PERFORM alkis_dropobject('ax_ausfuehrendestellen');
@@ -317,19 +316,19 @@ BEGIN
 
 	FOR i IN array_lower(r,1)..array_upper(r,1)
         LOOP
-		name := r[i];
+		n := r[i];
 
-		-- SELECT alkis_fixgeometry(name);
+		-- SELECT alkis_fixgeometry(n);
 
 		v := v
 		  || d
 		  || 'SELECT '
 		  || 'ogc_fid*16+' || i || ' AS ogc_fid,'
-		  || '''' || name || '''::text AS name,'
+		  || '''' || n || '''::text AS name,'
 		  || 'gml_id,'
-		  || 'to_char(land,''fm00'') || stelle AS ausfuehrendestelle,'
+		  || 'to_char(land::int,''fm00'') || stelle AS ausfuehrendestelle,'
 		  || 'wkb_geometry'
-		  || ' FROM ' || name
+		  || ' FROM ' || n
 		  || ' WHERE endet IS NULL'
 		  ;
 
@@ -369,7 +368,7 @@ SELECT 'Bestimme Flurstücksklassifizierungen...';
 DELETE FROM klas_3x;
 INSERT INTO klas_3x(flsnr,pk,klf,wertz1,wertz2,gemfl,ff_entst,ff_stand)
   SELECT
-    to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
+    to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
     to_hex(nextval('klas_3x_pk_seq'::regclass)) AS pk,
     k.klassifizierung AS klf,
     k.bodenzahl,
@@ -393,7 +392,7 @@ SELECT 'Bestimme Flurstücksnutzungen...';
 DELETE FROM nutz_21;
 INSERT INTO nutz_21(flsnr,pk,nutzsl,gemfl,ff_entst,ff_stand)
   SELECT
-    to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
+    to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
     to_hex(nextval('nutz_shl_pk_seq'::regclass)) AS pk,
     n.nutzung AS nutzsl,
     sum(st_area(alkis_intersection(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id))) AS gemfl,
@@ -414,7 +413,7 @@ SELECT 'Bestimme ausführende Stellen für Flurstücke...';
 DELETE FROM ausfst;
 INSERT INTO ausfst(flsnr,pk,ausf_st,verfnr,verfshl,ff_entst,ff_stand)
   SELECT
-    to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
+    to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
     to_hex(nextval('ausfst_pk_seq'::regclass)) AS pk,
     s.ausfuehrendestelle AS ausf_st,
     NULL AS verfnr,
@@ -429,11 +428,11 @@ INSERT INTO ausfst(flsnr,pk,ausf_st,verfnr,verfshl,ff_entst,ff_stand)
 DELETE FROM afst_shl;
 INSERT INTO afst_shl(ausf_st,afst_txt)
   SELECT
-    to_char(d.land,'fm00') || d.stelle,
+    to_char(d.land::int,'fm00') || d.stelle,
     MIN(bezeichnung)
   FROM ax_dienststelle d
-  WHERE EXISTS (SELECT * FROM ausfst WHERE ausf_st=to_char(d.land,'fm00') || d.stelle)
-  GROUP BY to_char(d.land,'fm00') || d.stelle;
+  WHERE EXISTS (SELECT * FROM ausfst WHERE ausf_st=to_char(d.land::int,'fm00') || d.stelle)
+  GROUP BY to_char(d.land::int,'fm00') || d.stelle;
 
 
 SELECT 'Belege Baulastenblattnummer...';
@@ -441,7 +440,7 @@ SELECT 'Belege Baulastenblattnummer...';
 SELECT alkis_dropobject('bblnr_temp');
 CREATE TABLE bblnr_temp AS
 	SELECT
-		to_char(f.land,'fm00') || to_char(f.gemarkungsnummer,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
+		to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
 		b.bezeichnung
         FROM ax_flurstueck f
         JOIN ax_bauraumoderbodenordnungsrecht b ON b.endet IS NULL AND b.artderfestlegung=2610 AND f.wkb_geometry && b.wkb_geometry AND alkis_intersects(f.wkb_geometry,b.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_bauraumoderbodenordnungsrecht:'||b.gml_id)

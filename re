@@ -29,7 +29,7 @@
 ^psql:alkis-compat.sql:.*: FEHLER:  Funktion combine_bbox\(box2d, geometry\) existiert nicht\s*$
 ^psql:alkis-compat.sql:.*: ERROR:  function combine_bbox\(box2d, geometry\) does not exist\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Berechtigung nur f\S+r Eigent\S+mer der Funktion st_dump\s*$
-^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint).*gel\S+scht\..*$
+^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*gel\S+scht\..*$
 ^\s+(addgeometrycolumn|alkis_drop|alkis_dropobject|alkis_create_bwsrs|version|postgis_version|\?column\?)\s*$
 ^-+\s*$
 ^\s+public\..*\.(wkb_geometry|dummy) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$

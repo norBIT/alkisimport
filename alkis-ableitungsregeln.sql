@@ -620,7 +620,7 @@ SELECT
 	p.gml_id,
 	'Flurstücke' AS thema,
 	'ax_grenzpunkt' AS layer,
-	st_multi(st_force_2d(o.wkb_geometry)) AS point,
+	st_multi(st_force2d(o.wkb_geometry)) AS point,
 	0 AS drehwinkel,
 	CASE abmarkung_marke
 	WHEN 9600 THEN 3022
@@ -5024,7 +5024,7 @@ FROM (
 
 
 --
--- Seilbahn, Schwebebahn (53006)
+-- Seilbahn, Schwebebahn (53005)
 --
 
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
@@ -5033,15 +5033,40 @@ SELECT
 	'Verkehr' AS thema,
 	'ax_seilbahnschwebebahn' AS layer,
 	st_multi(wkb_geometry) AS line,
-	CASE
-	WHEN bahnkategorie IN (2100,2200) THEN 20013642
-	WHEN bahnkategorie IN (2300,2400) THEN 20013643
-	WHEN bahnkategorie=2500           THEN 20013644
-	WHEN bahnkategorie=2600           THEN 20013645
-	END AS signaturnummer,
+	2001 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
 FROM ax_seilbahnschwebebahn o
 WHERE endet IS NULL;
+
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	gml_id,
+	'Verkehr' AS thema,
+	'ax_seilbahnschwebebahn' AS layer,
+	st_multi( st_lineinterpolatepoint(line,off) ) AS point,
+	0.5*pi()-st_azimuth( st_lineinterpolatepoint(line,off*0.9999), st_lineinterpolatepoint(line,CASE WHEN off=0 THEN 0.001 WHEN off*1.0001>1 THEN 1 ELSE off*1.0001 END) ) AS drehwinkel,
+	signaturnummer,
+	modell
+FROM (
+	SELECT
+		o.gml_id,
+		o.wkb_geometry AS line,
+		generate_series( 0, (st_length(wkb_geometry)*1000.0)::int,
+			CASE
+			WHEN bahnkategorie IN (2100,2200,2300,2400,2600) THEN 16000
+			WHEN bahnkategorie=2500                          THEN 20000
+			END
+		) / 1000.0 / st_length(wkb_geometry) AS off,
+		CASE
+		WHEN bahnkategorie IN (2100,2200) THEN 3642
+		WHEN bahnkategorie IN (2300,2400) THEN 3643
+		WHEN bahnkategorie=2500           THEN 3644
+		WHEN bahnkategorie=2600           THEN 3645
+		END AS signaturnummer,
+		o.advstandardmodell||o.sonstigesmodell AS modell
+	FROM ax_seilbahnschwebebahn o
+	WHERE o.endet IS NULL
+) AS o WHERE NOT signaturnummer IS NULL;
 
 -- Namen
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
@@ -5096,8 +5121,39 @@ FROM ax_gleis o
 JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='ART' AND p.endet IS NULL
 WHERE o.endet IS NULL AND geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND NOT bahnkategorie IS NULL AND o.art=1200;
 
+-- Gleis, Punktsignaturen auf Linien
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	gml_id,
+	'Verkehr' AS thema,
+	'ax_gleis' AS layer,
+	st_multi( st_lineinterpolatepoint(line,off) ) AS point,
+	0.5*pi()-st_azimuth( st_lineinterpolatepoint(line,off*0.9999), st_lineinterpolatepoint(line,CASE WHEN off=0 THEN 0.001 WHEN off*1.0001>1 THEN 1 ELSE off*1.0001 END) ) AS drehwinkel,
+	signaturnummer,
+	modell
+FROM (
+	SELECT
+		o.gml_id,
+		o.wkb_geometry AS line,
+		generate_series(0,(st_length(wkb_geometry)*1000.0)::int,
+			CASE
+			WHEN bahnkategorie IN (1201,1300,1302)           THEN 16000
+			WHEN bahnkategorie IN (1301)                     THEN 8000
+			WHEN bahnkategorie IN (1600)                     THEN 20000
+			END
+		) / 1000.0 / st_length(wkb_geometry) AS off,
+		CASE
+		WHEN bahnkategorie=1201           THEN 3646
+		WHEN bahnkategorie IN (1300,1301) THEN 3647
+		WHEN bahnkategorie=1302           THEN 3648
+		WHEN bahnkategorie=1600           THEN 3649
+		END AS signaturnummer,
+		advstandardmodell||sonstigesmodell AS modell
+	FROM ax_gleis o
+	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
+) AS o WHERE NOT signaturnummer IS NULL;
+
 -- Gleis, Linien
--- TODO: Mischsignaturen
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 SELECT
 	gml_id,
@@ -5111,36 +5167,9 @@ FROM (
 		o.gml_id,
 		wkb_geometry AS line,
 		CASE
-		WHEN bahnkategorie IN (1100,1102,1104,1200,1202,1400,1500,9999) THEN
-			CASE
-			WHEN lagezuroberflaeche IS NULL THEN 2525
-			WHEN lagezuroberflaeche=1200    THEN 2300
-			WHEN lagezuroberflaeche=1400    THEN 2301
-			END
-		WHEN bahnkategorie=1201 THEN
-			CASE
-			WHEN lagezuroberflaeche IS NULL THEN 2525 -- 3646
-			WHEN lagezuroberflaeche=1200    THEN 2300 -- 3636
-			WHEN lagezuroberflaeche=1400    THEN 2301 -- 3646
-			END
-		WHEN bahnkategorie IN (1300,1301) THEN
-			CASE
-			WHEN lagezuroberflaeche IS NULL THEN 2525 -- 3647
-			WHEN lagezuroberflaeche=1200    THEN 2300 -- 3647
-			WHEN lagezuroberflaeche=1400    THEN 2301 -- 3647
-			END
-		WHEN bahnkategorie=1302 THEN
-			CASE
-			WHEN lagezuroberflaeche IS NULL THEN 2525 -- 3648
-			WHEN lagezuroberflaeche=1200    THEN 2300 -- 3648
-			WHEN lagezuroberflaeche=1400    THEN 2301 -- 3648
-			END
-		WHEN bahnkategorie=1600 THEN
-			CASE
-			WHEN lagezuroberflaeche IS NULL THEN 2525 -- 3649
-			WHEN lagezuroberflaeche=1200    THEN 2300 -- 3649
-			WHEN lagezuroberflaeche=1400    THEN 2301 -- 3649
-			END
+		WHEN lagezuroberflaeche IS NULL THEN 2525
+		WHEN lagezuroberflaeche=1200    THEN 2300
+		WHEN lagezuroberflaeche=1400    THEN 2301
 		END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_gleis o
@@ -5185,7 +5214,7 @@ SELECT
 	1808 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
 FROM ax_flugverkehrsanlage o
-WHERE endet IS NULL;
+WHERE o.endet IS NULL AND o.art IN (1310,1320,1330,5531) AND geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON');
 
 -- Hubschrauberlandeplatz
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
@@ -5200,6 +5229,27 @@ SELECT
 FROM ax_flugverkehrsanlage o
 JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='ART' AND p.endet IS NULL
 WHERE o.endet IS NULL AND o.art=5531;
+
+-- Bake/Leuchtfeuer/Kilometerstein
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Verkehr' AS thema,
+	'ax_flugverkehrsanlage' AS layer,
+	st_multi(coalesce(p.wkb_geometry,o.wkb_geometry)) AS point,
+	coalesce(p.drehwinkel,0) AS drehwinkel,
+	coalesce(
+		p.signaturnummer,
+		CASE
+		WHEN o.art=1410 THEN '3589'
+		WHEN o.art=1420 THEN '3590'
+		WHEN o.art=1430 THEN '3556'
+		END
+	) AS signaturnummer,
+	coalesce(p.advstandardmodell||p.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM ax_flugverkehrsanlage o
+JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='ART' AND p.endet IS NULL
+WHERE o.endet IS NULL AND o.art IN (1410,1420,1430) AND geometrytype(o.wkb_geometry) IN ('POINT','MULTIPOINT');
 
 -- Namen
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
@@ -5547,10 +5597,7 @@ FROM (
 			bewuchs,
 			einzug,
 			abstand,
-			CASE geometrytype(line)
-			WHEN 'MULTILINESTRING' THEN (st_dump(line)).geom
-			ELSE line
-			END AS line,
+			CASE geometrytype(line) WHEN 'MULTILINESTRING' THEN (st_dump(line)).geom ELSE line END AS line,
 			signaturnummer,
 			modell
 		FROM (
@@ -6244,20 +6291,129 @@ FROM (
 -- Damm, Wall, Deich (61003)
 --
 
-SELECT 'Dämme, Walle und Deiche werden verarbeitet.';
+SELECT 'Dämme, Wälle und Deiche werden verarbeitet.';
 
--- TODO: PNR
+-- Linien
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 SELECT
 	o.gml_id,
 	'Topographie' AS thema,
 	'ax_dammwalldeich' AS layer,
-	st_multi(wkb_geometry) AS line,
+	st_multi(
+		CASE
+		WHEN art='1991' THEN st_offsetcurve(line,-0.17,''::text)
+		WHEN art='1992' THEN st_offsetcurve(line, 0.17,''::text)
+		ELSE line
+		END
+	) AS line,
 	2620 AS signaturnummer,
-	advstandardmodell||sonstigesmodell
-FROM ax_dammwalldeich o
-WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL;
+	modell
+FROM (
+	SELECT
+		gml_id,
+		art,
+		CASE geometrytype(wkb_geometry) WHEN 'MULTILINESTRING' THEN (st_dump(wkb_geometry)).geom ELSE wkb_geometry END AS line,
+		advstandardmodell||sonstigesmodell AS modell
+	FROM ax_dammwalldeich
+	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
+) AS o;
 
+-- Punkte, Wall
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	gml_id,
+	'Topographie' AS thema,
+	'ax_dammwalldeich' AS layer,
+	st_multi( st_lineinterpolatepoint(line,off) ) AS point,
+	0.5*pi()-st_azimuth( st_lineinterpolatepoint(line,off*0.9999), st_lineinterpolatepoint(line,CASE WHEN off=0 THEN 0.001 WHEN off*1.0001>1 THEN 1 ELSE off*1.0001 END) ) AS drehwinkel,
+	3632 AS signaturnummer,
+	modell
+FROM (
+	SELECT
+		o.gml_id,
+		CASE
+		WHEN art='1991'             THEN st_offsetcurve(o.line,-0.17,''::text)
+		WHEN art='1992'             THEN st_offsetcurve(o.line, 0.17,''::text)
+		WHEN art IN ('2010','2012') THEN st_offsetcurve(o.line,-0.34,''::text)
+		WHEN art IN ('2011','2013') THEN st_offsetcurve(o.line, 0.34,''::text)
+		ELSE o.line
+		END AS line,
+		generate_series( 3650, (st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS off,
+		modell
+	FROM (
+		SELECT
+			gml_id,
+			art,
+			CASE geometrytype(wkb_geometry) WHEN 'MULTILINESTRING' THEN (st_dump(wkb_geometry)).geom ELSE wkb_geometry END AS line,
+			advstandardmodell||sonstigesmodell AS modell
+		FROM ax_dammwalldeich o
+		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art IN ('1910','1920','1930','1940','1950','1960','1970','1980','1990','1991','1992','2010','2011','2012','2013')
+	) AS o
+) AS o;
+
+-- Punkte, Knick, Wall
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	gml_id,
+	'Topographie' AS thema,
+	'ax_dammwalldeich' AS layer,
+	st_multi( st_lineinterpolatepoint(line,off) ) AS point,
+	0.5*pi()-st_azimuth( st_lineinterpolatepoint(line,off*0.9999), st_lineinterpolatepoint(line,CASE WHEN off=0 THEN 0.001 WHEN off*1.0001>1 THEN 1 ELSE off*1.0001 END) ) AS drehwinkel,
+	3632 AS signaturnummer,
+	modell
+FROM (
+	SELECT
+		o.gml_id,
+		CASE
+		WHEN art='2001' THEN st_offsetcurve(o.line,-0.17,''::text)
+		WHEN art='2002' THEN st_offsetcurve(o.line, 0.17,''::text)
+		ELSE line
+		END AS line,
+		generate_series( 5950, (st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS off,
+		modell
+	FROM (
+		SELECT
+			gml_id,
+			art,
+			CASE geometrytype(wkb_geometry) WHEN 'MULTILINESTRING' THEN (st_dump(wkb_geometry)).geom ELSE wkb_geometry END AS line,
+			advstandardmodell||sonstigesmodell AS modell
+		FROM ax_dammwalldeich o
+		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art IN ('2000','2001','2002','2003')
+	) AS o
+) AS o;
+
+-- Punkte, Knick, Bewuchs
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	gml_id,
+	'Topographie' AS thema,
+	'ax_dammwalldeich' AS layer,
+	st_multi( st_lineinterpolatepoint(line,off) ) AS point,
+	0.5*pi()-st_azimuth( st_lineinterpolatepoint(line,off*0.9999), st_lineinterpolatepoint(line,CASE WHEN off=0 THEN 0.001 WHEN off*1.0001>1 THEN 1 ELSE off*1.0001 END) ) AS drehwinkel,
+	3601 AS signaturnummer,
+	modell
+FROM (
+	SELECT
+		o.gml_id,
+		CASE
+		WHEN art='2001' THEN st_offsetcurve(o.line,-0.17,''::text)
+		WHEN art='2002' THEN st_offsetcurve(o.line, 0.17,''::text)
+		ELSE line
+		END AS line,
+		generate_series( 2900, (st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS off,
+		modell
+	FROM (
+		SELECT
+			gml_id,
+			art,
+			CASE geometrytype(wkb_geometry) WHEN 'MULTILINESTRING' THEN (st_dump(wkb_geometry)).geom ELSE wkb_geometry END AS line,
+			advstandardmodell||sonstigesmodell AS modell
+		FROM ax_dammwalldeich o
+		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art IN ('2000','2001','2002','2003')
+	) AS o
+) AS o;
+
+-- Fläche
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
 SELECT
 	o.gml_id,
@@ -6267,7 +6423,9 @@ SELECT
 	1551 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
 FROM ax_dammwalldeich o
-WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL;
+WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL AND art IN ('1910','1920','1930','1940','1950','1960','1970','1980','1990');
+
+-- TODO mit Graben
 
 -- Namen
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
@@ -6366,17 +6524,14 @@ FROM (
 		gml_id,
 		signaturnummer,
 		line,
-		generate_series(einzug,(st_length(line)*1000)::int,abstand)/100.0/st_length(line) AS offset,
+		generate_series(einzug,(st_length(line)*1000)::int,abstand) / 1000.0 / st_length(line) AS offset,
 		modell
 	FROM (
 		SELECT
 			gml_id,
 			einzug,
 			abstand,
-			CASE geometrytype(line)
-			WHEN 'MULTILINESTRING' THEN (st_dump(line)).geom
-			ELSE line
-			END AS line,
+			CASE geometrytype(line) WHEN 'MULTILINESTRING' THEN (st_dump(line)).geom ELSE line END AS line,
 			signaturnummer,
 			modell
 		FROM (
@@ -6558,7 +6713,7 @@ SELECT
 	o.gml_id,
 	'Topographie' AS thema,
 	'ax_besonderertopographischerpunkt' AS layer,
-	st_multi(st_force_2d(p.wkb_geometry)) AS point,
+	st_multi(st_force2d(p.wkb_geometry)) AS point,
 	0 AS drehwinkel,
 	3629 AS signaturnummer,
 	coalesce(p.advstandardmodell||p.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell

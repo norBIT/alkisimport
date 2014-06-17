@@ -221,7 +221,7 @@ CREATE TABLE ax_anderefestlegungnachwasserrecht (
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
-	land			integer,
+	land			varchar,
 	stelle			varchar,
 	CONSTRAINT ax_anderefestlegungnachwasserrecht_pk PRIMARY KEY (ogc_fid)
 );
@@ -270,8 +270,8 @@ CREATE TABLE ax_besonderertopographischerpunkt (
 	advstandardmodell	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar,
-	land			integer,
-	stelle			integer,
+	land			varchar,
+	stelle			varchar,
 	punktkennung		varchar,
 	sonstigeeigenschaft	varchar[],
 	CONSTRAINT ax_besonderertopographischerpunkt_pk PRIMARY KEY (ogc_fid)
@@ -371,7 +371,7 @@ CREATE TABLE ax_denkmalschutzrecht (
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
-	land			integer,
+	land			varchar,
 	stelle			varchar,
 	art			varchar,
 	name			varchar,
@@ -401,7 +401,7 @@ CREATE TABLE ax_forstrecht (
 	anlass			varchar,
 	artderfestlegung	integer,
 	besonderefunktion	integer,
-	land			integer,
+	land			varchar,
 	stelle			varchar,
 	CONSTRAINT ax_forstrecht_pk PRIMARY KEY (ogc_fid)
 );
@@ -726,7 +726,7 @@ CREATE TABLE ax_naturumweltoderbodenschutzrecht (
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
-	land			integer,
+	land			varchar,
 	stelle			varchar,
 	name			varchar,
 	CONSTRAINT ax_naturumweltoderbodenschutzrecht_pk PRIMARY KEY (ogc_fid)
@@ -754,7 +754,7 @@ CREATE TABLE ax_schutzgebietnachwasserrecht (
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
-	land			integer,
+	land			varchar,
 	stelle			varchar,
 	art			varchar[],
 	name			varchar[],
@@ -782,7 +782,7 @@ CREATE TABLE ax_schutzgebietnachnaturumweltoderbodenschutzrecht (
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
-	land			integer,
+	land			varchar,
 	stelle			varchar,
 	CONSTRAINT ax_schutzgebietnachnaturumweltoderbodenschutzrecht_pk PRIMARY KEY (ogc_fid)
 );
@@ -1208,8 +1208,8 @@ CREATE TABLE ax_grenzpunkt (
 	sonstigesmodell			varchar[],
 	anlass				varchar,
 	punktkennung			varchar,
-	land				integer,
-	stelle				integer,
+	land				varchar,
+	stelle				varchar,
 	abmarkung_marke			integer,
 	festgestelltergrenzpunkt	varchar,
 	besonderepunktnummer		varchar,
@@ -1385,8 +1385,8 @@ CREATE TABLE ax_aufnahmepunkt (
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	punktkennung		varchar,   --integer ist zu klein,
-	land			integer,
-	stelle			integer,
+	land			varchar,
+	stelle			varchar,
 	sonstigeeigenschaft	varchar[],
 	vermarkung_marke	integer,
 	relativehoehe		double precision,
@@ -1420,8 +1420,8 @@ CREATE TABLE ax_sicherungspunkt (
 	anlass			varchar,
 	name			varchar,
 	punktkennung		varchar,
-	land			integer,
-	stelle			integer,
+	land			varchar,
+	stelle			varchar,
 	sonstigeeigenschaft	varchar[],
 	vermarkung_marke	integer,
 	relativehoehe		double precision,
@@ -1453,8 +1453,8 @@ CREATE TABLE ax_sonstigervermessungspunkt (
 	vermarkung_marke	integer,
 	punktkennung		varchar, -- integer,
 	art			varchar,
-	land			integer,
-	stelle			integer,
+	land			varchar,
+	stelle			varchar,
 	sonstigeeigenschaft	varchar[],
 	relativehoehe		double precision,
 
@@ -1672,8 +1672,8 @@ CREATE TABLE ax_reservierung (
 	anlass			varchar,
 	art			integer,
 	nummer			varchar,
-	land			integer,
-	stelle			integer,
+	land			varchar,
+	stelle			varchar,
 	ablaufderreservierung	varchar,
 	antragsnummer		varchar,
 	auftragsnummer		varchar,
@@ -2259,8 +2259,8 @@ CREATE TABLE ax_besonderergebaeudepunkt (
 	advstandardmodell	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar,
-	land			integer,
-	stelle			integer,
+	land			varchar,
+	stelle			varchar,
 	punktkennung		varchar,
 	art			varchar,
 	name			varchar[],
@@ -3464,8 +3464,8 @@ CREATE TABLE ax_besondererbauwerkspunkt (
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	punktkennung		varchar,
-	land			integer,
-	stelle			integer,
+	land			varchar,
+	stelle			varchar,
 	sonstigeeigenschaft	varchar[],
 	CONSTRAINT ax_besondererbauwerkspunkt_pk PRIMARY KEY (ogc_fid)
 );
@@ -4111,7 +4111,7 @@ CREATE TABLE ax_klassifizierungnachstrassenrecht (
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
-	land			integer,
+	land			varchar,
 	stelle			varchar,
 	bezeichnung		varchar,
 	CONSTRAINT ax_klassifizierungnachstrassenrecht_pk PRIMARY KEY (ogc_fid)
@@ -4139,7 +4139,7 @@ CREATE TABLE ax_klassifizierungnachwasserrecht (
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
-	land			integer,
+	land			varchar,
 	stelle			varchar,
 	CONSTRAINT ax_klassifizierungnachwasserrecht_pk PRIMARY KEY (ogc_fid)
 );
@@ -4169,7 +4169,7 @@ CREATE TABLE ax_bauraumoderbodenordnungsrecht (
 	art			varchar,
 	name			varchar,
 	artderfestlegung	integer,
-	land			integer,
+	land			varchar,
 	stelle			varchar,
 	bezeichnung		varchar,
 	datumanordnung		varchar,
@@ -4200,7 +4200,7 @@ CREATE TABLE ax_sonstigesrecht (
 	sonstigesmodell		varchar[],
 	anlass			varchar,
 	artderfestlegung	integer,
-	land			integer,
+	land			varchar,
 	stelle			varchar,
 	bezeichnung		varchar,
 	characterstring		varchar,
@@ -4277,13 +4277,14 @@ CREATE TABLE ax_musterlandesmusterundvergleichsstueck (
 	sonstigesmodell			varchar[],
 	anlass				varchar,
 	merkmal				integer,
-	nummer				integer,
+	nummer				varchar,
 	kulturart			integer,
 	bodenart			integer,
 	zustandsstufeoderbodenstufe	integer,
 	entstehungsartoderklimastufewasserverhaeltnisse	integer,
-	bodenzahlodergruenlandgrundzahl	integer,
-	ackerzahlodergruenlandzahl	integer,
+	bodenzahlodergruenlandgrundzahl	varchar,
+	ackerzahlodergruenlandzahl	varchar,
+	sonstigeangaben			integer,
 	art				varchar,
 	name				varchar,
 	CONSTRAINT ax_musterlandesmusterundvergleichsstueck_pk PRIMARY KEY (ogc_fid)
@@ -4323,7 +4324,7 @@ CREATE TABLE ax_bundesland (
 	anlass			varchar,
 	schluesselgesamt	integer,
 	bezeichnung		varchar,
-	land			integer,
+	land			varchar,
 	stelle			varchar,
 	CONSTRAINT ax_bundesland_pk PRIMARY KEY (ogc_fid)
 );
@@ -4408,8 +4409,8 @@ CREATE TABLE ax_gemeinde (
 	land			integer,
 	regierungsbezirk	integer,
 	kreis			integer,
-	gemeinde		integer,
-	stelle			integer,
+	gemeinde		varchar,
+	stelle			varchar,
 
 	-- Beziehungen
 	istamtsbezirkvon        varchar[],
@@ -4474,8 +4475,8 @@ CREATE TABLE ax_gemarkung (
 	schluesselgesamt	integer,
 	bezeichnung		varchar,
 	land			integer,
-	gemarkungsnummer	integer,
-	stelle			integer,
+	gemarkungsnummer	varchar,
+	stelle			varchar,
 	CONSTRAINT ax_gemarkung_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -4531,7 +4532,7 @@ CREATE TABLE ax_buchungsblattbezirk (
 	schluesselgesamt	integer,
 	bezeichnung		varchar,
 	land			integer,
-	bezirk			integer,
+	bezirk			varchar,
 	stelle			varchar,
 
 	-- Beziehung
@@ -4568,7 +4569,7 @@ CREATE TABLE ax_dienststelle (
 	anlass			varchar,
 	schluesselgesamt	varchar,
 	bezeichnung		varchar,
-	land			integer,
+	land			varchar,
 	stelle			varchar,
 	stellenart		integer,
 

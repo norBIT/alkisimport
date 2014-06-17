@@ -18,8 +18,12 @@ import glob
 from PyQt4.QtCore import QSettings, QProcess, QVariant, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QTime, QByteArray
 from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox, QFont
 from PyQt4.QtSql import QSqlDatabase, QSqlQuery, QSqlError, QSql
+from PyQt4 import uic
 
-from alkisImportDlg import Ui_Dialog
+d = os.path.dirname(__file__)
+sys.path.insert( 0, d )
+alkisImportDlgBase = uic.loadUiType( os.path.join( d, 'alkisImportDlg.ui' ) )[0]
+sys.path.pop(0)
 
 # Felder als String interpretieren (d.h. führende Nullen nicht abschneiden)
 os.putenv("GML_FIELDTYPES", "ALWAYS_STRING")
@@ -75,7 +79,7 @@ class ProcessError(Exception):
 	def __str__(self):
 		return unicode(msg)
 
-class alkisImportDlg(QDialog, Ui_Dialog):
+class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 	def __init__(self):
 		QDialog.__init__(self)
@@ -135,7 +139,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 	def loadRe(self):
 		f = open("re", "r")
-		self.reFilter = re.compile( f.read().strip("\n").replace("\n","|") )
+		self.reFilter = re.compile( f.read().rstrip("\n").replace("\n","|") )
 		f.close()
 
 		if not self.reFilter:
@@ -266,6 +270,9 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 			ts = QDateTime.currentDateTime()
 
 		for m in msg.splitlines():
+			m = m.rstrip()
+			if m == "":
+				continue
 			self.lwProtocol.addItem( ts.toString( Qt.ISODate ) + " " + m )
 
 		app.processEvents()
@@ -385,7 +392,7 @@ class alkisImportDlg(QDialog, Ui_Dialog):
 
 		for l in lines:
 			if self.keep(l):
-				self.log( u"> %s|" % l )
+				self.log( u"> %s|" % l.rstrip() )
 			else:
 				self.logDb( l )
 

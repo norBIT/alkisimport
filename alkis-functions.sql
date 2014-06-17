@@ -198,7 +198,7 @@ BEGIN
 	delim := '';
 	sql := 'CREATE VIEW vobjekte AS ';
 
-	FOR c IN SELECT table_name FROM information_schema.columns WHERE column_name='gml_id' AND substr(table_name,1,3) IN ('ax_','ap_','ks_') LOOP
+	FOR c IN SELECT table_name FROM information_schema.columns WHERE column_name='gml_id' AND substr(table_name,1,3) IN ('ax_','ap_','ks_') AND NOT table_name IN ('ax_tatsaechlichenutzung','ax_klassifizierung','ax_ausfuehrendestellen') LOOP
 		sql := sql || delim || 'SELECT DISTINCT gml_id,beginnt,''' || c.table_name || ''' AS table_name FROM ' || c.table_name;
 		delim := ' UNION ';
 	END LOOP;
