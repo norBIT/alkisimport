@@ -784,6 +784,7 @@ CREATE TABLE ax_schutzgebietnachnaturumweltoderbodenschutzrecht (
 	artderfestlegung	integer,
 	land			varchar,
 	stelle			varchar,
+	name			varchar,
 	CONSTRAINT ax_schutzgebietnachnaturumweltoderbodenschutzrecht_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -4647,7 +4648,7 @@ CREATE TABLE ax_kleinraeumigerlandschaftsteil (
 	CONSTRAINT ax_kleinraeumigerlandschaftsteil_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_kleinraeumigerlandschaftsteil','wkb_geometry',:alkis_epsg,'POINT',2);
+SELECT AddGeometryColumn('ax_kleinraeumigerlandschaftsteil','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POINT/LINESTRING
 
 CREATE INDEX ax_kleinraeumigerlandschaftsteil_geom_idx   ON ax_kleinraeumigerlandschaftsteil USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_kleinraeumigerlandschaftsteil_gml ON ax_kleinraeumigerlandschaftsteil USING btree (gml_id,beginnt);

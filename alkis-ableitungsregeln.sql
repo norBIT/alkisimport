@@ -4992,7 +4992,8 @@ FROM (
 			CASE
 			WHEN geometrytype(o.wkb_geometry) IN ('POINT','MULTIPOINT')     THEN o.wkb_geometry
 			WHEN geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') THEN st_centroid(o.wkb_geometry)
-			WHEN geometrytype(o.wkb_geometry)='LINESTRING'                  THEN st_lineinterpolatepoint(o.wkb_geometry,0.5) END
+			WHEN geometrytype(o.wkb_geometry)='LINESTRING'                  THEN st_lineinterpolatepoint(o.wkb_geometry,0.5)
+			END
 		) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
 		coalesce(
@@ -5043,8 +5044,8 @@ SELECT
 	gml_id,
 	'Verkehr' AS thema,
 	'ax_seilbahnschwebebahn' AS layer,
-	st_multi( st_lineinterpolatepoint(line,off) ) AS point,
-	0.5*pi()-st_azimuth( st_lineinterpolatepoint(line,off*0.9999), st_lineinterpolatepoint(line,CASE WHEN off=0 THEN 0.001 WHEN off*1.0001>1 THEN 1 ELSE off*1.0001 END) ) AS drehwinkel,
+	st_multi( st_lineinterpolatepoint(line,o.offset) ) AS point,
+	0.5*pi()-st_azimuth(st_lineinterpolatepoint(line,o.offset*0.9999), st_lineinterpolatepoint(line,CASE WHEN o.offset=0 THEN 0.001 WHEN o.offset*1.0001>1 THEN 1 ELSE o.offset*1.0001 END)) AS drehwinkel,
 	signaturnummer,
 	modell
 FROM (
@@ -5056,7 +5057,7 @@ FROM (
 			WHEN bahnkategorie IN (2100,2200,2300,2400,2600) THEN 16000
 			WHEN bahnkategorie=2500                          THEN 20000
 			END
-		) / 1000.0 / st_length(wkb_geometry) AS off,
+		) / 1000.0 / st_length(wkb_geometry) AS offset,
 		CASE
 		WHEN bahnkategorie IN (2100,2200) THEN 3642
 		WHEN bahnkategorie IN (2300,2400) THEN 3643
@@ -5127,8 +5128,8 @@ SELECT
 	gml_id,
 	'Verkehr' AS thema,
 	'ax_gleis' AS layer,
-	st_multi( st_lineinterpolatepoint(line,off) ) AS point,
-	0.5*pi()-st_azimuth( st_lineinterpolatepoint(line,off*0.9999), st_lineinterpolatepoint(line,CASE WHEN off=0 THEN 0.001 WHEN off*1.0001>1 THEN 1 ELSE off*1.0001 END) ) AS drehwinkel,
+	st_multi( st_lineinterpolatepoint(line,o.offset) ) AS point,
+	0.5*pi()-st_azimuth( st_lineinterpolatepoint(line,o.offset*0.9999), st_lineinterpolatepoint(line,CASE WHEN o.offset=0 THEN 0.001 WHEN o.offset*1.0001>1 THEN 1 ELSE o.offset*1.0001 END) ) AS drehwinkel,
 	signaturnummer,
 	modell
 FROM (
@@ -5141,7 +5142,7 @@ FROM (
 			WHEN bahnkategorie IN (1301)                     THEN 8000
 			WHEN bahnkategorie IN (1600)                     THEN 20000
 			END
-		) / 1000.0 / st_length(wkb_geometry) AS off,
+		) / 1000.0 / st_length(wkb_geometry) AS offset,
 		CASE
 		WHEN bahnkategorie=1201           THEN 3646
 		WHEN bahnkategorie IN (1300,1301) THEN 3647
@@ -6324,8 +6325,8 @@ SELECT
 	gml_id,
 	'Topographie' AS thema,
 	'ax_dammwalldeich' AS layer,
-	st_multi( st_lineinterpolatepoint(line,off) ) AS point,
-	0.5*pi()-st_azimuth( st_lineinterpolatepoint(line,off*0.9999), st_lineinterpolatepoint(line,CASE WHEN off=0 THEN 0.001 WHEN off*1.0001>1 THEN 1 ELSE off*1.0001 END) ) AS drehwinkel,
+	st_multi( st_lineinterpolatepoint(line,o.offset) ) AS point,
+	0.5*pi()-st_azimuth( st_lineinterpolatepoint(line,o.offset*0.9999), st_lineinterpolatepoint(line,CASE WHEN o.offset=0 THEN 0.001 WHEN o.offset*1.0001>1 THEN 1 ELSE o.offset*1.0001 END) ) AS drehwinkel,
 	3632 AS signaturnummer,
 	modell
 FROM (
@@ -6338,7 +6339,7 @@ FROM (
 		WHEN art IN ('2011','2013') THEN st_offsetcurve(o.line, 0.34,''::text)
 		ELSE o.line
 		END AS line,
-		generate_series( 3650, (st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS off,
+		generate_series( 3650, (st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS offset,
 		modell
 	FROM (
 		SELECT
@@ -6357,8 +6358,8 @@ SELECT
 	gml_id,
 	'Topographie' AS thema,
 	'ax_dammwalldeich' AS layer,
-	st_multi( st_lineinterpolatepoint(line,off) ) AS point,
-	0.5*pi()-st_azimuth( st_lineinterpolatepoint(line,off*0.9999), st_lineinterpolatepoint(line,CASE WHEN off=0 THEN 0.001 WHEN off*1.0001>1 THEN 1 ELSE off*1.0001 END) ) AS drehwinkel,
+	st_multi( st_lineinterpolatepoint(line,o.offset) ) AS point,
+	0.5*pi()-st_azimuth( st_lineinterpolatepoint(line,o.offset*0.9999), st_lineinterpolatepoint(line,CASE WHEN o.offset=0 THEN 0.001 WHEN o.offset*1.0001>1 THEN 1 ELSE o.offset*1.0001 END) ) AS drehwinkel,
 	3632 AS signaturnummer,
 	modell
 FROM (
@@ -6369,7 +6370,7 @@ FROM (
 		WHEN art='2002' THEN st_offsetcurve(o.line, 0.17,''::text)
 		ELSE line
 		END AS line,
-		generate_series( 5950, (st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS off,
+		generate_series( 5950, (st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS offset,
 		modell
 	FROM (
 		SELECT
@@ -6388,8 +6389,8 @@ SELECT
 	gml_id,
 	'Topographie' AS thema,
 	'ax_dammwalldeich' AS layer,
-	st_multi( st_lineinterpolatepoint(line,off) ) AS point,
-	0.5*pi()-st_azimuth( st_lineinterpolatepoint(line,off*0.9999), st_lineinterpolatepoint(line,CASE WHEN off=0 THEN 0.001 WHEN off*1.0001>1 THEN 1 ELSE off*1.0001 END) ) AS drehwinkel,
+	st_multi( st_lineinterpolatepoint(line,o.offset) ) AS point,
+	0.5*pi()-st_azimuth( st_lineinterpolatepoint(line,o.offset*0.9999), st_lineinterpolatepoint(line,CASE WHEN o.offset=0 THEN 0.001 WHEN o.offset*1.0001>1 THEN 1 ELSE o.offset*1.0001 END) ) AS drehwinkel,
 	3601 AS signaturnummer,
 	modell
 FROM (
@@ -6400,7 +6401,7 @@ FROM (
 		WHEN art='2002' THEN st_offsetcurve(o.line, 0.17,''::text)
 		ELSE line
 		END AS line,
-		generate_series( 2900, (st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS off,
+		generate_series( 2900, (st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS offset,
 		modell
 	FROM (
 		SELECT
@@ -6831,8 +6832,8 @@ FROM (
 ) AS o WHERE NOT text IS NULL;
 
 -- TODO: Kam noch nicht vor
--- RP: ax_andereklassifizierungnachwasserecht (71004)
--- RP: ax_anderefestlegungnachwasserecht (71005)
+-- RP: ax_andereklassifizierungnachwasserrecht (71004)
+-- RP: ax_anderefestlegungnachwasserrecht (71005)
 
 --
 -- Klassifizierungen nach Natur-, Umwelt- oder Bodenschutzrecht (71006)
@@ -6929,24 +6930,23 @@ FROM (
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
-/*
 --
 -- Schutzgebiet nach Natur-, Umwelt- oder Bodenschutzrecht (71007)
--- TODO: Keine Geometrie?
 --
 
 SELECT 'Schutzgebiete nach Natur-, Umwelt und Bodenschutzrecht werden verarbeitet.';
 
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
 SELECT
-	gml_id,
+	o.gml_id,
 	'Rechtliche Festlegungen' AS thema,
 	'ax_schutzgebietnachnaturumweltoderbodenschutzrecht' AS layer,
-	st_multi(wkb_geometry) AS polygon,
+	st_multi(z.wkb_geometry) AS polygon,
 	1703 AS signaturnummer,
-	advstandardmodell||sonstigesmodell
+	o.advstandardmodell||o.sonstigesmodell
 FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht o
-WHERE artderfestlegung=1621 AND endet IS NULL;
+JOIN ax_schutzzone z ON z.istteilvon=o.gml_id AND z.endet IS NULL
+WHERE o.artderfestlegung=1621 AND o.endet IS NULL;
 
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
@@ -6956,15 +6956,18 @@ SELECT
 	point,
 	text,
 	signaturnummer,
+	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
 	modell
 FROM (
 	SELECT
 		o.gml_id,
-		t.wkb_geometry AS point,
+		coalesce(t.wkb_geometry,st_centroid(z.wkb_geometry)) AS point,
 		(select v from alkis_wertearten where element='ax_schutzgebietnachnaturumweltoderbodenschutzrecht ' AND bezeichnung='artderfestlegung' AND k=artderfestlegung::text) AS text,
 		coalesce(t.signaturnummer,'4143') AS signaturnummer,
+		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
 		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 	FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht o
+	LEFT OUTER JOIN ax_schutzzone z ON z.istteilvon=o.gml_id AND z.endet IS NULL
 	JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='ADF' AND t.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o WHERE NOT text IS NULL;
@@ -6978,19 +6981,21 @@ SELECT
 	point,
 	text,
 	signaturnummer,
+	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
 	modell
 FROM (
 	SELECT
 		o.gml_id,
-		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
+		coalesce(t.wkb_geometry,st_centroid(z.wkb_geometry)) AS point,
 		'"' || name || '"' AS text,
 		coalesce(t.signaturnummer,'4143') AS signaturnummer,
+		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
 		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 	FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht o
+	LEFT OUTER JOIN ax_schutzzone z ON z.istteilvon=o.gml_id AND z.endet IS NULL
 	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND NOT name IS NULL
 ) AS n WHERE NOT text IS NULL;
-*/
 
 --
 -- Bauraum- oder Bauordnungsrecht (71008)
