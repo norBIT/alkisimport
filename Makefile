@@ -1,6 +1,6 @@
 DESTDIR = //zeus/runtime/norBIT/norGIS-ALKIS-Import/unstable
 
-all: alkisImportDlg.py
+all:
 
 update: all
 	rsync -avpP \
@@ -42,9 +42,6 @@ diff:
 		--exclude="share" \
 		$(DESTDIR) \
 		.
-
-%.py: %.ui
-	pyuic4 -o $@ $^
 
 %.py: %.qrc
 	pyrcc4 -o $@ $^
