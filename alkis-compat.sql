@@ -1,3 +1,19 @@
+/***************************************************************************
+ *
+ * Project:  norGIS ALKIS Import
+ * Purpose:  PostGIS-Vorwärtskompatibilitätsfunktionen
+ * Author:   Jürgen E. Fischer <jef@norbit.de>
+ *
+ ***************************************************************************
+ * Copyright (c) 2012-2014, Jürgen E. Fischer <jef@norbit.de>              *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
 CREATE FUNCTION unnest(anyarray) RETURNS SETOF anyelement AS $$
   SELECT $1[i] FROM generate_series(array_lower($1,1), array_upper($1,1)) i;
 $$ LANGUAGE 'sql' IMMUTABLE;

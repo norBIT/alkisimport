@@ -1,3 +1,19 @@
+/******************************************************************************
+ *
+ * Project:  norGIS ALKIS Import
+ * Purpose:  SQL-Funktionen für ALKIS
+ * Author:   Jürgen E. Fischer <jef@norbit.de>
+ *
+ ******************************************************************************
+ * Copyright (c) 2012-2014, Jürgen E. Fischer <jef@norbit.de>
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *
+ ****************************************************************************/
+
 -- Table/View/Sequence löschen, wenn vorhanden
 CREATE OR REPLACE FUNCTION alkis_dropobject(t TEXT) RETURNS varchar AS $$
 DECLARE

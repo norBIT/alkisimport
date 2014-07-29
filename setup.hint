@@ -1,0 +1,5 @@
+sdesc: "norGIS ALKIS Import"
+ldesc: "norGIS ALKIS Import"
+maintainer: JuergenFischer
+category: Desktop
+requires: msvcrt pyqt4 psql gdal sip

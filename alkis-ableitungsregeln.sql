@@ -1,3 +1,22 @@
+/******************************************************************************
+ *
+ * Project:  norGIS ALKIS Import
+ * Purpose:  Regeln zur Ableitung von Darstellungstabellen aus den GDAL/OGR
+ *           NAS Tabellen
+ * Author:   Jürgen E. Fischer jef@norbit.de
+ *
+ ***************************************************************************
+ * Copyright (c) 2013 Juergen E. Fischer (jef@norbit.de)                   *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+-- %s/ARRAY\[\([^]]*\)\] <@ \([^ ;]*\)/\1 = ANY(\2)/
+
 /*
 	1XXX = Fläche
 	2XXX = Linie
@@ -450,8 +469,8 @@ SELECT
 	t.drehwinkel, 'zentrisch'::text AS horizontaleausrichtung, 'Basis'::text AS vertikaleausrichtung, t.skalierung, t.fontsperrung,
 	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell)
 FROM ax_flurstueck o
-LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
-WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122','6000');
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122','6000')
+WHERE o.endet IS NULL;
 
 -- Nenner
 -- Bruchdarstellung, wo nicht Schrägstrichdarstellung erzwungen
@@ -3360,6 +3379,7 @@ FROM (
 --
 
 -- Turm, Flächen
+-- TODO: Punkte?
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
 SELECT
 	gml_id,
@@ -3369,7 +3389,8 @@ SELECT
 	CASE WHEN zustand=2200 THEN 1502 ELSE 1501 END AS signaturnummer,
 	advstandardmodell||sonstigesmodell
 FROM ax_turm
-WHERE endet IS NULL;
+WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON')
+  AND endet IS NULL;
 
 -- Turm, Texte
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)

@@ -10,7 +10,7 @@
 -- contact: horst dot duester at kappasys dot ch
 --
 -- This is free software; you can redistribute and/or modify it under
--- the terms of the GNU General Public Licence. See the COPYING file.
+-- the terms of the GNU General Public Licence. See the LICENSE file.
 -- This software is without any warrenty and you use it at your own risk
 --  
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

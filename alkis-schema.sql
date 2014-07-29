@@ -1,9 +1,22 @@
---
+/******************************************************************************
+ *
+ * Projekt:  norGIS ALKIS Import
+ * Zweck:    ALKIS-Schema
+ * Herkunft: Durch den GDAL/OGR NAS-Treiber erzeugt,
+ *           angepaßt, ergänzt und kommentiert PostNAS 0.7
+ *           (http://trac.wheregroup.com/PostNAS/browser/trunk/import/alkis_PostNAS_schema.sql)
+ *
+ * Authors:
+ *   Frank Jäger <f.jaeger@KRZ.DE>
+ *   Jürgen E. Fischer <jef@norbit.de>
+ *   Astrid Emde <astrid.emde@wheregroup.com>
+ *
+ ******************************************************************************/
+
 -- *****************************
 --       A  L   K   I   S
 -- *****************************
 --
--- Datenbankstruktur PostNAS 0.7  (GDAL aus aktuellem Trunk)
 --
 
 -- Damit die Includes (\i) funktionieren muß psql im Verzeichnis ausgeführt
@@ -12,60 +25,6 @@
 
 -- Systemvariable vorher setzen für das Koordinatensystem, z.B.
 -- EPSG=25832
-
-
--- Stand
--- -----
-
--- 2012-04-23 FJ  Diff zum GDAL-Patch #4555 angewendet:
---                Siehe Mail J.E.Fischer in PostNAS-Liste vom 12.03.2012
---                - Alle Objekte bekommen "endet"-Feld.
---                - "beginnt" wird in die Unique-Constraint einbezogen.
---                - Feld 'identifier'.
---                - "character varying" durch "varchar" ersetzt.
---                - Keine direkten Änderungen an 'geometry_columns' (wegen PostGIS 2)
---                - DELETE:  Feld endet	= aktuelle Zeit
---                - REPLACE: Feld endet	= beginnt des ersetzenden Objektes
---                - "delete_feature()" ist nun ein Trigger
-
--- 2012-04-24 FJ  Datei alkis-funktions aus Diff zum GDAL-Patch #4555 hier integriert
---                Umschaltung mit/ohne Historie über Verknüpfung Trigger -> Function
---                Typ 'GEOMETRY' bei Tabellen: AX_WegPfadSteig, AX_UntergeordnetesGewaesser
-
--- 2012-10-31 FJ  Trigger fuer NAS-Replace-SÃ¤ätze repariert:
---                siehe: FUNCTION delete_feature_kill()
---                ax_historischesflurstueck.buchungsart ist Text nicht integer.
-
--- 2012-10-31 AE  Tabellen löschen wurde auskommentiert, DB wird leer angelegt SELECT alkis_drop();
-
--- ** zwischenzeitliche Änderungen: siehe Kommentare im SVN
-
--- 2013-01-15 FJ  Kommentare zu den letztlich hinzugekommenen Tabellen.
---                Darüber können Tabellen aus diesem Script unterschieden werden
---                von Tabellen, die PostNAS selbst generiert hat.
-
--- 2013-04-22 FJ  Tabelle ax_wirtschaftlicheeinheit, Kommentare ergänzt,
---                Felad "ax_historischesflurstueck.buchungsart" varchar statt integer
-
--- 2013-07-10 FJ  Erweiterung alkis_beziehungen nach Vorschlag Marvin Brandt (Kreis Unna)
---                Füllen der Felder langfristig durch PostNAS (Erweiterung?)
---                Vorläufig mit Trigger-Funktions "update_fields_beziehungen"
-
--- 2014-01-24 FJ  Feld "ax_datenerhebung_punktort" in "Punktort/TA/AG/AU" nach Vorschlag Marvin Brandt (Kreis Unna)
-
--- 2014-01-29 FJ  Spalte "zeitpunktderentstehung" an allen Vorkommen auf Format "varchar".
---                Alte auskommentierte Varianten entrümpelt. 
---                Tabs durch Space ersetzt und Code wieder hübsch ausgerichtet.
-
--- 2014-01-31 FJ  Erweiterungen Marvin Brand (Unna) fuer sauberes Entfernen alter Beziehungen bei "replace".
---                Lösung über import_id.
-
-
---  VERSIONS-NUMMER:
-
---  Dies Schema kann NICHT mehr mit der installierbaren gdal-Version 1.9 verwendet	werden.
---  Derzeit muss ogr2ogr (gdal) aus den Quellen compiliert werden, die o.g. Patch #4555 enthalten.
---  Weiterführung dieses Zweiges als PostNAS 0.7
 
 -- ALKIS-Dokumentation (NRW):
 --  http://www.bezreg-koeln.nrw.de/extra/33alkis/alkis_nrw.htm
@@ -80,7 +39,7 @@
 
 -- T u n i n g :
 --   Die Tabelle 'spatial_ref_sys' einer PostGIS-Datenbank auf
---   die notwendigen Koordinatensysteme reduzieren. Das Loescht >3000 Eintraege.
+--   die notwendigen Koordinatensysteme reduzieren. Das loescht >3000 Eintraege.
 
 --  DELETE FROM spatial_ref_sys
 --  WHERE srid NOT

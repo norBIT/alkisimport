@@ -1,6 +1,24 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
 
+"""
+***************************************************************************
+    alkisImport.py
+    ---------------------
+    Date                 : Sep 2012
+    Copyright            : (C) 2012-2014 by Jürgen Fischer
+    Email                : jef at norbit dot de
+***************************************************************************
+*                                                                         *
+*   This program is free software; you can redistribute it and/or modify  *
+*   it under the terms of the GNU General Public License as published by  *
+*   the Free Software Foundation; either version 2 of the License, or     *
+*   (at your option) any later version.                                   *
+*                                                                         *
+***************************************************************************
+"""
+
+
 import sip
 for c in [ "QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant" ]:
         sip.setapi(c,2)
@@ -23,6 +41,7 @@ from PyQt4 import uic
 d = os.path.dirname(__file__)
 sys.path.insert( 0, d )
 alkisImportDlgBase = uic.loadUiType( os.path.join( d, 'alkisImportDlg.ui' ) )[0]
+aboutDlgBase = uic.loadUiType( os.path.join( d, 'about.ui' ) )[0]
 sys.path.pop(0)
 
 # Felder als String interpretieren (d.h. führende Nullen nicht abschneiden)
@@ -79,14 +98,18 @@ class ProcessError(Exception):
 	def __str__(self):
 		return unicode(msg)
 
+class aboutDlg(QDialog, aboutDlgBase):
+	def __init__(self):
+		QDialog.__init__(self)
+		self.setupUi(self)
+
 class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 	def __init__(self):
 		QDialog.__init__(self)
 		self.setupUi(self)
-		self.setWindowIcon( QIcon('logo.png') )
+		self.setWindowIcon( QIcon('logo.svg') )
 		self.setWindowFlags( Qt.WindowMinimizeButtonHint )
-
 
 		s = QSettings( "norBIT", "norGIS-ALKIS-Import" )
 
@@ -106,6 +129,12 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		self.cbEPSG.addItem( "3GK3 (BW)", "131467")
 		self.cbEPSG.setCurrentIndex( self.cbEPSG.findData( s.value( "epsg", "25832" ) ) )
 
+		self.cbSSL.addItem( "abschalten", "disable" )
+		self.cbSSL.addItem( "erlauben", "allow" )
+		self.cbSSL.addItem( "bevorzugen", "prefer" )
+		self.cbSSL.addItem( "verlangen", "require" )
+		self.cbSSL.setCurrentIndex( self.cbSSL.findData( s.value( "sslmode", "allow" ) ) )
+
 		self.pbAdd.clicked.connect(self.selFiles)
 		self.pbAddDir.clicked.connect(self.selDir)
 		self.pbRemove.clicked.connect(self.rmFiles)
@@ -118,6 +147,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		self.pbLoadLog.clicked.connect(self.loadLog)
 		self.pbSaveLog.clicked.connect(self.saveLog)
 		self.pbClearLog.clicked.connect(self.clearLog)
+		self.pbAbout.clicked.connect(self.about)
 		self.pbClose.clicked.connect(self.accept)
 		self.pbProgress.setValue( 0 )
 
@@ -339,6 +369,10 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 	def clearLog(self):
 		self.lwProtocol.clear()
 
+	def about(self):
+		dlg = aboutDlg()
+		dlg.exec_()
+
 	def accept(self):
 		if not self.running:
 			s = QSettings( "norBIT", "norGIS-ALKIS-Import" )
@@ -466,6 +500,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 		conn += "dbname=%s user='%s' password='%s'" % (self.leDBNAME.text(), self.leUID.text(), self.lePWD.text() )
 
+		if self.cbSSL.currentIndex() >= 0:
+			conn += " sslmode=%s" % self.cbSSL.itemData( self.cbSSL.currentIndex() )
+
 		self.db = QSqlDatabase.addDatabase( "QPSQL" )
 		self.db.setConnectOptions( conn )
 		if not self.db.open():
@@ -500,6 +537,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 		self.epsg = int( self.cbEPSG.itemData( self.cbEPSG.currentIndex() ) )
 		s.setValue( "epsg", self.epsg)
+
+		s.setValue( "sslmode", self.cbSSL.itemData( self.cbSSL.currentIndex() ) )
 
 		self.running = True
 		self.canceled = False

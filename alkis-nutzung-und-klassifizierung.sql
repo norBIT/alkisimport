@@ -1,3 +1,20 @@
+/******************************************************************************
+ *
+ * Project:  norGIS ALKIS Import
+ * Purpose:  Erzeugung der (ALB-)Flächen(inhalt)sdaten aus ALKIS durch
+ *           Verschneidung mit PostGIS
+ * Author:   Jürgen E. Fischer <jef@norbit.de>
+ *
+ ******************************************************************************
+ * Copyright (c) 2012-2014, Jürgen E. Fischer <jef@norbit.de>
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *
+ ****************************************************************************/
+
 \unset ON_ERROR_STOP
 SET application_name='ALKIS-Import - Nutzungen & Klassifizierungen';
 \set ON_ERROR_STOP

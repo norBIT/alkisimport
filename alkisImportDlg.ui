@@ -20,40 +20,10 @@
       <string>Datenbankeinstellungen</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Benutzername</string>
-        </property>
-        <property name="buddy">
-         <cstring>leUID</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Datenbankname</string>
-        </property>
-        <property name="buddy">
-         <cstring>leDBNAME</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QLineEdit" name="leUID">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="leDBNAME"/>
-      </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_7">
         <property name="text">
-         <string>Host</string>
+         <string>Host/Port</string>
         </property>
         <property name="buddy">
          <cstring>leHOST</cstring>
@@ -70,60 +40,13 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Paßwort</string>
-        </property>
-        <property name="buddy">
-         <cstring>lePWD</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>Port</string>
-        </property>
-        <property name="buddy">
-         <cstring>lePORT</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="lePORT">
-        <property name="inputMask">
-         <string>99999; </string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1">
-       <widget class="QLineEdit" name="lePWD">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="echoMode">
-         <enum>QLineEdit::Password</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
+      <item row="1" column="1" colspan="2">
        <widget class="QLineEdit" name="leSERVICE"/>
       </item>
       <item row="2" column="1">
        <widget class="QLineEdit" name="leHOST">
         <property name="text">
          <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="4">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Koordinatensystem</string>
         </property>
        </widget>
       </item>
@@ -157,6 +80,76 @@
       </item>
       <item row="7" column="4">
        <widget class="QComboBox" name="cbEPSG"/>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLineEdit" name="lePORT">
+        <property name="inputMask">
+         <string>99999; </string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Datenbankname</string>
+        </property>
+        <property name="buddy">
+         <cstring>leDBNAME</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" colspan="2">
+       <widget class="QLineEdit" name="leDBNAME"/>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Benutzername/Paßwort</string>
+        </property>
+        <property name="buddy">
+         <cstring>leUID</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="leUID">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLineEdit" name="lePWD">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="echoMode">
+         <enum>QLineEdit::Password</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="2">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Koordinatensystem</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>SSL-Modus</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QComboBox" name="cbSSL"/>
       </item>
      </layout>
     </widget>
@@ -359,6 +352,26 @@
       </widget>
      </item>
      <item>
+      <spacer name="horizontalSpacer_7">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbAbout">
+       <property name="text">
+        <string>Über...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -385,10 +398,6 @@
  <tabstops>
   <tabstop>leSERVICE</tabstop>
   <tabstop>leHOST</tabstop>
-  <tabstop>lePORT</tabstop>
-  <tabstop>leDBNAME</tabstop>
-  <tabstop>leUID</tabstop>
-  <tabstop>lePWD</tabstop>
   <tabstop>cbxCreate</tabstop>
   <tabstop>cbxSkipFailures</tabstop>
   <tabstop>cbxClearProtocol</tabstop>
