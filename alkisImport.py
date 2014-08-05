@@ -127,6 +127,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		self.cbEPSG.addItem( "UTM33N", "25833")
 		self.cbEPSG.addItem( "3GK2 (BW)", "131466")
 		self.cbEPSG.addItem( "3GK3 (BW)", "131467")
+		self.cbEPSG.addItem( "3GK4 (BY)", "131468")
 		self.cbEPSG.setCurrentIndex( self.cbEPSG.findData( s.value( "epsg", "25832" ) ) )
 
 		self.cbSSL.addItem( "abschalten", "disable" )
@@ -788,7 +789,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 					#	self.log( u"Kurze Datei %s übersprungen." % fn )
 					#	continue
 
-					if self.epsg==131466 or self.epsg==131467:
+					if self.epsg==131466 or self.epsg==131467 or self.epsg==131468:
 						srs = "+init=custom:%d" % self.epsg
 						os.putenv( "PROJ_LIB", "." )
 					else:

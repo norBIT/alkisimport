@@ -840,3 +840,6 @@ INSERT INTO alkis_schriften(signaturnummer,darstellungsprioritaet,name,seite,art
 
 -- BW (nicht in GeoInfoDok)
 INSERT INTO alkis_schriften(signaturnummer,darstellungsprioritaet,name,seite,art,stil,grad_pt,horizontaleausrichtung,vertikaleausrichtung,farbe,alignment_umn,alignment_dxf,sperrung_pt,effekt,position) VALUES ('7900', '350', '{"??? (Schriftformat N 7)"}', '336', 'Arial', 'Normal', '7', NULL, NULL, '2', NULL, NULL, NULL, NULL,st_geomfromtext('POINT(0 0)'::text,0));
+
+-- BY (nicht in GeoInfoDok)
+INSERT INTO alkis_schriften(signaturnummer,darstellungsprioritaet,name,seite,art,stil,grad_pt,horizontaleausrichtung,vertikaleausrichtung,farbe,alignment_umn,alignment_dxf,sperrung_pt,effekt,position) VALUES ('8002', '350', '{"??? (Schriftformat N 7)"}', '336', 'Arial', 'Normal', '7', NULL, NULL, '2', NULL, NULL, NULL, NULL,st_geomfromtext('POINT(0 0)'::text,0));

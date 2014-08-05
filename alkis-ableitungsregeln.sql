@@ -486,7 +486,7 @@ FROM (
 		st_translate(coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)), 0, -0.40) AS point,
 		coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2)::text,o.nenner::text) AS text,
 		coalesce(t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4112' ELSE '4111' END) AS signaturnummer,
-		0 AS drehwinkel, 'zentrisch'::text AS horizontaleausrichtung, 'oben'::text AS vertikaleausrichtung, t.skalierung, t.fontsperrung,
+		t.drehwinkel, 'zentrisch'::text AS horizontaleausrichtung, 'oben'::text AS vertikaleausrichtung, t.skalierung, t.fontsperrung,
 		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 	FROM ax_flurstueck o
 	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
@@ -500,7 +500,7 @@ SELECT
 	gml_id,
 	'Flurstücke' AS thema,
 	'ax_flurstueck_nummer' AS layer,
-	st_multi(st_makeline(st_translate(point, -len, 0.0), st_translate(point, len, 0.0))) AS line,
+	st_multi(st_rotate(st_makeline(st_translate(point, -len, 0.0), st_translate(point, len, 0.0)),drehwinkel,st_x(point),st_y(point))) AS line,
 	2001 AS signaturnummer,
 	modell
 FROM (
@@ -508,14 +508,16 @@ FROM (
 		gml_id,
 		point,
 		CASE WHEN lenn>lenz THEN lenn ELSE lenz END AS len,
-		modell
+		modell,
+		drehwinkel
 	FROM (
 		SELECT
 			o.gml_id,
 			coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',1),o.zaehler::text)) AS lenn,
 			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2),o.nenner::text)) AS lenz,
-			coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
+			coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell,
+			coalesce(t.drehwinkel,0) AS drehwinkel
 		FROM ax_flurstueck o
 		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
 		WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122','6000')
@@ -7332,19 +7334,46 @@ UPDATE po_polygons SET
 DELETE FROM alkis_linie WHERE signaturnummer LIKE 'rn%';
 DELETE FROM alkis_linien WHERE signaturnummer LIKE 'rn%';
 
-INSERT INTO alkis_linien(signaturnummer,darstellungsprioritaet,farbe,name,seite)
-        SELECT 'rn'||signaturnummer,darstellungsprioritaet,alkis_randlinie.farbe,name,seite
-                FROM alkis_flaechen
-                JOIN alkis_randlinie ON alkis_flaechen.randlinie=alkis_randlinie.id;
+CREATE TEMPORARY SEQUENCE rnstrichart0_seq;
+SELECT setval('rnstrichart0_seq',max(id)+1) FROM alkis_stricharten;
+CREATE TEMPORARY SEQUENCE rnstrichart_seq;
+
+CREATE TEMPORARY SEQUENCE rnstricharteni_seq;
+SELECT setval('rnstricharteni_seq',max(id)+1) FROM alkis_stricharten_i;
 
 CREATE TEMPORARY SEQUENCE rnlinie_seq;
 SELECT setval('rnlinie_seq',max(id)+1) FROM alkis_linie;
 
-INSERT INTO alkis_linie(signaturnummer,id,i,strichart,abschluss,scheitel,strichstaerke)
-        SELECT 'rn'||signaturnummer,nextval('rnlinie_seq'),0,strichart,abschluss,scheitel,strichstaerke
+SELECT setval('rnstrichart_seq',currval('rnstrichart0_seq'));
+INSERT INTO alkis_stricharten(id)
+        SELECT nextval('rnstrichart_seq')
                 FROM alkis_flaechen
-                JOIN alkis_randlinie ON alkis_flaechen.randlinie=alkis_randlinie.id;
+                JOIN alkis_randlinie ON alkis_flaechen.randlinie=alkis_randlinie.id
+                ORDER BY alkis_flaechen.signaturnummer,alkis_randlinie.id;
 
+SELECT setval('rnstrichart_seq',currval('rnstrichart0_seq'));
+INSERT INTO alkis_stricharten_i(id,stricharten,i,strichart)
+        SELECT nextval('rnstricharteni_seq'), nextval('rnstrichart_seq'),0,strichart
+                FROM alkis_flaechen
+		JOIN alkis_randlinie ON alkis_flaechen.randlinie=alkis_randlinie.id
+                ORDER BY alkis_flaechen.signaturnummer,alkis_randlinie.id;
+
+INSERT INTO alkis_linien(signaturnummer,darstellungsprioritaet,farbe,name,seite)
+        SELECT 'rn'||signaturnummer,darstellungsprioritaet,alkis_randlinie.farbe,name,seite
+                FROM alkis_flaechen
+                JOIN alkis_randlinie ON alkis_flaechen.randlinie=alkis_randlinie.id
+                ORDER BY alkis_flaechen.signaturnummer,alkis_randlinie.id;
+
+SELECT setval('rnstrichart_seq',currval('rnstrichart0_seq'));
+INSERT INTO alkis_linie(id,i,signaturnummer,strichart,abschluss,scheitel,strichstaerke)
+        SELECT nextval('rnlinie_seq'),0,'rn'||signaturnummer,strichart,abschluss,scheitel,strichstaerke
+                FROM alkis_flaechen
+                JOIN alkis_randlinie ON alkis_flaechen.randlinie=alkis_randlinie.id
+                ORDER BY alkis_flaechen.signaturnummer,alkis_randlinie.id;
+
+DROP SEQUENCE rnstrichart0_seq;
+DROP SEQUENCE rnstrichart_seq;
+DROP SEQUENCE rnstricharteni_seq;
 DROP SEQUENCE rnlinie_seq;
 
 -- Array -> Set

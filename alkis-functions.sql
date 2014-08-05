@@ -128,8 +128,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT alkis_dropobject('alkis_create_bwsrs');
-CREATE FUNCTION alkis_create_bwsrs(id INTEGER) RETURNS varchar AS $$
+SELECT alkis_dropobject('alkis_create_bsrs');
+CREATE FUNCTION alkis_create_bsrs(id INTEGER) RETURNS varchar AS $$
 DECLARE
 	n INTEGER;
 BEGIN
@@ -165,6 +165,19 @@ BEGIN
 			FROM spatial_ref_sys
 			WHERE srid=31467
 			  AND NOT EXISTS (SELECT * FROM spatial_ref_sys WHERE srid=131467);
+		RETURN 'Koordinatensystem '||id||' angelegt.';
+	END IF;
+
+	IF id=131468 THEN
+		-- DE_DHDN_3GK4_BY120
+		INSERT INTO spatial_ref_sys(srid,auth_name,auth_srid,srtext,proj4text)
+			SELECT
+				131468,auth_name,131468
+				,replace(replace(srtext,'PARAMETER["false_easting",4500000]','PARAMETER["false_easting",500000]'),'"EPSG","31468"','"EPSG","131468"')
+				,replace(proj4text,'+x_0=4500000','+x_0=500000')
+			FROM spatial_ref_sys
+			WHERE srid=31468
+			  AND NOT EXISTS (SELECT * FROM spatial_ref_sys WHERE srid=131468);
 		RETURN 'Koordinatensystem '||id||' angelegt.';
 	END IF;
 

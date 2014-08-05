@@ -52,8 +52,8 @@
 -- Alle Tabellen löschen
 SELECT alkis_drop();
 
--- Alle Tabellen löschen
-SELECT alkis_create_bwsrs(:alkis_epsg);
+-- BW/BY-Koordinatensystem anlegen
+SELECT alkis_create_bsrs(:alkis_epsg);
 
 -- Tabelle delete für Lösch- und Fortführungsdatensätze
 CREATE TABLE "delete" (

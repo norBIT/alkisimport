@@ -30,7 +30,7 @@
 ^psql:alkis-compat.sql:.*: ERROR:  function combine_bbox\(box2d, geometry\) does not exist\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Berechtigung nur f\S+r Eigent\S+mer der Funktion st_dump\s*$
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*gel\S+scht\..*$
-^\s+(addgeometrycolumn|alkis_drop|alkis_dropobject|alkis_create_bwsrs|version|postgis_version|\?column\?)\s*$
+^\s+(addgeometrycolumn|alkis_drop|alkis_dropobject|alkis_create_bsrs|version|postgis_version|\?column\?)\s*$
 ^-+\s*$
 ^\s+public\..*\.(wkb_geometry|dummy) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$
 ^\s+public\.ax_punktortau\.wkb_geometry SRID:\d+ TYPE:POINT DIMS:3\+?\s*$
@@ -49,7 +49,7 @@ ERROR:  relation "public\.alkis_(stricharten|stricharten_i|schriften|randlinie|l
 ERROR:  table "alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
 ERROR:  sequence "alkis_(farben|konturen|linie|randlinie|strichart|stricharten|stricharten_i)_id_seq" does not exist
 ^.*(ERROR|FEHLER):.*application_name
-^\s+(alkis_createklassifizierung|alkis_createnutzung|alkis_checkflurstueck|alkis_createausfuehrendestellen|ax_besondereflurstuecksgrenze|alkis_create_bwcrs)\s+$
+^\s+(alkis_createklassifizierung|alkis_createnutzung|alkis_checkflurstueck|alkis_createausfuehrendestellen|ax_besondereflurstuecksgrenze|alkis_create_bcrs)\s+$
 ^ ax_klassifizierung und ax_klassifizierungsschluessel erzeugt\.\s*$
 ^ ax_tatsaechlichenutzung und ax_tatsaechlichenutzungsschluessel erzeugt\.\s*$
 ^ ax_ausfuehrendestellen erzeugt\.\s*$
