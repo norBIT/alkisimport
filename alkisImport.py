@@ -121,6 +121,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		self.lePWD.setText( s.value( "pwd", "" ) )
 		self.lstFiles.addItems( s.value( "files", [] ) or [] )
 		self.cbxSkipFailures.setChecked( s.value( "skipfailures", False, type=bool ) )
+		self.cbFnbruch.setCurrentIndex( 0 if s.value( "fnbruch", True, type=bool ) else 1 )
 		self.cbxDebug.setChecked( s.value( "debug", False, type=bool ) )
 
 		self.cbEPSG.addItem( "UTM32N", "25832")
@@ -129,12 +130,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		self.cbEPSG.addItem( "3GK3 (BW)", "131467")
 		self.cbEPSG.addItem( "3GK4 (BY)", "131468")
 		self.cbEPSG.setCurrentIndex( self.cbEPSG.findData( s.value( "epsg", "25832" ) ) )
-
-		self.cbSSL.addItem( "abschalten", "disable" )
-		self.cbSSL.addItem( "erlauben", "allow" )
-		self.cbSSL.addItem( "bevorzugen", "prefer" )
-		self.cbSSL.addItem( "verlangen", "require" )
-		self.cbSSL.setCurrentIndex( self.cbSSL.findData( s.value( "sslmode", "allow" ) ) )
 
 		self.pbAdd.clicked.connect(self.selFiles)
 		self.pbAddDir.clicked.connect(self.selDir)
@@ -485,7 +480,11 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 
 	def runSQLScript(self, conn, fn):
-		return self.runProcess([self.psql, "-v", "alkis_epsg=%s" % self.epsg, "-q", "-f", fn, conn])
+		return self.runProcess([
+				self.psql,
+				"-v", "alkis_epsg=%s" % self.epsg,
+				"-v", "alkis_fnbruch=%s" % ("true" if self.fnbruch else "false"),
+				"-q", "-f", fn, conn])
 
 	def run(self):
 		self.importALKIS()
@@ -500,9 +499,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 				conn = ""
 
 		conn += "dbname=%s user='%s' password='%s'" % (self.leDBNAME.text(), self.leUID.text(), self.lePWD.text() )
-
-		if self.cbSSL.currentIndex() >= 0:
-			conn += " sslmode=%s" % self.cbSSL.itemData( self.cbSSL.currentIndex() )
 
 		self.db = QSqlDatabase.addDatabase( "QPSQL" )
 		self.db.setConnectOptions( conn )
@@ -536,10 +532,11 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		s.setValue( "skipfailures", self.cbxSkipFailures.isChecked()==True )
 		s.setValue( "debug", self.cbxDebug.isChecked()==True )
 
+		self.fnbruch = self.cbFnbruch.currentIndex()==0
+		s.setValue( "fnbruch", self.fnbruch )
+
 		self.epsg = int( self.cbEPSG.itemData( self.cbEPSG.currentIndex() ) )
 		s.setValue( "epsg", self.epsg)
-
-		s.setValue( "sslmode", self.cbSSL.itemData( self.cbSSL.currentIndex() ) )
 
 		self.running = True
 		self.canceled = False

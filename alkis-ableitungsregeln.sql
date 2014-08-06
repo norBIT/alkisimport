@@ -440,8 +440,12 @@ WHERE a.ogc_fid<b.ogc_fid
 
 SELECT 'Erzeuge Flurstücksnummern.';
 
+--                    ARZ
+-- Schrägstrich: 4113 4122
+-- Bruchstrich:  4115 4123
+
 -- Flurstücksnummern
--- Schrägstrichdarstellung, wo erzwungen
+-- Schrägstrichdarstellung
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
@@ -449,15 +453,15 @@ SELECT
 	'ax_flurstueck_nummer' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	coalesce(replace(t.schriftinhalt,'-','/'),o.zaehler||'/'||o.nenner,o.zaehler::text) AS text,
-	t.signaturnummer AS signaturnummer,
+	coalesce(t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4122' ELSE '4113' END) AS signaturnummer,
 	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung,
         coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_flurstueck o
-JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='ZAE_NEN' AND t.endet IS NULL AND t.signaturnummer IN ('4113','4122','6000')
-WHERE o.endet IS NULL;
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='ZAE_NEN' AND t.endet IS NULL
+WHERE o.endet IS NULL AND coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN NULL ELSE '4111' END,'4113','4122');
 
 -- Zähler
--- Bruchdarstellung, wo nicht Schrägstrichdarstellung erzwungen
+-- Bruchdarstellung
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
@@ -465,15 +469,15 @@ SELECT
 	'ax_flurstueck_nummer' AS layer,
 	st_translate(coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)), 0, 0.40) AS point,
 	coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',1),o.zaehler::text) AS text,
-	coalesce(t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4112' ELSE '4111' END) AS signaturnummer,
+	coalesce(t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4123' ELSE '4115' END) AS signaturnummer,
 	t.drehwinkel, 'zentrisch'::text AS horizontaleausrichtung, 'Basis'::text AS vertikaleausrichtung, t.skalierung, t.fontsperrung,
 	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell)
 FROM ax_flurstueck o
-LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122','6000')
-WHERE o.endet IS NULL;
+LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
+WHERE o.endet IS NULL AND coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123');
 
 -- Nenner
--- Bruchdarstellung, wo nicht Schrägstrichdarstellung erzwungen
+-- Bruchdarstellung
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	gml_id,
@@ -485,12 +489,12 @@ FROM (
 		o.gml_id,
 		st_translate(coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)), 0, -0.40) AS point,
 		coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2)::text,o.nenner::text) AS text,
-		coalesce(t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4112' ELSE '4111' END) AS signaturnummer,
+		coalesce(t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4123' ELSE '4115' END) AS signaturnummer,
 		t.drehwinkel, 'zentrisch'::text AS horizontaleausrichtung, 'oben'::text AS vertikaleausrichtung, t.skalierung, t.fontsperrung,
 		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 	FROM ax_flurstueck o
 	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
-	WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122','6000')
+	WHERE o.endet IS NULL AND coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123')
 ) AS foo
 WHERE NOT text IS NULL;
 
@@ -520,7 +524,7 @@ FROM (
 			coalesce(t.drehwinkel,0) AS drehwinkel
 		FROM ax_flurstueck o
 		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
-		WHERE o.endet IS NULL AND NOT coalesce(t.signaturnummer,'4111') IN ('4113','4122','6000')
+		WHERE o.endet IS NULL AND coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123')
 	) AS bruchstrich0 WHERE lenz>0 AND lenn>0
 ) AS bruchstrich1;
 

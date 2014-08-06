@@ -32,6 +32,7 @@ export OGR_SKIP=GML,SEGY
 
 export EPSG=25832
 export CRS=EPSG:$EPSG
+export FNBRUCH=true
 
 bdate() {
 	local t=$1
@@ -166,7 +167,7 @@ do
 		DRIVER=PostgreSQL
 		sql() {
 			pushd "$B" >/dev/null
-			psql -P pager=off -v alkis_epsg=$EPSG -q -f "$1" "$DB"
+			psql -P pager=off -v alkis_fnbruch=$FNBRUCH -v alkis_epsg=$EPSG -q -f "$1" "$DB"
 			popd >/dev/null
 		}
 		runsql() {
@@ -241,6 +242,22 @@ EOF
 			imp "$DB" file=$1.dmp log=$1-import.log fromuser=$user touser=$user
 		}
 		continue
+		;;
+
+	"fnbruch "*)
+		FNBRUCH=${src#fnbruch }
+		case "$FNBRUCH" in
+		an|on|true|an)
+			FNBRUCH=true
+			;;
+		aus|off|false)
+			FNBRUCH=false
+			;;
+		*)
+			echo "$P: Ungültiger Wert $FNBRUCH (true or false erwartet)"
+			exit 1
+			;;
+		esac
 		;;
 
 	"epsg "*)

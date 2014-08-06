@@ -1865,7 +1865,7 @@ CREATE TABLE ax_anschrift (
 	postleitzahlpostfach		varchar,
 	postfach			varchar,
 	ortsteil			varchar,
-	weitereAdressen			varchar,
+	weitereAdressen			varchar[],
 	telefon				varchar,
 	fax				varchar,
 	organisationName		varchar,

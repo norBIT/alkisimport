@@ -14,4 +14,4 @@ Die graphische Darstellung selbst erfolgt mit weiterer Software:
 * [QGIS-Plugin zum Import in QGIS-Projekte und zur Erzeugung von UMN-Mapfiles](http://www.norbit.de/75/) (GPLv2)
 * [Darstellung in AutoCAD & BricsCAD](http://www.norbit.de/76/) (proprietär)
 
-Lizenz: [GPLv2](http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html), [Homepage](http://www.norbit.de/68/)
+[Homepage](http://www.norbit.de/68/), Lizenz: [GPLv2](http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html),

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1019</width>
+    <width>807</width>
     <height>595</height>
    </rect>
   </property>
@@ -14,146 +14,6 @@
    <string>ALKIS-Import</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" rowspan="2">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Datenbankeinstellungen</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>Host/Port</string>
-        </property>
-        <property name="buddy">
-         <cstring>leHOST</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Service</string>
-        </property>
-        <property name="buddy">
-         <cstring>leSERVICE</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1" colspan="2">
-       <widget class="QLineEdit" name="leSERVICE"/>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="leHOST">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="4">
-       <widget class="QCheckBox" name="cbxDebug">
-        <property name="text">
-         <string>Debugging aktivieren</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="4">
-       <widget class="QCheckBox" name="cbxCreate">
-        <property name="text">
-         <string>Datenbestand (neu)anlegen</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="4">
-       <widget class="QCheckBox" name="cbxSkipFailures">
-        <property name="text">
-         <string>Importfehler überspringen</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="4">
-       <widget class="QCheckBox" name="cbxClearProtocol">
-        <property name="text">
-         <string>Protokolltabelle löschen</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="4">
-       <widget class="QComboBox" name="cbEPSG"/>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLineEdit" name="lePORT">
-        <property name="inputMask">
-         <string>99999; </string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Datenbankname</string>
-        </property>
-        <property name="buddy">
-         <cstring>leDBNAME</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1" colspan="2">
-       <widget class="QLineEdit" name="leDBNAME"/>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Benutzername/Paßwort</string>
-        </property>
-        <property name="buddy">
-         <cstring>leUID</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="leUID">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2">
-       <widget class="QLineEdit" name="lePWD">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="echoMode">
-         <enum>QLineEdit::Password</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="2">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Koordinatensystem</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>SSL-Modus</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1">
-       <widget class="QComboBox" name="cbSSL"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item row="3" column="0">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
@@ -393,6 +253,157 @@
      </item>
     </layout>
    </item>
+   <item row="0" column="0" rowspan="2">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Datenbankeinstellungen</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="8" column="1">
+       <widget class="QComboBox" name="cbEPSG"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Host/Port</string>
+        </property>
+        <property name="buddy">
+         <cstring>leHOST</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Service</string>
+        </property>
+        <property name="buddy">
+         <cstring>leSERVICE</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="leHOST">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QCheckBox" name="cbxCreate">
+        <property name="text">
+         <string>Datenbestand (neu)anlegen</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="4">
+       <widget class="QCheckBox" name="cbxSkipFailures">
+        <property name="text">
+         <string>Importfehler überspringen</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="4">
+       <widget class="QCheckBox" name="cbxClearProtocol">
+        <property name="text">
+         <string>Protokolltabelle löschen</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Datenbankname</string>
+        </property>
+        <property name="buddy">
+         <cstring>leDBNAME</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Benutzername/Paßwort</string>
+        </property>
+        <property name="buddy">
+         <cstring>leUID</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="leUID">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QLineEdit" name="lePWD">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="echoMode">
+         <enum>QLineEdit::Password</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" colspan="2">
+       <widget class="QLineEdit" name="leDBNAME"/>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLineEdit" name="lePORT">
+        <property name="inputMask">
+         <string>99999; </string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="2">
+       <widget class="QLineEdit" name="leSERVICE"/>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Koordinatensystem</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="4">
+       <widget class="QCheckBox" name="cbxDebug">
+        <property name="text">
+         <string>Debugging aktivieren</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="2">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Flurstücksnummendarstellung</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="4">
+       <widget class="QComboBox" name="cbFnbruch">
+        <item>
+         <property name="text">
+          <string>Mit Bruchstrich</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mit Schrägstrich</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
@@ -401,8 +412,6 @@
   <tabstop>cbxCreate</tabstop>
   <tabstop>cbxSkipFailures</tabstop>
   <tabstop>cbxClearProtocol</tabstop>
-  <tabstop>cbxDebug</tabstop>
-  <tabstop>cbEPSG</tabstop>
   <tabstop>lstFiles</tabstop>
   <tabstop>pbAdd</tabstop>
   <tabstop>pbAddDir</tabstop>
