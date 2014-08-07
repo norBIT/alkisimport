@@ -146,6 +146,10 @@ CREATE FUNCTION st_rotate(geometry, float8) RETURNS geometry AS $$
   SELECT rotate($1,$2);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
+CREATE FUNCTION st_rotate(geometry, float8, float8, float8) RETURNS geometry AS $$
+  SELECT st_translate( st_rotate( st_translate($1,-$3,-$4), $2), $3, $4 );
+$$ LANGUAGE 'sql' IMMUTABLE;
+
 CREATE FUNCTION st_x(geometry) RETURNS float8 AS $$
   SELECT x($1);
 $$ LANGUAGE 'sql' IMMUTABLE;

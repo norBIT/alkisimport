@@ -458,7 +458,7 @@ SELECT
         coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_flurstueck o
 LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='ZAE_NEN' AND t.endet IS NULL
-WHERE o.endet IS NULL AND coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN NULL ELSE '4111' END,'4113','4122');
+WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN NULL ELSE '4111' END,'4113','4122') OR coalesce(o.nenner,'0')='0');
 
 -- Zähler
 -- Bruchdarstellung
@@ -474,7 +474,7 @@ SELECT
 	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell)
 FROM ax_flurstueck o
 LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
-WHERE o.endet IS NULL AND coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123');
+WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123') AND coalesce(o.nenner,'0')<>'0');
 
 -- Nenner
 -- Bruchdarstellung
@@ -494,7 +494,7 @@ FROM (
 		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 	FROM ax_flurstueck o
 	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
-	WHERE o.endet IS NULL AND coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123')
+	WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123') AND coalesce(o.nenner,'0')<>'0')
 ) AS foo
 WHERE NOT text IS NULL;
 
@@ -524,7 +524,7 @@ FROM (
 			coalesce(t.drehwinkel,0) AS drehwinkel
 		FROM ax_flurstueck o
 		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
-		WHERE o.endet IS NULL AND coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123')
+		WHERE o.endet IS NULL AND coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123') AND coalesce(o.nenner,'0')<>'0'
 	) AS bruchstrich0 WHERE lenz>0 AND lenn>0
 ) AS bruchstrich1;
 
@@ -1207,7 +1207,7 @@ SELECT
 	'ax_gebaeude' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	p.drehwinkel,
-	coalesce(p.signaturnummer,o.signaturnummer) AS signaturnummer,
+	coalesce(d.signaturnummer,p.signaturnummer,o.signaturnummer) AS signaturnummer,
 	coalesce(p.advstandardmodell||p.sonstigesmodell,o.modell) AS modell
 FROM (
 	SELECT
@@ -1248,6 +1248,7 @@ FROM (
 	) AS o
 ) AS o
 LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='GFK' AND p.endet IS NULL
+LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='GFK' AND d.endet IS NULL
 WHERE NOT o.signaturnummer IS NULL;
 
 -- Weitere Gebäudefunktionsbeschriftungen
