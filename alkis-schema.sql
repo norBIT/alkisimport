@@ -428,7 +428,7 @@ CREATE TABLE ax_georeferenziertegebaeudeadresse (
 	ortsnamepost		varchar,	--
 	zusatzortsname		varchar,	--
 	strassenname		varchar,	--
-	strassenschluessel	integer,	-- max.  5 Stellen
+	strassenschluessel	varchar,	-- max.  5 Stellen
 	hausnummer		varchar,	-- meist 3 Stellen
 	adressierungszusatz	varchar,	-- Hausnummernzusatz-Buchstabe
 
