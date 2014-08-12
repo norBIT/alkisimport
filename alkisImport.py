@@ -575,7 +575,16 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 				self.log(u"Konnte PostgreSQL-Version nicht bestimmen!")
 				break
 
-			self.log( "PostgreSQL-Version: %s" % qry.value(0) )
+			self.log( "Datenbank-Version: %s" % qry.value(0) )
+
+			m = re.search( "PostgreSQL (\d+)\.(\d+)\.", qry.value(0) )
+			if not m:
+				self.log(u"PostgreSQL-Version nicht im erwarteten Format")
+				break
+
+			if int(m.group(1)) < 8 or ( int(m.group(1))==8 and int(m.group(2))<3 ):
+				self.log(u"Mindestens PostgreSQL 8.3 erforderlich")
+				break
 
 			qry = self.db.exec_( "SELECT postgis_version()" )
 			if not qry or not qry.next():
@@ -704,10 +713,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 				if self.cbxCreate.isChecked():
 					self.status( u"Datenbank wird angelegt..." )
 					if not self.runSQLScript( conn, "alkis-schema.sql" ):
-						raise ProcessError(u"Anlegen des Datenbestands schlug fehl.")
-					self.status( u"Kompatibilitätsfunktionen werden importiert..." )
-					if not self.runSQLScript( conn, "alkis-compat.sql" ):
-						raise ProcessError(u"Import der Kompatibilitätsfunktionen schlug fehl.")
+						self.log( u"Anlegen des Datenbestands schlug fehl." )
+						break
 					self.cbxCreate.setChecked( False )
 					self.log( u"Datenbank angelegt." )
 
@@ -854,18 +861,22 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 					self.log( u"Alle NAS-Dateien importiert." )
 
 				if ok:
+					self.status( u"Kompatibilitätsfunktionen werden importiert..." )
+					ok = self.runSQLScript( conn, "alkis-compat.sql" )
+					if ok:
+						self.log( u"Kompatibilitätsfunktionen importiert." )
+
+				if ok:
 					self.status( u"Signaturen werden importiert..." )
 					ok = self.runSQLScript( conn, "alkis-signaturen.sql" )
 					if ok:
-						self.log( "Signaturen importiert." )
-					else:
-						self.log( "Signaturen importiert." )
+						self.log( u"Signaturen importiert." )
 
 				if ok:
 					self.status( u"Ableitungsregeln werden verarbeitet..." )
 					ok = self.runSQLScript( conn, "alkis-ableitungsregeln.sql" )
 					if ok:
-						self.log( "Ableitungsregeln verarbeitet." )
+						self.log( u"Ableitungsregeln verarbeitet." )
 
 				if ok:
 					for f in glob.glob("postprocessing.d/*.sql"):

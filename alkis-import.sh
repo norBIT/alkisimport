@@ -283,9 +283,6 @@ EOF
 		echo "CREATE $(bdate)"
 		pushd "$B/$sql" >/dev/null
 		sql alkis-schema.sql
-		if [ "$DRIVER" = PostgreSQL ]; then
-			[ ! -r alkis-compat.sql ] || sql alkis-compat.sql
-		fi
 		popd >/dev/null
 
 		continue
@@ -498,7 +495,7 @@ fi
 if [ "$src" != "exit" -a "$src" != "error" ]; then
 	pushd "$B" >/dev/null
 
-	for i in alkis-signaturen.sql alkis-ableitungsregeln.sql postprocessing.d/*.sql
+	for i in alkis-compat.sql alkis-signaturen.sql alkis-ableitungsregeln.sql postprocessing.d/*.sql
 	do
 		if [ -r "$i" ]; then
 			echo "SQL RUNNING: $i $(bdate)"
