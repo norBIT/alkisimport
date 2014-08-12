@@ -4643,6 +4643,26 @@ COMMENT ON COLUMN ax_wohnplatz.gml_id IS 'Identifikator, global eindeutig';
 --** Objektartengruppe: Administrative Gebietseinheiten
 --   ===================================================================
 
+-- ax_baublock
+
+
+-- W i r t s c h a f t l i c h e   E i n h e i t
+-- ---------------------------------------------
+CREATE TABLE ax_wirtschaftlicheeinheit (
+	ogc_fid			serial NOT NULL,
+	gml_id			varchar NOT NULL,
+	identifier		varchar,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
+	anlass			varchar,
+	CONSTRAINT ax_wirtschaftlicheeinheit_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('ax_wirtschaftlicheeinheit','dummy',:alkis_epsg,'POINT',2);
+
+COMMENT ON TABLE  ax_wirtschaftlicheeinheit  IS 'W i r t s c h a f t l i c h e   E i n h e i t';
 
 -- K o m m u n a l e s   G e b i e t
 -- ----------------------------------------------
