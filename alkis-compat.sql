@@ -114,8 +114,12 @@ CREATE FUNCTION st_length(geometry) RETURNS float8 AS $$
   SELECT length($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
-CREATE FUNCTION st_force2d(geometry) RETURNS geometry AS $$
+CREATE FUNCTION st_force_2d(geometry) RETURNS geometry AS $$
   SELECT force_2d($1);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
+CREATE FUNCTION st_force2d(geometry) RETURNS geometry AS $$
+  SELECT st_force_2d($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
 CREATE FUNCTION st_srid(geometry) RETURNS integer AS $$
