@@ -669,12 +669,12 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 					item = self.lstFiles.item(i)
 					fn = unicode( item.text() )
 
-					if fn[-4:] == ".xml":
+					if fn[-4:].lower() == ".xml":
 						s = os.path.getsize(fn)
 						sizes[ fn ] = s
 
-					elif fn[-4:] == ".zip":
-						l = -8 if fn[-8:] == ".xml.zip" else -4
+					elif fn[-4:].lower() == ".zip":
+						l = -8 if fn[-8:].lower() == ".xml.zip" else -4
 						self.status( u"%s wird abgefragt..." % fn )
 						app.processEvents()
 
@@ -685,7 +685,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 						s = il[0].file_size
 						sizes[ fn[:l] + ".xml" ] = s
 
-					elif fn[-7:] == ".xml.gz":
+					elif fn[-7:].lower() == ".xml.gz":
 						self.status( u"%s wird abgefragt..." % fn )
 
 						f = gzip.open(fn)
