@@ -17,6 +17,7 @@
 
 \unset ON_ERROR_STOP
 SET application_name='ALKIS-Import - Nutzungen & Klassifizierungen';
+SET client_min_messages TO notice;
 \set ON_ERROR_STOP
 
 CREATE OR REPLACE FUNCTION alkis_intersects(g0 GEOMETRY, g1 GEOMETRY, error TEXT) RETURNS BOOLEAN AS $$

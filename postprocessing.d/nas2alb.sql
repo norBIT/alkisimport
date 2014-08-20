@@ -16,6 +16,7 @@
 
 \unset ON_ERROR_STOP
 SET application_name='ALKIS-Import - Liegenschaftsbuchübernahme';
+SET client_min_messages TO notice;
 \set ON_ERROR_STOP
 
 --

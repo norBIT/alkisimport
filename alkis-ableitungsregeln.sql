@@ -70,6 +70,7 @@ SET client_encoding TO 'UTF8';
 
 \unset ON_ERROR_STOP
 SET application_name='ALKIS-Import - Ableitungsregeln';
+SET client_min_messages TO notice;
 \set ON_ERROR_STOP
 
 \i alkis-wertearten.sql
