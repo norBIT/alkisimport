@@ -409,7 +409,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		lines = r.split("\n")
 
 		if not r.endswith("\n"):
-			lastline = lines.takeLast()
+			lastline = lines.pop()
 		else:
 			lastline = ""
 
