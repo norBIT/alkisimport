@@ -122,7 +122,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		self.lstFiles.addItems( s.value( "files", [] ) or [] )
 		self.cbxSkipFailures.setChecked( s.value( "skipfailures", False, type=bool ) )
 		self.cbFnbruch.setCurrentIndex( 0 if s.value( "fnbruch", True, type=bool ) else 1 )
+		self.cbxUseCopy.setChecked( s.value( "usecopy", False, type=bool ) )
 		self.cbxDebug.setChecked( s.value( "debug", False, type=bool ) )
+		self.cbxCreate.setChecked( False )
 
 		self.cbEPSG.addItem( "UTM32N", "25832")
 		self.cbEPSG.addItem( "UTM33N", "25833")
@@ -530,6 +532,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		s.setValue( "pwd", self.lePWD.text() )
 		s.setValue( "files", files )
 		s.setValue( "skipfailures", self.cbxSkipFailures.isChecked()==True )
+		s.setValue( "usecopy", self.cbxUseCopy.isChecked()==True )
 		s.setValue( "debug", self.cbxDebug.isChecked()==True )
 
 		self.fnbruch = self.cbFnbruch.currentIndex()==0
@@ -810,6 +813,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 					if self.cbxSkipFailures.isChecked():
 						args.append("-skipfailures")
+
+					if self.cbxUseCopy.isChecked():
+						args.extend( ["--config", "PG_USE_COPY", "YES" ] )
 
 					args.append(src)
 
