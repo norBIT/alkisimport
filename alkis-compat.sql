@@ -86,6 +86,10 @@ CREATE FUNCTION st_centroid(geometry) RETURNS geometry AS $$
   SELECT centroid($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
+CREATE FUNCTION st_pointonsurface(geometry) RETURNS geometry AS $$
+  SELECT pointonsurface($1);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
 CREATE FUNCTION st_translate(geometry,float8,float8) RETURNS geometry AS $$
   SELECT translate($1,$2,$3);
 $$ LANGUAGE 'sql' IMMUTABLE;

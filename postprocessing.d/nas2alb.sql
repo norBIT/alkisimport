@@ -91,7 +91,7 @@ INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl
      '01' AS af,
      NULL AS flurknr,
      NULL AS baublock,
-     to_char(st_x(st_centroid(wkb_geometry))*10,'fm00000000')||' '||to_char(st_y(st_centroid(wkb_geometry))*10,'fm00000000') AS flskoord,
+     to_char(st_x(st_pointonsurface(wkb_geometry))*10,'fm00000000')||' '||to_char(st_y(st_pointonsurface(wkb_geometry))*10,'fm00000000') AS flskoord,
      NULL AS fora,
      NULL AS fina,
      NULL AS h1shl,
