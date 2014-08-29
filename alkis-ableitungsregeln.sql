@@ -2682,7 +2682,7 @@ FROM (
 		gml_id,
 		st_multi(wkb_geometry) AS polygon,
 		CASE
-		WHEN coalesce(vegetationsmerkmal,0) IN (0,1100,1101,1012,1013) THEN 25151409
+		WHEN coalesce(vegetationsmerkmal,0) IN (0,1010,1011,1012,1013) THEN 25151409
 		WHEN vegetationsmerkmal IN (1020,1021,1030,1031,1040,1050,1051,1052) THEN 25151406
 		WHEN vegetationsmerkmal=1200 THEN 25151404
 		END AS signaturnummer,
