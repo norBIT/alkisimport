@@ -60,9 +60,12 @@ Links/Rechts:
 
 Länder:
 BW	Baden-Württemberg
+BY	Bayern
 NI	Niedersachsen
 NW	Nordrhein-Westfalen
 RP	Rheinland-Pfalz
+SA	Sachsen-Anhalt
+SN	Sachsen
 TH	Thüringen
 */
 

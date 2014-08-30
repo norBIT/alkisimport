@@ -45,8 +45,8 @@ SET client_min_messages TO notice;
 
 SELECT alkis_dropobject('flurst');
 CREATE TABLE flurst (
-	flsnr character(20) NOT NULL,
-	flsnrk character(9),
+	flsnr varchar NOT NULL,
+	flsnrk varchar,
 	gemashl character(6),
 	flr character(3),
 	entst character(13),
@@ -79,8 +79,8 @@ CREATE TABLE flurst (
 
 INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl,af,flurknr,baublock,flskoord,fora,fina,h1shl,h2shl,hinwshl,strshl,gemshl,hausnr,lagebez,k_anlverm,anl_verm,blbnr,n_flst,ff_entst,ff_stand,ff_datum)
    SELECT
-     to_char(land::int,'fm00') || to_char(gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(flurnummer,0),'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || to_char(coalesce(mod(nenner,1000),0),'fm000') AS flsnr,
-     to_char(zaehler,'fm00000') || '/' || to_char(coalesce(mod(nenner,1000),0),'fm000') AS flsnrk,
+     to_char(land::int,'fm00') || to_char(gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(flurnummer,0),'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(nenner::int,1000),0),'fm000') END END AS flsnr,
+     to_char(zaehler,'fm00000') || '/' || CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(nenner::int,1000),0),'fm000') END AS flsnrk,
      to_char(land::int,'fm00') || to_char(gemarkungsnummer::int,'fm0000') AS gemashl,
      to_char(coalesce(flurnummer,0),'fm000') AS flr,
      substr(zeitpunktderentstehung,1,4)  || '/     -  ' AS entst,
@@ -115,7 +115,7 @@ INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl
      	SELECT *
 	FROM ax_flurstueck b
 	WHERE b.endet IS NULL
-	  AND a.land=b.land AND a.gemarkungsnummer=b.gemarkungsnummer AND coalesce(a.flurnummer,0)=coalesce(b.flurnummer,0) AND a.zaehler=b.zaehler AND coalesce(a.nenner,0)=coalesce(b.nenner,0)
+	  AND a.land=b.land AND a.gemarkungsnummer=b.gemarkungsnummer AND coalesce(a.flurnummer,0)=coalesce(b.flurnummer,0) AND a.zaehler=b.zaehler AND coalesce(a.nenner,'0')=coalesce(b.nenner,'0')
 	  AND b.beginnt<a.beginnt
 	  AND a.ogc_fid<>b.ogc_fid
 	)
@@ -153,7 +153,7 @@ CREATE INDEX str_shl_idx1 ON str_shl(gemshl);
 
 SELECT alkis_dropobject('strassen');
 CREATE TABLE strassen (
-	flsnr character(20),
+	flsnr character(21),
 	pk character(8) NOT NULL,
 	strshl character(32),
 	hausnr character(8),
@@ -174,7 +174,7 @@ INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 		0
 	FROM (
 		SELECT
-			to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
+			to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0),'fm000') END AS flsnr,
 			to_char(l.land::int,'fm00')||l.regierungsbezirk||to_char(l.kreis,'fm00')||to_char(l.gemeinde,'fm000')||'    '||trim(lage) AS strshl,
 			hausnummer AS hausnr
 		FROM ax_lagebezeichnungmithausnummer l
@@ -182,7 +182,7 @@ INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 		WHERE NOT l.lage IS NULL AND l.endet IS NULL
 	UNION
 		SELECT
-			to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
+			to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0),'fm000') END AS flsnr,
 			to_char(l.land::int,'fm00')||l.regierungsbezirk||to_char(l.kreis,'fm00')||to_char(l.gemeinde,'fm000')||'    '||trim(lage) AS strshl,
 			'' AS hausnr
 		FROM ax_lagebezeichnungohnehausnummer l
@@ -234,7 +234,7 @@ CREATE INDEX gema_shl_ag_shl ON gema_shl(ag_shl);
 
 SELECT alkis_dropobject('eignerart');
 CREATE TABLE eignerart (
-	flsnr character(20) NOT NULL,
+	flsnr character(21) NOT NULL,
 	bestdnr character(16) NOT NULL,
 	bvnr character(4) NOT NULL,
 	b character(4),
@@ -249,7 +249,7 @@ CREATE TABLE eignerart (
 
 INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,lkfs)
 	SELECT
-		to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
+		to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0),'fm000') END AS flsnr,
 		to_char(bb.land::int,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		lpad(laufendenummer,4,'0') AS bvnr,
 		buchungsart AS b,
@@ -265,7 +265,7 @@ INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,l
 	WHERE f.endet IS NULL
 	UNION
 	SELECT
-		to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(f.nenner,0),'fm000') AS flsnr,
+		to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0),'fm000') END AS flsnr,
 		to_char(bb.land::int,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		lpad(bs.laufendenummer,4,'0') AS bvnr,
 		bs.buchungsart AS b,
@@ -500,9 +500,9 @@ CREATE TABLE hinw_shl (
 
 SELECT alkis_dropobject('sonderbaurecht');
 CREATE TABLE sonderbaurecht (
-	bestdnr char(16),
-	pk char(8) NOT NULL,
-	lnr char(2),
+	bestdnr character(16),
+	pk character(8) NOT NULL,
+	lnr character(2),
 	text varchar,
 	ff_entst integer,
 	ff_stand integer,
@@ -513,7 +513,7 @@ CREATE INDEX sonderbaurecht_idx1 ON sonderbaurecht(bestdnr);
 
 SELECT alkis_dropobject('klas_3x');
 CREATE TABLE klas_3x (
-	flsnr character(20),
+	flsnr character(21),
 	pk character(8) NOT NULL,
 	klf character(32),
 	fl character(16),
@@ -533,16 +533,16 @@ CREATE INDEX klas_3x_idx2 ON klas_3x(klf);
 
 SELECT alkis_dropobject('kls_shl');
 CREATE TABLE kls_shl (
-	klf CHAR(32) NOT NULL,
-	klf_text CHAR(200),
+	klf character(32) NOT NULL,
+	klf_text character(200),
 	primary key (klf)
 );
 
 SELECT alkis_dropobject('bem_fls');
 CREATE TABLE bem_fls (
-	flsnr CHAR(20) NOT NULL,
-	lnr CHAR(2) NOT NULL,
-	text CHAR(52),
+	flsnr character(21) NOT NULL,
+	lnr character(2) NOT NULL,
+	text character(52),
 	ff_entst INTEGER NOT NULL ,
 	ff_stand INTEGER,
 	primary key (flsnr, lnr)
@@ -551,10 +551,10 @@ CREATE INDEX bem_fls_idx1 ON bem_fls(flsnr);
 
 SELECT alkis_dropobject('erbbaurecht');
 CREATE TABLE erbbaurecht(
-	bestdnr char(16),
-	pk char(8) NOT NULL,
-	lnr char(2),
-	text char(59),
+	bestdnr character(16),
+	pk character(8) NOT NULL,
+	lnr character(2),
+	text character(59),
 	ff_entst integer,
 	ff_stand integer,
 	PRIMARY KEY (pk)
@@ -563,10 +563,10 @@ CREATE INDEX erbbaurecht_idx1 ON erbbaurecht(bestdnr);
 
 SELECT alkis_dropobject('nutz_21');
 CREATE TABLE nutz_21 (
-	flsnr CHAR(20),
-	pk CHAR(8) NOT NULL,
-	nutzsl CHAR(32),
-	fl CHAR(16),
+	flsnr varchar,
+	pk character(8) NOT NULL,
+	nutzsl character(32),
+	fl character(16),
 	gemfl double precision,
 	ff_entst INTEGER,
 	ff_stand INTEGER,
@@ -577,25 +577,25 @@ CREATE INDEX nutz_21_idx2 ON nutz_21(nutzsl);
 
 SELECT alkis_dropobject('nutz_shl');
 CREATE TABLE nutz_shl (
-	nutzshl char(32) NOT NULL,
-	nutzung CHAR(200),
+	nutzshl character(32) NOT NULL,
+	nutzung character(200),
 	primary key (nutzshl)
 );
 CREATE INDEX nutz_shl_idx0 ON nutz_shl(nutzshl);
 
 SELECT alkis_dropobject('verf_shl');
 CREATE TABLE verf_shl (
-	verfshl char(2) NOT NULL,
-	verf_txt char(50),
+	verfshl character(2) NOT NULL,
+	verf_txt character(50),
 	PRIMARY KEY (verfshl)
 );
 CREATE INDEX verf_shl_idx0 ON verf_shl(verfshl);
 
 SELECT alkis_dropobject('vor_flst');
 CREATE TABLE vor_flst(
-	flsnr char(20),
-	pk char(8) NOT NULL,
-	v_flsnr char(20),
+	flsnr varchar,
+	pk character(8) NOT NULL,
+	v_flsnr varchar,
 	ff_entst integer,
 	ff_stand integer,
 	PRIMARY KEY (pk)
@@ -605,16 +605,16 @@ CREATE INDEX vor_flst_idx2 ON vor_flst(v_flsnr);
 
 SELECT alkis_dropobject('best_lkfs');
 CREATE TABLE best_lkfs (
-	bestdnr char(16) NOT NULL,
-	lkfs char(4) NOT NULL,
+	bestdnr character(16) NOT NULL,
+	lkfs character(4) NOT NULL,
 	PRIMARY KEY (bestdnr,lkfs)
 );
 CREATE INDEX best_lkfs_idx0 ON best_lkfs(bestdnr);
 
 SELECT alkis_dropobject('flurst_lkfs');
 CREATE TABLE flurst_lkfs (
-	flsnr char(20) NOT NULL,
-	lkfs char(4) NOT NULL,
+	flsnr varchar NOT NULL,
+	lkfs character(4) NOT NULL,
 	PRIMARY KEY (flsnr,lkfs)
 );
 CREATE INDEX flurst_lkfs_idx0 ON flurst_lkfs(flsnr);
@@ -622,22 +622,22 @@ CREATE INDEX flurst_lkfs_idx0 ON flurst_lkfs(flsnr);
 SELECT alkis_dropobject('fortf');
 CREATE TABLE fortf (
 	ffnr integer NOT NULL,
-	auftragsnr char(9),
-	lkfs char(4),
-	antragsnr char(10),
-	daa char(2),
-	datum char(10),
-	beschreibung char(250),
-	anford char(250),
-	datei char(250),
+	auftragsnr character(9),
+	lkfs character(4),
+	antragsnr character(10),
+	daa character(2),
+	datum character(10),
+	beschreibung character(250),
+	anford character(250),
+	datei character(250),
 	PRIMARY KEY (ffnr)
 );
 INSERT INTO fortf(ffnr,beschreibung) VALUES (1, 'Aus ALKIS übernommen: '||to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"'));
 
 SELECT alkis_dropobject('fina');
 CREATE TABLE fina(
-	fina_nr char(6) NOT NULL,
-	fina_name char(200),
+	fina_nr character(6) NOT NULL,
+	fina_name character(200),
 	PRIMARY KEY (fina_nr)
 );
 CREATE INDEX fina_idx0 ON fina(fina_nr);
@@ -652,7 +652,7 @@ INSERT INTO fs(fs_key,fs_obj,alb_key)
   SELECT
     ogc_fid
     ,gml_id
-    ,to_char(land::int,'fm00') || to_char(gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(flurnummer,0),'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || to_char(coalesce(mod(nenner,1000),0),'fm000')
+    ,to_char(land::int,'fm00') || to_char(gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(flurnummer,0),'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(nenner::int,1000),0),'fm000') END
   FROM ax_flurstueck;
 
 CREATE INDEX fs_obj ON fs(fs_obj);
@@ -660,11 +660,11 @@ CREATE INDEX fs_alb ON fs(alb_key);
 
 SELECT alkis_dropobject('ausfst');
 CREATE TABLE ausfst (
-	flsnr char(20),
-	pk char(8) NOT NULL,
+	flsnr varchar,
+	pk character(8) NOT NULL,
 	ausf_st varchar,
-	verfnr char(6),
-	verfshl char(2),
+	verfnr character(6),
+	verfshl character(2),
 	ff_entst integer,
 	ff_stand integer,
 	primary key (pk)
@@ -675,7 +675,7 @@ CREATE INDEX ausfst_idx2 ON ausfst(ausf_st);
 SELECT alkis_dropobject('afst_shl');
 CREATE TABLE afst_shl (
 	ausf_st varchar NOT NULL,
-	afst_txt char(200),
+	afst_txt character(200),
 	PRIMARY KEY (ausf_st)
 );
 

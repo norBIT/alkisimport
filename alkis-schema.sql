@@ -369,7 +369,7 @@ SELECT AddGeometryColumn('ax_georeferenziertegebaeudeadresse','wkb_geometry',:al
 
 CREATE INDEX ax_georeferenziertegebaeudeadresse_geom_idx ON ax_georeferenziertegebaeudeadresse USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_georeferenziertegebaeudeadresse_gml ON ax_georeferenziertegebaeudeadresse USING btree (gml_id,beginnt);
-CREATE INDEX ax_georeferenziertegebaeudeadresse_adr ON ax_georeferenziertegebaeudeadresse USING btree (strassenschluessel, hausnummer, adressierungszusatz);
+CREATE INDEX ax_georeferenziertegebaeudeadresse_adr ON ax_georeferenziertegebaeudeadresse USING btree (strassenschluessel,hausnummer,adressierungszusatz);
 
 
 
@@ -430,7 +430,7 @@ CREATE TABLE ax_historischesflurstueckalb (
 	gemarkungsnummer				integer,            --
 	flurnummer					integer,               -- Teile des Flurstückskennzeichens
 	zaehler						integer,            --    (redundant zu flurstueckskennzeichen)
-	nenner						integer,         --
+	nenner						varchar,         -- tlw. nicht nummerische Werte in SN
 	flurstuecksfolge				varchar,
 	-- daraus abgeleitet:
 	flurstueckskennzeichen				character(20),         -- Inhalt rechts mit __ auf 20 aufgefüllt
@@ -489,7 +489,7 @@ CREATE TABLE ax_historischesflurstueck (
 	gemarkungsnummer				integer,            --
 	flurnummer					integer,               -- Teile des Flurstückskennzeichens
 	zaehler						integer,            --    (redundant zu flurstueckskennzeichen)
-	nenner						integer,         --
+	nenner					        varchar,         -- tlw. nicht nummerische Werte in SN
 	-- daraus abgeleitet:
 	flurstueckskennzeichen				character(20),			-- Inhalt rechts mit __ auf 20 aufgefüllt
 	amtlicheflaeche					double precision,		-- AFL
@@ -510,7 +510,8 @@ CREATE TABLE ax_historischesflurstueck (
 	buchungsblattkennzeichen			varchar[],
 	bezirk						integer,
 	buchungsblattnummermitbuchstabenerweiterung	varchar[],
-	laufendenummerderbuchungsstelle			integer,
+	laufendenummerderbuchungsstelle			varchar,		-- tlw. nicht nummerische Werte in SN
+
 	CONSTRAINT ax_historischesflurstueck_pk PRIMARY KEY (ogc_fid)
 );
 
@@ -582,7 +583,7 @@ CREATE TABLE ax_schutzgebietnachwasserrecht (
 	land			varchar,
 	stelle			varchar,
 	art			varchar[],
-	name			varchar[],
+	name			varchar,
 	nummerdesschutzgebietes	varchar,
 	CONSTRAINT ax_schutzgebietnachwasserrecht_pk PRIMARY KEY (ogc_fid)
 );
@@ -870,7 +871,7 @@ CREATE TABLE ax_flurstueck (
 	gemarkungsnummer			integer,            --
 	flurnummer				integer,               -- Teile des Flurstückskennzeichens
 	zaehler					integer,            --    (redundant zu flurstueckskennzeichen)
-	nenner					integer,         --
+	nenner					varchar,         -- tlw. nicht nummerische Werte in SN
 	flurstuecksfolge			varchar,
 	-- daraus abgeleitet:
 	flurstueckskennzeichen			character(20),         -- Inhalt rechts mit __ auf 20 aufgefüllt
@@ -891,7 +892,7 @@ CREATE TABLE ax_flurstueck (
 	name					varchar[],
 	regierungsbezirk			integer,
 	kreis					integer,
-	stelle					varchar[],
+	stelle					varchar,
 	angabenzumabschnittflurstueck		varchar[],
 	kennungschluessel			varchar[],
 	flaechedesabschnitts			double precision[],
@@ -1055,7 +1056,7 @@ CREATE TABLE ax_lagebezeichnungmithausnummer (
 SELECT AddGeometryColumn('ax_lagebezeichnungmithausnummer','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_lagebezeichnungmithausnummer_gml ON ax_lagebezeichnungmithausnummer USING btree (gml_id,beginnt);
-CREATE INDEX ax_lagebezeichnungmithausnummer_lage       ON ax_lagebezeichnungmithausnummer USING btree (gemeinde, lage);
+CREATE INDEX ax_lagebezeichnungmithausnummer_lage       ON ax_lagebezeichnungmithausnummer USING btree (gemeinde,lage);
 CREATE INDEX ax_lagebezeichnungmithausnummer_hat        ON ax_lagebezeichnungmithausnummer USING gin (hat);
 CREATE INDEX ax_lagebezeichnungmithausnummer_bsa        ON ax_lagebezeichnungmithausnummer USING btree (beziehtsichauf);
 CREATE INDEX ax_lagebezeichnungmithausnummer_bsaa       ON ax_lagebezeichnungmithausnummer USING btree (beziehtsichauchauf);
@@ -1119,7 +1120,7 @@ CREATE TABLE ax_aufnahmepunkt (
 	sonstigeeigenschaft	varchar[],
 	vermarkung_marke	integer,
 	relativehoehe		double precision,
-	
+
 	-- Beziehung
 	hat			varchar[],
 
@@ -1437,7 +1438,7 @@ CREATE TABLE ax_historischesflurstueckohneraumbezug (
 	gemarkungsnummer			integer,            --
 	flurnummer				integer,               -- Teile des Flurstückskennzeichens
 	zaehler					integer,            --    (redundant zu flurstueckskennzeichen)
-	nenner					integer,         --
+	nenner					varchar,         -- tlw. nicht nummerische Werte in SN
 	-- daraus abgeleitet:
 	flurstueckskennzeichen			character(20),         -- Inhalt rechts mit __ auf 20 aufgefüllt
 	amtlicheflaeche				double precision,      -- AFL
@@ -1642,7 +1643,7 @@ CREATE TABLE ax_buchungsblatt (
 SELECT AddGeometryColumn('ax_buchungsblatt','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_buchungsblatt_gml ON ax_buchungsblatt USING btree (gml_id,beginnt);
-CREATE INDEX ax_buchungsblatt_lbb ON ax_buchungsblatt USING btree (land, bezirk, buchungsblattnummermitbuchstabenerweiterung);
+CREATE INDEX ax_buchungsblatt_lbb ON ax_buchungsblatt USING btree (land,bezirk,buchungsblattnummermitbuchstabenerweiterung);
 CREATE INDEX ax_buchungsblatt_bsa ON ax_buchungsblatt USING gin (bestehtaus);
 
 
@@ -3792,7 +3793,7 @@ CREATE TABLE ax_gemarkung (
 SELECT AddGeometryColumn('ax_gemarkung','dummy',:alkis_epsg,'POINT',2);
 
 CREATE UNIQUE INDEX ax_gemarkung_gml ON ax_gemarkung USING btree (gml_id,beginnt);         -- Index für alkis_beziehungen
-CREATE INDEX ax_gemarkung_nr         ON ax_gemarkung USING btree (land, gemarkungsnummer); -- Such-Index, Verweis aus ax_Flurstueck
+CREATE INDEX ax_gemarkung_nr         ON ax_gemarkung USING btree (land,gemarkungsnummer); -- Such-Index, Verweis aus ax_Flurstueck
 
 
 
@@ -3849,7 +3850,7 @@ SELECT AddGeometryColumn('ax_buchungsblattbezirk','dummy',:alkis_epsg,'POINT',2)
 CREATE UNIQUE INDEX ax_buchungsblattbezirk_gml ON ax_buchungsblattbezirk USING btree (gml_id,beginnt);
 CREATE INDEX ax_buchungsblattbez_ghz ON ax_buchungsblattbezirk USING btree (gehoertzu);
 
-CREATE INDEX ax_buchungsblattbez_key ON ax_buchungsblattbezirk USING btree (land, bezirk);
+CREATE INDEX ax_buchungsblattbez_key ON ax_buchungsblattbezirk USING btree (land,bezirk);
 
 
 
@@ -3909,7 +3910,7 @@ CREATE UNIQUE INDEX ax_lagebezeichnungkatalogeintrag_gml ON ax_lagebezeichnungka
 
 -- NRW: Nummerierung Strassenschluessel innerhalb einer Gemeinde
 -- Die Kombination Gemeinde und Straßenschlüssel ist also ein eindeutiges Suchkriterium.
-CREATE INDEX ax_lagebezeichnungkatalogeintrag_lage ON ax_lagebezeichnungkatalogeintrag USING btree (gemeinde, lage);
+CREATE INDEX ax_lagebezeichnungkatalogeintrag_lage ON ax_lagebezeichnungkatalogeintrag USING btree (gemeinde,lage);
 
 -- Suchindex (Verwendung in Navigations-Programm)
 CREATE INDEX ax_lagebezeichnungkatalogeintrag_gesa ON ax_lagebezeichnungkatalogeintrag USING btree (schluesselgesamt);
