@@ -473,10 +473,10 @@ BEGIN
 	IF n=0 AND alt_id<>NEW.featureid THEN
 		s   := 'UPDATE ' || NEW.typename
 		    || ' SET endet=''' || endete || ''''
-	            || ',anlass=''' || coalesce(NEW.anlass,'000000') || ''''
-	            || ' WHERE gml_id=''' || alt_id || ''''
-	            || ' AND beginnt=''' || beginnt || ''''
-	            || ' AND endet IS NULL';
+		    || ',anlass=''' || coalesce(NEW.anlass,'000000') || ''''
+		    || ' WHERE gml_id=''' || alt_id || ''''
+		    || ' AND beginnt=''' || beginnt || ''''
+		    || ' AND endet IS NULL';
 		EXECUTE s;
 		GET DIAGNOSTICS n = ROW_COUNT;
 	END IF;
@@ -512,82 +512,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- Löschsatz verarbeiten (OHNE Historie)
--- historische Objekte werden sofort gelöscht.
--- Siehe Mail W. Jacobs vom 23.03.2012 in PostNAS-Mailingliste
--- geaendert krz FJ 2012-10-31
-CREATE OR REPLACE FUNCTION delete_feature_kill() RETURNS TRIGGER AS $$
-DECLARE
-	query TEXT;
-	begsql TEXT;
-	aktbeg TEXT;
-	gml_id TEXT;
-BEGIN
-	NEW.typename := lower(NEW.typename);
-	NEW.context := lower(NEW.context);
-	gml_id      := substr(NEW.featureid, 1, 16);
-
-	IF NEW.context IS NULL THEN
-		NEW.context := 'delete';
-	END IF;
-
-	IF NEW.context='delete' THEN
-		-- ersatzloses Loeschen eines Objektes
-
-		query := 'DELETE FROM ' || NEW.typename
-			|| ' WHERE gml_id = ''' || gml_id || '''';
-		EXECUTE query;
-
-		query := 'DELETE FROM alkis_beziehungen WHERE beziehung_von = ''' || gml_id
-			|| ''' OR beziehung_zu = ''' || gml_id || '''';
-		EXECUTE query;
-		RAISE NOTICE 'Lösche gml_id % in % und Beziehungen', gml_id, NEW.typename;
-
-	ELSE
-		-- Ersetzen eines Objektes
-		-- In der objekt-Tabelle sind bereits 2 Objekte vorhanden (alt und neu).
-		-- Die 2 Datensätze unterscheiden sich nur in ogc_fid und beginnt
-
-		-- beginnt-Wert des aktuellen Objektes ermitteln
-		-- RAISE NOTICE 'Suche beginnt von neuem gml_id % ', substr(NEW.replacedBy, 1, 16);
-		begsql := 'SELECT max(beginnt) FROM ' || NEW.typename || ' WHERE gml_id = ''' || substr(NEW.replacedBy, 1, 16) || ''' AND endet IS NULL';
-		EXECUTE begsql INTO aktbeg;
-
-		-- Nur alte Objekte entfernen
-		query := 'DELETE FROM ' || NEW.typename
-			|| ' WHERE gml_id = ''' || gml_id || ''' AND beginnt < ''' || aktbeg || '''';
-		EXECUTE query;
-
-		-- Tabelle alkis_beziehungen
-		IF gml_id = substr(NEW.replacedBy, 1, 16) THEN -- gml_id gleich
-			-- Beziehungen des Objektes wurden redundant noch einmal eingetragen
-			-- ToDo:         HIER sofort die Redundanzen zum aktuellen Objekt beseitigen.
-			-- Workaround: Nach der Konvertierung werden im Post-Processing
-			--             ALLE Redundanzen mit einem SQL-Statemant beseitigt.
-		--	RAISE NOTICE 'Ersetze gleiche gml_id % in %', gml_id, NEW.typename;
-
-		-- ENTWURF ungetestet:
-		--query := 'DELETE FROM alkis_beziehungen AS bezalt
-		--	WHERE (bezalt.beziehung_von = ' || gml_id || ' OR bezalt.beziehung_zu = ' || gml_id ||')
-		--	AND EXISTS (SELECT ogc_fid FROM alkis_beziehungen AS bezneu
-		--		WHERE bezalt.beziehung_von = bezneu.beziehung_von
-		--		AND bezalt.beziehung_zu = bezneu.beziehung_zu
-		--		AND bezalt.beziehungsart = bezneu.beziehungsart
-		--		AND bezalt.ogc_fid < bezneu.ogc_fid);'
-		--EXECUTE query;
-
-		ELSE
-			-- replace mit ungleicher gml_id
-			-- Falls dies vorkommt, die Function erweitern
-			RAISE EXCEPTION '%: neue gml_id % bei Replace in %. alkis_beziehungen muss aktualisiert werden!', gml_id, NEW.replacedBy, NEW.typename;
-		END IF;
-	END IF;
-
-	NEW.ignored := false;
-	RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
 -- Beziehungssätze aufräumen
 CREATE OR REPLACE FUNCTION alkis_beziehung_inserted() RETURNS TRIGGER AS $$
 BEGIN
@@ -617,5 +541,76 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION alkis_exception() RETURNS void AS $$
 BEGIN
 	RAISE EXCEPTION 'raising deliberate exception';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION alkis_set_comments() RETURNS void AS $$
+DECLARE
+	c RECORD;
+BEGIN
+	IF version() LIKE 'PostgreSQL 8.3.%' THEN
+		-- 8.3 hatte noch keine CTE
+		RAISE NOTICE 'Keine Datenbankkommentare bei PostgreSQL 8.3';
+		RETURN;
+	END IF;
+
+	FOR c IN
+		SELECT table_name,definition,replace(table_type,'BASE TABLE','TABLE') AS table_type
+		FROM alkis_elemente
+		JOIN information_schema.tables ON lower(name)=table_name
+		WHERE table_type IN ('BASE TABLE','VIEW') AND NOT definition IS NULL
+	LOOP
+		EXECUTE 'COMMENT ON '||c.table_type||' "'||c.table_name||'" IS '''||replace(c.definition,'''','''''')||'''';
+	END LOOP;
+
+	FOR c IN
+		SELECT table_name,column_name
+		FROM alkis_elemente
+		JOIN information_schema.columns ON lower(name)=table_name AND 'gml_id'=column_name
+	LOOP
+		EXECUTE 'COMMENT ON COLUMN '||c.table_name||'.gml_id IS ''Identifikator, global eindeutig''';
+	END LOOP;
+
+
+	FOR c IN
+		WITH RECURSIVE
+			element(name,base) AS (
+				SELECT name,unnest(name||abgeleitet_aus) AS base
+				FROM alkis_elemente
+			UNION
+				SELECT a.name,unnest(b.abgeleitet_aus) AS base
+				FROM element a
+				JOIN alkis_elemente b ON a.base=b.name
+			),
+			typ(element,bezeichnung,datentyp,kardinalitaet,kennung,definition) AS (
+				SELECT element,bezeichnung,datentyp,kardinalitaet,kennung,definition FROM alkis_attributart
+				UNION
+				SELECT b.element,a.bezeichnung,a.datentyp,a.kardinalitaet,a.kennung,a.definition FROM alkis_attributart a JOIN typ b ON a.element=lower(b.datentyp)
+                                -- FIXME: kommen unterschiedliche Kardinalitäten bei Element und Attribut vor?
+		        )
+		SELECT col.table_name,col.column_name,a.definition,a.datentyp,a.kardinalitaet,a.kennung
+		FROM element t
+		JOIN typ a ON t.base=a.element
+		JOIN information_schema.columns col ON lower(t.name)=col.table_name AND lower(a.bezeichnung)=col.column_name
+		WHERE NOT a.definition IS NULL
+	LOOP
+		EXECUTE 'COMMENT ON COLUMN "'||c.table_name||'"."'||c.column_name||'" IS '''||c.kennung||'['||c.datentyp||CASE WHEN c.kardinalitaet='1' THEN '' ELSE ' '||c.kardinalitaet END||'] '||replace(c.definition,'''','''''')||'''';
+	END LOOP;
+
+	FOR c IN
+		SELECT table_name,column_name,zielobjektart,kardinalitaet,anmerkung
+		FROM alkis_relationsart
+		JOIN information_schema.columns ON lower(element)=table_name AND lower(bezeichnung)=column_name
+		WHERE NOT anmerkung IS NULL
+	LOOP
+		EXECUTE 'COMMENT ON COLUMN "'||c.table_name||'"."'||c.column_name||'" IS ''Beziehung zu '||c.zielobjektart||' ('||c.kardinalitaet||'): '||replace(c.anmerkung,'''','''''')||'''';
+	END LOOP;
+
+	FOR c IN
+		SELECT table_name,column_name,bezeichnung,element,kardinalitaet FROM alkis_relationsart
+		JOIN information_schema.columns ON lower(zielobjektart)=table_name AND lower(inv__relation)=column_name
+	LOOP
+		EXECUTE 'COMMENT ON COLUMN "'||c.table_name||'"."'||c.column_name||'" IS ''Inverse Beziehung zu '||c.element||'.'||c.bezeichnung||'.''';
+	END LOOP;
 END;
 $$ LANGUAGE plpgsql;
