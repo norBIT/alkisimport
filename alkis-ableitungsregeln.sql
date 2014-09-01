@@ -76,8 +76,6 @@ SET application_name='ALKIS-Import - Ableitungsregeln';
 SET client_min_messages TO notice;
 \set ON_ERROR_STOP
 
-\i alkis-wertearten.sql
-
 SELECT 'Koordinatensystem: ' || :alkis_epsg;
 -- SELECT 'Aktive Modelle: ' || array_to_string(:alkis_modelle,', ');
 

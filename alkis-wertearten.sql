@@ -19,10 +19,10 @@
 --
 \set ON_ERROR_STOP
 BEGIN;
-SELECT alkis_dropobject('alkis_relationsart');
-SELECT alkis_dropobject('alkis_attributart');
-SELECT alkis_dropobject('alkis_wertearten');
 SELECT alkis_dropobject('alkis_methode');
+SELECT alkis_dropobject('alkis_wertearten');
+SELECT alkis_dropobject('alkis_attributart');
+SELECT alkis_dropobject('alkis_relationsart');
 SELECT alkis_dropobject('alkis_elemente');
 CREATE TABLE alkis_elemente(objekttyp varchar,abgeleitet_aus varchar[],erfassungskriterien text,lebenszeitintervall text,konsistenzbedingungen text,bildungsregeln text,definition text,name varchar,modellart varchar,grunddatenbestand varchar,type varchar,kennung varchar,PRIMARY KEY (name));
 CREATE TABLE alkis_relationsart(definition varchar,grunddatenbestand varchar,zielobjektart varchar,inv__relation varchar,Kennung varchar,anmerkung varchar,bezeichnung varchar not null,modellart varchar,kardinalitaet varchar,element varchar NOT NULL,PRIMARY KEY (element,kennung,bezeichnung),FOREIGN KEY (element) REFERENCES alkis_elemente(name));

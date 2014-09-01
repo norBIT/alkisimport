@@ -16,8 +16,15 @@
 ^OGR: OGROpen\(PG:.*\) succeeded as PostgreSQL\.\s*$
 ^GDAL: In GDALDestroy - unloading GDAL shared library\.\s*$
 ^psql:.*: (NOTICE|HINWEIS):  (function|Funktion) (alkis_drop\(\)|alkis_dropobject\(text\)|alkis_delete\(\)|alkis_mviews\(\)|alkis_update_schema\(\)) (does not exist, skipping|existiert nicht, wird \S+bersprungen)$
-^PL\/pgSQL function alkis_dropobject\(text\) line \d+ at EXECUTE statement
 ^psql:.*: (NOTICE|HINWEIS):  Dropping (table|view|sequence) 
+^psql:.*: (NOTICE|HINWEIS):  gserialized_gist_joinsel: jointype 4 not supported\s*$
+psql:alkis-functions.sql:612: ERROR:  syntax error at or near "WITH RECURSIVE"\s*$
+^(LINE 1|QUERY):\s+WITH RECURSIVE element\(name,base\) AS 
+psql:alkis-functions.sql:612: ERROR:  syntax error at or near "WITH RECURSIVE"\r
+^\s+\^\s*$
+^CONTEXT:  SQL statement in PL\/PgSQL function "alkis_set_comments" near line \d+\s*$
+^PL\/pgSQL function alkis_dropobject\(text\) line \d+ at EXECUTE statement
+^PL\/pgSQL-Funktion alkis_dropobject\(text\) Zeile \d+ bei EXECUTE-Anweisung
 ^.*: (NOTICE|HINWEIS):  CREATE TABLE
 ^NOTICE:  CREATE TABLE
 .*drop cascades to 
@@ -30,7 +37,7 @@
 ^psql:alkis-compat.sql:.*: ERROR:  function combine_bbox\(box2d, geometry\) does not exist\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Berechtigung nur f\S+r Eigent\S+mer der Funktion st_dump\s*$
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*gel\S+scht\..*$
-^\s+(addgeometrycolumn|alkis_drop|alkis_dropobject|alkis_create_bsrs|version|postgis_version|\?column\?)\s*$
+^\s+(addgeometrycolumn|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_besondereflurstuecksgrenze|version|postgis_version|\?column\?)\s*$
 ^-+\s*$
 ^\s+public\..*\.(wkb_geometry|dummy) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$
 ^\s+public\.ax_punktortau\.wkb_geometry SRID:\d+ TYPE:POINT DIMS:3\+?\s*$

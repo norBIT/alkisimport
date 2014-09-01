@@ -4114,7 +4114,7 @@ CREATE TABLE ax_verwaltung (
 
 SELECT AddGeometryColumn('ax_verwaltung','dummy',:alkis_epsg,'POINT',2);
 
-
+\i alkis-wertearten.sql
 SELECT alkis_set_comments();
 
 

@@ -45,6 +45,8 @@ BEGIN
 			EXECUTE 'DROP SEQUENCE ' || c.relname;
 		ELSIF c.relkind <> 'i' THEN
 			r := r || d || 'Typ ' || c.table_type || '.' || c.table_name || ' unerwartet.';
+		ELSE
+			CONTINUE;
 		END IF;
 		d := E'\n';
 	END LOOP;
@@ -544,16 +546,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+\unset ON_ERROR_STOP
+CREATE OR REPLACE FUNCTION alkis_set_comments() RETURNS void AS $$
+BEGIN
+	-- 8.3 hatte noch keine CTE
+	RAISE NOTICE 'Keine Datenbankkommentare bei PostgreSQL 8.3';
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION alkis_set_comments() RETURNS void AS $$
 DECLARE
 	c RECORD;
 BEGIN
-	IF version() LIKE 'PostgreSQL 8.3.%' THEN
-		-- 8.3 hatte noch keine CTE
-		RAISE NOTICE 'Keine Datenbankkommentare bei PostgreSQL 8.3';
-		RETURN;
-	END IF;
-
 	FOR c IN
 		SELECT table_name,definition,replace(table_type,'BASE TABLE','TABLE') AS table_type
 		FROM alkis_elemente
@@ -570,7 +574,6 @@ BEGIN
 	LOOP
 		EXECUTE 'COMMENT ON COLUMN '||c.table_name||'.gml_id IS ''Identifikator, global eindeutig''';
 	END LOOP;
-
 
 	FOR c IN
 		WITH RECURSIVE
@@ -614,3 +617,5 @@ BEGIN
 	END LOOP;
 END;
 $$ LANGUAGE plpgsql;
+
+\set ON_ERROR_STOP
