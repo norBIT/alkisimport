@@ -7441,14 +7441,14 @@ UPDATE po_labels
 				CASE
 				WHEN art = 'Arial' AND effekt IS NULL AND coalesce(fontsperrung,0)=0 THEN
 					CASE
-					WHEN sperrung_pt IS NULL THEN
-						CASE
-						WHEN stil='Normal' THEN 'arial'
-						WHEN stil='Kursiv' THEN 'arial-italic'
-						WHEN stil='Fett' THEN 'arial-bold'
-						WHEN stil='Fett, Kursiv' THEN 'arial-bold-italic'
-						END
-					WHEN sperrung_pt=10 THEN 'arial-spaced-10'
+					WHEN stil='Normal' THEN 'arial'
+					WHEN stil='Kursiv' THEN 'arial-italic'
+					WHEN stil='Fett' THEN 'arial-bold'
+					WHEN stil='Fett, Kursiv' THEN 'arial-bold-italic'
+					END ||
+					CASE
+					WHEN sperrung_pt=10 THEN '-10'
+					ELSE ''
 					END
 				END
 			FROM alkis_schriften
