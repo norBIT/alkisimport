@@ -7432,24 +7432,24 @@ UPDATE po_points SET drehwinkel_grad=degrees(drehwinkel);
 
 -- Winkel in Grad und Ausrichtung belegen
 UPDATE po_labels SET skalierung=1 WHERE skalierung IS NULL;
+UPDATE po_labels SET fontsperrung=coalesce((SELECT sperrung_pt*0.25 FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),0) WHERE fontsperrung IS NULL;
 UPDATE po_labels
 	SET
 		drehwinkel_grad=degrees(drehwinkel),
 		color_umn=(SELECT alkis_farben.umn FROM alkis_farben JOIN alkis_schriften ON alkis_schriften.farbe=alkis_farben.id WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),
-		font_umn=coalesce((
-			SELECT
+		font_umn=coalesce(
+			(SELECT
+				lower(art) ||
+				coalesce('-'||effekt,'') ||
 				CASE
-				WHEN art = 'Arial' AND effekt IS NULL AND coalesce(fontsperrung,0)=0 THEN
-					CASE
-					WHEN stil='Normal' THEN 'arial'
-					WHEN stil='Kursiv' THEN 'arial-italic'
-					WHEN stil='Fett' THEN 'arial-bold'
-					WHEN stil='Fett, Kursiv' THEN 'arial-bold-italic'
-					END ||
-					CASE
-					WHEN sperrung_pt=10 THEN '-10'
-					ELSE ''
-					END
+				WHEN stil='Kursiv' THEN '-italic'
+				WHEN stil='Fett' THEN '-bold'
+				WHEN stil='Fett, Kursiv' THEN '-bold-italic'
+				ELSE ''
+				END ||
+				CASE
+				WHEN fontsperrung=0 THEN ''
+				ELSE '-'||(fontsperrung/0.25)::int
 				END
 			FROM alkis_schriften
 			WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer
@@ -7479,6 +7479,15 @@ UPDATE po_labels
 			(SELECT alignment_dxf FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer)
 		),
 		darstellungsprioritaet=(SELECT darstellungsprioritaet FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer);
+
+SELECT
+  font_umn AS "Schriftart"
+  ,count(*) AS "Anzahl"
+  ,CASE WHEN font_umn IN ('arial', 'arial-bold', 'arial-bold-italic', 'arial-italic', 'arial-10', 'arial-bold-10', 'arial-bold-italic-10', 'arial-italic-10') THEN 'Ja' ELSE 'Nein' END AS "unterstützt"
+FROM po_labels
+GROUP BY font_umn
+ORDER BY count(*) DESC;
+
 
 -- Pfeilspitzen
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
