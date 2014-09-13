@@ -288,6 +288,20 @@ EOF
 		continue
 		;;
 
+	update)
+		if [ -z "$DB" ]; then
+			echo "$P: Keine Datenbankverbindungsdaten angegeben" >&2
+			exit 1
+		fi
+
+		echo "UPDATE $(bdate)"
+		pushd "$B/$sql" >/dev/null
+		sql alkis-update.sql
+		popd >/dev/null
+
+		continue
+		;;
+
 	"gdb")
 		if [ -n "$log" ]; then
 			echo "$P: gdb und log schließen sich aus" >&2

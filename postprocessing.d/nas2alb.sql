@@ -79,10 +79,10 @@ CREATE TABLE flurst (
 
 INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl,af,flurknr,baublock,flskoord,fora,fina,h1shl,h2shl,hinwshl,strshl,gemshl,hausnr,lagebez,k_anlverm,anl_verm,blbnr,n_flst,ff_entst,ff_stand,ff_datum)
    SELECT
-     to_char(land::int,'fm00') || to_char(gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(flurnummer,0),'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(nenner::int,1000),0),'fm000') END END AS flsnr,
-     to_char(zaehler,'fm00000') || '/' || CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(nenner::int,1000),0),'fm000') END AS flsnrk,
+     to_char(land::int,'fm00') || to_char(gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(flurnummer,0)::int,'fm000') || '-' || to_char(zaehler::int,'fm00000') || '/' || CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(nenner::int,1000),0)::int,'fm000') END END AS flsnr,
+     to_char(zaehler::int,'fm00000') || '/' || CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(nenner::int,1000),0)::int,'fm000') END AS flsnrk,
      to_char(land::int,'fm00') || to_char(gemarkungsnummer::int,'fm0000') AS gemashl,
-     to_char(coalesce(flurnummer,0),'fm000') AS flr,
+     to_char(coalesce(flurnummer,0)::int,'fm000') AS flr,
      substr(zeitpunktderentstehung,1,4)  || '/     -  ' AS entst,
      NULL AS fortf,
      amtlicheflaeche::int AS flsfl,
@@ -91,14 +91,14 @@ INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl
      '01' AS af,
      NULL AS flurknr,
      NULL AS baublock,
-     to_char(st_x(st_pointonsurface(wkb_geometry))*10,'fm00000000')||' '||to_char(st_y(st_pointonsurface(wkb_geometry))*10,'fm00000000') AS flskoord,
+     to_char(st_x(st_pointonsurface(wkb_geometry))*10::int,'fm00000000')||' '||to_char(st_y(st_pointonsurface(wkb_geometry))*10::int,'fm00000000') AS flskoord,
      NULL AS fora,
      NULL AS fina,
      NULL AS h1shl,
      NULL AS h2shl,
      NULL AS hinwshl,
      NULL AS strshl,
-     to_char(land::int,'fm00')||regierungsbezirk||to_char(kreis,'fm00')||to_char(gemeinde,'fm000') AS gemshl,
+     to_char(land::int,'fm00')||regierungsbezirk||to_char(kreis::int,'fm00')||to_char(gemeinde::int,'fm000') AS gemshl,
      NULL AS hausnr,
      NULL AS lagebez,
      NULL AS k_anlverm,
@@ -140,9 +140,9 @@ CREATE TABLE str_shl (
 
 INSERT INTO str_shl(strshl,strname,gemshl)
 	SELECT DISTINCT
-		to_char(land::int,'fm00')||regierungsbezirk||to_char(kreis,'fm00')||to_char(gemeinde,'fm000')||'    '||trim(lage) AS strshl,
+		to_char(land::int,'fm00')||regierungsbezirk||to_char(kreis::int,'fm00')||to_char(gemeinde::int,'fm000')||'    '||trim(lage) AS strshl,
 		regexp_replace(bezeichnung,' H$','') AS strname,	-- RP: Historische Straßennamen mit H am Ende
-		to_char(land::int,'fm00')||regierungsbezirk||to_char(kreis,'fm00')||to_char(gemeinde,'fm000') AS gemshl
+		to_char(land::int,'fm00')||regierungsbezirk||to_char(kreis::int,'fm00')||to_char(gemeinde::int,'fm000') AS gemshl
 	FROM ax_lagebezeichnungkatalogeintrag a
 	WHERE endet IS NULL
 	  -- Nur nötig, weil Kataloge nicht vernünfigt geführt werden und doppelte Einträge vorkommen
@@ -174,16 +174,16 @@ INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 		0
 	FROM (
 		SELECT
-			to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0),'fm000') END AS flsnr,
-			to_char(l.land::int,'fm00')||l.regierungsbezirk||to_char(l.kreis,'fm00')||to_char(l.gemeinde,'fm000')||'    '||trim(lage) AS strshl,
+			to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0)::int,'fm000') || '-' || to_char(f.zaehler::int,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0)::int,'fm000') END AS flsnr,
+			to_char(l.land::int,'fm00')||l.regierungsbezirk||to_char(l.kreis::int,'fm00')||to_char(l.gemeinde::int,'fm000')||'    '||trim(lage) AS strshl,
 			hausnummer AS hausnr
 		FROM ax_lagebezeichnungmithausnummer l
 		JOIN ax_flurstueck f ON ARRAY[l.gml_id] <@ f.weistauf AND f.endet IS NULL
 		WHERE NOT l.lage IS NULL AND l.endet IS NULL
 	UNION
 		SELECT
-			to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0),'fm000') END AS flsnr,
-			to_char(l.land::int,'fm00')||l.regierungsbezirk||to_char(l.kreis,'fm00')||to_char(l.gemeinde,'fm000')||'    '||trim(lage) AS strshl,
+			to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0)::int,'fm000') || '-' || to_char(f.zaehler::int,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0)::int,'fm000') END AS flsnr,
+			to_char(l.land::int,'fm00')||l.regierungsbezirk||to_char(l.kreis::int,'fm00')||to_char(l.gemeinde::int,'fm000')||'    '||trim(lage) AS strshl,
 			'' AS hausnr
 		FROM ax_lagebezeichnungohnehausnummer l
 		JOIN ax_flurstueck f ON ARRAY[l.gml_id] <@ f.zeigtauf AND f.endet IS NULL
@@ -204,11 +204,11 @@ CREATE TABLE gem_shl (
 
 INSERT INTO gem_shl(gemshl,gemname)
 	SELECT
-		to_char(schluesselgesamt,'fm00000000') AS gemshl,
+		to_char(schluesselgesamt::int,'fm00000000') AS gemshl,
 		min(bezeichnung) AS gemname
 	FROM ax_gemeinde a
 	WHERE endet IS NULL
-	GROUP BY to_char(schluesselgesamt,'fm00000000');
+	GROUP BY to_char(schluesselgesamt::int,'fm00000000');
 
 CREATE INDEX gem_shl_idx0 ON gem_shl(gemshl);
 
@@ -249,8 +249,8 @@ CREATE TABLE eignerart (
 
 INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,lkfs)
 	SELECT
-		to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0),'fm000') END AS flsnr,
-		to_char(bb.land::int,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
+		to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0)::int,'fm000') || '-' || to_char(f.zaehler::int,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0)::int,'fm000') END AS flsnr,
+		to_char(bb.land::int,'fm00') || to_char(bb.bezirk::int,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		lpad(laufendenummer,4,'0') AS bvnr,
 		buchungsart AS b,
 		coalesce(bs.zaehler || '/' || bs.nenner,bs.zaehler::text) AS anteil,
@@ -265,8 +265,8 @@ INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,l
 	WHERE f.endet IS NULL
 	UNION
 	SELECT
-		to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0),'fm000') || '-' || to_char(f.zaehler,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0),'fm000') END AS flsnr,
-		to_char(bb.land::int,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
+		to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0)::int,'fm000') || '-' || to_char(f.zaehler::int,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0)::int,'fm000') END AS flsnr,
+		to_char(bb.land::int,'fm00') || to_char(bb.bezirk::int,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		lpad(bs.laufendenummer,4,'0') AS bvnr,
 		bs.buchungsart AS b,
 		coalesce(bs.zaehler || '/' || bs.nenner, bs.zaehler::text) AS anteil,
@@ -309,7 +309,7 @@ CREATE SEQUENCE bem_best_pk_seq;
 
 INSERT INTO bem_best(bestdnr,pk,lnr,text,ff_entst,ff_stand)
 	SELECT
-		to_char(bb.land::int,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
+		to_char(bb.land::int,'fm00') || to_char(bb.bezirk::int,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		to_hex(nextval('bem_best_pk_seq'::regclass)) AS pk,
 		laufendenummer AS lnr,
 		beschreibungdessondereigentums AS text,
@@ -339,9 +339,9 @@ CREATE INDEX bestand_ff_stand ON bestand(ff_stand);
 
 INSERT INTO bestand(bestdnr,gbbz,gbblnr,anteil,auftlnr,bestfl,ff_entst,ff_stand,pz)
 	SELECT
-		to_char(land::int,'fm00') || to_char(bezirk,'fm0000') || '-' || trim(buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
-		to_char(bezirk,'fm0000') AS gbbz,
-		to_char(to_number(buchungsblattnummermitbuchstabenerweiterung,'000000'),'fm000000') AS gbblnr,
+		to_char(land::int,'fm00') || to_char(bezirk::int,'fm0000') || '-' || trim(buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
+		to_char(bezirk::int,'fm0000') AS gbbz,
+		to_char(to_number(buchungsblattnummermitbuchstabenerweiterung,'000000')::int,'fm000000') AS gbblnr,
 		NULL AS anteil,
 		NULL AS auftrlnr,
 		NULL AS bestfl,
@@ -403,7 +403,7 @@ CREATE SEQUENCE eigner_pk_seq;
 
 INSERT INTO eigner(bestdnr,pk,ab,namensnr,ea,antverh,name,name1,name2,name3,name4,name5,name6,name7,name8,anrede,vorname,nachname,namensteile,ak_grade,geb_name,geb_datum,str_hnr,plz_pf,postfach,plz,ort,land,ff_entst,ff_stand)
 	SELECT
-		to_char(bb.land::int,'fm00') || to_char(bb.bezirk,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
+		to_char(bb.land::int,'fm00') || to_char(bb.bezirk::int,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		to_hex(nextval('eigner_pk_seq'::regclass)) AS pk,
 		NULL AS ab,
 		laufendenummernachdin1421 AS namensnr,
@@ -413,7 +413,7 @@ INSERT INTO eigner(bestdnr,pk,ab,namensnr,ea,antverh,name,name1,name2,name3,name
 		coalesce( p.nachnameoderfirma || coalesce(', ' || p.vorname, ''), '(' || (SELECT v FROM alkis_wertearten WHERE element='ax_namensnummer' AND bezeichnung='artderrechtsgemeinschaft' AND k=artderrechtsgemeinschaft::varchar) || ')', '(Verschiedene)' ) AS name1,
 		coalesce('geb. '||p.geburtsname||', ','') || '* ' || p.geburtsdatum AS name2,
 		an.strasse || coalesce(' ' || an.hausnummer,'') AS name3,
-		an.postleitzahlpostzustellung||' '||an.ort_post AS name4,
+		coalesce(an.postleitzahlpostzustellung||' ','')||an.ort_post AS name4,
 		bestimmungsland AS name5,
 		NULL AS name6,
 		NULL AS name7,
@@ -652,7 +652,7 @@ INSERT INTO fs(fs_key,fs_obj,alb_key)
   SELECT
     ogc_fid
     ,gml_id
-    ,to_char(land::int,'fm00') || to_char(gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(flurnummer,0),'fm000') || '-' || to_char(zaehler,'fm00000') || '/' || CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(nenner::int,1000),0),'fm000') END
+    ,to_char(land::int,'fm00') || to_char(gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(flurnummer,0)::int,'fm000') || '-' || to_char(zaehler::int,'fm00000') || '/' || CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(nenner::int,1000),0)::int,'fm000') END
   FROM ax_flurstueck;
 
 CREATE INDEX fs_obj ON fs(fs_obj);

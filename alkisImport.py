@@ -570,7 +570,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 			if conn is None:
 				break
 
-			self.db.exec_( "SET application_name='ALKIS-Import - Frontend" )
+			self.db.exec_( "SET application_name='ALKIS-Import - Frontend'" )
 			self.db.exec_( "SET client_min_messages TO notice" )
 
 			qry = self.db.exec_( "SELECT version()" )
@@ -581,7 +581,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 			self.log( "Datenbank-Version: %s" % qry.value(0) )
 
-			m = re.search( "PostgreSQL (\d+)\.(\d+)\.", qry.value(0) )
+			m = re.search( "PostgreSQL (\d+)\.(\d+)", qry.value(0) )
 			if not m:
 				self.log(u"PostgreSQL-Version nicht im erwarteten Format")
 				break
@@ -721,6 +721,11 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 						break
 					self.cbxCreate.setChecked( False )
 					self.log( u"Datenbank angelegt." )
+				else:
+					self.status( u"Datenbankschema wird geprüft..." )
+					if not self.runSQLScript( conn, "alkis-update.sql" ):
+						self.log( u"Schemaprüfung schlug fehl." )
+						break
 
 				ok = True
 

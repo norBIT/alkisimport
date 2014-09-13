@@ -107,7 +107,7 @@ BEGIN
 	r := '';
 	d := '';
 	-- drop tables & views
-	FOR c IN SELECT table_type,table_name FROM information_schema.tables WHERE table_schema='public' AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_') OR table_name IN ('alkis_beziehungen','delete')) ORDER BY table_type DESC LOOP
+	FOR c IN SELECT table_type,table_name FROM information_schema.tables WHERE table_schema='public' AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_') OR table_name IN ('alkis_beziehungen','delete','alkis_version')) ORDER BY table_type DESC LOOP
 		IF c.table_type = 'VIEW' THEN
 			r := r || d || 'Sicht ' || c.table_name || ' gelöscht.';
 			EXECUTE 'DROP VIEW ' || c.table_name || ' CASCADE';
@@ -257,255 +257,242 @@ $$ LANGUAGE plpgsql;
 
 -- Indizes erzeugen
 SELECT alkis_dropobject('alkis_update_schema');
-CREATE FUNCTION alkis_update_schema() RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION alkis_update_schema() RETURNS varchar AS $$
 DECLARE
-	sql TEXT;
 	c RECORD;
-	i RECORD;
+	s INTEGER;
 	n INTEGER;
+	i INTEGER;
+	v INTEGER;
+	r TEXT;
 BEGIN
-	-- Spalten in delete ergänzen
-	SELECT count(*) INTO n FROM information_schema.columns WHERE table_schema='public' AND table_name='delete' AND column_name='ignored';
-	IF n=0 THEN
-		ALTER TABLE "delete" ADD ignored BOOLEAN;
-	END IF;
+	r := NULL;
 
-	SELECT count(*) INTO n FROM information_schema.columns WHERE table_schema='public' AND table_name='delete' AND column_name='context';
-	IF n=0 THEN
-		ALTER TABLE "delete" ADD context VARCHAR;
-	END IF;
+	BEGIN
+		SELECT version INTO v FROM alkis_version;
 
-	SELECT count(*) INTO n FROM information_schema.columns WHERE table_schema='public' AND table_name='delete' AND column_name='safetoignore';
-	IF n=0 THEN
-		ALTER TABLE "delete" ADD safetoignore VARCHAR;
-	END IF;
+	EXCEPTION WHEN OTHERS THEN
+		v := 0;
+		CREATE TABLE alkis_version(version INTEGER);
+		INSERT INTO alkis_version(version) VALUES (v);
+	END;
 
-	SELECT count(*) INTO n FROM information_schema.columns WHERE table_schema='public' AND table_name='delete' AND column_name='replacedby';
-	IF n=0 THEN
-		ALTER TABLE "delete" ADD replacedBy VARCHAR;
-	END IF;
+	IF v<1 THEN
+		PERFORM alkis_dropobject('ax_tatsaechlichenutzung');
+		PERFORM alkis_dropobject('ax_klassifizierung');
+		PERFORM alkis_dropobject('ax_ausfuehrendestellen');
 
-	-- Spalte identifier ergänzen, wo sie fehlt
-	FOR c IN SELECT table_name FROM information_schema.columns a WHERE a.column_name='gml_id'
-		AND     EXISTS (SELECT * FROM information_schema.columns b WHERE b.column_name='beginnt'    AND a.table_catalog=b.table_catalog AND a.table_schema=b.table_schema AND a.table_name=b.table_name)
-		AND NOT EXISTS (SELECT * FROM information_schema.columns b WHERE b.column_name='identifier' AND a.table_catalog=b.table_catalog AND a.table_schema=b.table_schema AND a.table_name=b.table_name)
-	LOOP
-		EXECUTE 'ALTER TABLE ' || c.table_name || ' ADD identifier character(44)';
-	END LOOP;
+		ALTER TABLE ax_flurstueck ALTER angabenzumabschnittnummeraktenzeichen TYPE varchar[];
+		ALTER TABLE ax_georeferenziertegebaeudeadresse ALTER ortsteil TYPE varchar;
+		ALTER TABLE ax_historischesflurstueck ALTER zaehler TYPE varchar;
+		ALTER TABLE ax_historischesflurstueckohneraumbezug ALTER zaehler TYPE varchar;
+		ALTER TABLE ax_historischesflurstueckohneraumbezug ALTER rechtsbehelfsverfahren TYPE varchar;
+		ALTER TABLE ax_gebaeude ALTER geschossflaeche TYPE double precision;
+		ALTER TABLE ax_gebaeude ALTER grundflaeche TYPE double precision;
+		ALTER TABLE ax_gebaeude ALTER umbauterraum TYPE double precision;
+		ALTER TABLE ax_bodenschaetzung ALTER bodenzahlodergruenlandgrundzahl TYPE varchar;
+		ALTER TABLE ax_bodenschaetzung ALTER ackerzahlodergruenlandzahl TYPE varchar;
+		ALTER TABLE ax_grablochderbodenschaetzung ALTER bodenzahlodergruenlandgrundzahl TYPE varchar;
+		ALTER TABLE ax_gemarkungsteilflur ADD gehoertzu character(16)[];
+		CREATE INDEX ax_gemarkungsteilflur_ghz ON ax_gemarkungsteilflur USING gin (gehoertzu);
+		ALTER TABLE ax_dienststelle ADD kennung varchar;
+		ALTER TABLE ax_wohnplatz ADD zweitname varchar;
+		ALTER TABLE ax_baublock ADD art integer;
 
-	-- Spalte endet ergänzen, wo sie fehlt
-	FOR c IN SELECT table_name FROM information_schema.columns a WHERE a.column_name='gml_id'
-		AND     EXISTS (SELECT * FROM information_schema.columns b WHERE b.column_name='beginnt' AND a.table_catalog=b.table_catalog AND a.table_schema=b.table_schema AND a.table_name=b.table_name)
-		AND NOT EXISTS (SELECT * FROM information_schema.columns b WHERE b.column_name='endet'   AND a.table_catalog=b.table_catalog AND a.table_schema=b.table_schema AND a.table_name=b.table_name)
-	LOOP
-		EXECUTE 'ALTER TABLE ' || c.table_name || ' ADD endet character(20) CHECK (endet>beginnt)';
-	END LOOP;
+		-- gml_id: varchar => character(16)
+		s := 0;
+		i := 0;
+		FOR c IN
+			SELECT table_name
+			FROM information_schema.columns a
+			WHERE a.table_schema='public'
+			  AND (a.table_name LIKE 'ax_%' OR a.table_name LIKE 'ap_%')
+			  AND a.column_name='gml_id'
+			  AND a.data_type='character varying'
+		LOOP
+			-- RAISE NOTICE '%', 'UPDATE ' || c.table_name || ' SET gml_id=substring(gml_id,1,16) WHERE length(gml_id)>16';
+			EXECUTE 'UPDATE ' || c.table_name || ' SET gml_id=substring(gml_id,1,16) WHERE length(gml_id)>16';
+			GET DIAGNOSTICS n = ROW_COUNT;
+			s := s + n;
 
-	-- Lebensdauer-Constraint ergänzen
-	FOR c IN SELECT table_name FROM information_schema.columns a WHERE a.column_name='gml_id'
-		AND EXISTS (SELECT * FROM information_schema.columns b WHERE b.column_name='beginnt' AND a.table_catalog=b.table_catalog AND a.table_schema=b.table_schema AND a.table_name=b.table_name)
-		AND EXISTS (SELECT * FROM information_schema.columns b WHERE b.column_name='endet'   AND a.table_catalog=b.table_catalog AND a.table_schema=b.table_schema AND a.table_name=b.table_name)
-	LOOP
-		SELECT alkis_dropobject(c.table_name||'_lebensdauer');
-		EXECUTE 'ALTER TABLE ' || c.table_name || ' ADD CONSTRAINT ' || c.table_name || '_lebensdauer CHECK (beginnt IS NOT NULL AND endet>beginnt)';
-	END LOOP;
-
-	-- Indizes aktualisieren
-	FOR c IN SELECT table_name FROM information_schema.columns a WHERE a.column_name='gml_id'
-		AND EXISTS (SELECT * FROM information_schema.columns b WHERE b.column_name='beginnt' AND a.table_catalog=b.table_catalog AND a.table_schema=b.table_schema AND a.table_name=b.table_name)
-	LOOP
-		-- Vorhandene Indizes droppen (TODO: Löscht auch die Sonderfälle - entfernen)
-		FOR i IN EXECUTE 'SELECT indexname FROM pg_indexes WHERE NOT indexname LIKE ''%_pk'' AND schemaname=''public'' AND tablename='''||c.table_name||'''' LOOP
-			EXECUTE 'DROP INDEX ' || i.indexname;
+			-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN gml_id TYPE character(16)';
+			EXECUTE 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN gml_id TYPE character(16)';
+			i := i + 1;
 		END LOOP;
 
-		-- Indizes erzeugen
-		EXECUTE 'CREATE UNIQUE INDEX ' || c.table_name || '_id ON ' || c.table_name || '(gml_id,beginnt)';
-		EXECUTE 'CREATE UNIQUE INDEX ' || c.table_name || '_ident ON ' || c.table_name || '(identifier)';
-		EXECUTE 'CREATE INDEX ' || c.table_name || '_gmlid ON ' || c.table_name || '(gml_id)';
-		EXECUTE 'CREATE INDEX ' || c.table_name || '_beginnt ON ' || c.table_name || '(beginnt)';
-		EXECUTE 'CREATE INDEX ' || c.table_name || '_endet ON ' || c.table_name || '(endet)';
-	END LOOP;
+		IF i > 0 OR s > 0 THEN
+			r := coalesce(r||E'\n','') || i || ' Tabellen mit ' || s || ' lange AAA-Identifikatoren geändert.';
+		END IF;
 
-	-- Geometrieindizes aktualisieren
-	FOR c IN SELECT table_name FROM information_schema.columns a WHERE a.column_name='gml_id'
-		AND EXISTS (SELECT * FROM information_schema.columns b WHERE b.column_name='wkb_geometry' AND a.table_catalog=b.table_catalog AND a.table_schema=b.table_schema AND a.table_name=b.table_name)
-	LOOP
-		EXECUTE 'CREATE INDEX ' || c.table_name || '_geom ON ' || c.table_name || ' USING GIST (wkb_geometry)';
-	END LOOP;
+		-- land, gemarkungsnummer, gemeinde, regierungsbezirk, bezirk, kreis, schluesselgesamt: integer => varchar
+		i := 0;
+		FOR c IN
+			SELECT table_name, column_name
+			FROM information_schema.columns a
+			WHERE a.table_schema='public'
+			  AND a.table_name LIKE 'ax_%'
+			  AND a.column_name IN ('land','gemarkungsnummer','gemeinde','regierungsbezirk','bezirk','kreis','schluesselgesamt')
+			  AND a.data_type='integer'
+		LOOP
+			-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character varying';
+			EXECUTE 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character varying';
+			i := i + 1;
+		END LOOP;
 
-	RETURN 'Schema aktualisiert.';
+		IF i > 0 THEN
+			r := coalesce(r||E'\n','') || i || ' Spalten angepaßt (integer->character varying).';
+		END IF;
+
+		-- Relationen: varchar => character(16) bzw. varchar[] => character(16)[]
+		i := 0;
+		FOR c IN
+			WITH RECURSIVE
+				element(name,base) AS (
+					SELECT name,unnest(name||abgeleitet_aus) AS base
+					FROM alkis_elemente
+				UNION
+					SELECT a.name,unnest(b.abgeleitet_aus) AS base
+					FROM element a
+					JOIN alkis_elemente b ON a.base=b.name
+				),
+				relation(element,bezeichnung,kennung) AS (
+					SELECT element,bezeichnung,kennung FROM alkis_relationsart
+					UNION
+					SELECT b.element,a.bezeichnung,a.kennung FROM alkis_relationsart a JOIN relation b ON a.element=lower(b.bezeichnung)
+				)
+			SELECT col.table_name,col.column_name,col.udt_name
+			FROM element t
+			JOIN relation a ON t.base=a.element
+			JOIN information_schema.columns col ON lower(t.name)=col.table_name AND lower(a.bezeichnung)=col.column_name
+			WHERE col.udt_name IN ('_varchar','varchar')
+		LOOP
+			IF c.udt_name='_varchar' THEN
+				-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character(16)[]';
+				EXECUTE 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character(16)[]';
+				i := i + 1;
+			ELSE
+				-- RAISE NOTICE '%', 'UPDATE ' || c.table_name || ' SET ' || c.column_name || '=' || 'substring('||c.column_name||',1,16) WHERE length('||c.column_name||')>16';
+				EXECUTE 'UPDATE ' || c.table_name || ' SET ' || c.column_name || '=' || 'substring('||c.column_name||',1,16) WHERE length('||c.column_name||')>16';
+
+				-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character(16)';
+				EXECUTE 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character(16)';
+				i := i + 1;
+			END IF;
+		END LOOP;
+
+		IF i > 0 THEN
+			r := coalesce(r||E'\n','') || i || ' Spalten angepaßt (varchar->character(16)).';
+		END IF;
+
+		UPDATE alkis_version SET version=1;
+	END IF;
+
+	RETURN r;
 END;
 $$ LANGUAGE plpgsql;
 
--- Im Trigger 'delete_feature_trigger' muss eine dieser beiden Funktionen
--- (delete_feature_hist oder delete_feature_kill) verlinkt werden, je nachdem ob nur
--- aktuelle oder auch historische Objekte in der Datenbank geführt werden sollen.
 
 -- Löschsatz verarbeiten (MIT Historie)
--- context='update'        => "endet" auf übergebene Zeit setzen und anlass festhalten
 -- context='delete'        => "endet" auf aktuelle Zeit setzen
 -- context='replace'       => "endet" des ersetzten auf "beginnt" des neuen Objekts setzen
+-- context='update'        => "endet" auf übergebene Zeit setzen und "anlass" festhalten
 CREATE OR REPLACE FUNCTION delete_feature_hist() RETURNS TRIGGER AS $$
 DECLARE
-	s TEXT;
-	alt_id TEXT;
-	neu_id TEXT;
-	beginnt TEXT;
-	endete TEXT;
 	n INTEGER;
+	beginnt TEXT;
+	s TEXT;
 BEGIN
-	NEW.context := lower(NEW.context);
-	IF NEW.context IS NULL THEN
-		NEW.context := 'delete';
-	END IF;
+	NEW.context := coalesce(lower(NEW.context),'delete');
 
-	-- TIMESTAMP weder in gml_id noch identifier verläßlich.
-	-- also ggf. aus Datenbank holen
+	IF NEW.anlass IS NULL THEN
+		NEW.anlass := '';
+	END IF;
 
 	IF length(NEW.featureid)=32 THEN
-		alt_id  := substr(NEW.featureid, 1, 16);
-
-		IF NEW.featureid<>NEW.replacedBy THEN
-			-- Beginnt-Datum aus Timestamp
-			beginnt := substr(NEW.featureid, 17, 4) || '-'
-				|| substr(NEW.featureid, 21, 2) || '-'
-				|| substr(NEW.featureid, 23, 2) || 'T'
-				|| substr(NEW.featureid, 26, 2) || ':'
-				|| substr(NEW.featureid, 28, 2) || ':'
-				|| substr(NEW.featureid, 30, 2) || 'Z'
-				;
-		END IF;
+		beginnt := substr(NEW.featureid, 17, 4) || '-'
+		        || substr(NEW.featureid, 21, 2) || '-'
+			|| substr(NEW.featureid, 23, 2) || 'T'
+			|| substr(NEW.featureid, 26, 2) || ':'
+			|| substr(NEW.featureid, 28, 2) || ':'
+			|| substr(NEW.featureid, 30, 2) || 'Z'
+			;
 	ELSIF length(NEW.featureid)=16 THEN
-		alt_id  := NEW.featureid;
-	ELSE
-		RAISE EXCEPTION '%: Länge 16 oder 32 statt % erwartet.', NEW.featureid, length(NEW.featureid);
-	END IF;
-
-	IF beginnt IS NULL THEN
-		-- Beginnt-Datum des ältesten Eintrag, der nicht untergegangen ist
-		-- => der Satz dessen 'endet' gesetzt werden muß
+		-- Ältestes nicht gelöschtes Objekt
 		EXECUTE 'SELECT min(beginnt) FROM ' || NEW.typename
-			|| ' WHERE gml_id=''' || alt_id || ''''
-			|| ' AND endet IS NULL'
+		        || ' WHERE gml_id=''' || substr(NEW.featureid, 1, 16) || ''''
+		        || ' AND endet IS NULL'
 			INTO beginnt;
-	END IF;
 
-	IF beginnt IS NULL THEN
-		IF NEW.context = 'delete' OR NEW.safetoignore = 'true' THEN
-			RAISE NOTICE 'Kein Beginndatum für Objekt % gefunden - ignoriert.', alt_id;
-			NEW.ignored := true;
-			RETURN NEW;
-		ELSE
-			RAISE EXCEPTION 'Kein Beginndatum für Objekt % gefunden.', alt_id;
+		IF beginnt IS NULL THEN
+			RAISE EXCEPTION '%: Keinen Kandidaten zum Löschen gefunden.', NEW.featureid;
 		END IF;
+	ELSE
+		RAISE EXCEPTION '%: Identifikator gescheitert.', NEW.featureid;
 	END IF;
 
 	IF NEW.context='delete' THEN
-		endete := to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"');
+		NEW.endet := to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"');
+
+	ELSIF NEW.context='update' THEN
+		IF NEW.endet IS NULL THEN
+			RAISE EXCEPTION '%: Endedatum nicht gesetzt', NEW.featureid;
+		END IF;
 
 	ELSIF NEW.context='replace' THEN
 		NEW.safetoignore := lower(NEW.safetoignore);
-
 		IF NEW.safetoignore IS NULL THEN
 			RAISE EXCEPTION '%: safeToIgnore nicht gesetzt.', NEW.featureid;
 		ELSIF NEW.safetoignore<>'true' AND NEW.safetoignore<>'false' THEN
 			RAISE EXCEPTION '%: safeToIgnore ''%'' ungültig (''true'' oder ''false'' erwartet).', NEW.featureid, NEW.safetoignore;
 		END IF;
 
-		IF length(NEW.replacedBy)=32 THEN
-			-- Beginnt-Datum aus Timestamp
-			IF NEW.featureid<>NEW.replacedBy THEN
-				endete  := substr(NEW.replacedBy, 17, 4) || '-'
-					|| substr(NEW.replacedBy, 21, 2) || '-'
-					|| substr(NEW.replacedBy, 23, 2) || 'T'
-					|| substr(NEW.replacedBy, 26, 2) || ':'
-					|| substr(NEW.replacedBy, 28, 2) || ':'
-					|| substr(NEW.replacedBy, 30, 2) || 'Z'
-					;
-			END IF;
-		ELSIF length(NEW.replacedBy)<>16 THEN
-			RAISE EXCEPTION '%: Länge 16 oder 32 statt % erwartet.', NEW.replacedBy, length(NEW.replacedBy);
+		IF length(NEW.replacedby)=32 AND NEW.replacedby<>NEW.featureid THEN
+			NEW.endet := substr(NEW.replacedby, 17, 4) || '-'
+			          || substr(NEW.replacedby, 21, 2) || '-'
+			          || substr(NEW.replacedby, 23, 2) || 'T'
+			          || substr(NEW.replacedby, 26, 2) || ':'
+			          || substr(NEW.replacedby, 28, 2) || ':'
+			          || substr(NEW.replacedby, 30, 2) || 'Z'
+			          ;
 		END IF;
 
-		neu_id := NEW.replacedBy;
-		IF endete IS NULL THEN
-			-- Beginnt-Datum des neuesten Eintrag, der nicht untergegangen ist
-			-- => Enddatum für vorherigen Satz
-			EXECUTE 'SELECT max(beginnt) FROM ' || NEW.typename
-				|| ' WHERE gml_id=''' || NEW.replacedBy || ''''
-				|| ' AND beginnt>''' || beginnt || ''''
+		IF NEW.endet IS NULL THEN
+			-- Ältestes nicht gelöschtes Objekt
+			EXECUTE 'SELECT min(beginnt) FROM ' || NEW.typename
+				|| ' WHERE gml_id=''' || substr(NEW.replacedby, 1, 16) || ''''
 				|| ' AND endet IS NULL'
-				INTO endete;
-			IF endete IS NULL AND length(NEW.replacedBy)=32 THEN
-				EXECUTE 'SELECT max(beginnt) FROM ' || NEW.typename
-					|| ' WHERE gml_id=''' || substr(NEW.replacedBy, 1, 16) || ''''
-					|| ' AND beginnt>''' || beginnt || ''''
-					|| ' AND endet IS NULL'
-				INTO endete;
-				neu_id := substr(NEW.replacedBy, 1, 16);
+				INTO NEW.endet;
+		END IF;
+
+		IF NEW.endet IS NULL THEN
+			IF NEW.safetoignore='false' THEN
+				RAISE EXCEPTION '%: Beginn des ersetzenden Objekts % nicht gefunden.', NEW.featureid, NEW.replacedby;
+				-- RAISE NOTICE '%: Beginn des ersetzenden Objekts % nicht gefunden.', NEW.featureid, NEW.replacedby;
 			END IF;
+
+			NEW.ignored=true;
+			RETURN NEW;
 		END IF;
 
-		IF alt_id<>substr(neu_id, 1, 16) THEN
-			RAISE NOTICE 'Objekt % wird durch Objekt % ersetzt.', alt_id, neu_id;
-		END IF;
-
-		IF endete IS NULL THEN
-			RAISE NOTICE 'Kein Beginndatum für Objekt % gefunden.', NEW.replacedBy;
-		END IF;
-
-		IF endete IS NULL OR beginnt=endete THEN
-			RAISE EXCEPTION 'Objekt % wird durch Objekt % ersetzt (leere Lebensdauer?).', alt_id, neu_id;
-		END IF;
-	ELSIF NEW.context='update' THEN
-		endete := NEW.endet;
 	ELSE
 		RAISE EXCEPTION '%: Ungültiger Kontext % (''delete'', ''replace'' oder ''update'' erwartet).', NEW.featureid, NEW.context;
+
 	END IF;
 
-	s   := 'UPDATE ' || NEW.typename
-	    || ' SET endet=''' || endete || ''''
-	    || ',anlass=''' || coalesce(NEW.anlass,'000000') || ''''
-	    || ' WHERE gml_id=''' || NEW.featureid || ''''
-	    || ' AND beginnt=''' || beginnt || ''''
-	    || ' AND endet IS NULL';
+	s := 'UPDATE ' || NEW.typename
+	  || ' SET endet=''' || NEW.endet || ''''
+	  || ',anlass=''' || NEW.anlass || ''''
+	  || ' WHERE gml_id=''' || substr(NEW.featureid, 1, 16) || ''''
+	  || ' AND beginnt=''' || beginnt || ''''
+	  ;
 	EXECUTE s;
 	GET DIAGNOSTICS n = ROW_COUNT;
-	IF n=0 AND alt_id<>NEW.featureid THEN
-		s   := 'UPDATE ' || NEW.typename
-		    || ' SET endet=''' || endete || ''''
-		    || ',anlass=''' || coalesce(NEW.anlass,'000000') || ''''
-		    || ' WHERE gml_id=''' || alt_id || ''''
-		    || ' AND beginnt=''' || beginnt || ''''
-		    || ' AND endet IS NULL';
-		EXECUTE s;
-		GET DIAGNOSTICS n = ROW_COUNT;
-	END IF;
-
+	-- RAISE NOTICE 'SQL[%]:%', n, s;
 	IF n<>1 THEN
-		RAISE NOTICE 'SQL[%<>1]: %', n, s;
-		IF NEW.context = 'delete' OR NEW.safetoignore = 'true' THEN
-			RAISE NOTICE '%: Untergangsdatum von % Objekten statt einem auf % gesetzt - ignoriert', NEW.featureid, n, endete;
-			NEW.ignored := true;
-			RETURN NEW;
-		ELSIF n=0 THEN
-			EXECUTE 'SELECT endet FROM ' || NEW.typename ||
-				' WHERE gml_id=''' || alt_id || '''' ||
-				' AND beginnt=''' || beginnt || ''''
-				INTO endete;
-
-			IF NOT endete IS NULL THEN
-				RAISE NOTICE '%: Objekt bereits % untergegangen - ignoriert', NEW.featureid, endete;
-			ELSE
-				RAISE NOTICE '%: Objekt nicht gefunden - ignoriert', NEW.featureid;
-			END IF;
-
-			NEW.ignored := true;
-			RETURN NEW;
-		ELSE
-			RAISE EXCEPTION '%: Untergangsdatum von % Objekten statt einem auf % gesetzt - Abbruch', NEW.featureid, n, endete;
-		END IF;
+		RAISE EXCEPTION '%: % schlug fehl [%]', NEW.featureid, NEW.context, n;
+		-- RAISE NOTICE '%: % schlug fehl [%]', NEW.featureid, NEW.context, n;
+		-- NEW.ignored=true;
+		-- RETURN NEW;
 	END IF;
 
 	NEW.ignored := false;
@@ -589,7 +576,7 @@ BEGIN
 				SELECT element,bezeichnung,datentyp,kardinalitaet,kennung,definition FROM alkis_attributart
 				UNION
 				SELECT b.element,a.bezeichnung,a.datentyp,a.kardinalitaet,a.kennung,a.definition FROM alkis_attributart a JOIN typ b ON a.element=lower(b.datentyp)
-                                -- FIXME: kommen unterschiedliche Kardinalitäten bei Element und Attribut vor?
+				-- FIXME: kommen unterschiedliche Kardinalitäten bei Element und Attribut vor?
 		        )
 		SELECT col.table_name,col.column_name,a.definition,a.datentyp,a.kardinalitaet,a.kennung
 		FROM element t

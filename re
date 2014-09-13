@@ -37,7 +37,7 @@ psql:alkis-functions.sql:612: ERROR:  syntax error at or near "WITH RECURSIVE"\r
 ^psql:alkis-compat.sql:.*: ERROR:  function combine_bbox\(box2d, geometry\) does not exist\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Berechtigung nur f\S+r Eigent\S+mer der Funktion st_dump\s*$
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*gel\S+scht\..*$
-^\s+(addgeometrycolumn|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_besondereflurstuecksgrenze|version|postgis_version|\?column\?)\s*$
+^\s+(addgeometrycolumn|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|version|postgis_version|\?column\?)\s*$
 ^-+\s*$
 ^\s+public\..*\.(wkb_geometry|dummy) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$
 ^\s+public\.ax_punktortau\.wkb_geometry SRID:\d+ TYPE:POINT DIMS:3\+?\s*$

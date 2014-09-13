@@ -314,7 +314,7 @@ SELECT 'Präsentationstabellen werden erzeugt.';
 SELECT alkis_dropobject('po_points');
 CREATE TABLE po_points(
 	ogc_fid serial PRIMARY KEY,
-	gml_id varchar NOT NULL,
+	gml_id character(16) NOT NULL,
 	thema varchar NOT NULL,
 	layer varchar NOT NULL,
 	signaturnummer varchar,
@@ -329,7 +329,7 @@ SELECT AddGeometryColumn('po_points','point', :alkis_epsg, 'MULTIPOINT', 2);
 SELECT alkis_dropobject('po_lines');
 CREATE TABLE po_lines(
 	ogc_fid serial PRIMARY KEY,
-	gml_id varchar NOT NULL,
+	gml_id character(16) NOT NULL,
 	thema varchar NOT NULL,
 	layer varchar NOT NULL,
 	signaturnummer varchar REFERENCES alkis_linien(signaturnummer),
@@ -342,7 +342,7 @@ SELECT AddGeometryColumn('po_lines','line', :alkis_epsg, 'MULTILINESTRING', 2);
 SELECT alkis_dropobject('po_polygons');
 CREATE TABLE po_polygons(
 	ogc_fid serial PRIMARY KEY,
-	gml_id varchar NOT NULL,
+	gml_id character(16) NOT NULL,
 	thema varchar NOT NULL,
 	layer varchar NOT NULL,
 	signaturnummer varchar,
@@ -357,7 +357,7 @@ SELECT AddGeometryColumn('po_polygons','polygon', :alkis_epsg, 'MULTIPOLYGON', 2
 SELECT alkis_dropobject('po_labels');
 CREATE TABLE po_labels(
 	ogc_fid serial PRIMARY KEY,
-	gml_id varchar NOT NULL,
+	gml_id character(16) NOT NULL,
 	thema varchar NOT NULL,
 	layer varchar NOT NULL,
 	signaturnummer varchar REFERENCES alkis_schriften(signaturnummer),
@@ -605,7 +605,7 @@ WHERE ARRAY[2001,2003,2004] && artderflurstuecksgrenze AND a.ogc_fid<b.ogc_fid A
 SELECT alkis_dropobject('alkis_joinlines');
 CREATE TABLE alkis_joinlines(
 	ogc_fid integer PRIMARY KEY,
-	gml_id varchar,
+	gml_id character(16),
 	visited boolean,
 	modell varchar[]
 );
@@ -786,8 +786,8 @@ SELECT
 	coalesce(
 		schriftinhalt,
 		unverschluesselt,
-		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
-		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
+		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
+		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	coalesce(t.signaturnummer,'4206') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -806,8 +806,8 @@ SELECT
 	coalesce(
 		schriftinhalt,
 		unverschluesselt,
-		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
-		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
+		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
+		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	coalesce(t.signaturnummer,'4107') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -826,8 +826,8 @@ SELECT
 	coalesce(
 		schriftinhalt,
 		unverschluesselt,
-		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
-		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
+		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
+		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	coalesce(t.signaturnummer,'4141') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -846,8 +846,8 @@ SELECT
 	coalesce(
 		schriftinhalt,
 		unverschluesselt,
-		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
-		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
+		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
+		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	coalesce(signaturnummer,'4117') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -867,8 +867,8 @@ SELECT
 	coalesce(
 		schriftinhalt,
 		unverschluesselt,
-		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
-		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
+		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
+		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	4107 AS signaturnummer,
 	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -887,8 +887,8 @@ SELECT
 	coalesce(
 		schriftinhalt,
 		unverschluesselt,
-		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
-		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
+		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
+		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	4141 AS signaturnummer,
 	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -907,8 +907,8 @@ SELECT
 	coalesce(
 		schriftinhalt,
 		unverschluesselt,
-		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
-		'(Lagebezeichnung zu '''||to_char(o.land,'fm00')||o.regierungsbezirk||to_char(o.kreis,'fm00')||to_char(o.gemeinde,'fm000')||o.lage||''' fehlt)'
+		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
+		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	coalesce(t.signaturnummer,'4117') AS signaturnummer,
 	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
