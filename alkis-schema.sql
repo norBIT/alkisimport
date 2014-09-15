@@ -54,10 +54,10 @@ CREATE TABLE "delete" (
 	ogc_fid		serial NOT NULL,
 	typename	varchar,
 	featureid	varchar,
-	context		varchar,	-- delete/replace/update
-	safetoignore	varchar,	-- replace.safetoignore 'true'/'false'
-	replacedBy	varchar,	-- gmlid
-	anlass		varchar,	-- update.anlass
+	context		varchar,		-- delete/replace/update
+	safetoignore	varchar,		-- replace.safetoignore 'true'/'false'
+	replacedBy	varchar,		-- gmlid
+	anlass		varchar,		-- update.anlass
 	endet		character(20),		-- update.endet
 	ignored		boolean DEFAULT false,	-- Satz wurde nicht verarbeitet
 	CONSTRAINT delete_pk PRIMARY KEY (ogc_fid)

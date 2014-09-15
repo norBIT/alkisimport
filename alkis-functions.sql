@@ -457,11 +457,21 @@ BEGIN
 		END IF;
 
 		IF NEW.endet IS NULL THEN
-			-- Ältestes nicht gelöschtes Objekt
-			EXECUTE 'SELECT min(beginnt) FROM ' || NEW.typename
+			-- Beginn des ersten Nachfolgeobjektes
+			EXECUTE 'SELECT min(beginnt) FROM ' || NEW.typename || ' a'
 				|| ' WHERE gml_id=''' || substr(NEW.replacedby, 1, 16) || ''''
 				|| ' AND endet IS NULL'
+				|| ' AND EXISTS (SELECT * FROM ' || NEW.typename || ' b WHERE a.gml_id=b.gml_id AND b.ogc_fid<a.ogc_fid AND endet IS NULL)'
 				INTO NEW.endet;
+		ELSE
+			EXECUTE 'SELECT count(*) FROM ' || NEW.typename
+				|| ' WHERE gml_id=''' || substr(NEW.replacedby, 1, 16) || ''''
+				|| ' AND beginnt=' || NEW.endet
+				|| ' AND endet IS NULL'
+				INTO n;
+			IF n<>1 THEN
+				RAISE EXCEPTION '%: Ersatzobjekt % % nicht gefunden.', NEW.featureid, NEW.replacedby, NEW.endet;
+			END IF;
 		END IF;
 
 		IF NEW.endet IS NULL THEN

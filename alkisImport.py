@@ -622,7 +622,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 			if not self.cbxCreate.isChecked() and int( qry.value(0) ) == 0:
 				self.cbxCreate.setChecked( True )
-				self.log( u"Keine ALKIS-Daten vorhanden - Datenbank muß angelegt werden." )
+				self.log( u"Keine ALKIS-Daten vorhanden - Datenbestand muß angelegt werden." )
 				break
 
 			self.logqry = QSqlQuery(self.db)
@@ -715,12 +715,12 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 				self.pbProgress.setValue( 0 )
 
 				if self.cbxCreate.isChecked():
-					self.status( u"Datenbank wird angelegt..." )
+					self.status( u"Datenbestand wird angelegt..." )
 					if not self.runSQLScript( conn, "alkis-schema.sql" ):
 						self.log( u"Anlegen des Datenbestands schlug fehl." )
 						break
 					self.cbxCreate.setChecked( False )
-					self.log( u"Datenbank angelegt." )
+					self.log( u"Datenbestand angelegt." )
 				else:
 					self.status( u"Datenbankschema wird geprüft..." )
 					if not self.runSQLScript( conn, "alkis-update.sql" ):
