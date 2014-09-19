@@ -230,26 +230,17 @@ BEGIN
 	sql := 'CREATE VIEW vobjekte AS ';
 
 	FOR c IN SELECT table_name FROM information_schema.columns WHERE column_name='gml_id' AND substr(table_name,1,3) IN ('ax_','ap_','ks_') AND NOT table_name IN ('ax_tatsaechlichenutzung','ax_klassifizierung','ax_ausfuehrendestellen') LOOP
-		sql := sql || delim || 'SELECT DISTINCT gml_id,beginnt,''' || c.table_name || ''' AS table_name FROM ' || c.table_name;
+		sql := sql || delim || 'SELECT gml_id,beginnt,endet,''' || c.table_name || ''' AS table_name FROM ' || c.table_name;
 		delim := ' UNION ';
 	END LOOP;
 
 	EXECUTE sql;
-
---	CREATE UNIQUE INDEX vobjekte_gmlid ON vobjekte(gml_id,beginnt);
---	CREATE INDEX vobjekte_table ON vobjekte(table_name);
 
 	CREATE VIEW vbeziehungen AS
 		SELECT beziehung_von,(SELECT DISTINCT table_name FROM vobjekte WHERE gml_id=beziehung_von) AS typ_von
 			,beziehungsart
 			,beziehung_zu,(SELECT DISTINCT table_name FROM vobjekte WHERE gml_id=beziehung_zu) AS typ_zu
 		FROM alkis_beziehungen;
-
---	CREATE INDEX vbeziehungen_von    ON vbeziehungen(beziehung_von);
---	CREATE INDEX vbeziehungen_vontyp ON vbeziehungen(typ_von);
---	CREATE INDEX vbeziehungen_art    ON vbeziehungen(beziehungsart);
---	CREATE INDEX vbeziehungen_zu     ON vbeziehungen(beziehung_zu);
---	CREATE INDEX vbeziehungen_zutyp  ON vbeziehungen(typ_zu);
 
 	RETURN 'ALKIS-Views erzeugt.';
 END;
@@ -487,14 +478,12 @@ BEGIN
 			-- Beginn des ersten Nachfolgeobjektes
 			EXECUTE 'SELECT min(beginnt) FROM ' || NEW.typename || ' a'
 				|| ' WHERE gml_id=''' || substr(NEW.replacedby, 1, 16) || ''''
-				|| ' AND endet IS NULL'
-				|| ' AND EXISTS (SELECT * FROM ' || NEW.typename || ' b WHERE a.gml_id=b.gml_id AND b.ogc_fid<a.ogc_fid AND endet IS NULL)'
+				|| ' AND beginnt>''' || beginnt || ''''
 				INTO NEW.endet;
 		ELSE
 			EXECUTE 'SELECT count(*) FROM ' || NEW.typename
 				|| ' WHERE gml_id=''' || substr(NEW.replacedby, 1, 16) || ''''
-				|| ' AND beginnt=' || NEW.endet
-				|| ' AND endet IS NULL'
+				|| ' AND beginnt=''' || NEW.endet || ''''
 				INTO n;
 			IF n<>1 THEN
 				RAISE EXCEPTION '%: Ersatzobjekt % % nicht gefunden.', NEW.featureid, NEW.replacedby, NEW.endet;
@@ -503,7 +492,7 @@ BEGIN
 
 		IF NEW.endet IS NULL THEN
 			IF NEW.safetoignore='false' THEN
-				RAISE EXCEPTION '%: Beginn des ersetzenden Objekts % nicht gefunden.', NEW.featureid, NEW.replacedby;
+				RAISE EXCEPTION '%: Beginn des Ersatzobjekts % nicht gefunden.', NEW.featureid, NEW.replacedby;
 				-- RAISE NOTICE '%: Beginn des ersetzenden Objekts % nicht gefunden.', NEW.featureid, NEW.replacedby;
 			END IF;
 
@@ -555,7 +544,7 @@ BEGIN
 	FOR c IN
 		SELECT table_name
 		FROM information_schema.columns a
-		WHERE a.column_name='endet'
+		WHERE a.column_name='endet' AND a.is_updatable='YES'
 		ORDER BY table_name
 	LOOP
 		EXECUTE 'DELETE FROM ' || c.table_name || ' WHERE NOT endet IS NULL';
@@ -569,6 +558,38 @@ BEGIN
 	RAISE EXCEPTION 'raising deliberate exception';
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION alkis_hist_check() RETURNS varchar AS $$
+DECLARE
+	c RECORD;
+	n INTEGER;
+	r VARCHAR;
+BEGIN
+	FOR c IN SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND substr(table_name,1,3) IN ('ax_','ap_','ks_') AND table_type='BASE TABLE'
+	LOOP
+		EXECUTE 'SELECT count(*) FROM ' || c.table_name || ' WHERE endet IS NULL GROUP BY gml_id HAVING count(*)>1' INTO n;
+		IF n>1 THEN
+			r := coalesce(r||E'\n','') || c.table_name || ': ' || n || ' Objekte, die in mehreren Versionen nicht beendet sind.';
+		END IF;
+
+		EXECUTE 'SELECT count(*) FROM ' || c.table_name || ' WHERE beginnt>=endet' INTO n;
+		IF n>1 THEN
+			r := coalesce(r||E'\n','') || c.table_name || ': ' || n || ' Objekte mit ungültiger Lebensdauer.';
+		END IF;
+
+		EXECUTE 'SELECT count(*)'
+			|| ' FROM ' || c.table_name || ' a'
+			|| ' JOIN ' || c.table_name || ' b ON a.gml_id=b.gml_id AND a.ogc_fid<>b.ogc_fid AND a.beginnt<b.endet AND a.endet>b.beginnt'
+			INTO n;
+		IF n>0 THEN
+			r := coalesce(r||E'\n','') || c.table_name || ': ' || n || ' Lebensdauerüberschneidungen.';
+		END IF;
+	END LOOP;
+
+	RETURN r;
+END;
+$$ LANGUAGE plpgsql;
+
 
 \unset ON_ERROR_STOP
 CREATE OR REPLACE FUNCTION alkis_set_comments() RETURNS void AS $$

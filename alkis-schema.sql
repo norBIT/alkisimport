@@ -66,6 +66,12 @@ COMMENT ON COLUMN delete.anlass       IS 'Anlaß des Endes';
 COMMENT ON COLUMN delete.endet        IS 'Zeitpunkt des Endes';
 COMMENT ON COLUMN delete.ignored      IS 'Löschsatz wurde ignoriert';
 
+CREATE TRIGGER delete_feature_trigger
+	BEFORE INSERT ON delete
+	FOR EACH ROW
+	EXECUTE PROCEDURE delete_feature_hist();
+
+
 CREATE TABLE alkis_beziehungen (
        ogc_fid                 serial NOT NULL,
        beziehung_von           character(16) NOT NULL,
@@ -84,6 +90,12 @@ COMMENT ON TABLE  alkis_beziehungen               IS 'zentrale Multi-Verbindungs
 COMMENT ON COLUMN alkis_beziehungen.beziehung_von IS 'Join auf Feld gml_id verschiedener Tabellen';
 COMMENT ON COLUMN alkis_beziehungen.beziehung_zu  IS 'Join auf Feld gml_id verschiedener Tabellen';
 COMMENT ON COLUMN alkis_beziehungen.beziehungsart IS 'Typ der Beziehung zwischen der von- und zu-Tabelle';
+
+CREATE TRIGGER insert_beziehung_trigger
+	AFTER INSERT ON alkis_beziehungen
+	FOR EACH ROW
+	EXECUTE PROCEDURE alkis_beziehung_inserted();
+
 
 -- S o n s t i g e s   B a u w e r k
 -- ----------------------------------
@@ -104,11 +116,6 @@ SELECT AddGeometryColumn('ks_sonstigesbauwerk','wkb_geometry',:alkis_epsg,'GEOME
 CREATE INDEX ks_sonstigesbauwerk_geom_idx ON ks_sonstigesbauwerk USING gist (wkb_geometry);
 
 COMMENT ON TABLE  ks_sonstigesbauwerk IS 'Sonstiges Bauwerk';
-
-
--- Löschtrigger setzen
-\i alkis-trigger.sql
-
 
 --*** ############################################################
 --*** Objektbereich: AAA Basisschema
@@ -3954,7 +3961,7 @@ CREATE UNIQUE INDEX ax_kommunalesgebiet_gml ON ax_kommunalesgebiet USING btree (
 -- In der Objektart 'Benutzergruppe mit Zugriffskontrolle' werden Informationen über die Benutzer der ALKIS-Bestandsdaten verwaltet, die den Umfang der Benutzung und Fortführung aus Gründen der Datenkonsistenz und des Datenschutzes einschränken.
 
 -- Objektart: AX_BenutzergruppeNBA Kennung: 81004
--- In der Objektart 'Benutzergruppe (NBA)' werden relevante Informationen für die Durchführung der NBA-Versorgung, z.B. die anzuwendenden Selektionskriterien, gespeichert. 
+-- In der Objektart 'Benutzergruppe (NBA)' werden relevante Informationen für die Durchführung der NBA-Versorgung, z.B. die anzuwendenden Selektionskriterien, gespeichert.
 --  Eine gesonderte Prüfung der Zugriffsrechte erfolgt in diesem Fall nicht, deren Berücksichtigung ist von dem Administrator bei der Erzeugung und Pflege der NBA-Benutzergruppen sicherzustellen.
 
 
