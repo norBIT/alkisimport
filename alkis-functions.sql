@@ -387,6 +387,33 @@ BEGIN
 		UPDATE alkis_version SET version=1;
 	END IF;
 
+	IF v<2 THEN
+		-- Indizes ergänzen
+		CREATE UNIQUE INDEX ax_sicherungspunkt_gmlid ON ax_sicherungspunkt USING btree (gml_id,beginnt);
+		CREATE INDEX ax_sicherungspunkt_bsa ON ax_sicherungspunkt USING btree (beziehtsichauf);
+		CREATE INDEX ax_sicherungspunkt_ghz ON ax_sicherungspunkt USING btree (gehoertzu);
+
+		-- drop identifier
+		i := 0;
+		FOR c IN
+			SELECT table_name
+			FROM information_schema.columns a
+			WHERE a.table_schema='public'
+			  AND (a.table_name LIKE 'ax_%' OR a.table_name LIKE 'ap_%')
+			  AND a.column_name='identifier'
+		LOOP
+			-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' DROP COLUMN identifier';
+			EXECUTE 'ALTER TABLE ' || c.table_name || ' DROP COLUMN identifier';
+			i := i + 1;
+		END LOOP;
+
+		IF i > 0 THEN
+			r := coalesce(r||E'\n','') || i || ' identifier-Spalten gelöscht.';
+		END IF;
+
+		UPDATE alkis_version SET version=2;
+	END IF;
+
 	RETURN r;
 END;
 $$ LANGUAGE plpgsql;

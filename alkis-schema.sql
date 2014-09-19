@@ -13,22 +13,11 @@
  *
  ******************************************************************************/
 
--- *****************************
---       A  L   K   I   S
--- *****************************
---
---
-
 -- Damit die Includes (\i) funktionieren muß psql im Verzeichnis ausgeführt
 -- werden in dem das Skript liegt. Z.B. per
 -- (cd /pfad/zu/postnas; psql -f alkis-schema.sql)
 
 -- Variable für das Koordinatensystem übergeben mit "psql .. -v alkis_epsg=25832"
-
--- ALKIS-Dokumentation (NRW):
---  http://www.bezreg-koeln.nrw.de/extra/33alkis/alkis_nrw.htm
---  http://www.bezreg-koeln.nrw.de/extra/33alkis/geoinfodok.htm
---  http://www.bezreg-koeln.nrw.de/extra/33alkis/dokumente/GeoInfoDok/ALKIS/ALKIS_OK_V6-0.html
 
   SET client_encoding = 'UTF8';
   SET default_with_oids = false;
@@ -44,7 +33,7 @@
 SELECT alkis_drop();
 
 CREATE TABLE alkis_version(version integer);
-INSERT INTO alkis_version(version) VALUES (1);
+INSERT INTO alkis_version(version) VALUES (2);
 
 -- BW/BY-Koordinatensystem anlegen
 SELECT alkis_create_bsrs(:alkis_epsg);
@@ -102,7 +91,6 @@ COMMENT ON COLUMN alkis_beziehungen.beziehungsart IS 'Typ der Beziehung zwischen
 CREATE TABLE ks_sonstigesbauwerk (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	sonstigesmodell		varchar[],
@@ -135,7 +123,6 @@ COMMENT ON TABLE  ks_sonstigesbauwerk IS 'Sonstiges Bauwerk';
 CREATE TABLE ap_ppo (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -167,7 +154,6 @@ CREATE INDEX ap_ppo_dzdv       ON ap_ppo USING gin (dientzurdarstellungvon);
 CREATE TABLE ap_lpo (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -197,7 +183,6 @@ CREATE INDEX ap_lpo_endet      ON ap_lpo USING btree (endet);
 CREATE TABLE ap_pto (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -239,7 +224,6 @@ COMMENT ON INDEX  ap_pto_art_idx                IS 'Suchindex auf häufig benutz
 CREATE TABLE ap_lto (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -277,7 +261,6 @@ CREATE INDEX ap_lto_endet_idx  ON ap_lto USING btree (endet);
 CREATE TABLE ap_darstellung (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20), -- Datumsformat
 	endet			character(20), -- Datumsformat
 	advstandardmodell	varchar[],
@@ -338,7 +321,6 @@ CREATE TABLE ax_flurstueck (
 	gemeinde				varchar,
 	-- GID: ENDE AX_Flurstueck_Kerndaten
 
-	identifier				varchar,
 	beginnt					character(20),			-- Timestamp der Entstehung
 	endet					character(20),			-- Timestamp des Untergangs
 	advstandardmodell			varchar[],
@@ -385,7 +367,6 @@ CREATE INDEX ax_flurstueck_gaz ON ax_flurstueck USING gin (gehoertanteiligzu);
 CREATE TABLE ax_besondereflurstuecksgrenze (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -408,7 +389,6 @@ CREATE INDEX ax_besondereflurstuecksgrenze_adfg       ON ax_besondereflurstuecks
 CREATE TABLE ax_grenzpunkt (
 	ogc_fid				serial NOT NULL,
 	gml_id				character(16) NOT NULL,
-	identifier			varchar,
 	beginnt				character(20),
 	endet				character(20),
 	advstandardmodell		varchar[],
@@ -450,7 +430,6 @@ CREATE INDEX ax_grenzpunkt_za ON ax_grenzpunkt USING btree (zeigtauf);
 CREATE TABLE ax_lagebezeichnungohnehausnummer (
 	ogc_fid				serial NOT NULL,
 	gml_id				character(16) NOT NULL,
-	identifier			varchar,
 	beginnt				character(20),
 	endet				character(20),
 	advstandardmodell		varchar[],
@@ -485,7 +464,6 @@ CREATE INDEX ax_lagebezeichnungohnehausnummer_key        ON ax_lagebezeichnungoh
 CREATE TABLE ax_lagebezeichnungmithausnummer (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -527,7 +505,6 @@ CREATE INDEX ax_lagebezeichnungmithausnummer_weistzum   ON ax_lagebezeichnungmit
 CREATE TABLE ax_lagebezeichnungmitpseudonummer (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -559,7 +536,6 @@ CREATE INDEX ax_lagebezeichnungmitpseudonummer_gehoertzu  ON ax_lagebezeichnungm
 CREATE TABLE ax_georeferenziertegebaeudeadresse (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),	-- Inhalt z.B. "2008-06-10T15:19:17Z"
 	endet			character(20),	-- Inhalt z.B. "2008-06-10T15:19:17Z"
 
@@ -605,7 +581,6 @@ CREATE INDEX ax_georeferenziertegebaeudeadresse_adr ON ax_georeferenziertegebaeu
 CREATE TABLE ax_aufnahmepunkt (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier              varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -637,7 +612,6 @@ CREATE INDEX ax_aufnahmepunkt_hat ON ax_aufnahmepunkt USING gin (hat);
 CREATE TABLE ax_sicherungspunkt (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -660,6 +634,10 @@ CREATE TABLE ax_sicherungspunkt (
 
 SELECT AddGeometryColumn('ax_sicherungspunkt','dummy',:alkis_epsg,'POINT',2);
 
+CREATE UNIQUE INDEX ax_sicherungspunkt_gmlid ON ax_sicherungspunkt USING btree (gml_id,beginnt);
+CREATE INDEX ax_sicherungspunkt_bsa ON ax_sicherungspunkt USING btree (beziehtsichauf);
+CREATE INDEX ax_sicherungspunkt_ghz ON ax_sicherungspunkt USING btree (gehoertzu);
+
 
 -- s o n s t i g e r   V e r m e s s u n g s p u n k t
 -- ---------------------------------------------------
@@ -667,7 +645,6 @@ SELECT AddGeometryColumn('ax_sicherungspunkt','dummy',:alkis_epsg,'POINT',2);
 CREATE TABLE ax_sonstigervermessungspunkt (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -707,7 +684,6 @@ CREATE INDEX ax_sonstigervermessungspunkt_hat ON ax_sonstigervermessungspunkt US
 CREATE TABLE ax_punktortag (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -741,7 +717,6 @@ CREATE INDEX ax_punktortag_itv_idx ON ax_punktortag USING btree (istteilvon);
 CREATE TABLE ax_punktortau (
 	ogc_fid				serial NOT NULL,
 	gml_id				character(16) NOT NULL,
-	identifier			varchar,
 	beginnt				character(20),
 	endet				character(20),
 	advstandardmodell		varchar[],
@@ -775,7 +750,6 @@ CREATE INDEX ax_punktortau_itv_idx ON ax_punktortau USING btree (istteilvon);
 CREATE TABLE ax_punktortta (
 	ogc_fid			  serial NOT NULL,
 	gml_id			  character(16) NOT NULL,
-	identifier		  varchar,
 	beginnt			  character(20),
 	endet			  character(20),
 	advstandardmodell	  varchar[],
@@ -814,7 +788,6 @@ CREATE INDEX ax_punktortta_itv_idx ON ax_punktortta USING btree (istteilvon);
 CREATE TABLE ax_fortfuehrungsnachweisdeckblatt (
 	ogc_fid				serial NOT NULL,
 	gml_id				character(16) NOT NULL,
-	identifier			varchar,
 	beginnt				character(20),
 	endet				character(20),
 	advstandardmodell		varchar[],
@@ -846,7 +819,6 @@ SELECT AddGeometryColumn('ax_fortfuehrungsnachweisdeckblatt','dummy',:alkis_epsg
 CREATE TABLE ax_fortfuehrungsfall (
 	ogc_fid					serial NOT NULL,
 	gml_id					character(16) NOT NULL,
-	identifier				varchar,
 	beginnt					character(20),
 	endet					character(20),
 	advstandardmodell			varchar[],
@@ -878,7 +850,6 @@ SELECT AddGeometryColumn('ax_fortfuehrungsfall','dummy',:alkis_epsg,'POINT',2);
 CREATE TABLE ax_reservierung (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -903,7 +874,6 @@ SELECT AddGeometryColumn('ax_reservierung','dummy',:alkis_epsg,'POINT',2);
 CREATE TABLE ax_punktkennunguntergegangen (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -931,7 +901,6 @@ SELECT AddGeometryColumn('ax_punktkennunguntergegangen','dummy',:alkis_epsg,'POI
 CREATE TABLE ax_historischesflurstueck (
 	ogc_fid						serial NOT NULL,
 	gml_id						character(16) NOT NULL,
-	identifier					varchar,
 	beginnt						character(20),
 	endet						character(20),
 	advstandardmodell				varchar[],
@@ -1001,7 +970,6 @@ COMMENT ON INDEX idx_histfs_nach IS 'Suchen nach Nachfolger-Flurstück';
 CREATE TABLE ax_historischesflurstueckalb (
 	ogc_fid						serial NOT NULL,
 	gml_id						character(16) NOT NULL,
-	identifier					varchar,
 	beginnt						character(20),
 	endet						character(20),
 	advstandardmodell				varchar[],
@@ -1062,7 +1030,6 @@ COMMENT ON COLUMN ax_historischesflurstueck.gemeinde  IS 'GDZ "Gemeindekennzeich
 CREATE TABLE ax_historischesflurstueckohneraumbezug (
 	ogc_fid					serial NOT NULL,
 	gml_id					character(16) NOT NULL,
-	identifier				varchar,
 	beginnt					character(20),
 	endet					character(20),
 	advstandardmodell			varchar[],
@@ -1130,7 +1097,6 @@ COMMENT ON COLUMN ax_historischesflurstueckohneraumbezug.name IS 'Array mit Fort
 CREATE TABLE ax_person (
 	ogc_fid				serial NOT NULL,
 	gml_id				character(16) NOT NULL,
-	identifier			varchar,
 	beginnt				character(20),
 	endet				character(20),
 	advstandardmodell		varchar[],
@@ -1182,7 +1148,6 @@ CREATE INDEX ax_person_ben ON ax_person USING gin (benennt);
 CREATE TABLE ax_anschrift (
 	ogc_fid				serial NOT NULL,
 	gml_id				character(16) NOT NULL,
-	identifier			varchar,
 	beginnt				character(20),
 	endet				character(20),
 	advstandardmodell		varchar[],
@@ -1221,7 +1186,6 @@ CREATE INDEX ax_anschrift_gz  ON ax_anschrift USING gin (gehoertzu);
 CREATE TABLE ax_verwaltung (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1244,7 +1208,6 @@ SELECT AddGeometryColumn('ax_verwaltung','dummy',:alkis_epsg,'POINT',2);
 CREATE TABLE ax_vertretung (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1269,7 +1232,6 @@ SELECT AddGeometryColumn('ax_vertretung','dummy',:alkis_epsg,'POINT',2);
 CREATE TABLE ax_namensnummer (
 	ogc_fid					serial NOT NULL,
 	gml_id					character(16) NOT NULL,
-	identifier				varchar,
 	beginnt					character(20),
 	endet					character(20),
 	advstandardmodell			varchar[],
@@ -1309,7 +1271,6 @@ CREATE INDEX ax_namensnummer_ben   ON ax_namensnummer USING btree (benennt);
 CREATE TABLE ax_buchungsblatt (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1341,7 +1302,6 @@ CREATE INDEX ax_buchungsblatt_bsa ON ax_buchungsblatt USING gin (bestehtaus);
 CREATE TABLE ax_buchungsstelle (
 	ogc_fid					serial NOT NULL,
 	gml_id					character(16) NOT NULL,
-	identifier				varchar,
 	beginnt					character(20),
 	endet					character(20),
 	advstandardmodell			varchar[],
@@ -1398,7 +1358,6 @@ CREATE INDEX ax_buchungsstelle_bsa   ON ax_buchungsstelle USING gin (beziehtsich
 CREATE TABLE ax_gebaeude (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1455,7 +1414,6 @@ CREATE INDEX ax_gebaeude_hzm ON ax_gebaeude USING btree (haengtzusammenmit);
 CREATE TABLE ax_bauteil (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1483,7 +1441,6 @@ CREATE UNIQUE INDEX ax_bauteil_gml ON ax_bauteil USING btree (gml_id,beginnt);
 CREATE TABLE ax_besonderegebaeudelinie (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1507,7 +1464,6 @@ CREATE INDEX ax_besonderegebaeudelinie_bes ON ax_besonderegebaeudelinie USING gi
 CREATE TABLE ax_firstlinie (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1531,7 +1487,6 @@ CREATE UNIQUE INDEX ax_firstlinie_gml ON ax_firstlinie USING btree (gml_id,begin
 CREATE TABLE ax_besonderergebaeudepunkt (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1570,7 +1525,6 @@ CREATE UNIQUE INDEX ax_besonderergebaeudepunkt_gml ON ax_besonderergebaeudepunkt
 CREATE TABLE ax_wohnbauflaeche (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1596,7 +1550,6 @@ CREATE UNIQUE INDEX ax_wohnbauflaeche_gml ON ax_wohnbauflaeche USING btree (gml_
 CREATE TABLE ax_industrieundgewerbeflaeche (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1625,7 +1578,6 @@ CREATE UNIQUE INDEX ax_industrieundgewerbeflaeche_gml ON ax_industrieundgewerbef
 CREATE TABLE ax_halde (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1649,7 +1601,6 @@ CREATE UNIQUE INDEX ax_halde_gml ON ax_halde USING btree (gml_id,beginnt);
 CREATE TABLE ax_bergbaubetrieb (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1674,7 +1625,6 @@ CREATE UNIQUE INDEX ax_bergbaubetrieb_gml ON ax_bergbaubetrieb USING btree (gml_
 CREATE TABLE ax_tagebaugrubesteinbruch (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1701,7 +1651,6 @@ CREATE UNIQUE INDEX ax_tagebaugrubesteinbruchb_gml ON ax_tagebaugrubesteinbruch 
 CREATE TABLE ax_flaechegemischternutzung (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1726,7 +1675,6 @@ CREATE UNIQUE INDEX ax_flaechegemischternutzung_gml ON ax_flaechegemischternutzu
 CREATE TABLE ax_flaechebesondererfunktionalerpraegung (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1751,7 +1699,6 @@ CREATE UNIQUE INDEX ax_flaechebesondererfunktionalerpraegung_gml ON ax_flaechebe
 CREATE TABLE ax_sportfreizeitunderholungsflaeche (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1776,7 +1723,6 @@ CREATE UNIQUE INDEX ax_sportfreizeitunderholungsflaeche_gml ON ax_sportfreizeitu
 CREATE TABLE ax_friedhof (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1803,7 +1749,6 @@ CREATE UNIQUE INDEX ax_friedhof_gml ON ax_friedhof USING btree (gml_id,beginnt);
 CREATE TABLE ax_strassenverkehr (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1834,7 +1779,6 @@ CREATE UNIQUE INDEX ax_strassenverkehr_gml ON ax_strassenverkehr USING btree (gm
 CREATE TABLE ax_weg (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1864,7 +1808,6 @@ CREATE UNIQUE INDEX ax_weg_gml ON ax_weg USING btree (gml_id,beginnt);
 CREATE TABLE ax_platz (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1894,7 +1837,6 @@ CREATE UNIQUE INDEX ax_platz_gml ON ax_platz USING btree (gml_id,beginnt);
 CREATE TABLE ax_bahnverkehr (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1921,7 +1863,6 @@ CREATE UNIQUE INDEX ax_bahnverkehr_gml ON ax_bahnverkehr USING btree (gml_id,beg
 CREATE TABLE ax_flugverkehr (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1948,7 +1889,6 @@ CREATE UNIQUE INDEX ax_flugverkehr_gml ON ax_flugverkehr USING btree (gml_id,beg
 CREATE TABLE ax_schiffsverkehr (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1975,7 +1915,6 @@ CREATE UNIQUE INDEX ax_schiffsverkehr_gml ON ax_schiffsverkehr USING btree (gml_
 CREATE TABLE ax_landwirtschaft (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -1998,7 +1937,6 @@ CREATE UNIQUE INDEX ax_landwirtschaft_gml ON ax_landwirtschaft USING btree (gml_
 CREATE TABLE ax_wald (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2022,7 +1960,6 @@ CREATE UNIQUE INDEX ax_wald_gml ON ax_wald USING btree (gml_id,beginnt);
 CREATE TABLE ax_gehoelz (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2046,7 +1983,6 @@ CREATE UNIQUE INDEX ax_gehoelz_gml ON ax_gehoelz USING btree (gml_id,beginnt);
 CREATE TABLE ax_heide (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2068,7 +2004,6 @@ CREATE UNIQUE INDEX ax_heide_gml ON ax_heide USING btree (gml_id,beginnt);
 CREATE TABLE ax_moor (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2092,7 +2027,6 @@ CREATE UNIQUE INDEX ax_moor_gml ON ax_moor USING btree (gml_id,beginnt);
 CREATE TABLE ax_sumpf (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2114,7 +2048,6 @@ CREATE UNIQUE INDEX ax_sumpf_gml ON ax_sumpf USING btree (gml_id,beginnt);
 CREATE TABLE ax_unlandvegetationsloseflaeche (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2141,7 +2074,6 @@ CREATE UNIQUE INDEX ax_unlandvegetationsloseflaeche_gml ON ax_unlandvegetationsl
 CREATE TABLE ax_fliessgewaesser (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2166,7 +2098,6 @@ CREATE UNIQUE INDEX ax_fliessgewaesser_gml ON ax_fliessgewaesser USING btree (gm
 CREATE TABLE ax_hafenbecken (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2190,7 +2121,6 @@ CREATE UNIQUE INDEX ax_hafenbecken_gml ON ax_hafenbecken USING btree (gml_id,beg
 CREATE TABLE ax_stehendesgewaesser (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2216,7 +2146,6 @@ CREATE UNIQUE INDEX ax_stehendesgewaesser_gml ON ax_stehendesgewaesser USING btr
 CREATE TABLE ax_meer (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2250,7 +2179,6 @@ CREATE UNIQUE INDEX ax_meer_gml ON ax_meer USING btree (gml_id,beginnt);
 CREATE TABLE ax_turm (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2279,7 +2207,6 @@ CREATE INDEX ax_turm_za ON ax_turm USING btree (zeigtauf);
 CREATE TABLE ax_bauwerkoderanlagefuerindustrieundgewerbe (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2304,7 +2231,6 @@ CREATE UNIQUE INDEX ax_bauwerkoderanlagefuerindustrieundgewerbe_gml ON ax_bauwer
 CREATE TABLE ax_vorratsbehaelterspeicherbauwerk (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2329,7 +2255,6 @@ CREATE UNIQUE INDEX ax_vorratsbehaelterspeicherbauwerk_gml ON ax_vorratsbehaelte
 CREATE TABLE ax_transportanlage (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2355,7 +2280,6 @@ CREATE UNIQUE INDEX ax_transportanlage_gml ON ax_transportanlage USING btree (gm
 CREATE TABLE ax_leitung (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2378,7 +2302,6 @@ CREATE UNIQUE INDEX ax_leitung_gml ON ax_leitung USING btree (gml_id,beginnt);
 CREATE TABLE ax_bauwerkoderanlagefuersportfreizeitunderholung (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2402,7 +2325,6 @@ CREATE UNIQUE INDEX ax_bauwerkoderanlagefuersportfreizeitunderholung_gml ON ax_b
 CREATE TABLE ax_historischesbauwerkoderhistorischeeinrichtung (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2425,7 +2347,6 @@ CREATE UNIQUE INDEX ax_historischesbauwerkoderhistorischeeinrichtung_gml ON ax_h
 CREATE TABLE ax_heilquellegasquelle (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2448,7 +2369,6 @@ CREATE UNIQUE INDEX ax_heilquellegasquelle_gml ON ax_heilquellegasquelle USING b
 CREATE TABLE ax_sonstigesbauwerkodersonstigeeinrichtung (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2480,7 +2400,6 @@ CREATE INDEX ax_sonstigesbauwerkodersonstigeeinrichtung_gz ON ax_sonstigesbauwer
 CREATE TABLE ax_einrichtunginoeffentlichenbereichen (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2503,7 +2422,6 @@ CREATE UNIQUE INDEX ax_einrichtunginoeffentlichenbereichen_gml ON ax_einrichtung
 CREATE TABLE ax_besondererbauwerkspunkt (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2534,7 +2452,6 @@ CREATE UNIQUE INDEX ax_besondererbauwerkspunkt_gml ON ax_besondererbauwerkspunkt
 CREATE TABLE ax_bauwerkimverkehrsbereich (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2558,7 +2475,6 @@ CREATE UNIQUE INDEX ax_bauwerkimverkehrsbereich_gml ON ax_bauwerkimverkehrsberei
 CREATE TABLE ax_strassenverkehrsanlage (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2582,7 +2498,6 @@ CREATE UNIQUE INDEX ax_strassenverkehrsanlage_gml ON ax_strassenverkehrsanlage U
 CREATE TABLE ax_wegpfadsteig (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2605,7 +2520,6 @@ CREATE UNIQUE INDEX ax_wegpfadsteig_gml ON ax_wegpfadsteig USING btree (gml_id,b
 CREATE TABLE ax_bahnverkehrsanlage (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2629,7 +2543,6 @@ CREATE UNIQUE INDEX ax_bahnverkehrsanlage_gml ON ax_bahnverkehrsanlage USING btr
 CREATE TABLE ax_seilbahnschwebebahn (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2652,7 +2565,6 @@ CREATE UNIQUE INDEX ax_seilbahnschwebebahn_gml ON ax_seilbahnschwebebahn USING b
 CREATE TABLE ax_gleis (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2677,7 +2589,6 @@ CREATE UNIQUE INDEX ax_gleis_gml ON ax_gleis USING btree (gml_id,beginnt);
 CREATE TABLE ax_flugverkehrsanlage (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2701,7 +2612,6 @@ CREATE UNIQUE INDEX ax_flugverkehrsanlage_gml ON ax_flugverkehrsanlage USING btr
 CREATE TABLE ax_einrichtungenfuerdenschiffsverkehr (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2725,7 +2635,6 @@ CREATE UNIQUE INDEX ax_einrichtungenfuerdenschiffsverkehr_gml ON ax_einrichtunge
 CREATE TABLE ax_bauwerkimgewaesserbereich (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2752,7 +2661,6 @@ CREATE UNIQUE INDEX ax_bauwerkimgewaesserbereich_gml ON ax_bauwerkimgewaesserber
 CREATE TABLE ax_vegetationsmerkmal (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2779,7 +2687,6 @@ CREATE UNIQUE INDEX ax_vegetationsmerkmal_gml ON ax_vegetationsmerkmal USING btr
 CREATE TABLE ax_gewaessermerkmal (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2802,7 +2709,6 @@ CREATE UNIQUE INDEX ax_gewaessermerkmal_gml ON ax_gewaessermerkmal USING btree (
 CREATE TABLE ax_untergeordnetesgewaesser (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2842,7 +2748,6 @@ CREATE UNIQUE INDEX ax_untergeordnetesgewaesser_gml ON ax_untergeordnetesgewaess
 CREATE TABLE ax_wasserspiegelhoehe (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2864,7 +2769,6 @@ CREATE UNIQUE INDEX ax_wasserspiegelhoehe_gml ON ax_wasserspiegelhoehe USING btr
 CREATE TABLE ax_schifffahrtsliniefaehrverkehr (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2895,7 +2799,6 @@ CREATE UNIQUE INDEX ax_schifffahrtsliniefaehrverkehr_gml ON ax_schifffahrtslinie
 CREATE TABLE ax_boeschungkliff (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2916,7 +2819,6 @@ CREATE UNIQUE INDEX ax_boeschungkliff_gml ON ax_boeschungkliff USING btree (gml_
 CREATE TABLE ax_boeschungsflaeche (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2942,7 +2844,6 @@ CREATE INDEX ax_boeschungsflaeche_itv        ON ax_boeschungsflaeche USING btree
 CREATE TABLE ax_dammwalldeich (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2966,7 +2867,6 @@ CREATE UNIQUE INDEX ax_dammwalldeich_gml ON ax_dammwalldeich USING btree (gml_id
 CREATE TABLE ax_hoehleneingang (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -2989,7 +2889,6 @@ CREATE UNIQUE INDEX ax_hoehleneingang_gml ON ax_hoehleneingang USING btree (gml_
 CREATE TABLE ax_felsenfelsblockfelsnadel (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3011,7 +2910,6 @@ CREATE UNIQUE INDEX ax_felsenfelsblockfelsnadel_gml ON ax_felsenfelsblockfelsnad
 CREATE TABLE ax_duene (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3033,7 +2931,6 @@ CREATE UNIQUE INDEX ax_duene_gml ON ax_duene USING btree (gml_id,beginnt);
 CREATE TABLE ax_hoehenlinie (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3055,7 +2952,6 @@ CREATE UNIQUE INDEX ax_hoehenlinie_gml ON ax_hoehenlinie USING btree (gml_id,beg
 CREATE TABLE ax_besonderertopographischerpunkt (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3079,7 +2975,6 @@ CREATE UNIQUE INDEX ax_besonderertopographischerpunkt_gml ON ax_besonderertopogr
 CREATE TABLE ax_soll (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3106,7 +3001,6 @@ CREATE UNIQUE INDEX ax_soll_gml ON ax_soll USING btree (gml_id,beginnt);
 CREATE TABLE ax_gelaendekante (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3143,7 +3037,6 @@ CREATE INDEX ax_gelaendekante_itv_idx ON ax_gelaendekante USING btree (istteilvo
 CREATE TABLE ax_besondererhoehenpunkt (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3180,7 +3073,6 @@ CREATE UNIQUE INDEX ax_besondererhoehenpunkt_gml ON ax_besondererhoehenpunkt USI
 CREATE TABLE ax_klassifizierungnachstrassenrecht (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3211,7 +3103,6 @@ CREATE INDEX ax_klassifizierungnachstrassenrecht_afs ON ax_klassifizierungnachst
 CREATE TABLE ax_klassifizierungnachwasserrecht (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3235,7 +3126,6 @@ CREATE INDEX ax_klassifizierungnachwasserrecht_afs ON ax_klassifizierungnachwass
 CREATE TABLE ax_anderefestlegungnachwasserrecht (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3260,7 +3150,6 @@ CREATE INDEX ax_anderefestlegungnachwasserrecht_afs ON ax_anderefestlegungnachwa
 CREATE TABLE ax_schutzgebietnachwasserrecht (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3287,7 +3176,6 @@ CREATE INDEX ax_schutzgebietnachwasserrecht_afs ON ax_schutzgebietnachwasserrech
 CREATE TABLE ax_naturumweltoderbodenschutzrecht (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3313,7 +3201,6 @@ CREATE INDEX ax_naturumweltoderbodenschutzrecht_afs ON ax_naturumweltoderbodensc
 CREATE TABLE ax_schutzgebietnachnaturumweltoderbodenschutzrecht (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3338,7 +3225,6 @@ CREATE INDEX ax_schutzgebietnachnaturumweltoderbodenschutzrecht_afs ON ax_schutz
 CREATE TABLE ax_bauraumoderbodenordnungsrecht (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3366,7 +3252,6 @@ CREATE UNIQUE INDEX ax_bauraumoderbodenordnungsrecht_gml ON ax_bauraumoderbodeno
 CREATE TABLE ax_denkmalschutzrecht (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3393,7 +3278,6 @@ CREATE INDEX ax_denkmalschutzrecht_afs ON ax_denkmalschutzrecht(land,stelle);
 CREATE TABLE ax_forstrecht (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3419,7 +3303,6 @@ CREATE INDEX ax_forstrecht_afs ON ax_forstrecht(land,stelle);
 CREATE TABLE ax_sonstigesrecht (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3448,7 +3331,6 @@ CREATE UNIQUE INDEX ax_sonstigesrecht_gml ON ax_sonstigesrecht USING btree (gml_
 CREATE TABLE ax_schutzzone (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3481,7 +3363,6 @@ CREATE INDEX ax_schutzzone_itv        ON ax_schutzzone USING btree (istteilvon);
 CREATE TABLE ax_bodenschaetzung (
 	ogc_fid				serial NOT NULL,
 	gml_id				character(16) NOT NULL,
-	identifier			varchar,
 	beginnt				character(20),
 	endet				character(20),
 	advstandardmodell		varchar[],
@@ -3512,7 +3393,6 @@ CREATE UNIQUE INDEX ax_bodenschaetzung_gml ON ax_bodenschaetzung USING btree (gm
 CREATE TABLE ax_musterlandesmusterundvergleichsstueck (
 	ogc_fid				serial NOT NULL,
 	gml_id				character(16) NOT NULL,
-	identifier			varchar,
 	beginnt				character(20),
 	endet				character(20),
 	advstandardmodell		varchar[],
@@ -3545,7 +3425,6 @@ CREATE UNIQUE INDEX ax_musterlandesmusterundvergleichsstueck_gml ON ax_musterlan
 CREATE TABLE ax_grablochderbodenschaetzung (
 	ogc_fid				serial NOT NULL,
 	gml_id				character(16) NOT NULL,
-	identifier			varchar,
 	beginnt				character(20),
 	endet				character(20),
 	advstandardmodell		varchar[],
@@ -3578,7 +3457,6 @@ CREATE UNIQUE INDEX ax_grablochderbodenschaetzung_gml ON ax_grablochderbodenscha
 CREATE TABLE ax_bewertung (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3601,7 +3479,6 @@ CREATE UNIQUE INDEX ax_bewertung_gml ON ax_bewertung USING btree (gml_id,beginnt
 CREATE TABLE ax_tagesabschnitt (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3628,7 +3505,6 @@ CREATE UNIQUE INDEX ax_tagesabschnitt_gml ON ax_tagesabschnitt USING btree (gml_
 CREATE TABLE ax_bundesland (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3653,7 +3529,6 @@ CREATE UNIQUE INDEX ax_bundesland_gml ON ax_bundesland USING btree (gml_id,begin
 CREATE TABLE ax_regierungsbezirk (
 	ogc_fid				serial NOT NULL,
 	gml_id				character(16) NOT NULL,
-	identifier			varchar,
 	beginnt				character(20),
 	endet				character(20),
 	advstandardmodell		varchar[],
@@ -3677,7 +3552,6 @@ CREATE UNIQUE INDEX ax_regierungsbezirk_gml ON ax_regierungsbezirk USING btree (
 CREATE TABLE ax_kreisregion (
 	ogc_fid				serial NOT NULL,
 	gml_id				character(16) NOT NULL,
-	identifier			varchar,
 	beginnt				character(20),
 	endet				character(20),
 	advstandardmodell		varchar[],
@@ -3702,7 +3576,6 @@ CREATE UNIQUE INDEX ax_kreisregion_gml ON ax_kreisregion USING btree (gml_id,beg
 CREATE TABLE ax_gemeinde (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3734,7 +3607,6 @@ CREATE INDEX ax_gemeinde_iabv ON ax_gemeinde USING gin (istamtsbezirkvon);
 CREATE TABLE ax_gemeindeteil (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3762,7 +3634,6 @@ CREATE UNIQUE INDEX ax_gemeindeteil_gml ON ax_gemeindeteil USING btree (gml_id,b
 CREATE TABLE ax_gemarkung (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3788,7 +3659,6 @@ CREATE INDEX ax_gemarkung_nr         ON ax_gemarkung USING btree (land,gemarkung
 CREATE TABLE ax_gemarkungsteilflur (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3818,7 +3688,6 @@ CREATE INDEX ax_gemarkungsteilflur_ghz ON ax_gemarkungsteilflur USING gin (gehoe
 CREATE TABLE ax_verwaltungsgemeinschaft (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3848,7 +3717,6 @@ SELECT AddGeometryColumn('ax_verwaltungsgemeinschaft','dummy',:alkis_epsg,'POINT
 CREATE TABLE ax_buchungsblattbezirk (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3880,7 +3748,6 @@ CREATE INDEX ax_buchungsblattbez_key ON ax_buchungsblattbezirk USING btree (land
 CREATE TABLE ax_dienststelle (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3916,7 +3783,6 @@ CREATE UNIQUE INDEX ax_dienststelle_gml ON ax_dienststelle USING btree (gml_id,b
 CREATE TABLE ax_lagebezeichnungkatalogeintrag (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3959,7 +3825,6 @@ CREATE INDEX ax_lagebezeichnungkatalogeintrag_bez  ON ax_lagebezeichnungkataloge
 CREATE TABLE ax_kleinraeumigerlandschaftsteil (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -3982,7 +3847,6 @@ CREATE UNIQUE INDEX ax_kleinraeumigerlandschaftsteil_gml ON ax_kleinraeumigerlan
 CREATE TABLE ax_wohnplatz (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -4010,7 +3874,6 @@ CREATE UNIQUE INDEX ax_wohnplatz_gml ON ax_wohnplatz USING btree (gml_id,beginnt
 CREATE TABLE ax_baublock (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -4033,7 +3896,6 @@ CREATE UNIQUE INDEX ax_baublock_gml ON ax_baublock USING btree (gml_id,beginnt);
 CREATE TABLE ax_wirtschaftlicheeinheit (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -4051,7 +3913,6 @@ SELECT AddGeometryColumn('ax_wirtschaftlicheeinheit','dummy',:alkis_epsg,'POINT'
 CREATE TABLE ax_kommunalesgebiet (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -4112,7 +3973,6 @@ CREATE UNIQUE INDEX ax_kommunalesgebiet_gml ON ax_kommunalesgebiet USING btree (
 CREATE TABLE ax_gebaeudeausgestaltung (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
@@ -4138,7 +3998,6 @@ CREATE UNIQUE INDEX ax_gebaeudeausgestaltung_gml ON ax_gebaeudeausgestaltung USI
 CREATE TABLE ax_topographischelinie (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
-	identifier		varchar,
 	beginnt			character(20),
 	endet			character(20),
 	advstandardmodell	varchar[],
