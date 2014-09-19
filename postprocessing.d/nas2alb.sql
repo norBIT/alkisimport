@@ -43,6 +43,44 @@ SET client_min_messages TO notice;
 
 -- ax_flurstueck => flurst
 
+CREATE OR REPLACE FUNCTION alkis_flsnrk(f ax_flurstueck) RETURNS varchar AS $$
+BEGIN
+	RETURN to_char(f.zaehler::int,'fm00000') || '/' ||
+		CASE
+		WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4)
+		ELSE to_char(coalesce(mod(f.nenner::int,1000),0)::int,'fm000')
+		END;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+CREATE OR REPLACE FUNCTION alkis_flsnr(f ax_flurstueck) RETURNS varchar AS $$
+BEGIN
+	RETURN to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000')
+	    || '-' || to_char(coalesce(f.flurnummer,0)::int,'fm000')
+	    || '-' || alkis_flsnrk(f);
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+CREATE OR REPLACE FUNCTION alkis_flskoord(f ax_flurstueck) RETURNS varchar AS $$
+DECLARE
+        g GEOMETRY;
+BEGIN
+	BEGIN
+		SELECT st_pointonsurface(f.wkb_geometry) INTO g;
+	EXCEPTION WHEN OTHERS THEN
+		RAISE NOTICE 'st_pointonsurface-Ausnahme bei %', alkis_flsnr(f);
+		BEGIN
+			SELECT st_centroid(f.wkb_geometry) INTO g;
+		EXCEPTION WHEN OTHERS THEN
+			RAISE NOTICE 'st_centroid-Ausnahme bei %', alkis_flsnr(f);
+			RETURN NULL;
+		END;
+	END;
+
+	RETURN to_char(st_x(g)*10::int,'fm00000000') ||' '|| to_char(st_y(g)*10::int,'fm00000000');
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
 SELECT alkis_dropobject('flurst');
 CREATE TABLE flurst (
 	flsnr varchar NOT NULL,
@@ -66,7 +104,7 @@ CREATE TABLE flurst (
 	strshl character(32),
 	gemshl character(32),
 	hausnr character(8),
-	lagebez character(54),
+	lagebez varchar,
 	k_anlverm character(1),
 	anl_verm character(27),
 	blbnr character(200),
@@ -77,13 +115,16 @@ CREATE TABLE flurst (
 	primary key (flsnr)
 ) WITH OIDS;
 
+SELECT alkis_dropobject('ax_flurstueck_flsnr');
+CREATE INDEX ax_flurstueck_flsnr ON ax_flurstueck USING btree (alkis_flsnr(ax_flurstueck));
+
 INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl,af,flurknr,baublock,flskoord,fora,fina,h1shl,h2shl,hinwshl,strshl,gemshl,hausnr,lagebez,k_anlverm,anl_verm,blbnr,n_flst,ff_entst,ff_stand,ff_datum)
    SELECT
-     to_char(land::int,'fm00') || to_char(gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(flurnummer,0)::int,'fm000') || '-' || to_char(zaehler::int,'fm00000') || '/' || CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(nenner::int,1000),0)::int,'fm000') END END AS flsnr,
-     to_char(zaehler::int,'fm00000') || '/' || CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(nenner::int,1000),0)::int,'fm000') END AS flsnrk,
-     to_char(land::int,'fm00') || to_char(gemarkungsnummer::int,'fm0000') AS gemashl,
-     to_char(coalesce(flurnummer,0)::int,'fm000') AS flr,
-     substr(zeitpunktderentstehung,1,4)  || '/     -  ' AS entst,
+     alkis_flsnr(a) AS flsnr,
+     alkis_flsnrk(a) AS flsnrk,
+     to_char(a.land::int,'fm00') || to_char(a.gemarkungsnummer::int,'fm0000') AS gemashl,
+     to_char(coalesce(a.flurnummer,0)::int,'fm000') AS flr,
+     substr(a.zeitpunktderentstehung,1,4)  || '/     -  ' AS entst,
      NULL AS fortf,
      amtlicheflaeche::int AS flsfl,
      amtlicheflaeche AS amtlflsfl,
@@ -91,16 +132,20 @@ INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl
      '01' AS af,
      NULL AS flurknr,
      NULL AS baublock,
-     to_char(st_x(st_pointonsurface(wkb_geometry))*10::int,'fm00000000')||' '||to_char(st_y(st_pointonsurface(wkb_geometry))*10::int,'fm00000000') AS flskoord,
+     alkis_flskoord(a) AS flskoord,
      NULL AS fora,
      NULL AS fina,
      NULL AS h1shl,
      NULL AS h2shl,
      NULL AS hinwshl,
      NULL AS strshl,
-     to_char(land::int,'fm00')||regierungsbezirk||to_char(kreis::int,'fm00')||to_char(gemeinde::int,'fm000') AS gemshl,
+     to_char(a.land::int,'fm00')||a.regierungsbezirk||to_char(a.kreis::int,'fm00')||to_char(a.gemeinde::int,'fm000') AS gemshl,
      NULL AS hausnr,
-     NULL AS lagebez,
+     (
+      SELECT array_to_string(array_agg(DISTINCT unverschluesselt),E'\n')
+      FROM ax_lagebezeichnungohnehausnummer l
+      WHERE l.endet IS NULL AND l.gml_id=ANY(a.zeigtauf)
+     ) AS lagebez,
      NULL AS k_anlverm,
      NULL AS anl_verm,
      NULL AS blbnr,
@@ -109,17 +154,19 @@ INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl
      0 AS ff_stand,
      NULL AS ff_datum
    FROM ax_flurstueck a
-   WHERE endet IS NULL
+   WHERE a.endet IS NULL
      -- Workaround für gleiche Bestände von mehrere Katasterämtern
      AND NOT EXISTS (
-     	SELECT *
+	SELECT *
 	FROM ax_flurstueck b
 	WHERE b.endet IS NULL
-	  AND a.land=b.land AND a.gemarkungsnummer=b.gemarkungsnummer AND coalesce(a.flurnummer,0)=coalesce(b.flurnummer,0) AND a.zaehler=b.zaehler AND coalesce(a.nenner,'0')=coalesce(b.nenner,'0')
+	  AND alkis_flsnr(a)=alkis_flsnr(b)
 	  AND b.beginnt<a.beginnt
 	  AND a.ogc_fid<>b.ogc_fid
 	)
      ;
+
+SELECT alkis_dropobject('ax_flurstueck_flsnr');
 
 CREATE INDEX flurst_idx0 ON flurst(oid);
 CREATE INDEX flurst_idx1 ON flurst(h1shl);
@@ -174,7 +221,7 @@ INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 		0
 	FROM (
 		SELECT
-			to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0)::int,'fm000') || '-' || to_char(f.zaehler::int,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0)::int,'fm000') END AS flsnr,
+			alkis_flsnr(f) AS flsnr,
 			to_char(l.land::int,'fm00')||l.regierungsbezirk||to_char(l.kreis::int,'fm00')||to_char(l.gemeinde::int,'fm000')||'    '||trim(lage) AS strshl,
 			hausnummer AS hausnr
 		FROM ax_lagebezeichnungmithausnummer l
@@ -182,7 +229,7 @@ INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 		WHERE NOT l.lage IS NULL AND l.endet IS NULL
 	UNION
 		SELECT
-			to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0)::int,'fm000') || '-' || to_char(f.zaehler::int,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0)::int,'fm000') END AS flsnr,
+			alkis_flsnr(f) AS flsnr,
 			to_char(l.land::int,'fm00')||l.regierungsbezirk||to_char(l.kreis::int,'fm00')||to_char(l.gemeinde::int,'fm000')||'    '||trim(lage) AS strshl,
 			'' AS hausnr
 		FROM ax_lagebezeichnungohnehausnummer l
@@ -249,7 +296,7 @@ CREATE TABLE eignerart (
 
 INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,lkfs)
 	SELECT
-		to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0)::int,'fm000') || '-' || to_char(f.zaehler::int,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0)::int,'fm000') END AS flsnr,
+		alkis_flsnr(f) AS flsnr,
 		to_char(bb.land::int,'fm00') || to_char(bb.bezirk::int,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		lpad(laufendenummer,4,'0') AS bvnr,
 		buchungsart AS b,
@@ -265,7 +312,7 @@ INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,l
 	WHERE f.endet IS NULL
 	UNION
 	SELECT
-		to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(f.flurnummer,0)::int,'fm000') || '-' || to_char(f.zaehler::int,'fm00000') || '/' || CASE WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(f.nenner::int,1000),0)::int,'fm000') END AS flsnr,
+		alkis_flsnr(f) AS flsnr,
 		to_char(bb.land::int,'fm00') || to_char(bb.bezirk::int,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		lpad(bs.laufendenummer,4,'0') AS bvnr,
 		bs.buchungsart AS b,
@@ -352,7 +399,7 @@ INSERT INTO bestand(bestdnr,gbbz,gbblnr,anteil,auftlnr,bestfl,ff_entst,ff_stand,
 	WHERE bb.endet IS NULL
 	  -- Workaround für gleiche Bestände von mehrere Katasterämtern
 	  AND NOT EXISTS (
-	  	SELECT *
+		SELECT *
 		FROM ax_buchungsblatt bb2
 		WHERE bb2.endet IS NULL
 		  AND bb.land=bb2.land AND bb.bezirk=bb2.bezirk AND trim(bb.buchungsblattnummermitbuchstabenerweiterung)=trim(bb2.buchungsblattnummermitbuchstabenerweiterung)
@@ -649,11 +696,7 @@ CREATE TABLE fs(
 	alb_key varchar
 );
 INSERT INTO fs(fs_key,fs_obj,alb_key)
-  SELECT
-    ogc_fid
-    ,gml_id
-    ,to_char(land::int,'fm00') || to_char(gemarkungsnummer::int,'fm0000') || '-' || to_char(coalesce(flurnummer,0)::int,'fm000') || '-' || to_char(zaehler::int,'fm00000') || '/' || CASE WHEN gml_id LIKE 'DESN%' THEN substring(flurstueckskennzeichen,15,4) ELSE to_char(coalesce(mod(nenner::int,1000),0)::int,'fm000') END
-  FROM ax_flurstueck;
+  SELECT ogc_fid,gml_id,alkis_flsnr(ax_flurstueck) FROM ax_flurstueck WHERE endet IS NULL;
 
 CREATE INDEX fs_obj ON fs(fs_obj);
 CREATE INDEX fs_alb ON fs(alb_key);
@@ -681,13 +724,15 @@ CREATE TABLE afst_shl (
 
 CREATE INDEX afst_shl_idx0 ON afst_shl(ausf_st);
 
-UPDATE bestand
-   SET amtlbestfl=(
-        SELECT SUM(amtlflsfl*CASE WHEN anteil IS NULL OR anteil='0/0' THEN 1.0 ELSE split_part(anteil,'/',1)::float8 / split_part(anteil,'/',2)::float8 END)
-        FROM flurst
-        JOIN eignerart ON flurst.flsnr=eignerart.flsnr
-        WHERE eignerart.bestdnr=bestand.bestdnr
-        );
+CREATE TEMPORARY TABLE amtlbestfl AS
+	SELECT bestdnr,SUM(amtlflsfl*CASE WHEN anteil IS NULL OR anteil='0/0' THEN 1.0 ELSE split_part(anteil,'/',1)::float8 / split_part(anteil,'/',2)::float8 END) AS amtlbestfl
+	FROM flurst
+	JOIN eignerart ON flurst.flsnr=eignerart.flsnr
+	GROUP BY bestdnr;
+
+CREATE UNIQUE INDEX amtlbestfl_idx ON amtlbestfl(bestdnr);
+
+UPDATE bestand SET amtlbestfl=(SELECT amtlbestfl FROM amtlbestfl WHERE amtlbestfl.bestdnr=bestand.bestdnr);
 
 UPDATE bestand SET bestfl=amtlbestfl::int WHERE amtlbestfl<=2147483647; -- maxint
 
