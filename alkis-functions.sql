@@ -1,10 +1,10 @@
-/******************************************************************************
+/****************************************************************************
  *
  * Project:  norGIS ALKIS Import
  * Purpose:  SQL-Funktionen für ALKIS
  * Author:   Jürgen E. Fischer <jef@norbit.de>
  *
- ******************************************************************************
+ ****************************************************************************
  * Copyright (c) 2012-2014, Jürgen E. Fischer <jef@norbit.de>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -24,9 +24,6 @@ DECLARE
 	i integer;
 	tn varchar;
 BEGIN
-	r := '';
-	d := '';
-
 	-- drop objects
 	FOR c IN SELECT relkind,relname
 		FROM pg_class
@@ -35,27 +32,23 @@ BEGIN
 		ORDER BY relkind
 	LOOP
 		IF c.relkind = 'v' THEN
-			r := r || d || 'Sicht ' || c.relname || ' gelöscht.';
+			r := coalesce(r||E'\n','') || 'Sicht ' || c.relname || ' gelöscht.';
 			EXECUTE 'DROP VIEW ' || c.relname || ' CASCADE';
 		ELSIF c.relkind = 'r' THEN
-			r := r || d || 'Tabelle ' || c.relname || ' gelöscht.';
+			r := coalesce(r||E'\n','') || 'Tabelle ' || c.relname || ' gelöscht.';
 			EXECUTE 'DROP TABLE ' || c.relname || ' CASCADE';
 		ELSIF c.relkind = 'S' THEN
-			r := r || d || 'Sequenz ' || c.relname || ' gelöscht.';
+			r := coalesce(r||E'\n','') || 'Sequenz ' || c.relname || ' gelöscht.';
 			EXECUTE 'DROP SEQUENCE ' || c.relname;
 		ELSIF c.relkind <> 'i' THEN
-			r := r || d || 'Typ ' || c.table_type || '.' || c.table_name || ' unerwartet.';
-		ELSE
-			CONTINUE;
+			r := coalesce(r||E'\n','') || 'Typ ' || c.table_type || '.' || c.table_name || ' unerwartet.';
 		END IF;
-		d := E'\n';
 	END LOOP;
 
 	FOR c IN SELECT indexname FROM pg_indexes WHERE schemaname='public' AND indexname=t
 	LOOP
-		r := r || d || 'Index ' || c.indexname || ' gelöscht.';
+		r := coalesce(r||E'\n','') || 'Index ' || c.indexname || ' gelöscht.';
 		EXECUTE 'DROP INDEX ' || c.indexname;
-		d := E'\n';
 	END LOOP;
 
 	FOR c IN SELECT proname,proargtypes
@@ -63,7 +56,7 @@ BEGIN
 		JOIN pg_namespace ON pg_proc.pronamespace=pg_namespace.oid
 		WHERE pg_namespace.nspname='public' AND pg_proc.proname=t
 	LOOP
-		r := r || d || 'Funktion ' || c.proname || ' gelöscht.';
+		r := coalesce(r||E'\n','')|| 'Funktion ' || c.proname || ' gelöscht.';
 
 		s := 'DROP FUNCTION ' || c.proname || '(';
 		d := '';
@@ -77,8 +70,6 @@ BEGIN
 		s := s || ')';
 
 		EXECUTE s;
-
-		d := E'\n';
 	END LOOP;
 
 	FOR c IN SELECT relname,conname
@@ -87,9 +78,8 @@ BEGIN
 		JOIN pg_namespace ON pg_constraint.connamespace=pg_namespace.oid
 		WHERE pg_namespace.nspname='public' AND pg_constraint.conname=t
 	LOOP
-		r := r || d || 'Constraint ' || c.conname || ' von ' || c.relname || ' gelöscht.';
+		r := coalesce(r||E'\n','') || 'Constraint ' || c.conname || ' von ' || c.relname || ' gelöscht.';
 		EXECUTE 'ALTER TABLE ' || c.relname || ' DROP CONSTRAINT ' || c.conname;
-		d := E'\n';
 	END LOOP;
 
 	RETURN r;
@@ -102,22 +92,18 @@ CREATE FUNCTION alkis_drop() RETURNS varchar AS $$
 DECLARE
 	c RECORD;
 	r VARCHAR;
-	d VARCHAR;
 BEGIN
-	r := '';
-	d := '';
 	-- drop tables & views
 	FOR c IN SELECT table_type,table_name FROM information_schema.tables WHERE table_schema='public' AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_') OR table_name IN ('alkis_beziehungen','delete','alkis_version')) ORDER BY table_type DESC LOOP
 		IF c.table_type = 'VIEW' THEN
-			r := r || d || 'Sicht ' || c.table_name || ' gelöscht.';
+			r := coalesce(r||E'\n','') || 'Sicht ' || c.table_name || ' gelöscht.';
 			EXECUTE 'DROP VIEW ' || c.table_name || ' CASCADE';
 		ELSIF c.table_type = 'BASE TABLE' THEN
-			r := r || d || 'Tabelle ' || c.table_name || ' gelöscht.';
+			r := coalesce(r||E'\n','') || 'Tabelle ' || c.table_name || ' gelöscht.';
 			EXECUTE 'DROP TABLE ' || c.table_name || ' CASCADE';
 		ELSE
-			r := r || d || 'Typ ' || c.table_type || '.' || c.table_name || ' unerwartet.';
+			r := coalesce(r||E'\n','') || 'Typ ' || c.table_type || '.' || c.table_name || ' unerwartet.';
 		END IF;
-		d := E'\n';
 	END LOOP;
 
 	-- clean geometry_columns
@@ -193,11 +179,7 @@ CREATE FUNCTION alkis_delete() RETURNS varchar AS $$
 DECLARE
 	c RECORD;
 	r varchar;
-	d varchar;
 BEGIN
-	r := '';
-	d := '';
-
 	-- drop views
 	FOR c IN
 		SELECT table_name
@@ -206,9 +188,8 @@ BEGIN
 		  AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_')
 			OR table_name IN ('alkis_beziehungen','delete') )
 	LOOP
-		r := r || d || c.table_name || ' wurde geleert.';
+		r := coalesce(r||E'\n','') || c.table_name || ' wurde geleert.';
 		EXECUTE 'DELETE FROM '||c.table_name;
-		d := E'\n';
 	END LOOP;
 
 	RETURN r;
@@ -586,7 +567,7 @@ BEGIN
 		END IF;
 	END LOOP;
 
-	RETURN r;
+	RETURN coalesce(r,'Keine Fehler gefunden.');
 END;
 $$ LANGUAGE plpgsql;
 

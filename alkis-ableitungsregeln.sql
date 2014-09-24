@@ -6,7 +6,7 @@
  * Author:   Jürgen E. Fischer jef@norbit.de
  *
  ***************************************************************************
- * Copyright (c) 2013 Juergen E. Fischer (jef@norbit.de)                   *
+ * Copyright (c) 2013-2014 Juergen E. Fischer (jef@norbit.de)              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -16,6 +16,8 @@
  ***************************************************************************/
 
 -- %s/ARRAY\[\([^]]*\)\] <@ \([^ ;]*\)/\1 = ANY(\2)/
+-- \timing
+-- \set ECHO queries
 
 /*
 	1XXX = Fläche
@@ -440,7 +442,6 @@ WHERE a.ogc_fid<b.ogc_fid
   AND a.wkb_geometry && b.wkb_geometry AND st_intersects(a.wkb_geometry,b.wkb_geometry)
   AND a.endet IS NULL AND b.endet IS NULL;
 
-SELECT 'Erzeuge Flurstücksnummern.';
 
 --                    ARZ
 -- Schrägstrich: 4113 4122
@@ -448,6 +449,7 @@ SELECT 'Erzeuge Flurstücksnummern.';
 
 -- Flurstücksnummern
 -- Schrägstrichdarstellung
+SELECT 'Erzeuge Flurstücksnummern in Schrägstrichdarstellung...';
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
@@ -464,6 +466,7 @@ WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alki
 
 -- Zähler
 -- Bruchdarstellung
+SELECT 'Erzeuge Flurstückszähler...';
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
@@ -480,6 +483,7 @@ WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alki
 
 -- Nenner
 -- Bruchdarstellung
+SELECT 'Erzeuge Flurstücksnenner...';
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	gml_id,
@@ -501,6 +505,7 @@ FROM (
 WHERE NOT text IS NULL;
 
 -- Bruchstrich
+SELECT 'Erzeuge Flurstücksbruchstriche...';
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 SELECT
 	gml_id,
@@ -531,6 +536,7 @@ FROM (
 ) AS bruchstrich1;
 
 -- Zuordnungspfeile
+SELECT 'Erzeuge Zuordnungspfeile...';
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 SELECT
 	o.gml_id,
@@ -544,6 +550,7 @@ JOIN ap_lpo l ON ARRAY[o.gml_id] <@ l.dientzurdarstellungvon AND l.endet IS NULL
 WHERE o.endet IS NULL;
 
 -- Überhaken
+SELECT 'Erzeuge Überhaken...';
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	o.gml_id,
@@ -925,6 +932,7 @@ WHERE o.endet IS NULL;
 SELECT 'Lagebezeichnungen mit Hausnummer werden verarbeitet.';
 
 -- mit Hausnummer, Ortsteil
+SELECT 'Lagebezeichnungen mit Hausnummer, Ortsteil verarbeitet.';
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
@@ -941,6 +949,7 @@ WHERE coalesce(schriftinhalt,'')<>'' AND o.endet IS NULL;
 
 -- mit Hausnummer (bezieht sich auf Gebäude, Turm oder Flurstück)
 -- TODO: 4070 PNR 3002
+SELECT 'Gebäudehausnummern...';
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
