@@ -18,11 +18,10 @@
 ^psql:.*: (NOTICE|HINWEIS):  (function|Funktion) (alkis_drop\(\)|alkis_dropobject\(text\)|alkis_delete\(\)|alkis_mviews\(\)|alkis_update_schema\(\)) (does not exist, skipping|existiert nicht, wird \S+bersprungen)$
 ^psql:.*: (NOTICE|HINWEIS):  Dropping (table|view|sequence) 
 ^psql:.*: (NOTICE|HINWEIS):  gserialized_gist_joinsel: jointype 4 not supported\s*$
-psql:alkis-functions.sql:612: ERROR:  syntax error at or near "WITH RECURSIVE"\s*$
+^CONTEXT:  SQL statement in PL\/PgSQL function "alkis_(update_schema|set_comments)" near line \d+\s*$
+psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*$
 ^(LINE 1|QUERY):\s+WITH RECURSIVE element\(name,base\) AS 
-psql:alkis-functions.sql:612: ERROR:  syntax error at or near "WITH RECURSIVE"\r
 ^\s+\^\s*$
-^CONTEXT:  SQL statement in PL\/PgSQL function "alkis_set_comments" near line \d+\s*$
 ^PL\/pgSQL function alkis_dropobject\(text\) line \d+ at EXECUTE statement
 ^PL\/pgSQL-Funktion alkis_dropobject\(text\) Zeile \d+ bei EXECUTE-Anweisung
 ^.*: (NOTICE|HINWEIS):  CREATE TABLE

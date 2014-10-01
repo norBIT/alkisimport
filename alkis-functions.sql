@@ -227,170 +227,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Indizes erzeugen
-SELECT alkis_dropobject('alkis_update_schema');
-CREATE OR REPLACE FUNCTION alkis_update_schema() RETURNS varchar AS $$
-DECLARE
-	c RECORD;
-	s INTEGER;
-	n INTEGER;
-	i INTEGER;
-	v INTEGER;
-	r TEXT;
-BEGIN
-	r := NULL;
-
-	BEGIN
-		SELECT version INTO v FROM alkis_version;
-
-	EXCEPTION WHEN OTHERS THEN
-		v := 0;
-		CREATE TABLE alkis_version(version INTEGER);
-		INSERT INTO alkis_version(version) VALUES (v);
-	END;
-
-	IF v<1 THEN
-		PERFORM alkis_dropobject('ax_tatsaechlichenutzung');
-		PERFORM alkis_dropobject('ax_klassifizierung');
-		PERFORM alkis_dropobject('ax_ausfuehrendestellen');
-
-		ALTER TABLE ax_flurstueck ALTER angabenzumabschnittnummeraktenzeichen TYPE varchar[];
-		ALTER TABLE ax_georeferenziertegebaeudeadresse ALTER ortsteil TYPE varchar;
-		ALTER TABLE ax_historischesflurstueck ALTER zaehler TYPE varchar;
-		ALTER TABLE ax_historischesflurstueckohneraumbezug ALTER zaehler TYPE varchar;
-		ALTER TABLE ax_historischesflurstueckohneraumbezug ALTER rechtsbehelfsverfahren TYPE varchar;
-		ALTER TABLE ax_gebaeude ALTER geschossflaeche TYPE double precision;
-		ALTER TABLE ax_gebaeude ALTER grundflaeche TYPE double precision;
-		ALTER TABLE ax_gebaeude ALTER umbauterraum TYPE double precision;
-		ALTER TABLE ax_bodenschaetzung ALTER bodenzahlodergruenlandgrundzahl TYPE varchar;
-		ALTER TABLE ax_bodenschaetzung ALTER ackerzahlodergruenlandzahl TYPE varchar;
-		ALTER TABLE ax_grablochderbodenschaetzung ALTER bodenzahlodergruenlandgrundzahl TYPE varchar;
-		ALTER TABLE ax_gemarkungsteilflur ADD gehoertzu character(16)[];
-		CREATE INDEX ax_gemarkungsteilflur_ghz ON ax_gemarkungsteilflur USING gin (gehoertzu);
-		ALTER TABLE ax_dienststelle ADD kennung varchar;
-		ALTER TABLE ax_wohnplatz ADD zweitname varchar;
-		ALTER TABLE ax_baublock ADD art integer;
-
-		-- gml_id: varchar => character(16)
-		s := 0;
-		i := 0;
-		FOR c IN
-			SELECT table_name
-			FROM information_schema.columns a
-			WHERE a.table_schema='public'
-			  AND (a.table_name LIKE 'ax_%' OR a.table_name LIKE 'ap_%')
-			  AND a.column_name='gml_id'
-			  AND a.data_type='character varying'
-		LOOP
-			-- RAISE NOTICE '%', 'UPDATE ' || c.table_name || ' SET gml_id=substring(gml_id,1,16) WHERE length(gml_id)>16';
-			EXECUTE 'UPDATE ' || c.table_name || ' SET gml_id=substring(gml_id,1,16) WHERE length(gml_id)>16';
-			GET DIAGNOSTICS n = ROW_COUNT;
-			s := s + n;
-
-			-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN gml_id TYPE character(16)';
-			EXECUTE 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN gml_id TYPE character(16)';
-			i := i + 1;
-		END LOOP;
-
-		IF i > 0 OR s > 0 THEN
-			r := coalesce(r||E'\n','') || i || ' Tabellen mit ' || s || ' lange AAA-Identifikatoren geändert.';
-		END IF;
-
-		-- land, gemarkungsnummer, gemeinde, regierungsbezirk, bezirk, kreis, schluesselgesamt: integer => varchar
-		i := 0;
-		FOR c IN
-			SELECT table_name, column_name
-			FROM information_schema.columns a
-			WHERE a.table_schema='public'
-			  AND a.table_name LIKE 'ax_%'
-			  AND a.column_name IN ('land','gemarkungsnummer','gemeinde','regierungsbezirk','bezirk','kreis','schluesselgesamt')
-			  AND a.data_type='integer'
-		LOOP
-			-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character varying';
-			EXECUTE 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character varying';
-			i := i + 1;
-		END LOOP;
-
-		IF i > 0 THEN
-			r := coalesce(r||E'\n','') || i || ' Spalten angepaßt (integer->character varying).';
-		END IF;
-
-		-- Relationen: varchar => character(16) bzw. varchar[] => character(16)[]
-		i := 0;
-		FOR c IN
-			WITH RECURSIVE
-				element(name,base) AS (
-					SELECT name,unnest(name||abgeleitet_aus) AS base
-					FROM alkis_elemente
-				UNION
-					SELECT a.name,unnest(b.abgeleitet_aus) AS base
-					FROM element a
-					JOIN alkis_elemente b ON a.base=b.name
-				),
-				relation(element,bezeichnung,kennung) AS (
-					SELECT element,bezeichnung,kennung FROM alkis_relationsart
-					UNION
-					SELECT b.element,a.bezeichnung,a.kennung FROM alkis_relationsart a JOIN relation b ON a.element=lower(b.bezeichnung)
-				)
-			SELECT col.table_name,col.column_name,col.udt_name
-			FROM element t
-			JOIN relation a ON t.base=a.element
-			JOIN information_schema.columns col ON lower(t.name)=col.table_name AND lower(a.bezeichnung)=col.column_name
-			WHERE col.udt_name IN ('_varchar','varchar')
-		LOOP
-			IF c.udt_name='_varchar' THEN
-				-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character(16)[]';
-				EXECUTE 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character(16)[]';
-				i := i + 1;
-			ELSE
-				-- RAISE NOTICE '%', 'UPDATE ' || c.table_name || ' SET ' || c.column_name || '=' || 'substring('||c.column_name||',1,16) WHERE length('||c.column_name||')>16';
-				EXECUTE 'UPDATE ' || c.table_name || ' SET ' || c.column_name || '=' || 'substring('||c.column_name||',1,16) WHERE length('||c.column_name||')>16';
-
-				-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character(16)';
-				EXECUTE 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character(16)';
-				i := i + 1;
-			END IF;
-		END LOOP;
-
-		IF i > 0 THEN
-			r := coalesce(r||E'\n','') || i || ' Spalten angepaßt (varchar->character(16)).';
-		END IF;
-
-		UPDATE alkis_version SET version=1;
-	END IF;
-
-	IF v<2 THEN
-		-- Indizes ergänzen
-		CREATE UNIQUE INDEX ax_sicherungspunkt_gmlid ON ax_sicherungspunkt USING btree (gml_id,beginnt);
-		CREATE INDEX ax_sicherungspunkt_bsa ON ax_sicherungspunkt USING btree (beziehtsichauf);
-		CREATE INDEX ax_sicherungspunkt_ghz ON ax_sicherungspunkt USING btree (gehoertzu);
-
-		-- drop identifier
-		i := 0;
-		FOR c IN
-			SELECT table_name
-			FROM information_schema.columns a
-			WHERE a.table_schema='public'
-			  AND (a.table_name LIKE 'ax_%' OR a.table_name LIKE 'ap_%')
-			  AND a.column_name='identifier'
-		LOOP
-			-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' DROP COLUMN identifier';
-			EXECUTE 'ALTER TABLE ' || c.table_name || ' DROP COLUMN identifier';
-			i := i + 1;
-		END LOOP;
-
-		IF i > 0 THEN
-			r := coalesce(r||E'\n','') || i || ' identifier-Spalten gelöscht.';
-		END IF;
-
-		UPDATE alkis_version SET version=2;
-	END IF;
-
-	RETURN r;
-END;
-$$ LANGUAGE plpgsql;
-
-
 -- Löschsatz verarbeiten (MIT Historie)
 -- context='delete'        => "endet" auf aktuelle Zeit setzen
 -- context='replace'       => "endet" des ersetzten auf "beginnt" des neuen Objekts setzen
@@ -573,6 +409,186 @@ $$ LANGUAGE plpgsql;
 
 
 \unset ON_ERROR_STOP
+
+-- 8.3 hatte noch keine CTE => Funktionen mit WITH RECURSIVE werden nicht definiert.
+
+--
+-- Datenbankmigration
+--
+
+SELECT alkis_dropobject('alkis_update_schema');
+CREATE OR REPLACE FUNCTION alkis_update_schema() RETURNS varchar AS $$
+BEGIN
+	RETURN 'Keine Datenbankmigration bei PostgreSQL 8.3';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION alkis_update_schema() RETURNS varchar AS $$
+DECLARE
+	c RECORD;
+	s INTEGER;
+	n INTEGER;
+	i INTEGER;
+	v INTEGER;
+	r TEXT;
+BEGIN
+	r := NULL;
+
+	BEGIN
+		SELECT version INTO v FROM alkis_version;
+
+	EXCEPTION WHEN OTHERS THEN
+		v := 0;
+		CREATE TABLE alkis_version(version INTEGER);
+		INSERT INTO alkis_version(version) VALUES (v);
+	END;
+
+	IF v<1 THEN
+		PERFORM alkis_dropobject('ax_tatsaechlichenutzung');
+		PERFORM alkis_dropobject('ax_klassifizierung');
+		PERFORM alkis_dropobject('ax_ausfuehrendestellen');
+
+		ALTER TABLE ax_flurstueck ALTER angabenzumabschnittnummeraktenzeichen TYPE varchar[];
+		ALTER TABLE ax_georeferenziertegebaeudeadresse ALTER ortsteil TYPE varchar;
+		ALTER TABLE ax_historischesflurstueck ALTER zaehler TYPE varchar;
+		ALTER TABLE ax_historischesflurstueckohneraumbezug ALTER zaehler TYPE varchar;
+		ALTER TABLE ax_historischesflurstueckohneraumbezug ALTER rechtsbehelfsverfahren TYPE varchar;
+		ALTER TABLE ax_gebaeude ALTER geschossflaeche TYPE double precision;
+		ALTER TABLE ax_gebaeude ALTER grundflaeche TYPE double precision;
+		ALTER TABLE ax_gebaeude ALTER umbauterraum TYPE double precision;
+		ALTER TABLE ax_bodenschaetzung ALTER bodenzahlodergruenlandgrundzahl TYPE varchar;
+		ALTER TABLE ax_bodenschaetzung ALTER ackerzahlodergruenlandzahl TYPE varchar;
+		ALTER TABLE ax_grablochderbodenschaetzung ALTER bodenzahlodergruenlandgrundzahl TYPE varchar;
+		ALTER TABLE ax_gemarkungsteilflur ADD gehoertzu character(16)[];
+		CREATE INDEX ax_gemarkungsteilflur_ghz ON ax_gemarkungsteilflur USING gin (gehoertzu);
+		ALTER TABLE ax_dienststelle ADD kennung varchar;
+		ALTER TABLE ax_wohnplatz ADD zweitname varchar;
+		ALTER TABLE ax_baublock ADD art integer;
+
+		-- gml_id: varchar => character(16)
+		s := 0;
+		i := 0;
+		FOR c IN
+			SELECT table_name
+			FROM information_schema.columns a
+			WHERE a.table_schema='public'
+			  AND (a.table_name LIKE 'ax_%' OR a.table_name LIKE 'ap_%')
+			  AND a.column_name='gml_id'
+			  AND a.data_type='character varying'
+		LOOP
+			-- RAISE NOTICE '%', 'UPDATE ' || c.table_name || ' SET gml_id=substring(gml_id,1,16) WHERE length(gml_id)>16';
+			EXECUTE 'UPDATE ' || c.table_name || ' SET gml_id=substring(gml_id,1,16) WHERE length(gml_id)>16';
+			GET DIAGNOSTICS n = ROW_COUNT;
+			s := s + n;
+
+			-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN gml_id TYPE character(16)';
+			EXECUTE 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN gml_id TYPE character(16)';
+			i := i + 1;
+		END LOOP;
+
+		IF i > 0 OR s > 0 THEN
+			r := coalesce(r||E'\n','') || i || ' Tabellen mit ' || s || ' lange AAA-Identifikatoren geändert.';
+		END IF;
+
+		-- land, gemarkungsnummer, gemeinde, regierungsbezirk, bezirk, kreis, schluesselgesamt: integer => varchar
+		i := 0;
+		FOR c IN
+			SELECT table_name, column_name
+			FROM information_schema.columns a
+			WHERE a.table_schema='public'
+			  AND a.table_name LIKE 'ax_%'
+			  AND a.column_name IN ('land','gemarkungsnummer','gemeinde','regierungsbezirk','bezirk','kreis','schluesselgesamt')
+			  AND a.data_type='integer'
+		LOOP
+			-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character varying';
+			EXECUTE 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character varying';
+			i := i + 1;
+		END LOOP;
+
+		IF i > 0 THEN
+			r := coalesce(r||E'\n','') || i || ' Spalten angepaßt (integer->character varying).';
+		END IF;
+
+		-- Relationen: varchar => character(16) bzw. varchar[] => character(16)[]
+		i := 0;
+		FOR c IN
+			WITH RECURSIVE
+				element(name,base) AS (
+					SELECT name,unnest(name||abgeleitet_aus) AS base
+					FROM alkis_elemente
+				UNION
+					SELECT a.name,unnest(b.abgeleitet_aus) AS base
+					FROM element a
+					JOIN alkis_elemente b ON a.base=b.name
+				),
+				relation(element,bezeichnung,kennung) AS (
+					SELECT element,bezeichnung,kennung FROM alkis_relationsart
+					UNION
+					SELECT b.element,a.bezeichnung,a.kennung FROM alkis_relationsart a JOIN relation b ON a.element=lower(b.bezeichnung)
+				)
+			SELECT col.table_name,col.column_name,col.udt_name
+			FROM element t
+			JOIN relation a ON t.base=a.element
+			JOIN information_schema.columns col ON lower(t.name)=col.table_name AND lower(a.bezeichnung)=col.column_name
+			WHERE col.udt_name IN ('_varchar','varchar')
+		LOOP
+			IF c.udt_name='_varchar' THEN
+				-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character(16)[]';
+				EXECUTE 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character(16)[]';
+				i := i + 1;
+			ELSE
+				-- RAISE NOTICE '%', 'UPDATE ' || c.table_name || ' SET ' || c.column_name || '=' || 'substring('||c.column_name||',1,16) WHERE length('||c.column_name||')>16';
+				EXECUTE 'UPDATE ' || c.table_name || ' SET ' || c.column_name || '=' || 'substring('||c.column_name||',1,16) WHERE length('||c.column_name||')>16';
+
+				-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character(16)';
+				EXECUTE 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN ' || c.column_name || ' TYPE character(16)';
+				i := i + 1;
+			END IF;
+		END LOOP;
+
+		IF i > 0 THEN
+			r := coalesce(r||E'\n','') || i || ' Spalten angepaßt (varchar->character(16)).';
+		END IF;
+
+		UPDATE alkis_version SET version=1;
+	END IF;
+
+	IF v<2 THEN
+		-- Indizes ergänzen
+		CREATE UNIQUE INDEX ax_sicherungspunkt_gmlid ON ax_sicherungspunkt USING btree (gml_id,beginnt);
+		CREATE INDEX ax_sicherungspunkt_bsa ON ax_sicherungspunkt USING btree (beziehtsichauf);
+		CREATE INDEX ax_sicherungspunkt_ghz ON ax_sicherungspunkt USING btree (gehoertzu);
+
+		-- drop identifier
+		i := 0;
+		FOR c IN
+			SELECT table_name
+			FROM information_schema.columns a
+			WHERE a.table_schema='public'
+			  AND (a.table_name LIKE 'ax_%' OR a.table_name LIKE 'ap_%')
+			  AND a.column_name='identifier'
+		LOOP
+			-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' DROP COLUMN identifier';
+			EXECUTE 'ALTER TABLE ' || c.table_name || ' DROP COLUMN identifier';
+			i := i + 1;
+		END LOOP;
+
+		IF i > 0 THEN
+			r := coalesce(r||E'\n','') || i || ' identifier-Spalten gelöscht.';
+		END IF;
+
+		UPDATE alkis_version SET version=2;
+	END IF;
+
+	RETURN r;
+END;
+$$ LANGUAGE plpgsql;
+
+--
+-- Datenbankkommentare
+--
+
+SELECT alkis_dropobject('alkis_set_comments');
 CREATE OR REPLACE FUNCTION alkis_set_comments() RETURNS void AS $$
 BEGIN
 	-- 8.3 hatte noch keine CTE
