@@ -744,4 +744,29 @@ SELECT "Buchdaten","Anzahl" FROM (
   SELECT 5, 'Flurstücke ohne Eignerart', count(*) FROM flurst WHERE NOT EXISTS (SELECT * FROM eignerart WHERE eignerart.flsnr=flurst.flsnr)
 ) AS stat ORDER BY o;
 
+--
+-- Sicht für Flurstückseigentümer (inkl. ggf. mehrzeiliger Flurstücksadresse und mehrzeiliger Eigentümer)
+--
+
+SELECT alkis_dropobject('v_eigentuemer');
+CREATE VIEW v_eigentuemer AS
+  SELECT
+    f.ogc_fid,f.gml_id,f.wkb_geometry,
+    fs.flsnr
+    ,(SELECT gemarkung FROM gema_shl WHERE gema_shl.gemashl=fs.gemashl) AS gemarkung
+    ,(SELECT array_to_string( array_agg( DISTINCT str_shl.strname || coalesce(' '||strassen.hausnr,'') ) || CASE WHEN lagebez IS NULL THEN ARRAY[lagebez] ELSE '{}'::text[] END, E'\n')
+      FROM strassen
+      LEFT OUTER JOIN str_shl ON strassen.strshl=str_shl.strshl
+      WHERE strassen.flsnr=fs.flsnr AND strassen.ff_stand=0
+     ) AS adressen
+    ,(SELECT array_to_string( array_agg( DISTINCT e.name1 || coalesce(', ' || e.name2, '') || coalesce(', ' || e.name3, '') || coalesce(', ' || e.name4, '') ), E'\n')
+      FROM eignerart ea
+      JOIN eigner e ON ea.bestdnr=e.bestdnr AND e.ff_stand=0
+      WHERE ea.flsnr=fs.flsnr AND ea.ff_stand=0
+     ) AS eigentuemer
+  FROM ax_flurstueck f
+  JOIN flurst fs ON fs.ff_stand=0 AND alkis_flsnr(f)=fs.flsnr
+  WHERE f.endet IS NULL
+  GROUP BY f.ogc_fid,f.gml_id,f.wkb_geometry,fs.flsnr,fs.gemashl,fs.lagebez;
+
 \i alkis-nutzung-und-klassifizierung.sql
