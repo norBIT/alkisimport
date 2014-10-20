@@ -580,6 +580,14 @@ BEGIN
 		UPDATE alkis_version SET version=2;
 	END IF;
 
+	IF v<3 THEN
+		ALTER TABLE ax_fortfuehrungsfall ALTER zeigtaufaltesflurstueck TYPE character(20)[];
+		ALTER TABLE ax_fortfuehrungsfall ALTER zeigtaufneuesflurstueck TYPE character(20)[];
+
+		UPDATE alkis_version SET version=3;
+	END IF;
+
+
 	RETURN r;
 END;
 $$ LANGUAGE plpgsql;

@@ -33,7 +33,7 @@
 SELECT alkis_drop();
 
 CREATE TABLE alkis_version(version integer);
-INSERT INTO alkis_version(version) VALUES (2);
+INSERT INTO alkis_version(version) VALUES (3);
 
 -- BW/BY-Koordinatensystem anlegen
 SELECT alkis_create_bsrs(:alkis_epsg);
@@ -836,11 +836,11 @@ CREATE TABLE ax_fortfuehrungsfall (
 	laufendenummer				integer,
 	ueberschriftimfortfuehrungsnachweis	integer[],
 	anzahlderfortfuehrungsmitteilungen	integer,
+	bemerkung				varchar,
 
 	-- Beziehungen
-	zeigtaufaltesflurstueck			character(16)[],
-	zeigtaufneuesflurstueck			character(16)[],
-	bemerkung				character(16),
+	zeigtaufaltesflurstueck			character(20)[],
+	zeigtaufneuesflurstueck			character(20)[],
 
 	CONSTRAINT ax_fortfuehrungsfall_pk PRIMARY KEY (ogc_fid)
 );
