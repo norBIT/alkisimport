@@ -43,20 +43,31 @@ SET client_min_messages TO notice;
 
 -- ax_flurstueck => flurst
 
+CREATE OR REPLACE FUNCTION alkis_toint(v TEXT) RETURNS integer AS $$
+DECLARE
+        res integer;
+BEGIN
+        SELECT v::int INTO res;
+        RETURN res;
+EXCEPTION WHEN OTHERS THEN
+        RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION alkis_flsnrk(f ax_flurstueck) RETURNS varchar AS $$
 BEGIN
-	RETURN to_char(f.zaehler::int,'fm00000') || '/' ||
+	RETURN to_char(f.zaehler,'fm00000') || '/' ||
 		CASE
 		WHEN f.gml_id LIKE 'DESN%' THEN substring(f.flurstueckskennzeichen,15,4)
-		ELSE to_char(coalesce(mod(f.nenner::int,1000),0)::int,'fm000')
+		ELSE to_char(coalesce(mod(alkis_toint(f.nenner),1000)::int,0),'fm000')
 		END;
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE OR REPLACE FUNCTION alkis_flsnr(f ax_flurstueck) RETURNS varchar AS $$
 BEGIN
-	RETURN to_char(f.land::int,'fm00') || to_char(f.gemarkungsnummer::int,'fm0000')
-	    || '-' || to_char(coalesce(f.flurnummer,0)::int,'fm000')
+	RETURN to_char(alkis_toint(f.land),'fm00') || to_char(alkis_toint(f.gemarkungsnummer),'fm0000')
+	    || '-' || to_char(coalesce(f.flurnummer,0),'fm000')
 	    || '-' || alkis_flsnrk(f);
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
@@ -122,8 +133,8 @@ INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl
    SELECT
      alkis_flsnr(a) AS flsnr,
      alkis_flsnrk(a) AS flsnrk,
-     to_char(a.land::int,'fm00') || to_char(a.gemarkungsnummer::int,'fm0000') AS gemashl,
-     to_char(coalesce(a.flurnummer,0)::int,'fm000') AS flr,
+     to_char(alkis_toint(a.land),'fm00') || to_char(alkis_toint(a.gemarkungsnummer),'fm0000') AS gemashl,
+     to_char(coalesce(a.flurnummer,0),'fm000') AS flr,
      substr(a.zeitpunktderentstehung,1,4)  || '/     -  ' AS entst,
      NULL AS fortf,
      amtlicheflaeche::int AS flsfl,
@@ -139,7 +150,7 @@ INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl
      NULL AS h2shl,
      NULL AS hinwshl,
      NULL AS strshl,
-     to_char(a.land::int,'fm00')||a.regierungsbezirk||to_char(a.kreis::int,'fm00')||to_char(a.gemeinde::int,'fm000') AS gemshl,
+     to_char(alkis_toint(a.land),'fm00')||a.regierungsbezirk||to_char(alkis_toint(a.kreis),'fm00')||to_char(alkis_toint(a.gemeinde),'fm000') AS gemshl,
      NULL AS hausnr,
      (
       SELECT array_to_string(array_agg(DISTINCT unverschluesselt),E'\n')
@@ -187,9 +198,9 @@ CREATE TABLE str_shl (
 
 INSERT INTO str_shl(strshl,strname,gemshl)
 	SELECT DISTINCT
-		to_char(land::int,'fm00')||regierungsbezirk||to_char(kreis::int,'fm00')||to_char(gemeinde::int,'fm000')||'    '||trim(lage) AS strshl,
+		to_char(alkis_toint(land),'fm00')||regierungsbezirk||to_char(alkis_toint(kreis),'fm00')||to_char(alkis_toint(gemeinde),'fm000')||'    '||trim(lage) AS strshl,
 		regexp_replace(bezeichnung,' H$','') AS strname,	-- RP: Historische Straßennamen mit H am Ende
-		to_char(land::int,'fm00')||regierungsbezirk||to_char(kreis::int,'fm00')||to_char(gemeinde::int,'fm000') AS gemshl
+		to_char(alkis_toint(land),'fm00')||regierungsbezirk||to_char(alkis_toint(kreis),'fm00')||to_char(alkis_toint(gemeinde),'fm000') AS gemshl
 	FROM ax_lagebezeichnungkatalogeintrag a
 	WHERE endet IS NULL
 	  -- Nur nötig, weil Kataloge nicht vernünfigt geführt werden und doppelte Einträge vorkommen
@@ -222,7 +233,7 @@ INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 	FROM (
 		SELECT
 			alkis_flsnr(f) AS flsnr,
-			to_char(l.land::int,'fm00')||l.regierungsbezirk||to_char(l.kreis::int,'fm00')||to_char(l.gemeinde::int,'fm000')||'    '||trim(lage) AS strshl,
+			to_char(alkis_toint(l.land),'fm00')||l.regierungsbezirk||to_char(alkis_toint(l.kreis),'fm00')||to_char(alkis_toint(l.gemeinde),'fm000')||'    '||trim(lage) AS strshl,
 			hausnummer AS hausnr
 		FROM ax_lagebezeichnungmithausnummer l
 		JOIN ax_flurstueck f ON ARRAY[l.gml_id] <@ f.weistauf AND f.endet IS NULL
@@ -230,7 +241,7 @@ INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 	UNION
 		SELECT
 			alkis_flsnr(f) AS flsnr,
-			to_char(l.land::int,'fm00')||l.regierungsbezirk||to_char(l.kreis::int,'fm00')||to_char(l.gemeinde::int,'fm000')||'    '||trim(lage) AS strshl,
+			to_char(alkis_toint(l.land),'fm00')||l.regierungsbezirk||to_char(alkis_toint(l.kreis),'fm00')||to_char(alkis_toint(l.gemeinde),'fm000')||'    '||trim(lage) AS strshl,
 			'' AS hausnr
 		FROM ax_lagebezeichnungohnehausnummer l
 		JOIN ax_flurstueck f ON ARRAY[l.gml_id] <@ f.zeigtauf AND f.endet IS NULL
@@ -251,11 +262,11 @@ CREATE TABLE gem_shl (
 
 INSERT INTO gem_shl(gemshl,gemname)
 	SELECT
-		to_char(schluesselgesamt::int,'fm00000000') AS gemshl,
+		to_char(alkis_toint(schluesselgesamt),'fm00000000') AS gemshl,
 		min(bezeichnung) AS gemname
 	FROM ax_gemeinde a
 	WHERE endet IS NULL
-	GROUP BY to_char(schluesselgesamt::int,'fm00000000');
+	GROUP BY to_char(alkis_toint(schluesselgesamt),'fm00000000');
 
 CREATE INDEX gem_shl_idx0 ON gem_shl(gemshl);
 
@@ -270,11 +281,11 @@ CREATE TABLE gema_shl (
 
 INSERT INTO gema_shl(gemashl,gemarkung)
 	SELECT
-		to_char(land::int,'fm00')||to_char(gemarkungsnummer::int,'fm0000') AS gemashl,
+		to_char(alkis_toint(land),'fm00')||to_char(alkis_toint(gemarkungsnummer),'fm0000') AS gemashl,
 		MIN(bezeichnung) AS gemarkung
 	FROM ax_gemarkung
 	WHERE endet IS NULL
-	GROUP BY to_char(land::int,'fm00')||to_char(gemarkungsnummer::int,'fm0000');
+	GROUP BY to_char(alkis_toint(land),'fm00')||to_char(alkis_toint(gemarkungsnummer),'fm0000');
 
 CREATE INDEX gema_shl_gemshl ON gema_shl(gemshl);
 CREATE INDEX gema_shl_ag_shl ON gema_shl(ag_shl);
@@ -297,7 +308,7 @@ CREATE TABLE eignerart (
 INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,lkfs)
 	SELECT
 		alkis_flsnr(f) AS flsnr,
-		to_char(bb.land::int,'fm00') || to_char(bb.bezirk::int,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
+		to_char(alkis_toint(bb.land),'fm00') || to_char(alkis_toint(bb.bezirk),'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		lpad(laufendenummer,4,'0') AS bvnr,
 		buchungsart AS b,
 		coalesce(bs.zaehler || '/' || bs.nenner,bs.zaehler::text) AS anteil,
@@ -313,7 +324,7 @@ INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,l
 	UNION
 	SELECT
 		alkis_flsnr(f) AS flsnr,
-		to_char(bb.land::int,'fm00') || to_char(bb.bezirk::int,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
+		to_char(alkis_toint(bb.land),'fm00') || to_char(alkis_toint(bb.bezirk),'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		lpad(bs.laufendenummer,4,'0') AS bvnr,
 		bs.buchungsart AS b,
 		coalesce(bs.zaehler || '/' || bs.nenner, bs.zaehler::text) AS anteil,
@@ -356,7 +367,7 @@ CREATE SEQUENCE bem_best_pk_seq;
 
 INSERT INTO bem_best(bestdnr,pk,lnr,text,ff_entst,ff_stand)
 	SELECT
-		to_char(bb.land::int,'fm00') || to_char(bb.bezirk::int,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
+		to_char(alkis_toint(bb.land),'fm00') || to_char(alkis_toint(bb.bezirk),'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		to_hex(nextval('bem_best_pk_seq'::regclass)) AS pk,
 		laufendenummer AS lnr,
 		beschreibungdessondereigentums AS text,
@@ -386,8 +397,8 @@ CREATE INDEX bestand_ff_stand ON bestand(ff_stand);
 
 INSERT INTO bestand(bestdnr,gbbz,gbblnr,anteil,auftlnr,bestfl,ff_entst,ff_stand,pz)
 	SELECT
-		to_char(land::int,'fm00') || to_char(bezirk::int,'fm0000') || '-' || trim(buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
-		to_char(bezirk::int,'fm0000') AS gbbz,
+		to_char(alkis_toint(land),'fm00') || to_char(alkis_toint(bezirk),'fm0000') || '-' || trim(buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
+		to_char(alkis_toint(bezirk),'fm0000') AS gbbz,
 		to_char(to_number(buchungsblattnummermitbuchstabenerweiterung,'000000')::int,'fm000000') AS gbblnr,
 		NULL AS anteil,
 		NULL AS auftrlnr,
@@ -450,7 +461,7 @@ CREATE SEQUENCE eigner_pk_seq;
 
 INSERT INTO eigner(bestdnr,pk,ab,namensnr,ea,antverh,name,name1,name2,name3,name4,name5,name6,name7,name8,anrede,vorname,nachname,namensteile,ak_grade,geb_name,geb_datum,str_hnr,plz_pf,postfach,plz,ort,land,ff_entst,ff_stand)
 	SELECT
-		to_char(bb.land::int,'fm00') || to_char(bb.bezirk::int,'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
+		to_char(alkis_toint(bb.land),'fm00') || to_char(alkis_toint(bb.bezirk),'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		to_hex(nextval('eigner_pk_seq'::regclass)) AS pk,
 		NULL AS ab,
 		laufendenummernachdin1421 AS namensnr,

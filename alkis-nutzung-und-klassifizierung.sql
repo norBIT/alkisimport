@@ -167,7 +167,7 @@ BEGIN
 		   || 'ogc_fid*32+' || i ||' AS ogc_fid,'
 		   || '''' || r.name || '''::text AS name,'
 		   || 'gml_id,'
-		   || r.kennung::int || ' AS kennung,'
+		   || alkis_toint(r.kennung) || ' AS kennung,'
 		   || f || '::text AS funktion,'
 		   || ''''||r.kennung|| '''||coalesce('':''||'||f||','''')::text AS nutzung,'
 		   || 'wkb_geometry'
@@ -250,10 +250,10 @@ BEGIN
 		   || 'ogc_fid*4+' || i || ' AS ogc_fid,'
 		   || '''' || r.name    || '''::text AS name,'
 		   || 'gml_id,'
-		   || r.kennung::int || ' AS kennung,'
+		   || alkis_toint(r.kennung) || ' AS kennung,'
 		   || p || ' AS artderfestlegung,'
 		   || CASE WHEN r.name='ax_bodenschaetzung'
-		      THEN 'bodenzahlodergruenlandgrundzahl::int AS bodenzahl,ackerzahlodergruenlandzahl::int AS ackerzahl,'
+		      THEN 'alkis_toint(bodenzahlodergruenlandgrundzahl) AS bodenzahl,alkis_toint(ackerzahlodergruenlandzahl) AS ackerzahl,'
 		      ELSE 'NULL::int AS bodenzahl,NULL::int AS ackerzahl,'
 		      END
 		   || ''''||f||':''||'||p||' AS klassifizierung,'
@@ -344,7 +344,7 @@ BEGIN
 		  || 'ogc_fid*16+' || i || ' AS ogc_fid,'
 		  || '''' || n || '''::text AS name,'
 		  || 'gml_id,'
-		  || 'to_char(land::int,''fm00'') || stelle AS ausfuehrendestelle,'
+		  || 'to_char(alkis_toint(land),''fm00'') || stelle AS ausfuehrendestelle,'
 		  || 'wkb_geometry'
 		  || ' FROM ' || n
 		  || ' WHERE endet IS NULL'
@@ -445,11 +445,11 @@ INSERT INTO ausfst(flsnr,pk,ausf_st,verfnr,verfshl,ff_entst,ff_stand)
 DELETE FROM afst_shl;
 INSERT INTO afst_shl(ausf_st,afst_txt)
   SELECT
-    to_char(d.land::int,'fm00') || d.stelle,
+    to_char(alkis_toint(d.land),'fm00') || d.stelle,
     MIN(bezeichnung)
   FROM ax_dienststelle d
-  WHERE EXISTS (SELECT * FROM ausfst WHERE ausf_st=to_char(d.land::int,'fm00') || d.stelle)
-  GROUP BY to_char(d.land::int,'fm00') || d.stelle;
+  WHERE EXISTS (SELECT * FROM ausfst WHERE ausf_st=to_char(alkis_toint(d.land),'fm00') || d.stelle)
+  GROUP BY to_char(alkis_toint(d.land),'fm00') || d.stelle;
 
 SELECT 'Belege Baulastenblattnummer...';
 
