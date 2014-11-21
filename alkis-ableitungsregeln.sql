@@ -965,9 +965,9 @@ SELECT
 	coalesce(tx.advstandardmodell||tx.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_lagebezeichnungmithausnummer o
 JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon AND tx.art='HNR'
-LEFT OUTER JOIN ax_turm     t   ON o.gml_id=t.zeigtauf AND NOT t.endet IS NULL
-LEFT OUTER JOIN ax_gebaeude g   ON ARRAY[o.gml_id] <@ g.zeigtauf AND NOT g.endet IS NULL
-LEFT OUTER JOIN ax_flurstueck f ON ARRAY[o.gml_id] <@ f.zeigtauf AND NOT f.endet IS NULL
+LEFT OUTER JOIN ax_turm     t   ON o.gml_id=t.zeigtauf AND t.endet IS NULL
+LEFT OUTER JOIN ax_gebaeude g   ON ARRAY[o.gml_id] <@ g.zeigtauf AND g.endet IS NULL
+LEFT OUTER JOIN ax_flurstueck f ON ARRAY[o.gml_id] <@ f.zeigtauf AND f.endet IS NULL
 WHERE o.endet IS NULL;
 
 

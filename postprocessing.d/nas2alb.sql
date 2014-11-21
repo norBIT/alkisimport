@@ -43,7 +43,8 @@ SET client_min_messages TO notice;
 
 -- ax_flurstueck => flurst
 
-CREATE OR REPLACE FUNCTION alkis_toint(v TEXT) RETURNS integer AS $$
+SELECT alkis_dropobject('alkis_toint');
+CREATE OR REPLACE FUNCTION alkis_toint(v anyelement) RETURNS integer AS $$
 DECLARE
         res integer;
 BEGIN
@@ -762,14 +763,19 @@ SELECT "Buchdaten","Anzahl" FROM (
 SELECT alkis_dropobject('v_eigentuemer');
 CREATE VIEW v_eigentuemer AS
   SELECT
-    f.ogc_fid,f.gml_id,f.wkb_geometry,
-    fs.flsnr
+    f.ogc_fid,f.gml_id,f.wkb_geometry
+    ,fs.flsnr
+    ,fs.amtlflsfl
     ,(SELECT gemarkung FROM gema_shl WHERE gema_shl.gemashl=fs.gemashl) AS gemarkung
     ,(SELECT array_to_string( array_agg( DISTINCT str_shl.strname || coalesce(' '||strassen.hausnr,'') ) || CASE WHEN lagebez IS NULL THEN ARRAY[lagebez] ELSE '{}'::text[] END, E'\n')
       FROM strassen
       LEFT OUTER JOIN str_shl ON strassen.strshl=str_shl.strshl
       WHERE strassen.flsnr=fs.flsnr AND strassen.ff_stand=0
      ) AS adressen
+    ,(SELECT array_to_string( array_agg( DISTINCT ea.bestdnr ), E'\n')
+      FROM eignerart ea
+      WHERE ea.flsnr=fs.flsnr AND ea.ff_stand=0
+     ) AS bestaende
     ,(SELECT array_to_string( array_agg( DISTINCT e.name1 || coalesce(', ' || e.name2, '') || coalesce(', ' || e.name3, '') || coalesce(', ' || e.name4, '') ), E'\n')
       FROM eignerart ea
       JOIN eigner e ON ea.bestdnr=e.bestdnr AND e.ff_stand=0
@@ -778,6 +784,23 @@ CREATE VIEW v_eigentuemer AS
   FROM ax_flurstueck f
   JOIN flurst fs ON fs.ff_stand=0 AND alkis_flsnr(f)=fs.flsnr
   WHERE f.endet IS NULL
-  GROUP BY f.ogc_fid,f.gml_id,f.wkb_geometry,fs.flsnr,fs.gemashl,fs.lagebez;
+  GROUP BY f.ogc_fid,f.gml_id,f.wkb_geometry,fs.flsnr,fs.gemashl,fs.lagebez,fs.amtlflsfl;
+
+--
+-- Sicht mit Gebäudepunkten inkl. Straße/Hausnummer
+--
+
+SELECT alkis_dropobject('v_haeuser');
+CREATE VIEW v_haeuser AS
+  SELECT
+        h.ogc_fid,
+        p.wkb_geometry,
+        st_x(p.wkb_geometry) AS x_coord,
+        st_y(p.wkb_geometry) AS y_coord,
+        to_char(alkis_toint(h.land),'fm00')||h.regierungsbezirk||to_char(alkis_toint(h.kreis),'fm00')||to_char(alkis_toint(h.gemeinde),'fm000')||'    '||trim(h.lage) AS strshl,
+        hausnummer AS ha_nr
+  FROM ax_lagebezeichnungmithausnummer h
+  JOIN ap_pto p ON p.art='HNR' AND h.gml_id=ANY(p.dientzurdarstellungvon) AND p.endet IS NULL
+  WHERE h.endet IS NULL;
 
 \i alkis-nutzung-und-klassifizierung.sql

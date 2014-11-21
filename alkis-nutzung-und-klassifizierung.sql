@@ -253,8 +253,8 @@ BEGIN
 		   || alkis_toint(r.kennung) || ' AS kennung,'
 		   || p || ' AS artderfestlegung,'
 		   || CASE WHEN r.name='ax_bodenschaetzung'
-		      THEN 'alkis_toint(bodenzahlodergruenlandgrundzahl) AS bodenzahl,alkis_toint(ackerzahlodergruenlandzahl) AS ackerzahl,'
-		      ELSE 'NULL::int AS bodenzahl,NULL::int AS ackerzahl,'
+		      THEN 'bodenzahlodergruenlandgrundzahl AS bodenzahl,ackerzahlodergruenlandzahl AS ackerzahl,'
+		      ELSE 'NULL::varchar AS bodenzahl,NULL::varchar AS ackerzahl,'
 		      END
 		   || ''''||f||':''||'||p||' AS klassifizierung,'
 		   || 'wkb_geometry'
