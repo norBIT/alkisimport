@@ -43,6 +43,15 @@ SET client_min_messages TO notice;
 
 -- ax_flurstueck => flurst
 
+-- Sichten löschen, die von alkis_toint abhängen
+SELECT alkis_dropobject('ax_tatsaechlichenutzung');
+SELECT alkis_dropobject('ax_klassifizierung');
+SELECT alkis_dropobject('ax_ausfuehrendestellen');
+
+SELECT alkis_dropobject('v_eigentuemer');
+SELECT alkis_dropobject('v_haeuser');
+
+
 SELECT alkis_dropobject('alkis_toint');
 CREATE OR REPLACE FUNCTION alkis_toint(v anyelement) RETURNS integer AS $$
 DECLARE
@@ -760,7 +769,6 @@ SELECT "Buchdaten","Anzahl" FROM (
 -- Sicht für Flurstückseigentümer (inkl. ggf. mehrzeiliger Flurstücksadresse und mehrzeiliger Eigentümer)
 --
 
-SELECT alkis_dropobject('v_eigentuemer');
 CREATE VIEW v_eigentuemer AS
   SELECT
     f.ogc_fid,f.gml_id,f.wkb_geometry
@@ -790,7 +798,6 @@ CREATE VIEW v_eigentuemer AS
 -- Sicht mit Gebäudepunkten inkl. Straße/Hausnummer
 --
 
-SELECT alkis_dropobject('v_haeuser');
 CREATE VIEW v_haeuser AS
   SELECT
         h.ogc_fid,
