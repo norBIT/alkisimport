@@ -476,6 +476,7 @@ CREATE TABLE ax_lagebezeichnungmithausnummer (
 	advstandardmodell	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar,
+	unverschluesselt	varchar,  -- Gewanne
 	land			varchar,
 	regierungsbezirk	varchar,
 	kreis			varchar,
@@ -517,6 +518,7 @@ CREATE TABLE ax_lagebezeichnungmitpseudonummer (
 	advstandardmodell	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar,
+	unverschluesselt	varchar,  -- Gewanne
 	land			varchar,
 	regierungsbezirk	varchar,
 	kreis			varchar,

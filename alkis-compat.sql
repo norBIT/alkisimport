@@ -259,7 +259,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION st_offsetcurve(g0 geometry,offs float8,params text) RETURNS geometry AS $$
+CREATE FUNCTION st_offsetcurve(g0 geometry,offs float8,params text DEFAULT '') RETURNS geometry AS $$
 DECLARE
         i INTEGER;
 	n INTEGER;
@@ -303,8 +303,11 @@ BEGIN
 		p0 := p1;
 		p1 := p2;
 		d0 := d1;
-		
+
 		IF i>2 THEN
+			IF d0=0 THEN
+				RAISE EXCEPTION 'st_offsetcurve: doppelter Punkt';
+			END IF;
 			dx := (st_y(p0)-st_y(p1)) * offs / d0;
 			dy := (st_x(p1)-st_x(p0)) * offs / d0;
 			p00 := st_translate( p0, dx, dy );
@@ -313,6 +316,12 @@ BEGIN
 
 		p2 := st_pointn(g,i);
 		d1 := st_distance( p1, p2 );
+		IF d1=0 THEN
+			p2 := p1;
+			p1 := p0;
+			d1 := d0;
+			CONTINUE;
+		END IF;
 
 		dx := (st_y(p1)-st_y(p2)) * offs / d1;
 		dy := (st_x(p2)-st_x(p1)) * offs / d1;

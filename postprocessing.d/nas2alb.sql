@@ -800,7 +800,7 @@ CREATE VIEW v_eigentuemer AS
 
 CREATE VIEW v_haeuser AS
   SELECT
-        h.ogc_fid,
+        p.ogc_fid * 268435456::bigint + h.ogc_fid AS ogc_fid,
         p.wkb_geometry,
         st_x(p.wkb_geometry) AS x_coord,
         st_y(p.wkb_geometry) AS y_coord,

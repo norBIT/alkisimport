@@ -587,6 +587,12 @@ BEGIN
 		UPDATE alkis_version SET version=3;
 	END IF;
 
+	IF v<4 THEN
+		ALTER TABLE ax_lagebezeichnungmithausnummer ADD unverschluesselt varchar;
+		ALTER TABLE ax_lagebezeichnungmitpseudonummer ADD unverschluesselt varchar;
+
+		UPDATE alkis_version SET version=4;
+	END IF;
 
 	RETURN r;
 END;
