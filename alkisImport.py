@@ -615,15 +615,22 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 				self.cbxClearProtocol.setChecked( False )
 				self.log( u"Protokolltabelle gelöscht." )
 
-			qry = self.db.exec_( "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='alkis_beziehungen'" )
+			qry = self.db.exec_( "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='ax_flurstueck'" )
 			if not qry or not qry.next():
 				self.log( u"Konnte Existenz des ALKIS-Schema nicht überprüfen." )
 				break
 
-			if not self.cbxCreate.isChecked() and int( qry.value(0) ) == 0:
-				self.cbxCreate.setChecked( True )
-				self.log( u"Keine ALKIS-Daten vorhanden - Datenbestand muß angelegt werden." )
-				break
+			if not self.cbxCreate.isChecked():
+				if int( qry.value(0) ) == 0:
+					self.cbxCreate.setChecked( True )
+					self.log( u"Keine ALKIS-Daten vorhanden - Datenbestand muß angelegt werden." )
+					break
+
+				if not qry.exec_( "SELECT find_srid('','ax_flurstueck','wkb_geometry')" ) or not qry.next():
+					self.log( u"Konnte Koordinatensystem der vorhandenen Datenbank nicht bestimmen." )
+					break
+
+				self.epsg = int( qry.value(0) )
 
 			self.logqry = QSqlQuery(self.db)
 			if not self.logqry.prepare( "INSERT INTO alkis_importlog(msg) VALUES (?)" ):
