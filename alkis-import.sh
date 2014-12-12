@@ -30,6 +30,9 @@ export OGR_ARC_MINLENGTH=0.1
 # Verhindern, das der GML-Treiber übernimmt
 export OGR_SKIP=GML,SEGY
 
+# Headerkennungen die NAS-Daten identifizieren
+export NAS_INDICATOR="NAS-Operationen.xsd;NAS-Operationen_optional.xsd;AAA-Fachschema.xsd;ASDKOM-NAS-Operationen_1_1_NRW.xsd"
+
 export EPSG=25832
 export CRS=EPSG:$EPSG
 export FNBRUCH=true

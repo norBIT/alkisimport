@@ -56,6 +56,9 @@ os.putenv("OGR_ARC_MINLENGTH", "0.1")
 # Verhindern, dass andere GML-Treiber übernehmen
 os.putenv("OGR_SKIP", "GML,SEGY")
 
+# Headerkennungen die NAS-Daten identifizieren
+os.putenv("NAS_INDICATOR", "NAS-Operationen.xsd;NAS-Operationen_optional.xsd;AAA-Fachschema.xsd;ASDKOM-NAS-Operationen_1_1_NRW.xsd")
+
 os.putenv("PGCLIENTENCODING", "UTF8")
 
 def which(program):
