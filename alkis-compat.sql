@@ -259,7 +259,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION st_offsetcurve(g0 geometry,offs float8,params text DEFAULT '') RETURNS geometry AS $$
+CREATE FUNCTION st_offsetcurve(g0 geometry,offs float8,params text) RETURNS geometry AS $$
 DECLARE
         i INTEGER;
 	n INTEGER;
