@@ -588,8 +588,12 @@ BEGIN
 	END IF;
 
 	IF v<4 THEN
-		ALTER TABLE ax_lagebezeichnungmithausnummer ADD unverschluesselt varchar;
-		ALTER TABLE ax_lagebezeichnungmitpseudonummer ADD unverschluesselt varchar;
+		BEGIN
+			ALTER TABLE ax_lagebezeichnungmithausnummer ADD unverschluesselt varchar;
+			ALTER TABLE ax_lagebezeichnungmitpseudonummer ADD unverschluesselt varchar;
+		EXCEPTION WHEN OTHERS THEN
+			--
+		END;
 
 		UPDATE alkis_version SET version=4;
 	END IF;
