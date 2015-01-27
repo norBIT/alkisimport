@@ -2402,9 +2402,12 @@ SELECT
 	'Verkehr' AS thema,
 	'ax_platz' AS layer,
 	st_multi(wkb_geometry) AS polygon,
-	1414 AS signaturnummer,
+	CASE
+	WHEN funktion=5130 THEN 25151414
+	ELSE 2515
+	END AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_platz WHERE funktion=5130;
+FROM ax_platz;
 
 -- Symbol
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
