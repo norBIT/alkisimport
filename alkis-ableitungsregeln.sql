@@ -4638,7 +4638,7 @@ SELECT
 	coalesce(p.advstandardmodell||p.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_bauwerkimverkehrsbereich o
 LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='BWF' AND p.endet IS NULL
-WHERE o.endet IS NULL AND bauwerksfunktion=1910;
+WHERE o.endet IS NULL AND bauwerksfunktion=1910 AND geometrytype(o.wkb_geometry) IN ('POINT','MULTIPOINT');
 
 -- Namen
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
