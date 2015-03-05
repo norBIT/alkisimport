@@ -793,8 +793,8 @@ SELECT
 	coalesce(
 		schriftinhalt,
 		unverschluesselt,
-		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
-		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
+		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||coalesce(o.regierungsbezirk,'0')||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
+		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||coalesce(o.regierungsbezirk,'0')||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	coalesce(t.signaturnummer,'4206') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -813,8 +813,8 @@ SELECT
 	coalesce(
 		schriftinhalt,
 		unverschluesselt,
-		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
-		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
+		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||coalesce(o.regierungsbezirk,'0')||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
+		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||coalesce(o.regierungsbezirk,'0')||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	coalesce(t.signaturnummer,'4107') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -833,8 +833,8 @@ SELECT
 	coalesce(
 		schriftinhalt,
 		unverschluesselt,
-		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
-		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
+		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||coalesce(o.regierungsbezirk,'0')||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
+		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||coalesce(o.regierungsbezirk,'0')||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	coalesce(t.signaturnummer,'4141') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -853,8 +853,8 @@ SELECT
 	coalesce(
 		schriftinhalt,
 		unverschluesselt,
-		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
-		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
+		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||coalesce(o.regierungsbezirk,'0')||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
+		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||coalesce(o.regierungsbezirk,'0')||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	coalesce(signaturnummer,'4117') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -874,8 +874,8 @@ SELECT
 	coalesce(
 		schriftinhalt,
 		unverschluesselt,
-		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
-		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
+		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||coalesce(o.regierungsbezirk,'0')||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
+		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||coalesce(o.regierungsbezirk,'0')||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	4107 AS signaturnummer,
 	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -894,8 +894,8 @@ SELECT
 	coalesce(
 		schriftinhalt,
 		unverschluesselt,
-		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
-		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
+		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||coalesce(o.regierungsbezirk,'0')||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
+		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||coalesce(o.regierungsbezirk,'0')||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	4141 AS signaturnummer,
 	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -914,8 +914,8 @@ SELECT
 	coalesce(
 		schriftinhalt,
 		unverschluesselt,
-		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
-		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||o.regierungsbezirk||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
+		(SELECT bezeichnung FROM ax_lagebezeichnungkatalogeintrag WHERE schluesselgesamt=to_char(o.land::int,'fm00')||coalesce(o.regierungsbezirk,'0')||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage ORDER BY beginnt DESC LIMIT 1),
+		'(Lagebezeichnung zu '''||to_char(o.land::int,'fm00')||coalesce(o.regierungsbezirk,'0')||to_char(o.kreis::int,'fm00')||to_char(o.gemeinde::int,'fm000')||o.lage||''' fehlt)'
 	) AS text,
 	coalesce(t.signaturnummer,'4117') AS signaturnummer,
 	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
