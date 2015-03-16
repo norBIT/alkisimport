@@ -956,20 +956,34 @@ SELECT
 	'Gebäude' AS thema,
 	'ax_lagebezeichnungmithausnummer' AS layer,
 	tx.wkb_geometry AS point,
-	CASE
-	WHEN f.ogc_fid IS NULL THEN coalesce(tx.schriftinhalt,o.hausnummer)
-	ELSE coalesce(tx.schriftinhalt,'HsNr. '||hausnummer)
-	END AS text,
+	coalesce(tx.schriftinhalt,'HsNr. '||o.hausnummer) AS text,
 	coalesce(tx.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	coalesce(tx.advstandardmodell||tx.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_lagebezeichnungmithausnummer o
 JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon AND tx.art='HNR'
-LEFT OUTER JOIN ax_turm     t   ON o.gml_id=t.zeigtauf AND t.endet IS NULL
-LEFT OUTER JOIN ax_gebaeude g   ON ARRAY[o.gml_id] <@ g.zeigtauf AND g.endet IS NULL
-LEFT OUTER JOIN ax_flurstueck f ON ARRAY[o.gml_id] <@ f.zeigtauf AND f.endet IS NULL
-WHERE o.endet IS NULL;
+JOIN ax_flurstueck f ON ARRAY[o.gml_id] <@ f.weistauf AND f.endet IS NULL
+WHERE o.endet IS NULL
+  AND NOT EXISTS (SELECT * FROM ax_turm     t WHERE o.gml_id=t.zeigtauf AND t.endet IS NULL)
+  AND NOT EXISTS (SELECT * FROM ax_gebaeude g WHERE ARRAY[o.gml_id] <@ g.zeigtauf AND g.endet IS NULL);
 
+INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+SELECT
+	o.gml_id,
+	'Gebäude' AS thema,
+	'ax_lagebezeichnungmithausnummer' AS layer,
+	tx.wkb_geometry AS point,
+	coalesce(tx.schriftinhalt,o.hausnummer) AS text,
+	coalesce(tx.signaturnummer,'4070') AS signaturnummer,
+	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
+	coalesce(tx.advstandardmodell||tx.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM ax_lagebezeichnungmithausnummer o
+JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon AND tx.art='HNR'
+WHERE o.endet IS NULL
+  AND (
+       EXISTS (SELECT * FROM ax_turm     t WHERE o.gml_id=t.zeigtauf AND t.endet IS NULL)
+    OR EXISTS (SELECT * FROM ax_gebaeude g WHERE ARRAY[o.gml_id] <@ g.zeigtauf AND g.endet IS NULL)
+  );
 
 --
 -- Lagebezeichnung mit Pseudonummer (12003)
@@ -1331,7 +1345,11 @@ SELECT
 	'Gebäude' AS thema,
 	'ax_gebaeude' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
-	coalesce(o.anzahlderoberirdischengeschosse::text||' / -'||o.anzahlderunterirdischengeschosse::text,o.anzahlderoberirdischengeschosse::text,'-'||o.anzahlderunterirdischengeschosse::text) AS text,
+	coalesce(
+	   trim(to_char(o.anzahlderoberirdischengeschosse,'RN'))||' / -'||trim(to_char(o.anzahlderunterirdischengeschosse,'RN')),
+	   trim(to_char(o.anzahlderoberirdischengeschosse,'RN')),
+	   '-'||trim(to_char(o.anzahlderunterirdischengeschosse,'RN'))
+	) AS text,
 	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
@@ -1496,7 +1514,7 @@ SELECT
 	'Gebäude' AS thema,
 	'ax_bauteil' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
-	o.anzahlderoberirdischengeschosse::text AS text,
+	trim(to_char(o.anzahlderoberirdischengeschosse,'RN')) AS text,
 	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
