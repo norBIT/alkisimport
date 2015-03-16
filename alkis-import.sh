@@ -106,7 +106,8 @@ fi
 
 echo "START $(bdate)"
 
-ogr2ogr --version
+GDAL_VERSION=$(ogr2ogr --version)
+echo $GDAL_VERSION
 ogr2ogr --utility_version
 
 export CPL_DEBUG
@@ -119,6 +120,16 @@ gdb=
 T0=
 
 S1=0
+
+case "$GDAL_VERSION" in
+"GDAL 2."*)
+	CONVERT_TO_LINEAR=" -nlt CONVERT_TO_LINEAR"
+	opt="$opt$CONVERT_TO_LINEAR"
+	;;
+*)
+	CONVERT_TO_LINEAR=""
+	;;
+esac
 
 while read src
 do
@@ -339,6 +350,7 @@ EOF
 		if [ "$DRIVER" = OCI ]; then
 			opt="$opt -relaxedFieldNameMatch"
 		fi
+		opt="$opt$CONVERT_TO_LINEAR"
 		continue
 		;;
 

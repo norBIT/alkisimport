@@ -653,6 +653,13 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 				self.log(u"Konnte ogr2ogr-Version nicht abfragen!")
 				break
 
+			m = re.search( "GDAL (\d+)\.(\d+)", self.lwProtocol.item( self.lwProtocol.count() - 1 ).text() )
+			if not m:
+				self.log(u"GDAL-Version nicht gefunden")
+				break
+
+			convertToLinear = int(m.group(1)) > 1
+
 			if not self.runProcess([self.ogr2ogr, "--utility_version"]):
 				self.log(u"Konnte ogr2ogr-Bibliotheksversion nicht abfragen!")
 				break
@@ -831,6 +838,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 					if self.cbxUseCopy.isChecked():
 						args.extend( ["--config", "PG_USE_COPY", "YES" ] )
+
+					if convertToLinear:
+						args.extend( ["-nlt", "CONVERT_TO_LINEAR" ] )
 
 					args.append(src)
 
