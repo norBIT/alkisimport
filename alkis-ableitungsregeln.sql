@@ -6808,7 +6808,7 @@ INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 SELECT
 	gml_id,
 	'Topographie' AS thema,
-	'ax_besonderertopographischerpunkt' AS layer,
+	'ax_gelaendekante' AS layer,
 	st_multi(wkb_geometry) AS line,
 	CASE
 	WHEN art IN (1220,1230,1240) THEN 2531

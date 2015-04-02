@@ -33,7 +33,7 @@
 SELECT alkis_drop();
 
 CREATE TABLE alkis_version(version integer);
-INSERT INTO alkis_version(version) VALUES (4);
+INSERT INTO alkis_version(version) VALUES (5);
 
 -- BW/BY-Koordinatensystem anlegen
 SELECT alkis_create_bsrs(:alkis_epsg);
@@ -54,7 +54,7 @@ CREATE TABLE "delete" (
 
 SELECT AddGeometryColumn('delete','dummy',:alkis_epsg,'POINT',2);
 
-CREATE UNIQUE INDEX delete_fid ON "delete"(featureid);
+CREATE INDEX delete_fid ON "delete"(featureid);
 
 COMMENT ON TABLE "delete"             IS 'Hilfstabelle für das Speichern von Löschinformationen.';
 COMMENT ON COLUMN delete.typename     IS 'Objektart, also Name der Tabelle, aus der das Objekt zu löschen ist.';

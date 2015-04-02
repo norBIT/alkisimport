@@ -598,6 +598,13 @@ BEGIN
 		UPDATE alkis_version SET version=4;
 	END IF;
 
+	IF v<5 THEN
+		DROP INDEX delete_fid;
+		CREATE INDEX delete_fid ON "delete"(featureid);
+
+		UPDATE alkis_version SET version=5;
+	END IF;
+
 	RETURN r;
 END;
 $$ LANGUAGE plpgsql;
