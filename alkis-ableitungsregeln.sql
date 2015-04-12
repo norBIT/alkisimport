@@ -961,7 +961,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	coalesce(tx.advstandardmodell||tx.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_lagebezeichnungmithausnummer o
-JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon AND tx.art='HNR'
+JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon -- AND tx.art='HNR' -- fehlt manchmal in HE
 JOIN ax_flurstueck f ON ARRAY[o.gml_id] <@ f.weistauf AND f.endet IS NULL
 WHERE o.endet IS NULL
   AND NOT EXISTS (SELECT * FROM ax_turm     t WHERE o.gml_id=t.zeigtauf AND t.endet IS NULL)
@@ -978,7 +978,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	coalesce(tx.advstandardmodell||tx.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_lagebezeichnungmithausnummer o
-JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon AND tx.art='HNR'
+JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon -- AND tx.art='HNR' -- fehlt manchmal in HE
 WHERE o.endet IS NULL
   AND (
        EXISTS (SELECT * FROM ax_turm     t WHERE o.gml_id=t.zeigtauf AND t.endet IS NULL)
