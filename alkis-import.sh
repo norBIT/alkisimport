@@ -106,7 +106,7 @@ fi
 
 echo "START $(bdate)"
 
-GDAL_VERSION=$(ogr2ogr --version)
+GDAL_VERSION=$(unset CPL_DEBUG; ogr2ogr --version)
 echo $GDAL_VERSION
 ogr2ogr --utility_version
 
@@ -297,6 +297,7 @@ EOF
 		echo "CREATE $(bdate)"
 		pushd "$B/$sql" >/dev/null
 		sql alkis-schema.sql
+		sql alkis-po-tables.sql
 		popd >/dev/null
 
 		continue
@@ -481,7 +482,7 @@ EOF
 
 	(( S += s ))
 
-	echo "IMPORT $(bdate): $dst $(memunits $s)"
+	echo "IMPORT $(bdate): $dst $(memunits $s)" '[$Format:%h$]'
 
 	echo RUNNING: ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs $CRS "$dst"
 	t0=$(bdate +%s)

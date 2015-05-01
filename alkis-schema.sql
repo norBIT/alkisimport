@@ -33,7 +33,7 @@
 SELECT alkis_drop();
 
 CREATE TABLE alkis_version(version integer);
-INSERT INTO alkis_version(version) VALUES (5);
+INSERT INTO alkis_version(version) VALUES (6);
 
 -- BW/BY-Koordinatensystem anlegen
 SELECT alkis_create_bsrs(:alkis_epsg);
@@ -153,6 +153,7 @@ CREATE INDEX ap_ppo_geom_idx   ON ap_ppo USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_ppo_gml ON ap_ppo USING btree (gml_id,beginnt);
 CREATE INDEX ap_ppo_endet      ON ap_ppo USING btree (endet);
 CREATE INDEX ap_ppo_dzdv       ON ap_ppo USING gin (dientzurdarstellungvon);
+CREATE INDEX ap_ppo_art        ON ap_ppo USING btree (art);
 
 
 -- A P   L P O
@@ -182,6 +183,7 @@ CREATE INDEX ap_lpo_geom_idx   ON ap_lpo USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ap_lpo_gml ON ap_lpo USING btree (gml_id,beginnt);
 CREATE INDEX ap_lpo_dzdv       ON ap_lpo USING gin (dientzurdarstellungvon);
 CREATE INDEX ap_lpo_endet      ON ap_lpo USING btree (endet);
+CREATE INDEX ap_lpo_art        ON ap_lpo USING btree (art);
 
 
 -- A P   P T O
@@ -4022,6 +4024,156 @@ SELECT AddGeometryColumn('ax_topographischelinie','wkb_geometry',:alkis_epsg,'LI
 CREATE INDEX ax_topographischelinie_geom_idx   ON ax_topographischelinie USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_topographischelinie_gml ON ax_topographischelinie USING btree (gml_id,beginnt);
 
+CREATE TABLE aa_antrag (
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
+	kennzeichen		varchar,
+	antragunterbrochen	varchar,
+	verweistauf		character(16)[],
+	bearbeitungsstatus	character(16),
+	gebiet			character(16),
+	art			character(16),
+	CONSTRAINT aa_antrag_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('aa_antrag','dummy',:alkis_epsg,'POINT',2);
+
+CREATE TABLE aa_projektsteuerung (
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	anlassdesprozesses	character(6),
+	enthaelt		character(16)[],
+	art			character(16),
+	CONSTRAINT aa_projektsteuerung_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('aa_projektsteuerung','dummy',:alkis_epsg,'POINT',2);
+
+CREATE TABLE aa_vorgang (
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	bearbeitbardurch	character(16),
+	enthaelt		character(16)[],
+	status			character(16),
+	art			character(16),
+	CONSTRAINT aa_vorgang_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('aa_vorgang','dummy',:alkis_epsg,'POINT',2);
+
+CREATE TABLE aa_antragsgebiet (
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	CONSTRAINT aa_antragsgebiet_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('aa_antragsgebiet','wkb_geometry',:alkis_epsg,'POLYGON',2);
+
+CREATE TABLE aa_meilenstein (
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	begonnen		varchar,
+	abgeschlossen		varchar,
+	erfolgreich		varchar,
+	vonantrag		character(16),
+	vonvorgang		character(16),
+	wannabgeschlossen	character(20),
+	bemerkung		varchar,
+	CONSTRAINT aa_meilenstein_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('aa_meilenstein','dummy',:alkis_epsg,'POINT',2);
+
+CREATE TABLE aa_aktivitaet (
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	status			character(16),
+	art			character(16),
+	CONSTRAINT aa_aktivitaet_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('aa_aktivitaet','dummy',:alkis_epsg,'POINT',2);
+
+CREATE TABLE ks_einrichtunginoeffentlichenbereichen (
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	anlass			varchar,
+	art			varchar,
+	CONSTRAINT ks_einrichtunginoeffentlichenbereichen_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('ks_einrichtunginoeffentlichenbereichen','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
+
+CREATE TABLE ks_bauwerkimgewaesserbereich (
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	anlass			varchar,
+	bauwerksfunktion	integer,
+	CONSTRAINT ks_bauwerkimgewaesserbereich_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('ks_bauwerkimgewaesserbereich','wkb_geometry',:alkis_epsg,'LINESTRING',2);
+
+CREATE TABLE ks_bauwerkanlagenfuerverundentsorgung (
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	anlass			varchar,
+	art			integer,
+	bezeichnung		varchar,
+	CONSTRAINT ks_bauwerkanlagenfuerverundentsorgung_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('ks_bauwerkanlagenfuerverundentsorgung','wkb_geometry',:alkis_epsg,'POINT',2);
+
+CREATE TABLE ks_verkehrszeichen (
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	anlass			varchar,
+	verkehrseinrichtung	integer,
+	CONSTRAINT ks_verkehrszeichen_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('ks_verkehrszeichen','wkb_geometry',:alkis_epsg,'POINT',2);
 
 \i alkis-wertearten.sql
 SELECT alkis_set_comments();

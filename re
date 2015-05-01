@@ -92,5 +92,6 @@ ERROR:  sequence "alkis_(farben|konturen|linie|randlinie|strichart|stricharten|s
 (OGR2OGR|Warning 1): Skipping field 'qualitaetsangaben\|AX_DQMitDatenerhebung\|herkunft\|LI_Lineage\|source\|LI_Source\|description\|CharacterString' not found in destination layer 'ax_.*'\.
 (OGR2OGR|Warning 1): Skipping field 'qualitaetsangaben\|AX_DQPunktort\|herkunft\|LI_Lineage\|processStep\|LI_ProcessStep\|description\|CharacterString' not found in destination layer 'ax_punktort(ag|au|ta)'\.
 (OGR2OGR|Warning 1): Skipping field 'qualitaetsangaben\|AX_DQPunktort\|herkunft\|LI_Lineage\|source\|LI_Source\|description\|CharacterString' not found in destination layer 'ax_punktort(ag|au|ta)'\.
-(OGR2OGR|Warning 1): Skipping field 'zustaendigeStelle|AX_Dienststelle_Schluessel|land' not found in destination layer 'ax_flurstueck'.
+(OGR2OGR|Warning 1): Skipping field 'zustaendigeStelle|AX_Dienststelle_Schluessel|land' not found in destination layer 'ax_flurstueck'\.
+(OGR2OGR|Warning 1): Skipping field 'identifier' not found in destination layer '(ax|ap|ks|aa)_.*'\.
 (OGR2OGR|Warning 1): Value '(?P<intvalue>\d+).0+' of field ax_gebaeude\.grundflaeche parsed incompletely to integer (?P=intvalue)\.

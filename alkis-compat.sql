@@ -259,7 +259,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION st_offsetcurve(g0 geometry,offs float8,params text) RETURNS geometry AS $$
+CREATE FUNCTION alkis_offsetcurve(g0 geometry,offs float8,params text) RETURNS geometry AS $$
 DECLARE
         i INTEGER;
 	n INTEGER;
@@ -347,6 +347,10 @@ BEGIN
 	END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION st_offsetcurve(geometry,float8,text) RETURNS geometry AS $$
+  SELECT alkis_offsetcurve($1,$2,$3);
+$$ LANGUAGE 'sql' IMMUTABLE;
 
 CREATE FUNCTION force_2d(geometry) RETURNS geometry AS $$
   SELECT st_force_2d($1);

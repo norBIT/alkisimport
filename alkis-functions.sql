@@ -94,7 +94,11 @@ DECLARE
 	r VARCHAR;
 BEGIN
 	-- drop tables & views
-	FOR c IN SELECT table_type,table_name FROM information_schema.tables WHERE table_schema='public' AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_') OR table_name IN ('alkis_beziehungen','delete','alkis_version')) ORDER BY table_type DESC LOOP
+	FOR c IN SELECT table_type,table_name FROM information_schema.tables
+		   WHERE table_schema='public'
+		     AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_')
+		           OR table_name IN ('alkis_beziehungen','delete','alkis_version'))
+		   ORDER BY table_type DESC LOOP
 		IF c.table_type = 'VIEW' THEN
 			r := coalesce(r||E'\n','') || 'Sicht ' || c.table_name || ' gelöscht.';
 			EXECUTE 'DROP VIEW ' || c.table_name || ' CASCADE';
@@ -109,7 +113,7 @@ BEGIN
 	-- clean geometry_columns
 	DELETE FROM geometry_columns
 		WHERE f_table_schema='public'
-		AND ( substr(f_table_name,1,2) IN ('ax_','ap_','ks_')
+		AND ( substr(f_table_name,1,2) IN ('ax_','ap_','ks_','aa_')
 		 OR f_table_name IN ('alkis_beziehungen','delete') );
 
 	RETURN r;
@@ -185,11 +189,11 @@ BEGIN
 		SELECT table_name
 		FROM information_schema.tables
 		WHERE table_schema='public' AND table_type='BASE TABLE'
-		  AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_')
+		  AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_')
 			OR table_name IN ('alkis_beziehungen','delete') )
 	LOOP
 		r := coalesce(r||E'\n','') || c.table_name || ' wurde geleert.';
-		EXECUTE 'DELETE FROM '||c.table_name;
+		EXECUTE 'TRUNCATE '||c.table_name;
 	END LOOP;
 
 	RETURN r;
@@ -210,7 +214,10 @@ BEGIN
 	delim := '';
 	sql := 'CREATE VIEW vobjekte AS ';
 
-	FOR c IN SELECT table_name FROM information_schema.columns WHERE column_name='gml_id' AND substr(table_name,1,3) IN ('ax_','ap_','ks_') AND NOT table_name IN ('ax_tatsaechlichenutzung','ax_klassifizierung','ax_ausfuehrendestellen') LOOP
+	FOR c IN SELECT table_name FROM information_schema.columns
+		   WHERE column_name='gml_id'
+		     AND substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_')
+		     AND NOT table_name IN ('ax_tatsaechlichenutzung','ax_klassifizierung','ax_ausfuehrendestellen') LOOP
 		sql := sql || delim || 'SELECT gml_id,beginnt,endet,''' || c.table_name || ''' AS table_name FROM ' || c.table_name;
 		delim := ' UNION ';
 	END LOOP;
@@ -382,7 +389,7 @@ DECLARE
 	n INTEGER;
 	r VARCHAR;
 BEGIN
-	FOR c IN SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND substr(table_name,1,3) IN ('ax_','ap_','ks_') AND table_type='BASE TABLE'
+	FOR c IN SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_') AND table_type='BASE TABLE'
 	LOOP
 		EXECUTE 'SELECT count(*) FROM ' || c.table_name || ' WHERE endet IS NULL GROUP BY gml_id HAVING count(*)>1' INTO n;
 		IF n>1 THEN
@@ -447,6 +454,8 @@ BEGIN
 		PERFORM alkis_dropobject('ax_tatsaechlichenutzung');
 		PERFORM alkis_dropobject('ax_klassifizierung');
 		PERFORM alkis_dropobject('ax_ausfuehrendestellen');
+		PERFORM alkis_dropobject('v_eigentuemer');
+		PERFORM alkis_dropobject('v_haeuser');
 
 		ALTER TABLE ax_flurstueck ALTER angabenzumabschnittnummeraktenzeichen TYPE varchar[];
 		ALTER TABLE ax_georeferenziertegebaeudeadresse ALTER ortsteil TYPE varchar;
@@ -603,6 +612,13 @@ BEGIN
 		CREATE INDEX delete_fid ON "delete"(featureid);
 
 		UPDATE alkis_version SET version=5;
+	END IF;
+
+	IF v<6 THEN
+		CREATE INDEX ap_ppo_art ON ap_ppo USING btree (art);
+		CREATE INDEX ap_lpo_art ON ap_lpo USING btree (art);
+
+		UPDATE alkis_version SET version=6;
 	END IF;
 
 	RETURN r;

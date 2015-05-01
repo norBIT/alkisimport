@@ -308,79 +308,31 @@ bei von:% bis:%',
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION alkis_safe_offsetcurve(g0 geometry,offs float8,params text) RETURNS geometry AS $$
+DECLARE
+        res BOOLEAN;
+BEGIN
+        SELECT st_offsetcurve(g0,offs,params) INTO res;
+        RETURN res;
+EXCEPTION WHEN OTHERS THEN
+	BEGIN
+		SELECT alkis_offsetcurve(g0,offs,params) INTO res;
+		RETURN res;
+	EXCEPTION WHEN OTHERS THEN
+		RETURN NULL;
+	END;
+END;
+$$ LANGUAGE plpgsql;
+
 -- Präsentationsobjekte?
 
-SELECT 'Präsentationstabellen werden erzeugt.';
+BEGIN;
 
--- Punkte
-SELECT alkis_dropobject('po_points');
-CREATE TABLE po_points(
-	ogc_fid serial PRIMARY KEY,
-	gml_id character(16) NOT NULL,
-	thema varchar NOT NULL,
-	layer varchar NOT NULL,
-	signaturnummer varchar,
-	drehwinkel double precision DEFAULT 0,
-	modell varchar[] CHECK (array_length(modell,1)>0),
-	drehwinkel_grad double precision
-);
-
-SELECT AddGeometryColumn('po_points','point', :alkis_epsg, 'MULTIPOINT', 2);
-
--- Linien
-SELECT alkis_dropobject('po_lines');
-CREATE TABLE po_lines(
-	ogc_fid serial PRIMARY KEY,
-	gml_id character(16) NOT NULL,
-	thema varchar NOT NULL,
-	layer varchar NOT NULL,
-	signaturnummer varchar REFERENCES alkis_linien(signaturnummer),
-	modell varchar[] CHECK (array_length(modell,1)>0)
-);
-
-SELECT AddGeometryColumn('po_lines','line', :alkis_epsg, 'MULTILINESTRING', 2);
-
--- Polygone
-SELECT alkis_dropobject('po_polygons');
-CREATE TABLE po_polygons(
-	ogc_fid serial PRIMARY KEY,
-	gml_id character(16) NOT NULL,
-	thema varchar NOT NULL,
-	layer varchar NOT NULL,
-	signaturnummer varchar,
-	sn_flaeche varchar REFERENCES alkis_flaechen(signaturnummer),
-	sn_randlinie varchar REFERENCES alkis_linien(signaturnummer),
-	modell varchar[] CHECK (array_length(modell,1)>0)
-);
-
-SELECT AddGeometryColumn('po_polygons','polygon', :alkis_epsg, 'MULTIPOLYGON', 2);
-
--- Beschriftungen
-SELECT alkis_dropobject('po_labels');
-CREATE TABLE po_labels(
-	ogc_fid serial PRIMARY KEY,
-	gml_id character(16) NOT NULL,
-	thema varchar NOT NULL,
-	layer varchar NOT NULL,
-	signaturnummer varchar REFERENCES alkis_schriften(signaturnummer),
-	text varchar NOT NULL,
-	drehwinkel double precision DEFAULT 0,
-	drehwinkel_grad double precision,
-	fontsperrung double precision,
-	skalierung double precision,
-	horizontaleausrichtung varchar,
-	vertikaleausrichtung varchar,
-	alignment_dxf integer,
-	color_umn varchar,
-	font_umn varchar,
-	size_umn integer,
-	darstellungsprioritaet integer,
-	modell varchar[] CHECK (array_length(modell,1)>0)
-);
-
-SELECT AddGeometryColumn('po_labels','point', :alkis_epsg, 'POINT', 2);
-SELECT AddGeometryColumn('po_labels','line', :alkis_epsg, 'LINESTRING', 2);
-
+SELECT 'Präsentationstabellen werden geleert.';
+TRUNCATE po_points;
+TRUNCATE po_lines;
+TRUNCATE po_polygons;
+TRUNCATE po_labels;
 
 -- Nichtdarzustellende Signaturnummer ergänzen
 -- (um sie am Ende inkl. der betreffenden Signaturen wieder zu entfernen)
@@ -400,6 +352,10 @@ UPDATE ap_ppo SET signaturnummer=NULL WHERE signaturnummer='';
 UPDATE ap_lpo SET signaturnummer=NULL WHERE signaturnummer='';
 UPDATE ap_pto SET signaturnummer=NULL WHERE signaturnummer='';
 UPDATE ap_lto SET signaturnummer=NULL WHERE signaturnummer='';
+
+-- Leere Geschosszahlen korrigieren (sonst to_char(0,'RN') => '###############')
+UPDATE ax_gebaeude SET anzahlderoberirdischengeschosse=NULL WHERE anzahlderoberirdischengeschosse=0;
+UPDATE ax_gebaeude SET anzahlderunterirdischengeschosse=NULL WHERE anzahlderunterirdischengeschosse=0;
 
 
 --
@@ -778,7 +734,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_lagebezeichnungohnehausnummer o
-JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND art='Ort' AND t.endet IS NULL
+JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='Ort' AND t.endet IS NULL
 WHERE coalesce(schriftinhalt,'')<>'' AND o.endet IS NULL;
 
 -- Lagebezeichnungen
@@ -924,6 +880,21 @@ FROM ax_lagebezeichnungohnehausnummer o
 JOIN ap_lto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art IN ('Fliessgewaesser','StehendesGewaesser') AND t.endet IS NULL
 WHERE o.endet IS NULL;
 
+-- Sonstige Beschriftungen ohne art (kommen z.B. in DEHE vor)
+INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+SELECT
+	o.gml_id,
+	'Lagebezeichnungen' AS thema,
+	'ax_lagebezeichnungohnehausnummer' AS layer,
+	t.wkb_geometry AS point,
+	schriftinhalt AS text,
+	t.signaturnummer AS signaturnummer,
+	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
+	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM ax_lagebezeichnungohnehausnummer o
+JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art IS NULL AND schriftinhalt IS NOT NULL AND t.signaturnummer IS NOT NULL
+WHERE o.endet IS NULL;
+
 
 --
 -- Lagebezeichnung mit Hausnummer (12002)
@@ -944,7 +915,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_lagebezeichnungmithausnummer o
-JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND art='Ort' AND t.endet IS NULL
+JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art='Ort'
 WHERE coalesce(schriftinhalt,'')<>'' AND o.endet IS NULL;
 
 -- mit Hausnummer (bezieht sich auf Gebäude, Turm oder Flurstück)
@@ -961,7 +932,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	coalesce(tx.advstandardmodell||tx.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_lagebezeichnungmithausnummer o
-JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon -- AND tx.art='HNR' -- fehlt manchmal in HE
+JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon AND tx.endet IS NULL AND tx.art='HNR'
 JOIN ax_flurstueck f ON ARRAY[o.gml_id] <@ f.weistauf AND f.endet IS NULL
 WHERE o.endet IS NULL
   AND NOT EXISTS (SELECT * FROM ax_turm     t WHERE o.gml_id=t.zeigtauf AND t.endet IS NULL)
@@ -978,12 +949,27 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	coalesce(tx.advstandardmodell||tx.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_lagebezeichnungmithausnummer o
-JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon -- AND tx.art='HNR' -- fehlt manchmal in HE
+JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon AND tx.endet IS NULL AND tx.art='HNR'
 WHERE o.endet IS NULL
   AND (
        EXISTS (SELECT * FROM ax_turm     t WHERE o.gml_id=t.zeigtauf AND t.endet IS NULL)
     OR EXISTS (SELECT * FROM ax_gebaeude g WHERE ARRAY[o.gml_id] <@ g.zeigtauf AND g.endet IS NULL)
   );
+
+-- Sonstige Hausnummern ohne art (kommen z.B. in DEHE vor)
+INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+SELECT
+	o.gml_id,
+	'Gebäude' AS thema,
+	'ax_lagebezeichnungmithausnummer' AS layer,
+	tx.wkb_geometry AS point,
+	coalesce(tx.schriftinhalt,o.hausnummer) AS text,
+	coalesce(tx.signaturnummer,'4070') AS signaturnummer,
+	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
+	coalesce(tx.advstandardmodell||tx.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM ax_lagebezeichnungmithausnummer o
+JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon AND tx.endet IS NULL AND tx.art IS NULL
+WHERE o.endet IS NULL;
 
 --
 -- Lagebezeichnung mit Pseudonummer (12003)
@@ -995,7 +981,7 @@ SELECT 'Lagebezeichnungen mit Pseudonummer werden verarbeitet.';
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
-	'Straßen' AS thema,
+	CASE WHEN laufendenummer IS NULL THEN 'Lagebezeichnungen' ELSE 'Gebäude' END AS thema,
 	'ax_lagebezeichnungmitpseudonummer' AS layer,
 	t.wkb_geometry AS point,
 	coalesce('('||laufendenummer||')','P'||pseudonummer) AS text,
@@ -1003,14 +989,14 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_lagebezeichnungmitpseudonummer o
-JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='PNR' AND t.endet IS NULL
+JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art='PNR'
 WHERE o.endet IS NULL;
 
 -- Lagebezeichnung mit Pseudonummer, Ortsteil
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
-	'Ortsteil' AS thema,
+	'Lagebezeichnungen' AS thema,
 	'ax_lagebezeichnungmitpseudonummer' AS layer,
 	t.wkb_geometry AS point,
 	schriftinhalt AS text,
@@ -1018,7 +1004,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_lagebezeichnungmitpseudonummer o
-JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='Ort' AND t.endet IS NULL AND schriftinhalt IS NOT NULL
+JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art='Ort' AND schriftinhalt IS NOT NULL
 WHERE o.endet IS NULL;
 
 
@@ -1304,7 +1290,7 @@ FROM (
 			t.advstandardmodell||t.sonstigesmodell||n.advstandardmodell||n.sonstigesmodell,
 			o.modell
 		) AS modell
-	FROM  (
+	FROM (
 		SELECT
 			gml_id,
 			wkb_geometry,
@@ -4421,45 +4407,49 @@ FROM (
 -- Punktsymbole
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
-	gml_id,
+	o.gml_id,
 	'Verkehr' AS thema,
 	'ax_einrichtunginoeffentlichenbereichen' AS layer,
-	st_multi(wkb_geometry) AS point,
-	0 AS drehwinkel,
+	coalesce(
+		p.wkb_geometry,
+		st_multi(o.wkb_geometry)
+	) AS point,
+	coalesce(p.drehwinkel,0) AS drehwinkel,
 	CASE
-	WHEN art=1100                THEN 3541
-	WHEN art=1110                THEN 3542
-	WHEN art=1120                THEN 3544
-	WHEN art=1130                THEN 3545
-	WHEN art=1140                THEN 3546
-	WHEN art=1150                THEN 3547
-	WHEN art=1200                THEN 3548
-	WHEN art=1300                THEN 3549
-	WHEN art=1310                THEN 3550
-	WHEN art=1320                THEN 3551
-	WHEN art=1330                THEN 3552
-	WHEN art=1340                THEN 3553
-	WHEN art=1350                THEN 3554
-	WHEN art IN (1400,1410,1420) THEN 3556
-	WHEN art=1600                THEN 3557
-	WHEN art=1610                THEN 3558
-	WHEN art=1620                THEN 3559
-	WHEN art=1630                THEN 3560
-	WHEN art=1640                THEN 3561
-	WHEN art=1650                THEN 3562
-	WHEN art=1700                THEN 3563
-	WHEN art=1710                THEN 3564
-	WHEN art=1910                THEN 3565
-	WHEN art=2100                THEN 3566
-	WHEN art=2200                THEN 3567
-	WHEN art=2300                THEN 3568
-	WHEN art=2400                THEN 3569
-	WHEN art=2500                THEN 3570
-	WHEN art=2600                THEN 3571
+	WHEN o.art=1100                THEN 3541
+	WHEN o.art=1110                THEN 3542
+	WHEN o.art=1120                THEN 3544
+	WHEN o.art=1130                THEN 3545
+	WHEN o.art=1140                THEN 3546
+	WHEN o.art=1150                THEN 3547
+	WHEN o.art=1200                THEN 3548
+	WHEN o.art=1300                THEN 3549
+	WHEN o.art=1310                THEN 3550
+	WHEN o.art=1320                THEN 3551
+	WHEN o.art=1330                THEN 3552
+	WHEN o.art=1340                THEN 3553
+	WHEN o.art=1350                THEN 3554
+	WHEN o.art IN (1400,1410,1420) THEN 3556
+	WHEN o.art=1600                THEN 3557
+	WHEN o.art=1610                THEN 3558
+	WHEN o.art=1620                THEN 3559
+	WHEN o.art=1630                THEN 3560
+	WHEN o.art=1640                THEN 3561
+	WHEN o.art=1650                THEN 3562
+	WHEN o.art=1700                THEN 3563
+	WHEN o.art=1710                THEN 3564
+	WHEN o.art=1910                THEN 3565
+	WHEN o.art=2100                THEN 3566
+	WHEN o.art=2200                THEN 3567
+	WHEN o.art=2300                THEN 3568
+	WHEN o.art=2400                THEN 3569
+	WHEN o.art=2500                THEN 3570
+	WHEN o.art=2600                THEN 3571
 	END AS signaturnummer,
-	advstandardmodell||sonstigesmodell AS modell
-FROM ax_einrichtunginoeffentlichenbereichen
-WHERE geometrytype(wkb_geometry) IN ('POINT','MULTIPOINT') AND endet IS NULL;
+	coalesce(p.advstandardmodell||p.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM ax_einrichtunginoeffentlichenbereichen o
+LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='ART' AND p.endet IS NULL
+WHERE geometrytype(coalesce(p.wkb_geometry,o.wkb_geometry)) IN ('POINT','MULTIPOINT') AND o.endet IS NULL;
 
 -- Flächensymbole
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
@@ -5680,12 +5670,12 @@ FROM (
 				END AS abstand,
 				CASE
 				WHEN bewuchs IN (1100,1210,1220,1260) THEN wkb_geometry
-				WHEN bewuchs=1101 THEN st_reverse(st_offsetcurve(wkb_geometry,-0.11,''::text))
-				WHEN bewuchs=1102 THEN st_offsetcurve(wkb_geometry,0.11,''::text)
+				WHEN bewuchs=1101 THEN st_reverse(alkis_safe_offsetcurve(wkb_geometry,-0.11,''::text))
+				WHEN bewuchs=1102 THEN alkis_safe_offsetcurve(wkb_geometry,0.11,''::text)
 				WHEN bewuchs=1103 THEN
 					unnest(ARRAY[
-						st_reverse(st_offsetcurve(wkb_geometry,-0.11,''::text)),
-						st_offsetcurve(wkb_geometry,0.11,'')
+						st_reverse(alkis_safe_offsetcurve(wkb_geometry,-0.11,''::text)),
+						alkis_safe_offsetcurve(wkb_geometry,0.11,'')
 					])
 				WHEN bewuchs=1230 THEN
 					unnest(ARRAY[
@@ -6362,8 +6352,8 @@ SELECT
 	'ax_dammwalldeich' AS layer,
 	st_multi(
 		CASE
-		WHEN art='1991' THEN st_offsetcurve(line,-0.17,''::text)
-		WHEN art='1992' THEN st_offsetcurve(line, 0.17,''::text)
+		WHEN art='1991' THEN alkis_safe_offsetcurve(line,-0.17,''::text)
+		WHEN art='1992' THEN alkis_safe_offsetcurve(line, 0.17,''::text)
 		ELSE line
 		END
 	) AS line,
@@ -6393,10 +6383,10 @@ FROM (
 	SELECT
 		o.gml_id,
 		CASE
-		WHEN art='1991'             THEN st_offsetcurve(o.line,-0.17,''::text)
-		WHEN art='1992'             THEN st_offsetcurve(o.line, 0.17,''::text)
-		WHEN art IN ('2010','2012') THEN st_offsetcurve(o.line,-0.34,''::text)
-		WHEN art IN ('2011','2013') THEN st_offsetcurve(o.line, 0.34,''::text)
+		WHEN art='1991'             THEN alkis_safe_offsetcurve(o.line,-0.17,''::text)
+		WHEN art='1992'             THEN alkis_safe_offsetcurve(o.line, 0.17,''::text)
+		WHEN art IN ('2010','2012') THEN alkis_safe_offsetcurve(o.line,-0.34,''::text)
+		WHEN art IN ('2011','2013') THEN alkis_safe_offsetcurve(o.line, 0.34,''::text)
 		ELSE o.line
 		END AS line,
 		generate_series( 3650, (st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS offset,
@@ -6426,8 +6416,8 @@ FROM (
 	SELECT
 		o.gml_id,
 		CASE
-		WHEN art='2001' THEN st_offsetcurve(o.line,-0.17,''::text)
-		WHEN art='2002' THEN st_offsetcurve(o.line, 0.17,''::text)
+		WHEN art='2001' THEN alkis_safe_offsetcurve(o.line,-0.17,''::text)
+		WHEN art='2002' THEN alkis_safe_offsetcurve(o.line, 0.17,''::text)
 		ELSE line
 		END AS line,
 		generate_series( 5950, (st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS offset,
@@ -6457,8 +6447,8 @@ FROM (
 	SELECT
 		o.gml_id,
 		CASE
-		WHEN art='2001' THEN st_offsetcurve(o.line,-0.17,''::text)
-		WHEN art='2002' THEN st_offsetcurve(o.line, 0.17,''::text)
+		WHEN art='2001' THEN alkis_safe_offsetcurve(o.line,-0.17,''::text)
+		WHEN art='2002' THEN alkis_safe_offsetcurve(o.line, 0.17,''::text)
 		ELSE line
 		END AS line,
 		generate_series( 2900, (st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS offset,
@@ -7591,52 +7581,13 @@ UPDATE po_lines
 	  AND layer='ax_flurstueck_nummer'
 	  AND EXISTS (SELECT * FROM ap_pto t WHERE ARRAY[po_lines.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art IS NULL);
 
---
--- Indizes
---
-
-SELECT 'Indizierung Punkte...';
-CREATE INDEX po_points_point_idx ON po_points USING gist (point);
-CREATE INDEX po_points_gmlid_idx ON po_points(gml_id);
-CREATE INDEX po_points_thema_idx ON po_points(thema);
-CREATE INDEX po_points_layer_idx ON po_points(layer);
-CREATE INDEX po_points_sn_idx ON po_points(signaturnummer);
-CREATE INDEX po_points_modell_idx ON po_points USING gin (modell);
-
-SELECT 'Indizierung Linien...';
-CREATE INDEX po_lines_line_idx ON po_lines USING gist (line);
-CREATE INDEX po_lines_gmlid_idx ON po_lines(gml_id);
-CREATE INDEX po_lines_thema_idx ON po_lines(thema);
-CREATE INDEX po_lines_layer_idx ON po_lines(layer);
-CREATE INDEX po_lines_sn_idx ON po_lines(signaturnummer);
-CREATE INDEX po_lines_modell_idx ON po_lines USING gin (modell);
-
-SELECT 'Indizierung Flächen...';
-CREATE INDEX po_polygons_polygons_idx ON po_polygons USING gist (polygon);
-CREATE INDEX po_polygons_gmlid_idx ON po_polygons(gml_id);
-CREATE INDEX po_polygons_thema_idx ON po_polygons(thema);
-CREATE INDEX po_polygons_layer_idx ON po_polygons(layer);
-CREATE INDEX po_polygons_snf_idx ON po_polygons(sn_flaeche);
-CREATE INDEX po_polygons_snr_idx ON po_polygons(sn_randlinie);
-CREATE INDEX po_polygons_modell_idx ON po_polygons USING gin (modell);
-
-SELECT 'Indizierung Beschriftungen...';
-CREATE INDEX po_labels_point_idx ON po_labels USING gist (point);
-CREATE INDEX po_labels_line_idx ON po_labels USING gist (line);
-CREATE INDEX po_labels_gmlid_idx ON po_labels(gml_id);
-CREATE INDEX po_labels_thema_idx ON po_labels(thema);
-CREATE INDEX po_labels_layer_idx ON po_labels(layer);
-CREATE INDEX po_labels_text_idx ON po_labels(text);
-CREATE INDEX po_labels_sn_idx ON po_labels(signaturnummer);
-CREATE INDEX po_labels_modell_idx ON po_labels USING gin (modell);
-
 SELECT 'Lösche nicht darzustellende Signaturen...';
 
 /*
 SELECT
 	signaturnummer,thema,layer,count(*)
 	FROM po_points
-	WHERE signaturnummer IS NULL OR signaturnummer='6000'
+	WHERE signaturnummer IS NULL OR signaturnummer IN ('6000','RP6000')
 	GROUP BY signaturnummer,thema,layer
 	ORDER BY count(*) DESC;
 */
@@ -7649,3 +7600,5 @@ DELETE FROM po_labels WHERE signaturnummer IS NULL OR signaturnummer IN ('6000',
 DELETE FROM alkis_linien WHERE signaturnummer='6000';
 DELETE FROM alkis_flaechen WHERE signaturnummer='6000';
 DELETE FROM alkis_schriften WHERE signaturnummer='6000';
+
+END;

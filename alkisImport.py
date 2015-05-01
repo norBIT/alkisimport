@@ -34,7 +34,7 @@ import tempfile
 import glob
 
 from PyQt4.QtCore import QSettings, QProcess, QVariant, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QTime, QByteArray
-from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox, QFont
+from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox, QFont, QIntValidator
 from PyQt4.QtSql import QSqlDatabase, QSqlQuery, QSqlError, QSql
 from PyQt4 import uic
 
@@ -122,11 +122,12 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		self.leDBNAME.setText( s.value( "dbname", "" ) )
 		self.leUID.setText( s.value( "uid", "" ) )
 		self.lePWD.setText( s.value( "pwd", "" ) )
+		self.leGT.setText( s.value( "gt", "20000" ) )
+		self.leGT.setValidator( QIntValidator( -1, 99999999 ) )
 		self.lstFiles.addItems( s.value( "files", [] ) or [] )
 		self.cbxSkipFailures.setChecked( s.value( "skipfailures", False, type=bool ) )
 		self.cbFnbruch.setCurrentIndex( 0 if s.value( "fnbruch", True, type=bool ) else 1 )
 		self.cbxUseCopy.setChecked( s.value( "usecopy", False, type=bool ) )
-		self.cbxDebug.setChecked( s.value( "debug", False, type=bool ) )
 		self.cbxCreate.setChecked( False )
 
 		self.cbEPSG.addItem( "UTM32N", "25832")
@@ -516,11 +517,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		return conn
 
 	def importALKIS(self):
-		if self.cbxDebug.isChecked():
+		if os.environ.has_key('CPL_DEBUG'):
 			self.log( u"Debug-Ausgaben aktiv." )
-			os.putenv("CPL_DEBUG", "ON" )
-		else:
-			os.unsetenv("CPL_DEBUG")
 
 		files = []
 		for i in range(self.lstFiles.count()):
@@ -533,10 +531,10 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		s.setValue( "dbname", self.leDBNAME.text() )
 		s.setValue( "uid", self.leUID.text() )
 		s.setValue( "pwd", self.lePWD.text() )
+		s.setValue( "gt", self.leGT.text() )
 		s.setValue( "files", files )
 		s.setValue( "skipfailures", self.cbxSkipFailures.isChecked()==True )
 		s.setValue( "usecopy", self.cbxUseCopy.isChecked()==True )
-		s.setValue( "debug", self.cbxDebug.isChecked()==True )
 
 		self.fnbruch = self.cbFnbruch.currentIndex()==0
 		s.setValue( "fnbruch", self.fnbruch )
@@ -572,6 +570,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 			conn = self.connectDb()
 			if conn is None:
 				break
+
+			self.log( "Import-Version: $Format:%h$'" )
 
 			self.db.exec_( "SET application_name='ALKIS-Import - Frontend'" )
 			self.db.exec_( "SET client_min_messages TO notice" )
@@ -649,11 +649,17 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 				self.log(u"ogr2ogr nicht gefunden!")
 				break
 
+			n = self.lwProtocol.count() - 1
+
 			if not self.runProcess([self.ogr2ogr, "--version"]):
 				self.log(u"Konnte ogr2ogr-Version nicht abfragen!")
 				break
 
-			m = re.search( "GDAL (\d+)\.(\d+)", self.lwProtocol.item( self.lwProtocol.count() - 1 ).text() )
+			for i in range(n, self.lwProtocol.count()):
+				m = re.search( "GDAL (\d+)\.(\d+)", self.lwProtocol.item( i ).text() )
+				if m:
+					break
+
 			if not m:
 				self.log(u"GDAL-Version nicht gefunden")
 				break
@@ -736,8 +742,21 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 					if not self.runSQLScript( conn, "alkis-schema.sql" ):
 						self.log( u"Anlegen des Datenbestands schlug fehl." )
 						break
-					self.cbxCreate.setChecked( False )
 					self.log( u"Datenbestand angelegt." )
+
+					self.status( u"Signaturen werden importiert..." )
+					if not self.runSQLScript( conn, "alkis-signaturen.sql" ):
+						self.log( u"Import der Signaturen schlug fehl." )
+						break
+					self.log( u"Signaturen importiert." )
+
+					self.status( u"Präsentationstabellen werden erzeugt..." )
+					if not self.runSQLScript( conn, "alkis-po-tables.sql" ):
+						self.log( u"Anlegen der Präsentationstabellen schlug fehl." )
+						break
+					self.log( u"Präsentationstabellen angelegt." )
+
+					self.cbxCreate.setChecked( False )
 				else:
 					self.status( u"Datenbankschema wird geprüft..." )
 					if not self.runSQLScript( conn, "alkis-update.sql" ):
@@ -830,7 +849,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 						"-append",
 						"-update",
 						"PG:%s" % conn,
-						"-a_srs", srs
+						"-a_srs", srs,
+						"-gt", self.leGT.text()
 						]
 
 					if self.cbxSkipFailures.isChecked():
@@ -897,12 +917,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 					ok = self.runSQLScript( conn, "alkis-compat.sql" )
 					if ok:
 						self.log( u"Kompatibilitätsfunktionen importiert." )
-
-				if ok:
-					self.status( u"Signaturen werden importiert..." )
-					ok = self.runSQLScript( conn, "alkis-signaturen.sql" )
-					if ok:
-						self.log( u"Signaturen importiert." )
 
 				if ok:
 					self.status( u"Ableitungsregeln werden verarbeitet..." )
