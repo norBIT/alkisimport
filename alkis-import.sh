@@ -297,6 +297,7 @@ EOF
 		echo "CREATE $(bdate)"
 		pushd "$B/$sql" >/dev/null
 		sql alkis-schema.sql
+		sql alkis-signaturen.sql
 		sql alkis-po-tables.sql
 		popd >/dev/null
 
