@@ -390,6 +390,10 @@ EOF
 		echo "LOGGING TO $log $(bdate)"
 		exec 3>&1 4>&2 > >(log $log) 2>&1
 
+		echo "LOG $(bdate)"
+		echo 'Import-Version: $Format:%h$'
+		echo "GDAL-Version: $GDAL_VERSION"
+
 		continue
 		;;
 
@@ -483,7 +487,7 @@ EOF
 
 	(( S += s ))
 
-	echo "IMPORT $(bdate): $dst $(memunits $s)" '[$Format:%h$]'
+	echo "IMPORT $(bdate): $dst $(memunits $s)"
 
 	echo RUNNING: ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs $CRS "$dst"
 	t0=$(bdate +%s)

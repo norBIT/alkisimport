@@ -624,9 +624,6 @@ JOIN ax_punktortau o ON p.gml_id=o.istteilvon AND o.endet IS NULL
 WHERE abmarkung_marke<>9500 AND p.endet IS NULL;
 */
 
-CREATE INDEX po_points_temp0 ON po_points(layer,signaturnummer);
-CREATE INDEX po_points_temp1 ON po_points USING gist (point);
-
 UPDATE po_points
 	SET signaturnummer=CASE signaturnummer
 		WHEN '3022' THEN '3023'
@@ -665,9 +662,6 @@ FROM ax_grenzpunkt p
 JOIN ax_punktortta o ON p.gml_id=o.istteilvon AND o.endet IS NULL
 LEFT OUTER JOIN ap_pto t ON ARRAY[p.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
 WHERE coalesce(besonderePunktnummer,'')<>'' AND p.endet IS NULL;
-
-DROP INDEX po_points_temp0;
-DROP INDEX po_points_temp1;
 
 --
 -- Lagebezeichnung ohne Hausnummer (12001)
@@ -7409,7 +7403,6 @@ UPDATE po_lines    SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT un
 UPDATE po_polygons SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo);
 UPDATE po_labels   SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo);
 
-
 SELECT
 	modell AS "ALKIS-Modellart",
 	count(*) AS "#Objekte"
@@ -7451,8 +7444,22 @@ UPDATE po_polygons
 UPDATE po_points SET drehwinkel_grad=degrees(drehwinkel);
 
 -- Winkel in Grad und Ausrichtung belegen
-UPDATE po_labels SET skalierung=1 WHERE skalierung IS NULL;
-UPDATE po_labels SET fontsperrung=coalesce((SELECT sperrung_pt*0.25 FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),0) WHERE fontsperrung IS NULL;
+UPDATE po_labels
+	SET skalierung=1
+	WHERE skalierung IS NULL;
+
+UPDATE po_labels
+	SET horizontaleausrichtung=coalesce((SELECT horizontaleausrichtung FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),'zentrisch')
+	WHERE horizontaleausrichtung IS NULL;
+
+UPDATE po_labels
+	SET vertikaleausrichtung=coalesce((SELECT vertikaleausrichtung FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),'Mitte')
+	WHERE vertikaleausrichtung IS NULL;
+
+UPDATE po_labels
+	SET fontsperrung=coalesce((SELECT sperrung_pt*0.25 FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),0)
+	WHERE fontsperrung IS NULL;
+
 UPDATE po_labels
 	SET
 		drehwinkel_grad=degrees(drehwinkel),
@@ -7475,8 +7482,7 @@ UPDATE po_labels
 			WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer
 		),'arial'),
 		size_umn=0.25/0.0254*skalierung*(SELECT grad_pt FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),
-		alignment_dxf=coalesce(
-			CASE
+		alignment_dxf=CASE
 			WHEN horizontaleausrichtung='linksbündig' THEN
 				CASE
 				WHEN vertikaleausrichtung='oben' THEN 1
@@ -7496,8 +7502,6 @@ UPDATE po_labels
 				WHEN vertikaleausrichtung='Basis' THEN 9
 				END
 			END,
-			(SELECT alignment_dxf FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer)
-		),
 		darstellungsprioritaet=(SELECT darstellungsprioritaet FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer);
 
 SELECT
