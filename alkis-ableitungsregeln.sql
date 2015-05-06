@@ -329,10 +329,10 @@ $$ LANGUAGE plpgsql;
 BEGIN;
 
 SELECT 'Präsentationstabellen werden geleert.';
-TRUNCATE po_points;
-TRUNCATE po_lines;
-TRUNCATE po_polygons;
-TRUNCATE po_labels;
+DELETE FROM po_points;
+DELETE FROM po_lines;
+DELETE FROM po_polygons;
+DELETE FROM po_labels;
 
 -- Nichtdarzustellende Signaturnummer ergänzen
 -- (um sie am Ende inkl. der betreffenden Signaturen wieder zu entfernen)
