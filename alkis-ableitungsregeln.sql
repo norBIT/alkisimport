@@ -376,9 +376,7 @@ SELECT
 FROM ax_flurstueck
 WHERE endet IS NULL;
 
-SELECT alkis_dropobject('ax_flurstueck_arz');
 UPDATE ax_flurstueck SET abweichenderrechtszustand='false' WHERE abweichenderrechtszustand IS NULL;
-CREATE INDEX ax_flurstueck_arz ON ax_flurstueck(abweichenderrechtszustand);
 
 SELECT count(*) || ' Flurstücke mit abweichendem Rechtszustand.' FROM ax_flurstueck WHERE abweichenderrechtszustand='true';
 
@@ -1438,7 +1436,7 @@ FROM (
 			wkb_geometry,
 			advstandardmodell||sonstigesmodell AS modell
 		FROM ax_bauteil
-		WHERE endet IS NULL
+		WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL
 	) AS o
 ) AS o WHERE NOT signaturnummer IS NULL;
 
