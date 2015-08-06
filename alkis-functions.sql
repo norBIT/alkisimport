@@ -441,6 +441,17 @@ DECLARE
 BEGIN
 	r := NULL;
 
+	--
+	-- ALKIS-Schema
+	--
+	SELECT count(*) INTO n FROM information_schema.columns
+		WHERE table_schema='public'
+		  AND table_name='ax_flurstueck'
+		  AND column_name='sonstigesmodell';
+	IF n=0 THEN
+		RAISE EXCEPTION 'Modell zu alt für Migration.';
+	END IF;
+
 	BEGIN
 		SELECT version INTO v FROM alkis_version;
 
@@ -448,14 +459,22 @@ BEGIN
 		v := 0;
 		CREATE TABLE alkis_version(version INTEGER);
 		INSERT INTO alkis_version(version) VALUES (v);
+
+		BEGIN ALTER TABLE ax_schutzgebietnachnaturumweltoderbodenschutzrecht ADD name varchar; EXCEPTION WHEN OTHERS THEN END;
 	END;
 
+	RAISE NOTICE 'ALKIS-Schema-Version: %', v;
+
 	IF v<1 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 1';
+
 		PERFORM alkis_dropobject('ax_tatsaechlichenutzung');
 		PERFORM alkis_dropobject('ax_klassifizierung');
 		PERFORM alkis_dropobject('ax_ausfuehrendestellen');
 		PERFORM alkis_dropobject('v_eigentuemer');
 		PERFORM alkis_dropobject('v_haeuser');
+		PERFORM alkis_dropobject('v_schutzgebietnachwasserrecht');
+		PERFORM alkis_dropobject('v_schutzgebietnachnaturumweltoderbodenschutzrecht');
 
 		ALTER TABLE ax_flurstueck ALTER angabenzumabschnittnummeraktenzeichen TYPE varchar[];
 		ALTER TABLE ax_georeferenziertegebaeudeadresse ALTER ortsteil TYPE varchar;
@@ -563,6 +582,8 @@ BEGIN
 	END IF;
 
 	IF v<2 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 2';
+
 		-- Indizes ergänzen
 		CREATE UNIQUE INDEX ax_sicherungspunkt_gmlid ON ax_sicherungspunkt USING btree (gml_id,beginnt);
 		CREATE INDEX ax_sicherungspunkt_bsa ON ax_sicherungspunkt USING btree (beziehtsichauf);
@@ -590,6 +611,8 @@ BEGIN
 	END IF;
 
 	IF v<3 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 3';
+
 		ALTER TABLE ax_fortfuehrungsfall ALTER zeigtaufaltesflurstueck TYPE character(20)[];
 		ALTER TABLE ax_fortfuehrungsfall ALTER zeigtaufneuesflurstueck TYPE character(20)[];
 
@@ -597,6 +620,8 @@ BEGIN
 	END IF;
 
 	IF v<4 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 4';
+
 		BEGIN
 			ALTER TABLE ax_lagebezeichnungmithausnummer ADD unverschluesselt varchar;
 			ALTER TABLE ax_lagebezeichnungmitpseudonummer ADD unverschluesselt varchar;
@@ -608,6 +633,8 @@ BEGIN
 	END IF;
 
 	IF v<5 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 5';
+
 		DROP INDEX delete_fid;
 		CREATE INDEX delete_fid ON "delete"(featureid);
 
@@ -615,10 +642,136 @@ BEGIN
 	END IF;
 
 	IF v<6 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 6';
+
 		CREATE INDEX ap_ppo_art ON ap_ppo USING btree (art);
 		CREATE INDEX ap_lpo_art ON ap_lpo USING btree (art);
 
 		UPDATE alkis_version SET version=6;
+	END IF;
+
+	IF v<7 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 7';
+
+		ALTER TABLE ax_gebaeude ADD gebaeudekennzeichen varchar;
+		ALTER TABLE ax_gebaeude RENAME baujahr TO baujahr_;
+		ALTER TABLE ax_gebaeude ADD baujahr integer[];
+		UPDATE ax_gebaeude SET baujahr=ARRAY[baujahr_];
+		ALTER TABLE ax_gebaeude DROP baujahr_;
+
+		UPDATE alkis_version SET version=7;
+
+		r := coalesce(r||E'\n','') || 'ALKIS-Schema migriert';
+	END IF;
+
+
+	--
+	-- ALKIS-Präsentationstabellen
+	--
+	BEGIN
+		SELECT version INTO v FROM alkis_po_version;
+
+	EXCEPTION WHEN OTHERS THEN
+		v := 0;
+		CREATE TABLE alkis_po_version(version INTEGER);
+		INSERT INTO alkis_po_version(version) VALUES (v);
+	END;
+
+	RAISE NOTICE 'ALKIS-PO-Schema-Version %', v;
+
+	IF v<1 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 1';
+
+		PERFORM alkis_dropobject('alkis_konturen');
+
+		CREATE TABLE alkis_signaturkataloge(id INTEGER PRIMARY KEY, name VARCHAR);
+		INSERT INTO alkis_signaturkataloge(id, name) VALUES (1, 'Farbe');
+
+		CREATE TABLE alkis_punkte(katalog integer,signaturnummer varchar,x0 double precision,y0 double precision,x1 double precision,y1 double precision,primary key (katalog,signaturnummer),FOREIGN KEY (katalog) REFERENCES alkis_signaturkataloge(id));
+
+		BEGIN ALTER TABLE po_labels DROP CONSTRAINT po_labels_signaturnummer_fkey; EXCEPTION WHEN OTHERS THEN END;
+		BEGIN ALTER TABLE po_lines DROP CONSTRAINT po_lines_signaturnummer_fkey; EXCEPTION WHEN OTHERS THEN END;
+		BEGIN ALTER TABLE po_polygons DROP CONSTRAINT po_polygons_sn_randlinie_fkey; EXCEPTION WHEN OTHERS THEN END;
+		BEGIN ALTER TABLE po_polygons DROP CONSTRAINT po_polygons_sn_flaeche_fkey; EXCEPTION WHEN OTHERS THEN END;
+
+		BEGIN ALTER TABLE alkis_linie DROP CONSTRAINT alkis_linie_signaturnummer_fkey; EXCEPTION WHEN OTHERS THEN END;
+		BEGIN ALTER TABLE alkis_linie DROP CONSTRAINT alkis_linie_strichart_fkey; EXCEPTION WHEN OTHERS THEN END;
+
+		ALTER TABLE po_points ALTER gml_id TYPE character(16);
+		ALTER TABLE po_lines ALTER gml_id TYPE character(16);
+		ALTER TABLE po_polygons ALTER gml_id TYPE character(16);
+		ALTER TABLE po_labels ALTER gml_id TYPE character(16);
+
+		-- Vorhandene Tabellen migrieren
+		FOR c IN
+			SELECT a.table_name
+			FROM information_schema.tables a
+			JOIN (SELECT 1 AS o,'alkis_schriften' AS table_name
+		        UNION SELECT 2 AS o,'alkis_linien'
+			UNION SELECT 3 AS o,'alkis_linie'
+			UNION SELECT 4 AS o,'alkis_flaechen'
+			UNION SELECT 9 AS o,'po_labels'
+			) AS b ON a.table_name=b.table_name
+			WHERE a.table_schema='public'
+			ORDER BY b.o
+		LOOP
+
+			IF c.table_name = 'alkis_schriften' THEN
+				-- CREATE TABLE alkis_schriften(katalog INTEGER,signaturnummer VARCHAR,            darstellungsprioritaet INTEGER,name VARCHAR[],seite INTEGER,art VARCHAR,stil VARCHAR,grad_pt INTEGER,horizontaleausrichtung VARCHAR,vertikaleausrichtung VARCHAR,farbe INTEGER,alignment_umn CHAR(2),alignment_dxf INTEGER,sperrung_pt INTEGER,effekt VARCHAR,position TEXT,PRIMARY KEY (katalog,signaturnummer),FOREIGN KEY (katalog) REFERENCES alkis_signaturkataloge(id),FOREIGN KEY (farbe) REFERENCES alkis_farben(id));
+				-- CREATE TABLE alkis_schriften(                signaturnummer VARCHAR PRIMARY KEY,darstellungsprioritaet INTEGER,name VARCHAR[],seite INTEGER,art VARCHAR,stil VARCHAR,grad_pt INTEGER,horizontaleausrichtung VARCHAR,vertikaleausrichtung VARCHAR,farbe INTEGER,alignment_umn CHAR(2),alignment_dxf INTEGER,sperrung_pt INTEGER,effekt VARCHAR,position TEXT,FOREIGN KEY (farbe) REFERENCES alkis_farben(id));
+				ALTER TABLE alkis_schriften ADD katalog INTEGER;
+				UPDATE alkis_schriften SET katalog=1;
+				ALTER TABLE alkis_schriften DROP CONSTRAINT alkis_schriften_pkey;
+				ALTER TABLE alkis_schriften ADD PRIMARY KEY (katalog,signaturnummer);
+				ALTER TABLE alkis_schriften ADD FOREIGN KEY (katalog) REFERENCES alkis_signaturkataloge(id);
+			END IF;
+
+			IF c.table_name = 'alkis_linien' THEN
+				-- CREATE TABLE alkis_linien(                signaturnummer VARCHAR PRIMARY KEY,darstellungsprioritaet INTEGER,farbe INTEGER,name VARCHAR[],seite INTEGER,FOREIGN KEY (farbe) REFERENCES alkis_farben(id));
+				-- CREATE TABLE alkis_linien(katalog INTEGER,signaturnummer VARCHAR            ,darstellungsprioritaet INTEGER,              name VARCHAR[],seite INTEGER,PRIMARY KEY (katalog,signaturnummer),FOREIGN KEY (katalog) REFERENCES alkis_signaturkataloge(id));
+				ALTER TABLE alkis_linien ADD katalog INTEGER;
+				UPDATE alkis_linien SET katalog=1;
+				ALTER TABLE alkis_linien DROP CONSTRAINT alkis_linien_pkey;
+				ALTER TABLE alkis_linien ADD PRIMARY KEY (katalog,signaturnummer);
+				ALTER TABLE alkis_linien ADD FOREIGN KEY (katalog) REFERENCES alkis_signaturkataloge(id);
+				ALTER TABLE alkis_linien DROP farbe;
+			END IF;
+
+			IF c.table_name = 'alkis_linie' THEN
+				-- CREATE TABLE alkis_linie(id INTEGER PRIMARY KEY,i INTEGER NOT NULL,                signaturnummer VARCHAR,strichart INTEGER,kontur INTEGER,abschluss VARCHAR,scheitel VARCHAR,strichstaerke DOUBLE PRECISION,pfeilhoehe DOUBLE PRECISION,pfeillaenge DOUBLE PRECISION,              position TEXT,FOREIGN KEY (        signaturnummer) REFERENCES alkis_linien(signaturnummer),        FOREIGN KEY (strichart) REFERENCES alkis_stricharten(id),FOREIGN KEY (kontur) REFERENCES alkis_konturen(id));
+				-- CREATE TABLE alkis_linie(id INTEGER PRIMARY KEY,i INTEGER NOT NULL,katalog INTEGER,signaturnummer VARCHAR,strichart INTEGER               ,abschluss VARCHAR,scheitel VARCHAR,strichstaerke DOUBLE PRECISION,pfeilhoehe DOUBLE PRECISION,pfeillaenge DOUBLE PRECISION,farbe INTEGER,position TEXT,FOREIGN KEY (katalog,signaturnummer) REFERENCES alkis_linien(katalog,signaturnummer),FOREIGN KEY (strichart) REFERENCES alkis_stricharten(id)                                                   ,FOREIGN KEY (farbe) REFERENCES alkis_farben(id));
+				ALTER TABLE alkis_linie ADD katalog INTEGER;
+				ALTER TABLE alkis_linie ADD farbe INTEGER;
+				ALTER TABLE alkis_linie DROP kontur;
+				UPDATE alkis_linie SET katalog=1,farbe=(SELECT farbe FROM alkis_linien WHERE alkis_linien.signaturnummer=alkis_linie.signaturnummer);
+				ALTER TABLE alkis_linie ADD FOREIGN KEY (katalog,signaturnummer) REFERENCES alkis_linien(katalog,signaturnummer);
+				DELETE FROM alkis_linie l WHERE NOT EXISTS (SELECT * FROM alkis_stricharten a WHERE l.strichart=a.id);
+				ALTER TABLE alkis_linie ADD FOREIGN KEY (strichart) REFERENCES alkis_stricharten(id);
+				ALTER TABLE alkis_linie ADD FOREIGN KEY (farbe) REFERENCES alkis_farben(id);
+			END IF;
+
+			IF c.table_name = 'alkis_flaechen' THEN
+				-- CREATE TABLE alkis_flaechen(                signaturnummer VARCHAR PRIMARY KEY,darstellungsprioritaet INTEGER,name VARCHAR[],seite INTEGER,farbe INTEGER,randlinie INTEGER,                                                                                                 FOREIGN KEY (farbe) REFERENCES alkis_farben(id),FOREIGN KEY (randlinie) REFERENCES alkis_randlinie(id));
+				-- CREATE TABLE alkis_flaechen(katalog INTEGER,signaturnummer VARCHAR            ,darstellungsprioritaet INTEGER,name VARCHAR[],seite INTEGER,farbe INTEGER,randlinie INTEGER,PRIMARY KEY (katalog,signaturnummer),FOREIGN KEY (katalog) REFERENCES alkis_signaturkataloge(id),FOREIGN KEY (farbe) REFERENCES alkis_farben(id),FOREIGN KEY (randlinie) REFERENCES alkis_randlinie(id));
+				ALTER TABLE alkis_flaechen ADD katalog INTEGER;
+				UPDATE alkis_flaechen SET katalog=1;
+				ALTER TABLE alkis_flaechen DROP CONSTRAINT alkis_flaechen_pkey;
+				ALTER TABLE alkis_flaechen ADD PRIMARY KEY (katalog,signaturnummer);
+				ALTER TABLE alkis_flaechen ADD FOREIGN KEY (katalog) REFERENCES alkis_signaturkataloge(id);
+			END IF;
+
+			IF c.table_name = 'po_labels' THEN
+				ALTER TABLE po_labels DROP alignment_dxf;
+				ALTER TABLE po_labels DROP color_umn;
+				ALTER TABLE po_labels DROP font_umn;
+				ALTER TABLE po_labels DROP size_umn;
+				ALTER TABLE po_labels DROP darstellungsprioritaet;
+			END IF;
+		END LOOP;
+
+		UPDATE alkis_po_version SET version=1;
+
+		r := coalesce(r||E'\n','') || 'ALKIS-PO-Schema migriert';
 	END IF;
 
 	RETURN r;

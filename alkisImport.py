@@ -151,7 +151,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		self.pbClearLog.clicked.connect(self.clearLog)
 		self.pbAbout.clicked.connect(self.about)
 		self.pbClose.clicked.connect(self.accept)
-		self.pbProgress.setValue( 0 )
+		self.pbProgress.setVisible( False )
 
 		f = QFont("Monospace")
 		f.setStyleHint( QFont.TypeWriter )
@@ -419,7 +419,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		else:
 			lastline = ""
 
-		if current<>"" and lines.count()>0:
+		if current<>"" and len(lines)>0:
 			if r.startsWith("\n"):
 				lines.prepend( current )
 			else:
@@ -685,6 +685,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 			try:
 				self.status( u"Bestimme Gesamtgröße des Imports..." )
 
+				self.pbProgress.setVisible( True )
 				self.pbProgress.setRange( 0, self.lstFiles.count() )
 
 				sizes={}
@@ -732,6 +733,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 				if self.canceled:
 					break
 
+				self.pbProgress.setVisible( False )
+
 				self.log( u"Gesamtgröße des Imports: %s" % self.memunits(ts) )
 
 				self.pbProgress.setRange( 0, 10000 )
@@ -743,12 +746,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 						self.log( u"Anlegen des Datenbestands schlug fehl." )
 						break
 					self.log( u"Datenbestand angelegt." )
-
-					self.status( u"Signaturen werden importiert..." )
-					if not self.runSQLScript( conn, "alkis-signaturen.sql" ):
-						self.log( u"Import der Signaturen schlug fehl." )
-						break
-					self.log( u"Signaturen importiert." )
 
 					self.status( u"Präsentationstabellen werden erzeugt..." )
 					if not self.runSQLScript( conn, "alkis-po-tables.sql" ):
@@ -763,7 +760,15 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 						self.log( u"Schemaprüfung schlug fehl." )
 						break
 
+				self.status( u"Signaturen werden importiert..." )
+				if not self.runSQLScript( conn, "alkis-signaturen.sql" ):
+					self.log( u"Import der Signaturen schlug fehl." )
+					break
+				self.log( u"Signaturen importiert." )
+
 				ok = True
+
+				self.pbProgress.setVisible( True )
 
 				s = 0
 				for i in range(self.lstFiles.count()):
@@ -908,6 +913,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 						break
 
 				self.pbProgress.setValue( 10000 )
+				self.pbProgress.setVisible( False )
 
 				if ok and self.lstFiles.count()>0:
 					self.log( u"Alle NAS-Dateien importiert." )

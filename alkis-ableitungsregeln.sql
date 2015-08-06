@@ -148,7 +148,7 @@ BEGIN
 			WHILE x<xmax LOOP
 				p := st_setsrid(st_point( x, y ), srid );
 				IF st_intersects( g, p ) THEN
-				  r := array_append( r, p );
+					r := array_append( r, p );
 				END IF;
 				x := x + regel.abstand;
 			END LOOP;
@@ -336,16 +336,24 @@ DELETE FROM po_labels;
 
 -- Nichtdarzustellende Signaturnummer ergänzen
 -- (um sie am Ende inkl. der betreffenden Signaturen wieder zu entfernen)
+DELETE FROM alkis_linie WHERE signaturnummer IN ('6000','RP6000');
 DELETE FROM alkis_linien WHERE signaturnummer IN ('6000','RP6000');
 DELETE FROM alkis_flaechen WHERE signaturnummer IN ('6000','RP6000');
 DELETE FROM alkis_schriften WHERE signaturnummer IN ('6000','RP6000');
 
-INSERT INTO alkis_linien(signaturnummer) VALUES ('6000');
-INSERT INTO alkis_flaechen(signaturnummer) VALUES ('6000');
-INSERT INTO alkis_schriften(signaturnummer) VALUES ('6000');
-INSERT INTO alkis_linien(signaturnummer) VALUES ('RP6000');
-INSERT INTO alkis_flaechen(signaturnummer) VALUES ('RP6000');
-INSERT INTO alkis_schriften(signaturnummer) VALUES ('RP6000');
+INSERT INTO alkis_linien(katalog,signaturnummer) VALUES (1,'6000');
+INSERT INTO alkis_flaechen(katalog,signaturnummer) VALUES (1,'6000');
+INSERT INTO alkis_schriften(katalog,signaturnummer) VALUES (1,'6000');
+INSERT INTO alkis_linien(katalog,signaturnummer) VALUES (1,'RP6000');
+INSERT INTO alkis_flaechen(katalog,signaturnummer) VALUES (1,'RP6000');
+INSERT INTO alkis_schriften(katalog,signaturnummer) VALUES (1,'RP6000');
+
+INSERT INTO alkis_linien(katalog,signaturnummer) VALUES (2,'6000');
+INSERT INTO alkis_flaechen(katalog,signaturnummer) VALUES (2,'6000');
+INSERT INTO alkis_schriften(katalog,signaturnummer) VALUES (2,'6000');
+INSERT INTO alkis_linien(katalog,signaturnummer) VALUES (2,'RP6000');
+INSERT INTO alkis_flaechen(katalog,signaturnummer) VALUES (2,'RP6000');
+INSERT INTO alkis_schriften(katalog,signaturnummer) VALUES (2,'RP6000');
 
 -- Leere Signaturnummern ersetzen
 UPDATE ap_ppo SET signaturnummer=NULL WHERE signaturnummer='';
@@ -3711,27 +3719,47 @@ FROM (
 --
 
 -- Transportanlage, Linie
+INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+SELECT
+	gml_id,
+	'Industrie und Gewerbe' AS thema,
+	'ax_transportanlage' AS layer,
+	polygon,
+	signaturnummer,
+	modell
+FROM (
+	SELECT
+		gml_id,
+		st_multi(st_buffer(wkb_geometry,0.5,'endcap=flat')) AS polygon,
+		CASE
+		WHEN coalesce(lagezurerdoberflaeche,1400)=1400 THEN 2521
+		WHEN lagezurerdoberflaeche IN (1200,1700)      THEN 2504
+		END AS signaturnummer,
+		advstandardmodell||sonstigesmodell AS modell
+	FROM ax_transportanlage
+	WHERE bauwerksfunktion=1102 AND endet IS NULL
+) AS t WHERE signaturnummer IS NOT NULL;
+
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 SELECT
 	gml_id,
 	'Industrie und Gewerbe' AS thema,
 	'ax_transportanlage' AS layer,
-	st_multi(wkb_geometry) AS line,
-	CASE
-	WHEN bauwerksfunktion=1101 THEN
+	line,
+	signaturnummer,
+	modell
+FROM (
+	SELECT
+		gml_id,
+		st_multi(wkb_geometry) AS line,
 		CASE
 		WHEN coalesce(lagezurerdoberflaeche,1400)=1400 THEN 2002
 		WHEN lagezurerdoberflaeche IN (1200,1700)      THEN 2523
-		END
-	WHEN bauwerksfunktion=1102 THEN
-		CASE
-		WHEN coalesce(lagezurerdoberflaeche,1400)=1400 THEN 2521
-		WHEN lagezurerdoberflaeche IN (1200,1700)      THEN 2504
-		END
-	END AS signaturnummer,
-	advstandardmodell||sonstigesmodell
-FROM ax_transportanlage
-WHERE bauwerksfunktion IN (1101,1102) AND endet IS NULL;
+		END AS signaturnummer,
+		advstandardmodell||sonstigesmodell AS modell
+	FROM ax_transportanlage
+	WHERE bauwerksfunktion=1101 AND endet IS NULL
+) AS t WHERE signaturnummer IS NOT NULL;
 
 -- Transportanlage, Symbole
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
@@ -4006,21 +4034,20 @@ FROM ax_historischesbauwerkoderhistorischeeinrichtung
 WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL;
 
 -- Historisches Bauwerk oder historische Einrichtung, Linien
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
 SELECT
 	gml_id,
 	'Gebäude' AS thema,
 	'ax_historischesbauwerkoderhistorischeeinrichtung' AS layer,
-	st_multi(line),
+	st_multi(polygon),
 	signaturnummer,
 	modell
 FROM (
 	SELECT
 		gml_id,
-		wkb_geometry AS line,
+		st_buffer(wkb_geometry,0.5,'endcap=flat') AS polygon,
 		CASE
-		WHEN archaeologischertyp IN (1500,1520) THEN 2510
-		WHEN archaeologischertyp=1510           THEN 2510
+		WHEN archaeologischertyp IN (1500,1520,1510) THEN 2510
 		END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_historischesbauwerkoderhistorischeeinrichtung
@@ -4229,6 +4256,26 @@ FROM (
 ) AS o WHERE NOT signaturnummer IS NULL;
 
 -- Linien
+INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+SELECT
+	gml_id,
+	'Gebäude' AS thema,
+	'ax_sonstigesbauwerkodersonstigeeinrichtung' AS layer,
+	st_multi(polygon),
+	signaturnummer,
+	modell
+FROM (
+	SELECT
+		o.gml_id,
+		st_buffer(wkb_geometry,0.5,'endcap=flat') AS polygon,
+		CASE
+		WHEN bauwerksfunktion IN (1701,1702,1703,1721,1722,1723) THEN 2510
+		END AS signaturnummer,
+		advstandardmodell||sonstigesmodell AS modell
+	FROM ax_sonstigesbauwerkodersonstigeeinrichtung o
+	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
+) AS o WHERE NOT signaturnummer IS NULL;
+
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 SELECT
 	gml_id,
@@ -4243,7 +4290,6 @@ FROM (
 		wkb_geometry AS line,
 		CASE
 		WHEN bauwerksfunktion=1630                               THEN 2507
-		WHEN bauwerksfunktion IN (1701,1702,1703,1721,1722,1723) THEN 2510
 		WHEN bauwerksfunktion=1740                               THEN 2507 -- 25073580
 		WHEN bauwerksfunktion=1790                               THEN 2519
 		WHEN bauwerksfunktion=1791                               THEN 2002
@@ -4885,7 +4931,7 @@ FROM (
 			p.signaturnummer,
 			CASE
 			WHEN o.art=1106 THEN '3426'
-			WHEN o.art=1107 THEN '3420'
+			WHEN o.art=1107 THEN '3430'
 			WHEN o.art=1110 THEN '3428'
 			WHEN o.art=1111 THEN '3576'
 			END
@@ -5396,6 +5442,27 @@ FROM (
 --
 
 -- Linien
+INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+SELECT
+	gml_id,
+	'Gewässer' AS thema,
+	'ax_bauwerkimgewaesserbereich' AS layer,
+	st_multi(polygon),
+	signaturnummer,
+	modell
+FROM (
+	SELECT
+		o.gml_id,
+		st_buffer(wkb_geometry,0.5,'endcap=flat') AS polygon,
+		CASE
+		WHEN bauwerksfunktion=2136 THEN 2510
+		WHEN bauwerksfunktion=2060 THEN 2526
+		END AS signaturnummer,
+		advstandardmodell||sonstigesmodell AS modell
+	FROM ax_bauwerkimgewaesserbereich o
+	WHERE geometrytype(o.wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
+) AS o WHERE NOT signaturnummer IS NULL;
+
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 SELECT
 	gml_id,
@@ -5412,11 +5479,9 @@ FROM (
 		WHEN bauwerksfunktion IN (2010,2011,2070) THEN 2560
 		WHEN bauwerksfunktion=2012 THEN 2561
 		WHEN bauwerksfunktion=2050 THEN 2003 -- 20033650
-		WHEN bauwerksfunktion=2060 THEN 2526
 		WHEN bauwerksfunktion=2080 THEN 2003 -- 20033593
 		WHEN bauwerksfunktion=2090 THEN 2003 -- 20033594
 		WHEN bauwerksfunktion=2132 THEN 2003 -- 20033638
-		WHEN bauwerksfunktion=2136 THEN 2510
 		WHEN bauwerksfunktion=9999 THEN 2003
 		END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
@@ -5503,7 +5568,7 @@ FROM (
 		wkb_geometry AS point,
 		0 AS drehwinkel,
 		CASE
-		WHEN bauwerksfunktion=2120 THEN 3896
+		WHEN bauwerksfunktion=2120 THEN 3596
 		END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_bauwerkimgewaesserbereich o
@@ -7335,16 +7400,24 @@ SELECT 'Nachbearbeitung läuft...';
 
 -- Polygonsignaturen aufteilen (1XXX = Fläche, 2XXX = Linie)
 UPDATE po_polygons SET
-	sn_flaeche=CASE
-	           WHEN signaturnummer::int%10000 BETWEEN 1000 AND 1999 THEN signaturnummer::int%10000
-	           WHEN signaturnummer::int/10000 BETWEEN 1000 AND 1999 THEN signaturnummer::int/10000
-		   ELSE NULL
-		   END,
-	sn_randlinie=CASE
-	           WHEN signaturnummer::int%10000 BETWEEN 2000 AND 2999 THEN signaturnummer::int%10000
-	           WHEN signaturnummer::int/10000 BETWEEN 2000 AND 2999 THEN signaturnummer::int/10000
-		   END
-	WHERE signaturnummer ~ E'^[0-9]+$';
+       sn_flaeche=CASE
+       WHEN signaturnummer::int BETWEEN 1000 AND 1999 THEN signaturnummer
+       WHEN signaturnummer::int>10000 THEN
+         CASE
+         WHEN signaturnummer::int%10000 BETWEEN 1000 AND 1999 THEN (signaturnummer::int%10000)::text
+         WHEN signaturnummer::int/10000 BETWEEN 1000 AND 1999 THEN (signaturnummer::int/10000)::text
+         END
+       WHEN signaturnummer::int BETWEEN 2000 AND 2999 AND EXISTS (SELECT * FROM alkis_flaechen f WHERE po_polygons.signaturnummer=f.signaturnummer) THEN signaturnummer
+       END,
+       sn_randlinie=CASE
+       WHEN signaturnummer::int BETWEEN 2000 AND 2999 THEN signaturnummer
+       WHEN signaturnummer::int>10000 THEN
+         CASE
+         WHEN signaturnummer::int%10000 BETWEEN 2000 AND 2999 THEN (signaturnummer::int%10000)::text
+         WHEN signaturnummer::int/10000 BETWEEN 2000 AND 2999 THEN (signaturnummer::int/10000)::text
+         END
+       END
+WHERE signaturnummer ~ E'^[0-9]+$';
 
 --
 -- Randlinien als 'normale' Linien ergänzen
@@ -7366,29 +7439,29 @@ SELECT setval('rnlinie_seq',max(id)+1) FROM alkis_linie;
 SELECT setval('rnstrichart_seq',currval('rnstrichart0_seq'));
 INSERT INTO alkis_stricharten(id)
         SELECT nextval('rnstrichart_seq')
-                FROM alkis_flaechen
-                JOIN alkis_randlinie ON alkis_flaechen.randlinie=alkis_randlinie.id
-                ORDER BY alkis_flaechen.signaturnummer,alkis_randlinie.id;
+		FROM alkis_flaechen f
+		JOIN alkis_randlinie r ON f.randlinie=r.id
+		ORDER BY f.katalog,f.signaturnummer,r.id;
 
 SELECT setval('rnstrichart_seq',currval('rnstrichart0_seq'));
 INSERT INTO alkis_stricharten_i(id,stricharten,i,strichart)
         SELECT nextval('rnstricharteni_seq'), nextval('rnstrichart_seq'),0,strichart
-                FROM alkis_flaechen
-		JOIN alkis_randlinie ON alkis_flaechen.randlinie=alkis_randlinie.id
-                ORDER BY alkis_flaechen.signaturnummer,alkis_randlinie.id;
+		FROM alkis_flaechen f
+		JOIN alkis_randlinie r ON f.randlinie=r.id
+		ORDER BY f.katalog,f.signaturnummer,r.id;
 
-INSERT INTO alkis_linien(signaturnummer,darstellungsprioritaet,farbe,name,seite)
-        SELECT 'rn'||signaturnummer,darstellungsprioritaet,alkis_randlinie.farbe,name,seite
-                FROM alkis_flaechen
-                JOIN alkis_randlinie ON alkis_flaechen.randlinie=alkis_randlinie.id
-                ORDER BY alkis_flaechen.signaturnummer,alkis_randlinie.id;
+INSERT INTO alkis_linien(katalog,signaturnummer,darstellungsprioritaet,name,seite)
+        SELECT katalog,'rn'||signaturnummer,darstellungsprioritaet,name,seite
+		FROM alkis_flaechen f
+		JOIN alkis_randlinie r ON f.randlinie=r.id
+		ORDER BY f.katalog,f.signaturnummer,r.id;
 
 SELECT setval('rnstrichart_seq',currval('rnstrichart0_seq'));
-INSERT INTO alkis_linie(id,i,signaturnummer,strichart,abschluss,scheitel,strichstaerke)
-        SELECT nextval('rnlinie_seq'),0,'rn'||signaturnummer,strichart,abschluss,scheitel,strichstaerke
-                FROM alkis_flaechen
-                JOIN alkis_randlinie ON alkis_flaechen.randlinie=alkis_randlinie.id
-                ORDER BY alkis_flaechen.signaturnummer,alkis_randlinie.id;
+INSERT INTO alkis_linie(id,i,katalog,signaturnummer,strichart,abschluss,scheitel,strichstaerke,farbe)
+        SELECT nextval('rnlinie_seq'),0,katalog,'rn'||signaturnummer,nextval('rnstrichart_seq'),abschluss,scheitel,strichstaerke,r.farbe
+		FROM alkis_flaechen f
+		JOIN alkis_randlinie r ON f.randlinie=r.id
+		ORDER BY f.katalog,f.signaturnummer,r.id;
 
 DROP SEQUENCE rnstrichart0_seq;
 DROP SEQUENCE rnstrichart_seq;
@@ -7441,75 +7514,9 @@ UPDATE po_polygons
 -- Winkel in Grad berechnen
 UPDATE po_points SET drehwinkel_grad=degrees(drehwinkel);
 
--- Winkel in Grad und Ausrichtung belegen
-UPDATE po_labels
-	SET skalierung=1
-	WHERE skalierung IS NULL;
-
-UPDATE po_labels
-	SET horizontaleausrichtung=coalesce((SELECT horizontaleausrichtung FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),'zentrisch')
-	WHERE horizontaleausrichtung IS NULL;
-
-UPDATE po_labels
-	SET vertikaleausrichtung=coalesce((SELECT vertikaleausrichtung FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),'Mitte')
-	WHERE vertikaleausrichtung IS NULL;
-
-UPDATE po_labels
-	SET fontsperrung=coalesce((SELECT sperrung_pt*0.25 FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),0)
-	WHERE fontsperrung IS NULL;
-
-UPDATE po_labels
-	SET
-		drehwinkel_grad=degrees(drehwinkel),
-		color_umn=(SELECT alkis_farben.umn FROM alkis_farben JOIN alkis_schriften ON alkis_schriften.farbe=alkis_farben.id WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),
-		font_umn=coalesce(
-			(SELECT
-				lower(art) ||
-				coalesce('-'||effekt,'') ||
-				CASE
-				WHEN stil='Kursiv' THEN '-italic'
-				WHEN stil='Fett' THEN '-bold'
-				WHEN stil='Fett, Kursiv' THEN '-bold-italic'
-				ELSE ''
-				END ||
-				CASE
-				WHEN fontsperrung=0 THEN ''
-				ELSE '-'||(fontsperrung/0.25)::int
-				END
-			FROM alkis_schriften
-			WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer
-		),'arial'),
-		size_umn=0.25/0.0254*skalierung*(SELECT grad_pt FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer),
-		alignment_dxf=CASE
-			WHEN horizontaleausrichtung='linksbündig' THEN
-				CASE
-				WHEN vertikaleausrichtung='oben' THEN 1
-				WHEN vertikaleausrichtung='Mitte' THEN 4
-				WHEN vertikaleausrichtung='Basis' THEN 7
-				END
-			WHEN horizontaleausrichtung='zentrisch' THEN
-				CASE
-				WHEN vertikaleausrichtung='oben' THEN 2
-				WHEN vertikaleausrichtung='Mitte' THEN 5
-				WHEN vertikaleausrichtung='Basis' THEN 8
-				END
-			WHEN horizontaleausrichtung='rechtsbündig' THEN
-				CASE
-				WHEN vertikaleausrichtung='oben' THEN 3
-				WHEN vertikaleausrichtung='Mitte' THEN 6
-				WHEN vertikaleausrichtung='Basis' THEN 9
-				END
-			END,
-		darstellungsprioritaet=(SELECT darstellungsprioritaet FROM alkis_schriften WHERE alkis_schriften.signaturnummer=po_labels.signaturnummer);
-
-SELECT
-  font_umn AS "Schriftart"
-  ,count(*) AS "Anzahl"
-  ,CASE WHEN font_umn IN ('arial', 'arial-bold', 'arial-bold-italic', 'arial-italic', 'arial-10', 'arial-bold-10', 'arial-bold-italic-10', 'arial-italic-10') THEN 'Ja' ELSE 'Nein' END AS "unterstützt"
-FROM po_labels
-GROUP BY font_umn
-ORDER BY count(*) DESC;
-
+-- Skalierung setzen und Winkel in Grad berechnen
+UPDATE po_labels SET skalierung=1 WHERE skalierung IS NULL;
+UPDATE po_labels SET drehwinkel_grad=degrees(drehwinkel);
 
 -- Pfeilspitzen
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
@@ -7572,8 +7579,8 @@ UPDATE po_labels
 		layer='ax_flurstueck_nummer_rpnoart',
 		point=st_translate(point,0,3)
 	WHERE gml_id LIKE 'DERP%'
-	  AND layer='ax_flurstueck_nummer'
-	  AND EXISTS (SELECT * FROM ap_pto t WHERE ARRAY[po_labels.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art IS NULL);
+		AND layer='ax_flurstueck_nummer'
+		AND EXISTS (SELECT * FROM ap_pto t WHERE ARRAY[po_labels.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art IS NULL);
 
 UPDATE po_lines
 	SET
@@ -7585,22 +7592,35 @@ UPDATE po_lines
 
 SELECT 'Lösche nicht darzustellende Signaturen...';
 
-/*
-SELECT
-	signaturnummer,thema,layer,count(*)
-	FROM po_points
-	WHERE signaturnummer IS NULL OR signaturnummer IN ('6000','RP6000')
-	GROUP BY signaturnummer,thema,layer
-	ORDER BY count(*) DESC;
-*/
-
 DELETE FROM po_points WHERE signaturnummer IS NULL OR signaturnummer IN ('6000','RP6000');
 DELETE FROM po_lines WHERE signaturnummer IS NULL OR signaturnummer IN ('6000','RP6000');
 DELETE FROM po_polygons WHERE signaturnummer IS NULL OR signaturnummer IN ('6000','RP6000');
 DELETE FROM po_labels WHERE signaturnummer IS NULL OR signaturnummer IN ('6000','RP6000') OR text IS NULL;
 
-DELETE FROM alkis_linien WHERE signaturnummer='6000';
-DELETE FROM alkis_flaechen WHERE signaturnummer='6000';
-DELETE FROM alkis_schriften WHERE signaturnummer='6000';
+DELETE FROM alkis_linie WHERE signaturnummer IN ('6000','RP6000');
+DELETE FROM alkis_linien WHERE signaturnummer IN ('6000','RP6000');
+DELETE FROM alkis_flaechen WHERE signaturnummer IN ('6000','RP6000');
+DELETE FROM alkis_schriften WHERE signaturnummer IN ('6000','RP6000');
+
+SELECT 'Punkt' AS "Fehlende Signaturen",count(*) AS "Anzahl",array_agg(distinct signaturnummer) AS "Signaturen"
+	FROM po_points o
+	WHERE NOT EXISTS (SELECT * FROM alkis_punkte s WHERE o.signaturnummer=s.signaturnummer)
+	HAVING count(*)>0
+UNION SELECT 'Linien',count(*),array_agg(distinct signaturnummer)
+	FROM po_lines o
+	WHERE NOT EXISTS (SELECT * FROM alkis_linien s WHERE o.signaturnummer=s.signaturnummer)
+	HAVING count(*)>0
+UNION SELECT 'Flächen',count(*),array_agg(distinct sn_flaeche)
+	FROM po_polygons o
+	WHERE sn_flaeche IS NOT NULL AND NOT EXISTS (SELECT * FROM alkis_flaechen s WHERE o.sn_flaeche=s.signaturnummer)
+	HAVING count(*)>0
+UNION SELECT 'Randlinien',count(*),array_agg(distinct sn_randlinie)
+	FROM po_polygons o
+	WHERE sn_randlinie IS NOT NULL AND NOT EXISTS (SELECT * FROM alkis_linien s WHERE o.sn_randlinie=s.signaturnummer)
+	HAVING count(*)>0
+UNION SELECT 'Beschriftungen',count(*),array_agg(distinct signaturnummer)
+	FROM po_labels o
+	WHERE NOT EXISTS (SELECT * FROM alkis_schriften s WHERE o.signaturnummer=s.signaturnummer)
+	HAVING count(*)>0;
 
 END;

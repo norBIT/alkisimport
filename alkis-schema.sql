@@ -33,7 +33,7 @@
 SELECT alkis_drop();
 
 CREATE TABLE alkis_version(version integer);
-INSERT INTO alkis_version(version) VALUES (6);
+INSERT INTO alkis_version(version) VALUES (7);
 
 -- BW/BY-Koordinatensystem anlegen
 SELECT alkis_create_bsrs(:alkis_epsg);
@@ -1387,7 +1387,7 @@ CREATE TABLE ax_gebaeude (
 	geschossflaeche		double precision,
 	grundflaeche		double precision,
 	umbauterraum		double precision,
-	baujahr			integer,
+	baujahr			integer[],
 	lagezurerdoberflaeche	integer,
 	dachart			varchar,
 	dachgeschossausbau	integer,
@@ -1396,6 +1396,7 @@ CREATE TABLE ax_gebaeude (
 	description		integer,
 	art			varchar,
 	individualname		varchar,
+	gebaeudekennzeichen	varchar,
 
 	-- Beziehungen
 	gehoertzu		character(16),

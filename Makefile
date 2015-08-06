@@ -1,5 +1,5 @@
 PKG=alkis-import
-VERSION = 1.0
+VERSION = 2.0
 P=$(shell cat .pkg || echo 1)
 
 O4W=osgeo4w/apps/$(PKG)
@@ -11,6 +11,7 @@ INSTFILES=\
 	alkis-functions.sql \
 	alkis-compat.sql \
 	alkis-signaturen.sql \
+	alkis-punktsignaturen.sql \
 	alkis-wertearten.sql \
 	alkis-po-tables.sql \
 	alkis-ableitungsregeln.sql \
