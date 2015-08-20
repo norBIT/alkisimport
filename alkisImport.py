@@ -571,7 +571,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 			if conn is None:
 				break
 
-			self.log( "Import-Version: $Format:%h$'" )
+			self.log( "Import-Version: $Format:%h$" )
 
 			self.db.exec_( "SET application_name='ALKIS-Import - Frontend'" )
 			self.db.exec_( "SET client_min_messages TO notice" )
