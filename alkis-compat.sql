@@ -240,7 +240,7 @@ DECLARE
 BEGIN
 	vx := st_x(p1)-st_x(p0);
 	vy := st_y(p1)-st_y(p0);
-	
+
 	wx := st_x(p3)-st_x(p2);
 	wy := st_y(p3)-st_y(p2);
 
@@ -252,9 +252,9 @@ BEGIN
 
 	dx := st_x(p2)-st_x(p0);
 	dy := st_y(p2)-st_y(p0);
-	
+
 	k := (dy*wx-dx*wy)/d;
-	
+
 	RETURN st_translate( p0, k*vx, k*vy );
 END;
 $$ LANGUAGE plpgsql;
@@ -291,14 +291,14 @@ BEGIN
 	ELSE
 		g := g0;
 	END IF;
-	
+
 	n := st_numpoints(g);
 	IF n IS NULL OR n<2 THEN
 		RETURN NULL;
 	END IF;
-	
+
 	p2 := st_pointn(g,1);
-	
+
 	FOR i IN 2..n LOOP
 		p0 := p1;
 		p1 := p2;
@@ -325,16 +325,16 @@ BEGIN
 
 		dx := (st_y(p1)-st_y(p2)) * offs / d1;
 		dy := (st_x(p2)-st_x(p1)) * offs / d1;
-	
+
 		p10 := st_translate( p1, dx, dy );
 		p11 := st_translate( p2, dx, dy );
-		
+
 		IF i=2 THEN
 			r := ARRAY[ p10 ];
 		ELSE
 			r := array_append( r, coalesce( alkis_intersect_lines( p00, p01, p10, p11 ), p01 ) );
 		END IF;
-		
+
 		IF i=n THEN
 			r := array_append( r, p11 );
 		END IF;

@@ -50,7 +50,7 @@ psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*
 ^\(\d+ (Zeilen?|rows?)\)\s*$
 ^removed.*\.(gfs|xml)'\s*$
 ^[CK]ONTEXT:  (SQL statement|SQL-Anweisung) \S+(DROP TABLE .* CASCADE|CREATE TABLE)
-PL\/pgSQL function "(alkis_dropobject|alkis_joinlines|alkis_besondereflurstuecksgrenze)" line \d+ (at|bei) (EXECUTE statement|SQL statement|execute statement|EXECUTE-Anweisung|SQL-Anweisung)
+PL\/pgSQL function "(alkis_dropobject|alkis_drop|alkis_joinlines|alkis_besondereflurstuecksgrenze)" line \d+ (at|bei) (EXECUTE statement|SQL statement|execute statement|EXECUTE-Anweisung|SQL-Anweisung)
 PL\/pgSQL( function|-Funktion) alkis_update_schema\(\) (line|Zeile) \d+ (at|bei) PERFORM
 ERROR:  relation "public\.alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
 ERROR:  table "alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
