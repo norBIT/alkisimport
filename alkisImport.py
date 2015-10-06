@@ -740,6 +740,13 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 				self.pbProgress.setRange( 0, 10000 )
 				self.pbProgress.setValue( 0 )
 
+				self.status( u"Kompatibilitätsfunktionen werden importiert..." )
+				if not self.runSQLScript( conn, "alkis-compat.sql" ):
+					self.log( u"Import der Kompatibilitätsfunktionen schlug fehl." )
+					break
+
+				self.log( u"Kompatibilitätsfunktionen importiert." )
+
 				if self.cbxCreate.isChecked():
 					self.status( u"Datenbestand wird angelegt..." )
 					if not self.runSQLScript( conn, "alkis-schema.sql" ):
@@ -917,12 +924,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 				if ok and self.lstFiles.count()>0:
 					self.log( u"Alle NAS-Dateien importiert." )
-
-				if ok:
-					self.status( u"Kompatibilitätsfunktionen werden importiert..." )
-					ok = self.runSQLScript( conn, "alkis-compat.sql" )
-					if ok:
-						self.log( u"Kompatibilitätsfunktionen importiert." )
 
 				if ok:
 					self.status( u"Ableitungsregeln werden verarbeitet..." )

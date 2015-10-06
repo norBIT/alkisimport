@@ -66,8 +66,9 @@ BY	Bayern
 NI	Niedersachsen
 NW	Nordrhein-Westfalen
 RP	Rheinland-Pfalz
-ST	Sachsen-Anhalt
+SL	Saarland
 SN	Sachsen
+ST	Sachsen-Anhalt
 TH	Thüringen
 */
 
@@ -3728,7 +3729,7 @@ SELECT
 FROM (
 	SELECT
 		gml_id,
-		st_multi(st_buffer(wkb_geometry,0.5,'endcap=flat')) AS polygon,
+		st_multi(alkis_bufferline(wkb_geometry,0.5)) AS polygon,
 		CASE
 		WHEN coalesce(lagezurerdoberflaeche,1400)=1400 THEN 2521
 		WHEN lagezurerdoberflaeche IN (1200,1700)      THEN 2504
@@ -4043,7 +4044,7 @@ SELECT
 FROM (
 	SELECT
 		gml_id,
-		st_buffer(wkb_geometry,0.5,'endcap=flat') AS polygon,
+		alkis_bufferline(wkb_geometry,0.5) AS polygon,
 		CASE
 		WHEN archaeologischertyp IN (1500,1520,1510) THEN 2510
 		END AS signaturnummer,
@@ -4265,7 +4266,7 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
-		st_buffer(wkb_geometry,0.5,'endcap=flat') AS polygon,
+		alkis_bufferline(wkb_geometry,0.5) AS polygon,
 		CASE
 		WHEN bauwerksfunktion IN (1701,1702,1703,1721,1722,1723) THEN 2510
 		END AS signaturnummer,
@@ -5451,7 +5452,7 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
-		st_buffer(wkb_geometry,0.5,'endcap=flat') AS polygon,
+		alkis_bufferline(wkb_geometry,0.5) AS polygon,
 		CASE
 		WHEN bauwerksfunktion=2136 THEN 2510
 		WHEN bauwerksfunktion=2060 THEN 2526

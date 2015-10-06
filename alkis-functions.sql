@@ -414,6 +414,40 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+SELECT alkis_dropobject('alkis_bufferline');
+CREATE FUNCTION alkis_bufferline(g geometry,offs float8) RETURNS geometry AS $$
+BEGIN
+	BEGIN
+		RETURN st_buffer(g,offs,'endcap=flat');
+	EXCEPTION WHEN OTHERS THEN
+		IF geometrytype(g) = 'LINESTRING' THEN
+			DECLARE
+				g0 GEOMETRY;
+				g1 GEOMETRY;
+				g2 GEOMETRY;
+			BEGIN
+				SELECT alkis_offsetcurve(g,offs,'') INTO g0;
+				SELECT st_reverse( alkis_offsetcurve(g,-offs,'') ) INTO g1;
+
+				g2 := st_makepolygon( st_linemerge( st_collect(
+					ARRAY[
+						g0, st_makeline( st_endpoint(g0), st_startpoint(g1) ),
+						g1, st_makeline( st_endpoint(g1), st_startpoint(g0) )
+					]
+				) ) );
+
+				IF geometrytype(g2) <> 'POLYGON' THEN
+					RAISE EXCEPTION 'alkis_bufferline: POLYGON expected, % found', geometrytype(g2);
+				END IF;
+
+				RETURN g2;
+			END;
+		ELSE
+			RAISE EXCEPTION 'alkis_bufferline: LINESTRING expected, % found', geometrytype(g);
+		END IF;
+	END;
+END;
+$$ LANGUAGE plpgsql;
 
 \unset ON_ERROR_STOP
 

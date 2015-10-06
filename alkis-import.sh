@@ -297,6 +297,7 @@ EOF
 		echo "CREATE $(bdate)"
 		pushd "$B/$sql" >/dev/null
 		sql alkis-schema.sql
+		sql alkis-compat.sql
 		sql alkis-po-tables.sql
 		popd >/dev/null
 
@@ -311,6 +312,7 @@ EOF
 
 		echo "UPDATE $(bdate)"
 		pushd "$B/$sql" >/dev/null
+		sql alkis-compat.sql
 		sql alkis-update.sql
 		popd >/dev/null
 
@@ -529,7 +531,7 @@ fi
 if [ "$src" != "exit" -a "$src" != "error" ]; then
 	pushd "$B" >/dev/null
 
-	for i in alkis-compat.sql alkis-signaturen.sql alkis-ableitungsregeln.sql postprocessing.d/*.sql
+	for i in alkis-signaturen.sql alkis-ableitungsregeln.sql postprocessing.d/*.sql
 	do
 		if [ -r "$i" ]; then
 			echo "SQL RUNNING: $i $(bdate)"
