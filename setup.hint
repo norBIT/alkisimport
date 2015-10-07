@@ -3,6 +3,3 @@ ldesc: "norGIS ALKIS Import"
 maintainer: JuergenFischer
 category: Desktop
 requires: pyqt4 psql gdal sip
-curr: 1.0-24
-prev: 1.0-23
-test: 2.0-1

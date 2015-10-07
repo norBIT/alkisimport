@@ -69,7 +69,7 @@ BEGIN
 	RETURN
 		CASE
 		WHEN f.gml_id LIKE 'DESL%' THEN
-			to_char(f.zaehler,'fm0000') || '/' || to_char(alkis_toint(f.nenner),'fm0000')
+			to_char(f.zaehler,'fm0000') || '/' || to_char(coalesce(alkis_toint(f.nenner),0),'fm0000')
 		WHEN f.gml_id LIKE 'DESN%' THEN
 			to_char(f.zaehler,'fm00000') || '/' || substring(f.flurstueckskennzeichen,15,4)
 		ELSE
