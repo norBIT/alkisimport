@@ -278,7 +278,7 @@ DECLARE
 	g GEOMETRY;
 BEGIN
 	IF params IS NULL OR params<>'' THEN
-		RAISE EXCEPTION 'st_offsetcurve: params nicht unterstützt.';
+		RAISE EXCEPTION 'alkis_offsetcurve: params % nicht unterstützt.', params;
 	END IF;
 
 	IF geometrytype(g0)='MULTILINESTRING' THEN
@@ -294,10 +294,15 @@ BEGIN
 
 	n := st_numpoints(g);
 	IF n IS NULL OR n<2 THEN
+		RAISE EXCEPTION '% too short', st_astext(g);
 		RETURN NULL;
 	END IF;
 
-	p2 := st_pointn(g,1);
+	BEGIN
+		p2 := st_pointn(g,1);
+	EXCEPTION WHEN OTHERS THEN
+		RAISE NOTICE 'could not get first point from: %', st_astext(g);
+	END;
 
 	FOR i IN 2..n LOOP
 		p0 := p1;
@@ -314,7 +319,12 @@ BEGIN
 			p01 := st_translate( p1, dx, dy );
 		END IF;
 
-		p2 := st_pointn(g,i);
+		BEGIN
+			p2 := st_pointn(g,i);
+		EXCEPTION WHEN OTHERS THEN
+			RAISE EXCEPTION 'could not get point % from: %', i, st_astext(g);
+		END;
+
 		d1 := st_distance( p1, p2 );
 		IF d1=0 THEN
 			p2 := p1;

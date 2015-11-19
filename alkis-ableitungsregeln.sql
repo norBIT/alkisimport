@@ -311,17 +311,33 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION alkis_safe_offsetcurve(g0 geometry,offs float8,params text) RETURNS geometry AS $$
 DECLARE
-        res BOOLEAN;
+	res GEOMETRY;
 BEGIN
-        SELECT st_offsetcurve(g0,offs,params) INTO res;
-        RETURN res;
-EXCEPTION WHEN OTHERS THEN
+	IF g0 IS NULL OR offs=0 THEN
+		RETURN g0;
+	END IF;
+
+	BEGIN
+		SELECT st_offsetcurve(g0,offs,params) INTO res;
+		IF geometrytype(res)='LINESTRING' THEN
+			RETURN res;
+		END IF;
+	EXCEPTION WHEN OTHERS THEN
+		--
+	END;
+
 	BEGIN
 		SELECT alkis_offsetcurve(g0,offs,params) INTO res;
-		RETURN res;
+		IF geometrytype(res)='LINESTRING' THEN
+			RETURN res;
+		END IF;
 	EXCEPTION WHEN OTHERS THEN
-		RETURN NULL;
+		--
 	END;
+
+	RAISE NOTICE 'alkis_safe_offsetcurve % by % with % failed', st_astext(g0), offs, params;
+
+	RETURN g0;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -6138,10 +6154,16 @@ FROM (
 			p.wkb_geometry,
 			CASE
 			WHEN geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') THEN coalesce(alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry))
-			WHEN geometrytype(o.wkb_geometry)='LINESTRING'                  THEN st_lineinterpolatepoint(o.wkb_geometry,0.5)
+			WHEN geometrytype(o.wkb_geometry)='LINESTRING'                  THEN st_lineinterpolatepoint( alkis_safe_offsetcurve( o.wkb_geometry, 0.8,''::text ), 0.5 )
 			END
 		) AS point,
-		coalesce(p.drehwinkel,0) AS drehwinkel,
+		coalesce(p.drehwinkel,
+			CASE
+			WHEN geometrytype(o.wkb_geometry)='LINESTRING'
+			THEN 0.5*pi()-st_azimuth( st_lineinterpolatepoint( o.wkb_geometry, 0.501), st_lineinterpolatepoint( o.wkb_geometry, 0.499) )
+			ELSE 0
+			END
+		) AS drehwinkel,
 		coalesce(
 			p.signaturnummer,
 			CASE
