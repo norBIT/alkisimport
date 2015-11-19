@@ -33,7 +33,7 @@
 SELECT alkis_drop();
 
 CREATE TABLE alkis_version(version integer);
-INSERT INTO alkis_version(version) VALUES (7);
+INSERT INTO alkis_version(version) VALUES (8);
 
 -- BW/BY-Koordinatensystem anlegen
 SELECT alkis_create_bsrs(:alkis_epsg);
@@ -3500,7 +3500,7 @@ CREATE TABLE ax_tagesabschnitt (
 	CONSTRAINT ax_tagesabschnitt_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_tagesabschnitt','wkb_geometry',:alkis_epsg,'POLYGON',2);
+SELECT AddGeometryColumn('ax_tagesabschnitt','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
 
 CREATE INDEX ax_tagesabschnitt_geom_idx   ON ax_tagesabschnitt USING gist  (wkb_geometry);
 CREATE UNIQUE INDEX ax_tagesabschnitt_gml ON ax_tagesabschnitt USING btree (gml_id,beginnt);

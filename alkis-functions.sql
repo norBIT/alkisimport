@@ -695,9 +695,27 @@ BEGIN
 
 		UPDATE alkis_version SET version=7;
 
-		r := coalesce(r||E'\n','') || 'ALKIS-Schema migriert';
+		r := coalesce(r||E'\n','');
 	END IF;
 
+	IF v<8 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 8';
+
+		BEGIN
+			ALTER TABLE ax_tagesabschnitt DROP CONSTRAINT enforce_geotype_wkb_geometry;
+		EXCEPTION WHEN OTHERS THEN
+			ALTER TABLE ax_tagesabschnitt RENAME wkb_geometry TO wkb_geometry_;
+			PERFORM AddGeometryColumn('ax_tagesabschnitt','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			UPDATE ax_tagesabschnitt SET wkb_geometry=wkb_geometry_;
+			ALTER TABLE ax_tagesabschnitt DROP wkb_geometry_;
+
+			CREATE INDEX ax_tagesabschnitt_geom_idx ON ax_tagesabschnitt USING gist(wkb_geometry);
+		END;
+
+		UPDATE alkis_version SET version=8;
+
+		r := coalesce(r||E'\n','') || 'ALKIS-Schema migriert';
+	END IF;
 
 	--
 	-- ALKIS-Präsentationstabellen

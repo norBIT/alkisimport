@@ -422,7 +422,7 @@ SELECT
 	coalesce(replace(t.schriftinhalt,'-','/'),o.zaehler||'/'||o.nenner,o.zaehler::text) AS text,
 	coalesce(t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4122' ELSE '4113' END) AS signaturnummer,
 	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung,
-        coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
+	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_flurstueck o
 LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='ZAE_NEN' AND t.endet IS NULL
 WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN NULL ELSE '4111' END,'4113','4122') OR coalesce(o.nenner,'0')='0');
@@ -1331,9 +1331,9 @@ SELECT
 	'ax_gebaeude' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	coalesce(
-	   trim(to_char(o.anzahlderoberirdischengeschosse,'RN'))||' / -'||trim(to_char(o.anzahlderunterirdischengeschosse,'RN')),
-	   trim(to_char(o.anzahlderoberirdischengeschosse,'RN')),
-	   '-'||trim(to_char(o.anzahlderunterirdischengeschosse,'RN'))
+		trim(to_char(o.anzahlderoberirdischengeschosse,'RN'))||' / -'||trim(to_char(o.anzahlderunterirdischengeschosse,'RN')),
+		trim(to_char(o.anzahlderoberirdischengeschosse,'RN')),
+		'-'||trim(to_char(o.anzahlderunterirdischengeschosse,'RN'))
 	) AS text,
 	coalesce(t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -6323,7 +6323,7 @@ FROM (
 			END
 		) AS text,
 		coalesce(t.signaturnummer,'4103') AS signaturnummer,
-	        drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
+		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
 		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 	FROM ax_schifffahrtsliniefaehrverkehr o
 	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='ART' AND t.endet IS NULL
@@ -6339,7 +6339,7 @@ SELECT
 	point,
 	text,
 	signaturnummer,
-        drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell
+	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell
 FROM (
 	SELECT
 		o.gml_id,
@@ -7399,23 +7399,23 @@ SELECT 'Nachbearbeitung läuft...';
 
 -- Polygonsignaturen aufteilen (1XXX = Fläche, 2XXX = Linie)
 UPDATE po_polygons SET
-       sn_flaeche=CASE
-       WHEN signaturnummer::int BETWEEN 1000 AND 1999 THEN signaturnummer
-       WHEN signaturnummer::int>10000 THEN
-         CASE
-         WHEN signaturnummer::int%10000 BETWEEN 1000 AND 1999 THEN (signaturnummer::int%10000)::text
-         WHEN signaturnummer::int/10000 BETWEEN 1000 AND 1999 THEN (signaturnummer::int/10000)::text
-         END
-       WHEN signaturnummer::int BETWEEN 2000 AND 2999 AND EXISTS (SELECT * FROM alkis_flaechen f WHERE po_polygons.signaturnummer=f.signaturnummer) THEN signaturnummer
-       END,
-       sn_randlinie=CASE
-       WHEN signaturnummer::int BETWEEN 2000 AND 2999 THEN signaturnummer
-       WHEN signaturnummer::int>10000 THEN
-         CASE
-         WHEN signaturnummer::int%10000 BETWEEN 2000 AND 2999 THEN (signaturnummer::int%10000)::text
-         WHEN signaturnummer::int/10000 BETWEEN 2000 AND 2999 THEN (signaturnummer::int/10000)::text
-         END
-       END
+	sn_flaeche=CASE
+	WHEN signaturnummer::int BETWEEN 1000 AND 1999 THEN signaturnummer
+	WHEN signaturnummer::int>10000 THEN
+		CASE
+		WHEN signaturnummer::int%10000 BETWEEN 1000 AND 1999 THEN (signaturnummer::int%10000)::text
+		WHEN signaturnummer::int/10000 BETWEEN 1000 AND 1999 THEN (signaturnummer::int/10000)::text
+		END
+	WHEN signaturnummer::int BETWEEN 2000 AND 2999 AND EXISTS (SELECT * FROM alkis_flaechen f WHERE po_polygons.signaturnummer=f.signaturnummer) THEN signaturnummer
+	END,
+	sn_randlinie=CASE
+	WHEN signaturnummer::int BETWEEN 2000 AND 2999 THEN signaturnummer
+	WHEN signaturnummer::int>10000 THEN
+		CASE
+		WHEN signaturnummer::int%10000 BETWEEN 2000 AND 2999 THEN (signaturnummer::int%10000)::text
+		WHEN signaturnummer::int/10000 BETWEEN 2000 AND 2999 THEN (signaturnummer::int/10000)::text
+		END
+	END
 WHERE signaturnummer ~ E'^[0-9]+$';
 
 --
@@ -7437,27 +7437,27 @@ SELECT setval('rnlinie_seq',max(id)+1) FROM alkis_linie;
 
 SELECT setval('rnstrichart_seq',currval('rnstrichart0_seq'));
 INSERT INTO alkis_stricharten(id)
-        SELECT nextval('rnstrichart_seq')
+	SELECT nextval('rnstrichart_seq')
 		FROM alkis_flaechen f
 		JOIN alkis_randlinie r ON f.randlinie=r.id
 		ORDER BY f.katalog,f.signaturnummer,r.id;
 
 SELECT setval('rnstrichart_seq',currval('rnstrichart0_seq'));
 INSERT INTO alkis_stricharten_i(id,stricharten,i,strichart)
-        SELECT nextval('rnstricharteni_seq'), nextval('rnstrichart_seq'),0,strichart
+	SELECT nextval('rnstricharteni_seq'), nextval('rnstrichart_seq'),0,strichart
 		FROM alkis_flaechen f
 		JOIN alkis_randlinie r ON f.randlinie=r.id
 		ORDER BY f.katalog,f.signaturnummer,r.id;
 
 INSERT INTO alkis_linien(katalog,signaturnummer,darstellungsprioritaet,name,seite)
-        SELECT katalog,'rn'||signaturnummer,darstellungsprioritaet,name,seite
+	SELECT katalog,'rn'||signaturnummer,darstellungsprioritaet,name,seite
 		FROM alkis_flaechen f
 		JOIN alkis_randlinie r ON f.randlinie=r.id
 		ORDER BY f.katalog,f.signaturnummer,r.id;
 
 SELECT setval('rnstrichart_seq',currval('rnstrichart0_seq'));
 INSERT INTO alkis_linie(id,i,katalog,signaturnummer,strichart,abschluss,scheitel,strichstaerke,farbe)
-        SELECT nextval('rnlinie_seq'),0,katalog,'rn'||signaturnummer,nextval('rnstrichart_seq'),abschluss,scheitel,strichstaerke,r.farbe
+	SELECT nextval('rnlinie_seq'),0,katalog,'rn'||signaturnummer,nextval('rnstrichart_seq'),abschluss,scheitel,strichstaerke,r.farbe
 		FROM alkis_flaechen f
 		JOIN alkis_randlinie r ON f.randlinie=r.id
 		ORDER BY f.katalog,f.signaturnummer,r.id;
@@ -7477,11 +7477,11 @@ SELECT
 	modell AS "ALKIS-Modellart",
 	count(*) AS "#Objekte"
 FROM (
-        SELECT unnest(modell) AS modell FROM po_points   UNION ALL
+	SELECT unnest(modell) AS modell FROM po_points   UNION ALL
 	SELECT unnest(modell) AS modell FROM po_lines    UNION ALL
-        SELECT unnest(modell) AS modell FROM po_polygons UNION ALL
-        SELECT unnest(modell) AS modell from po_lines    UNION ALL
-        SELECT unnest(modell) AS modell from po_labels
+	SELECT unnest(modell) AS modell FROM po_polygons UNION ALL
+	SELECT unnest(modell) AS modell from po_lines    UNION ALL
+	SELECT unnest(modell) AS modell from po_labels
 ) AS foo
 GROUP BY modell
 ORDER BY "#Objekte" DESC;
@@ -7490,11 +7490,11 @@ SELECT
 	modell AS "ALKIS-Modellart",
 	count(*) AS "#Objekte"
 FROM (
-        SELECT modell AS modell FROM po_points   UNION ALL
+	SELECT modell AS modell FROM po_points   UNION ALL
 	SELECT modell AS modell FROM po_lines    UNION ALL
-        SELECT modell AS modell FROM po_polygons UNION ALL
-        SELECT modell AS modell from po_lines    UNION ALL
-        SELECT modell AS modell from po_labels
+	SELECT modell AS modell FROM po_polygons UNION ALL
+	SELECT modell AS modell from po_lines    UNION ALL
+	SELECT modell AS modell from po_labels
 ) AS foo
 GROUP BY modell
 ORDER BY "#Objekte" DESC;
