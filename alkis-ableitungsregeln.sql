@@ -2481,8 +2481,8 @@ FROM (
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
 		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 	FROM ax_platz o
-	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL -- AND t.art='FKT' -- fehlt in RP
-	WHERE o.endet IS NULL -- AND funktion IN (5340,5350)
+	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND (t.art='FKT' OR o.gml_id LIKE 'DERP')
+	WHERE o.endet IS NULL AND (funktion IN (5340,5350) OR o.gml_id LIKE 'DERP%')
 ) AS n WHERE NOT text IS NULL;
 
 -- Platz, Zweitname
@@ -7562,7 +7562,7 @@ INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 		SELECT
 			l.gml_id,
 			l.thema,
-			l.layer || '_pfeil' AS layer,
+			l.layer /* || '_pfeil' */ AS layer,
 			l.signaturnummer,
 			st_srid(l.line) AS srid,
 			st_pointn( st_geometryn( l.line, 1 ), 1 ) AS p0,
