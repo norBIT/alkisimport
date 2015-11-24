@@ -216,6 +216,8 @@ CREATE TABLE str_shl (
 	gemshl character(32)
 );
 
+UPDATE ax_lagebezeichnungkatalogeintrag SET lage = substr(schluesselgesamt, 9) WHERE char_length(schluesselgesamt) = 12;
+
 INSERT INTO str_shl(strshl,strname,gemshl)
 	SELECT DISTINCT
 		to_char(alkis_toint(land),'fm00')||regierungsbezirk||to_char(alkis_toint(kreis),'fm00')||to_char(alkis_toint(gemeinde),'fm000')||'    '||trim(lage) AS strshl,
