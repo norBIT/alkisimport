@@ -57,7 +57,7 @@ os.putenv("OGR_ARC_MINLENGTH", "0.1")
 os.putenv("OGR_SKIP", "GML,SEGY")
 
 # Headerkennungen die NAS-Daten identifizieren
-os.putenv("NAS_INDICATOR", "NAS-Operationen.xsd;NAS-Operationen_optional.xsd;AAA-Fachschema.xsd;ASDKOM-NAS-Operationen_1_1_NRW.xsd")
+os.putenv("NAS_INDICATOR", "NAS-Operationen.xsd;NAS-Operationen_optional.xsd;AAA-Fachschema.xsd;ASDKOM-NAS-Operationen_1_1_NRW.xsd;aaa.xsd")
 
 os.putenv("PGCLIENTENCODING", "UTF8")
 
