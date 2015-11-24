@@ -31,7 +31,7 @@ export OGR_ARC_MINLENGTH=0.1
 export OGR_SKIP=GML,SEGY
 
 # Headerkennungen die NAS-Daten identifizieren
-export NAS_INDICATOR="NAS-Operationen.xsd;NAS-Operationen_optional.xsd;AAA-Fachschema.xsd;ASDKOM-NAS-Operationen_1_1_NRW.xsd"
+export NAS_INDICATOR="NAS-Operationen.xsd;NAS-Operationen_optional.xsd;AAA-Fachschema.xsd;ASDKOM-NAS-Operationen_1_1_NRW.xsd;aaa.xsd"
 
 export EPSG=25832
 export CRS=EPSG:$EPSG
@@ -200,7 +200,8 @@ do
 		export DB
 		log() {
 			n=$(psql -t -c "SELECT count(*) FROM information_schema.tables WHERE table_name='alkis_importlog'" "$DB")
-			n=${n//[	 ]/}
+			n=${n//[	 
+]/}
 			if [ $n -eq 0 ]; then
 				psql -q -c "CREATE TABLE alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" "$DB"
 			fi
