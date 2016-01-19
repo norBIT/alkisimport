@@ -390,12 +390,7 @@ CREATE FUNCTION st_ndims(geometry) RETURNS smallint AS $$
   SELECT ndims($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
-CREATE AGGREGATE array_agg (
-        sfunc = array_append,
-	basetype = anyelement,
-	stype = anyarray,
-	initcond = '{}'
-);
+DROP AGGREGATE public.array_agg(anyelement);
 
 CREATE FUNCTION array_length(anyarray,integer) RETURNS integer AS $$
 DECLARE
