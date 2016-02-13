@@ -127,7 +127,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		self.lstFiles.addItems( s.value( "files", [] ) or [] )
 		self.cbxSkipFailures.setChecked( s.value( "skipfailures", False, type=bool ) )
 		self.cbFnbruch.setCurrentIndex( 0 if s.value( "fnbruch", True, type=bool ) else 1 )
-		self.cbxUseCopy.setChecked( s.value( "usecopy", False, type=bool ) )
+		self.cbxUseCopy.setChecked( s.value( "usecopy", True, type=bool ) )
 		self.cbxCreate.setChecked( False )
 
 		self.cbEPSG.addItem( "UTM32N", "25832")
@@ -868,8 +868,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 					if self.cbxSkipFailures.isChecked():
 						args.append("-skipfailures")
 
-					if self.cbxUseCopy.isChecked():
-						args.extend( ["--config", "PG_USE_COPY", "YES" ] )
+					args.extend( ["--config", "PG_USE_COPY", "YES" if self.cbxUseCopy.isChecked() else "NO" ] )
 
 					if convertToLinear:
 						args.extend( ["-nlt", "CONVERT_TO_LINEAR" ] )
