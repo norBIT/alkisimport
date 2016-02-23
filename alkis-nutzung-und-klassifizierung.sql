@@ -143,7 +143,7 @@ BEGIN
 		     WHEN 'ax_strassenverkehr'				THEN 'Straßenverkehr'
 		     WHEN 'ax_weg'					THEN 'Weg'
 		     WHEN 'ax_platz'					THEN 'Platz'
-		     WHEN 'ax_bahnverkehr'				THEN 'Bahrverkehr'
+		     WHEN 'ax_bahnverkehr'				THEN 'Bahnverkehr'
 		     WHEN 'ax_flugverkehr'				THEN 'Flugverkehr'
 		     WHEN 'ax_schiffsverkehr'				THEN 'Schiffsverkehr'
 		     WHEN 'ax_gehoelz'					THEN 'Gehölz'
