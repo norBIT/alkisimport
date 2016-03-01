@@ -76,6 +76,7 @@ DECLARE
 	kv VARCHAR;
 	d  VARCHAR;
         f  VARCHAR;
+        fk VARCHAR;
         n  VARCHAR;
         i  INTEGER;
 	invalid INTEGER;
@@ -95,8 +96,8 @@ BEGIN
 		-- SELECT alkis_fixgeometry(r.name);
 
 		f := CASE r.name
-		     WHEN 'ax_halde'					THEN 'NULL'
-		     WHEN 'ax_bergbaubetrieb'				THEN 'NULL'
+		     WHEN 'ax_halde'					THEN 'lagergut'
+		     WHEN 'ax_bergbaubetrieb'				THEN 'abbaugut'
 		     WHEN 'ax_heide'					THEN 'NULL'
 		     WHEN 'ax_moor'					THEN 'NULL'
 		     WHEN 'ax_sumpf'					THEN 'NULL'
@@ -127,6 +128,39 @@ BEGIN
 			RAISE EXCEPTION 'Unerwartete Nutzungstabelle %', r.name;
 		END IF;
 
+		fk := CASE r.name
+		     WHEN 'ax_halde'					THEN ', '
+		     WHEN 'ax_bergbaubetrieb'				THEN ' von '
+		     WHEN 'ax_heide'					THEN ''
+		     WHEN 'ax_moor'					THEN ''
+		     WHEN 'ax_sumpf'					THEN ''
+		     WHEN 'ax_wohnbauflaeche'				THEN ' mit Art der Bebauung '
+		     WHEN 'ax_industrieundgewerbeflaeche'		THEN ', '
+		     WHEN 'ax_tagebaugrubesteinbruch'			THEN ' von '
+		     WHEN 'ax_flaechegemischternutzung'			THEN ', '
+		     WHEN 'ax_flaechebesondererfunktionalerpraegung'	THEN ', '
+		     WHEN 'ax_sportfreizeitunderholungsflaeche'		THEN ', '
+		     WHEN 'ax_friedhof'					THEN ', '
+		     WHEN 'ax_strassenverkehr'				THEN ', '
+		     WHEN 'ax_weg'					THEN ', '
+		     WHEN 'ax_platz'					THEN ', '
+		     WHEN 'ax_bahnverkehr'				THEN ', '
+		     WHEN 'ax_flugverkehr'				THEN ', '
+		     WHEN 'ax_schiffsverkehr'				THEN ', '
+		     WHEN 'ax_gehoelz'					THEN ', '
+		     WHEN 'ax_unlandvegetationsloseflaeche'		THEN ', '
+		     WHEN 'ax_fliessgewaesser'				THEN ', '
+		     WHEN 'ax_hafenbecken'				THEN ', '
+		     WHEN 'ax_stehendesgewaesser'			THEN ', '
+		     WHEN 'ax_meer'					THEN ', '
+		     WHEN 'ax_landwirtschaft'				THEN ', '
+		     WHEN 'ax_wald'					THEN ', '
+		     ELSE NULL
+		     END;
+		IF fk IS NULL THEN
+			RAISE EXCEPTION 'Unerwartete Nutzungstabelle %', r.name;
+		END IF;
+
 		n := CASE r.name
 		     WHEN 'ax_halde'					THEN 'Halde'
 		     WHEN 'ax_bergbaubetrieb'				THEN 'Bergbaubetrieb'
@@ -137,7 +171,7 @@ BEGIN
 		     WHEN 'ax_industrieundgewerbeflaeche'		THEN 'Industrie- und Gewerbefläche'
 		     WHEN 'ax_tagebaugrubesteinbruch'			THEN 'Tagebau, Grube, Steinbruch'
 		     WHEN 'ax_flaechegemischternutzung'			THEN 'Fläche gemischter Nutzung'
-		     WHEN 'ax_flaechebesondererfunktionalerpraegung'	THEN 'Fläche besonderer funktiononaler Prägung'
+		     WHEN 'ax_flaechebesondererfunktionalerpraegung'	THEN 'Fläche besonderer funktionaler Prägung'
 		     WHEN 'ax_sportfreizeitunderholungsflaeche'		THEN 'Sport-, Freizeit- und Erholungsfläche'
 		     WHEN 'ax_friedhof'					THEN 'Friedhof'
 		     WHEN 'ax_strassenverkehr'				THEN 'Straßenverkehr'
@@ -182,9 +216,9 @@ BEGIN
 
 		IF f<>'NULL' THEN
 			kv := kv
-			   || ' UNION SELECT '''
-			   || r.kennung||':''||k AS nutzung,v AS name'
-			   || '  FROM alkis_wertearten WHERE element=''' || r.name || ''' AND bezeichnung=''' || f || ''''
+			   || ' UNION SELECT ''' || r.kennung || ':''||k AS nutzung,'''
+			   || concat(n,fk) || '''|| v AS name'
+			   || ' FROM alkis_wertearten WHERE element=''' || r.name || ''' AND bezeichnung=''' || f || ''''
 			   ;
 		END IF;
 
