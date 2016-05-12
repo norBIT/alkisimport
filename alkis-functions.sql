@@ -713,6 +713,23 @@ BEGIN
 		END;
 
 		UPDATE alkis_version SET version=8;
+	END IF;
+
+	IF v<9 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 9';
+
+		BEGIN
+			ALTER TABLE ax_topographischelinie DROP CONSTRAINT enforce_geotype_wkb_geometry;
+		EXCEPTION WHEN OTHERS THEN
+			ALTER TABLE ax_topographischelinie RENAME wkb_geometry TO wkb_geometry_;
+			PERFORM AddGeometryColumn('ax_topographischelinie','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			UPDATE ax_topographischelinie SET wkb_geometry=wkb_geometry_;
+			ALTER TABLE ax_topographischelinie DROP wkb_geometry_;
+
+			CREATE INDEX ax_topographischelinie_geom_idx ON ax_topographischelinie USING gist(wkb_geometry);
+		END;
+
+		UPDATE alkis_version SET version=9;
 
 		r := coalesce(r||E'\n','') || 'ALKIS-Schema migriert';
 	END IF;

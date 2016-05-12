@@ -3118,7 +3118,7 @@ FROM (
 
 
 --
--- Unland/Vegetationslosefläche (43007)
+-- Unland/vegetationslose Fläche (43007)
 --
 
 -- Unland, Flächen
@@ -3135,13 +3135,16 @@ FROM (
 		gml_id,
 		st_multi(wkb_geometry) AS polygon,
 		CASE
-		WHEN coalesce(oberflaechenmaterial,0) IN (0,1010,1020,1030,1040) THEN 2515
-		WHEN oberflaechenmaterial IN (1110,1120)                         THEN 2518
-		WHEN oberflaechenmaterial IN (1100,1110,1120,1200)               THEN 25151405
-		END AS signaturnummer,
+		WHEN coalesce(funktion,1000)=1000 THEN
+		  CASE
+		  WHEN coalesce(oberflaechenmaterial,0) IN (0,1010,1020,1030,1040) THEN 2515
+		  WHEN oberflaechenmaterial IN (1110,1120)                         THEN 2518
+		  END
+	        ELSE 25151406
+	        END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_unlandvegetationsloseflaeche o
-	WHERE coalesce(funktion,1000)=1000 AND endet IS NULL
+	WHERE coalesce(funktion,1000) IN (1000,1100,1110,1120,1200) AND endet IS NULL
 ) AS o WHERE NOT signaturnummer IS NULL;
 
 -- Unland, Symbole

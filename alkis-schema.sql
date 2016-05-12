@@ -33,7 +33,7 @@
 SELECT alkis_drop();
 
 CREATE TABLE alkis_version(version integer);
-INSERT INTO alkis_version(version) VALUES (8);
+INSERT INTO alkis_version(version) VALUES (9);
 
 -- BW/BY-Koordinatensystem anlegen
 SELECT alkis_create_bsrs(:alkis_epsg);
@@ -4020,7 +4020,7 @@ CREATE TABLE ax_topographischelinie (
 	CONSTRAINT ax_topographischelinie_pk PRIMARY KEY (ogc_fid)
 );
 
-SELECT AddGeometryColumn('ax_topographischelinie','wkb_geometry',:alkis_epsg,'LINESTRING',2);
+SELECT AddGeometryColumn('ax_topographischelinie','wkb_geometry',:alkis_epsg,'GEOMETRY',2);  -- LINESTRING/MULTILINESTRING
 
 CREATE INDEX ax_topographischelinie_geom_idx   ON ax_topographischelinie USING gist (wkb_geometry);
 CREATE UNIQUE INDEX ax_topographischelinie_gml ON ax_topographischelinie USING btree (gml_id,beginnt);

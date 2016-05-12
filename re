@@ -35,7 +35,8 @@ psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*
 ^psql:alkis-compat.sql:.*: FEHLER:  Funktion combine_bbox\(box2d, geometry\) existiert nicht\s*$
 ^psql:alkis-compat.sql:.*: ERROR:  function combine_bbox\(box2d, geometry\) does not exist\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Berechtigung nur f\S+r Eigent\S+mer der Funktion st_dump\s*$
-^psql:alkis-compat.sql:.*: ERROR:  aggregate public.array_agg\(anyelement\) does not exist
+^psql:alkis-compat.sql:.*: ERROR:  aggregate public\.array_agg\(anyelement\) does not exist
+^psql:alkis-compat.sql:.*: FEHLER:  Aggregatfunktion public\.array_agg\(anyelement\) existiert nicht\s*$
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*gel\S+scht\..*$
 ^\s+(addgeometrycolumn|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|version|postgis_version|\?column\?)\s*$
 ^-+\s*$
@@ -51,7 +52,8 @@ psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*
 ^\(\d+ (Zeilen?|rows?)\)\s*$
 ^removed.*\.(gfs|xml)'\s*$
 ^[CK]ONTEXT:  (SQL statement|SQL-Anweisung) \S+(DROP TABLE .* CASCADE|CREATE TABLE)
-PL\/pgSQL function "(alkis_dropobject|alkis_drop|alkis_joinlines|alkis_besondereflurstuecksgrenze)" line \d+ (at|bei) (EXECUTE statement|SQL statement|execute statement|EXECUTE-Anweisung|SQL-Anweisung)
+PL\/pgSQL( function|-Funktion) "(alkis_dropobject|alkis_drop|alkis_joinlines|alkis_besondereflurstuecksgrenze)" (line|Zeile) \d+ (at|bei) (EXECUTE|SQL|execute)( statement|-Anweisung)
+PL\/pgSQL( function|-Funktion) alkis_drop\(\) (line|Zeile) \d+ (at|bei) EXECUTE( statement|-Anweisung)
 PL\/pgSQL( function|-Funktion) alkis_update_schema\(\) (line|Zeile) \d+ (at|bei) PERFORM
 ERROR:  relation "public\.alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
 ERROR:  table "alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
