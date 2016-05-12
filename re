@@ -38,7 +38,7 @@ psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*
 ^psql:alkis-compat.sql:.*: ERROR:  aggregate public\.array_agg\(anyelement\) does not exist
 ^psql:alkis-compat.sql:.*: FEHLER:  Aggregatfunktion public\.array_agg\(anyelement\) existiert nicht\s*$
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*gel\S+scht\..*$
-^\s+(addgeometrycolumn|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|version|postgis_version|\?column\?)\s*$
+^\s+(addgeometrycolumn|alkis_clean|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|version|postgis_version|\?column\?)\s*$
 ^-+\s*$
 ^\s+public\..*\.(wkb_geometry|dummy) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$
 ^\s+public\.ax_punktortau\.wkb_geometry SRID:\d+ TYPE:POINT DIMS:3\+?\s*$
@@ -52,7 +52,7 @@ psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*
 ^\(\d+ (Zeilen?|rows?)\)\s*$
 ^removed.*\.(gfs|xml)'\s*$
 ^[CK]ONTEXT:  (SQL statement|SQL-Anweisung) \S+(DROP TABLE .* CASCADE|CREATE TABLE)
-PL\/pgSQL( function|-Funktion) "(alkis_dropobject|alkis_drop|alkis_joinlines|alkis_besondereflurstuecksgrenze)" (line|Zeile) \d+ (at|bei) (EXECUTE|SQL|execute)( statement|-Anweisung)
+PL\/pgSQL( function|-Funktion) "(alkis_dropobject|alkis_clean|alkis_drop|alkis_joinlines|alkis_besondereflurstuecksgrenze)" (line|Zeile) \d+ (at|bei) (EXECUTE|SQL|execute)( statement|-Anweisung)
 PL\/pgSQL( function|-Funktion) alkis_drop\(\) (line|Zeile) \d+ (at|bei) EXECUTE( statement|-Anweisung)
 PL\/pgSQL( function|-Funktion) alkis_update_schema\(\) (line|Zeile) \d+ (at|bei) PERFORM
 ERROR:  relation "public\.alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist

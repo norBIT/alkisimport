@@ -81,6 +81,17 @@ log() {
 	tee $1 | python $B/refilter.py
 }
 
+rund() {
+	local dir=$1
+
+	for i in ${dir}.d/*; do
+		if [ -r "$i" ]; then
+			echo "SQL RUNNING: $i $(bdate)"
+			sql $i
+		fi
+	done
+}
+
 B=${0%/*}   # BASEDIR
 if [ "$0" = "$B" ]; then
 	B=.
@@ -299,9 +310,27 @@ EOF
 
 		echo "CREATE $(bdate)"
 		pushd "$B/$sql" >/dev/null
+		rund precreate
 		sql alkis-schema.sql
 		sql alkis-compat.sql
 		sql alkis-po-tables.sql
+		rund postcreate
+		popd >/dev/null
+
+		continue
+		;;
+
+	clean)
+		if [ -z "$DB" ]; then
+			echo "$P: Keine Datenbankverbindungsdaten angegeben" >&2
+			exit 1
+		fi
+
+		echo "CLEAN $(bdate)"
+		pushd "$B/$sql" >/dev/null
+		rund preclean
+		sql alkis-clean.sql
+		rund postclean
 		popd >/dev/null
 
 		continue
@@ -534,13 +563,15 @@ fi
 if [ "$src" != "exit" -a "$src" != "error" ]; then
 	pushd "$B" >/dev/null
 
-	for i in alkis-signaturen.sql alkis-ableitungsregeln.sql postprocessing.d/*.sql
+	for i in alkis-signaturen.sql alkis-ableitungsregeln.sql
 	do
 		if [ -r "$i" ]; then
 			echo "SQL RUNNING: $i $(bdate)"
 			sql $i
 		fi
 	done
+
+	rund postprocessing
 
 	popd >/dev/null
 fi

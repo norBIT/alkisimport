@@ -97,7 +97,7 @@ BEGIN
 	FOR c IN SELECT table_type,table_name FROM information_schema.tables
 		   WHERE table_schema='public'
 		     AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_')
-		           OR table_name IN ('alkis_beziehungen','delete','alkis_version'))
+		           OR table_name IN ('alkis_beziehungen','delete','alkis_version') )
 		   ORDER BY table_type DESC LOOP
 		IF c.table_type = 'VIEW' THEN
 			r := coalesce(r||E'\n','') || 'Sicht ' || c.table_name || ' gelöscht.';
@@ -115,6 +115,27 @@ BEGIN
 		WHERE f_table_schema='public'
 		AND ( substr(f_table_name,1,2) IN ('ax_','ap_','ks_','aa_')
 		 OR f_table_name IN ('alkis_beziehungen','delete') );
+
+	RETURN r;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Alle ALKIS-Tabellen leeren
+SELECT alkis_dropobject('alkis_clean');
+CREATE FUNCTION alkis_clean() RETURNS varchar AS $$
+DECLARE
+	c RECORD;
+	r VARCHAR;
+BEGIN
+	-- clean tables
+	FOR c IN SELECT table_name FROM information_schema.tables
+		   WHERE table_schema='public' AND table_type='BASE TABLE'
+		     AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_')
+		           OR table_name IN ('alkis_beziehungen','delete') )
+		   ORDER BY table_type DESC LOOP
+		r := coalesce(r||E'\n','') || 'Tabelle ' || c.table_name || ' geleert.';
+		EXECUTE 'DELETE FROM ' || c.table_name;
+	END LOOP;
 
 	RETURN r;
 END;

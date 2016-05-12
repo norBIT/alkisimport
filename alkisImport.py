@@ -129,6 +129,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		self.cbFnbruch.setCurrentIndex( 0 if s.value( "fnbruch", True, type=bool ) else 1 )
 		self.cbxUseCopy.setChecked( s.value( "usecopy", True, type=bool ) )
 		self.cbxCreate.setChecked( False )
+		self.cbxClean.setChecked( False )
 
 		self.cbEPSG.addItem( "UTM32N", "25832")
 		self.cbEPSG.addItem( "UTM33N", "25833")
@@ -519,6 +520,17 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 		return conn
 
+	def rund(self,conn,dir):
+		for f in glob.glob("%s.d/*.sql" % dir):
+			self.status( u"%s wird gestartet..." % f )
+			if not self.runSQLScript( conn, f ):
+				self.log( u"%s gescheitert." % f )
+				return False
+
+			self.log( u"%s ausgeführt." % f )
+
+		return True
+
 	def importALKIS(self):
 		if os.environ.has_key('CPL_DEBUG'):
 			self.log( u"Debug-Ausgaben aktiv." )
@@ -751,6 +763,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 				self.log( u"Kompatibilitätsfunktionen importiert." )
 
 				if self.cbxCreate.isChecked():
+					if not self.rund(conn, "precreate"):
+						break
+
 					self.status( u"Datenbestand wird angelegt..." )
 					if not self.runSQLScript( conn, "alkis-schema.sql" ):
 						self.log( u"Anlegen des Datenbestands schlug fehl." )
@@ -763,8 +778,24 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 						break
 					self.log( u"Präsentationstabellen angelegt." )
 
+					if not self.rund(conn, "postcreate"):
+						break
+
 					self.cbxCreate.setChecked( False )
 				else:
+					if self.cbxClean.isChecked():
+						if not self.rund(conn, "preclean"):
+							break
+
+						self.status( u"Datenbankschema wird geleert..." )
+						if not self.runSQLScript( conn, "alkis-clean.sql" ):
+							self.log( u"Datenbankleerung schlug fehl." )
+							break
+						self.cbxClean.setChecked( False )
+
+						if not self.rund(conn, "postclean"):
+							break
+
 					self.status( u"Datenbankschema wird geprüft..." )
 					if not self.runSQLScript( conn, "alkis-update.sql" ):
 						self.log( u"Schemaprüfung schlug fehl." )
@@ -938,11 +969,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 						self.log( u"Ableitungsregeln verarbeitet." )
 
 				if ok:
-					for f in glob.glob("postprocessing.d/*.sql"):
-						self.status( u"Nachverarbeitungsskript %s wird gestartet..." % f )
-						ok = self.runSQLScript( conn, f )
-						if ok:
-							self.log( u"Nachverarbeitungsskript %s ausgeführt." % f )
+					ok = self.rund(conn, "postprocessing")
 
 				if ok:
 					self.status( u"VACUUM..." )

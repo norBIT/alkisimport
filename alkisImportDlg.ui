@@ -136,105 +136,6 @@
      </layout>
     </widget>
    </item>
-   <item row="0" column="1" rowspan="2">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Importeinstellungen</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="1" column="1">
-       <widget class="QComboBox" name="cbEPSG">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>Flurstücksnummerndarstellung</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="2">
-       <widget class="QCheckBox" name="cbxCreate">
-        <property name="text">
-         <string>Datenbestand (neu)anlegen</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Koordinatensystem</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QComboBox" name="cbFnbruch">
-        <item>
-         <property name="text">
-          <string>Mit Bruchstrich</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Mit Schrägstrich</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>Transaktionsgröße</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="leGT">
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="maxLength">
-         <number>32767</number>
-        </property>
-        <property name="cursorPosition">
-         <number>0</number>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QCheckBox" name="cbxSkipFailures">
-          <property name="text">
-           <string>Importfehler überspringen</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="cbxClearProtocol">
-          <property name="text">
-           <string>Protokolltabelle löschen</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="cbxUseCopy">
-          <property name="text">
-           <string>COPY nutzen</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item row="16" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -464,6 +365,116 @@
      </layout>
     </widget>
    </item>
+   <item row="0" column="1" rowspan="2">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Importeinstellungen</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="2" column="1">
+       <widget class="QComboBox" name="cbEPSG">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Flurstücksnummerndarstellung</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Koordinatensystem</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="cbFnbruch">
+        <item>
+         <property name="text">
+          <string>Mit Bruchstrich</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mit Schrägstrich</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>Transaktionsgröße</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="leGT">
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="maxLength">
+         <number>32767</number>
+        </property>
+        <property name="cursorPosition">
+         <number>0</number>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QCheckBox" name="cbxSkipFailures">
+          <property name="text">
+           <string>Importfehler überspringen</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="cbxClearProtocol">
+          <property name="text">
+           <string>Protokolltabelle löschen</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="cbxUseCopy">
+          <property name="text">
+           <string>COPY nutzen</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="0" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QCheckBox" name="cbxCreate">
+          <property name="text">
+           <string>Datenbestand (neu)anlegen</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="cbxClean">
+          <property name="text">
+           <string>Datenbestand leeren</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
@@ -473,7 +484,6 @@
   <tabstop>leDBNAME</tabstop>
   <tabstop>leUID</tabstop>
   <tabstop>lePWD</tabstop>
-  <tabstop>cbxCreate</tabstop>
   <tabstop>cbEPSG</tabstop>
   <tabstop>cbFnbruch</tabstop>
   <tabstop>leGT</tabstop>
@@ -504,12 +514,28 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>494</x>
-     <y>51</y>
+     <x>435</x>
+     <y>50</y>
     </hint>
     <hint type="destinationlabel">
-     <x>647</x>
-     <y>81</y>
+     <x>663</x>
+     <y>76</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbxCreate</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cbxClean</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>336</x>
+     <y>41</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>520</x>
+     <y>44</y>
     </hint>
    </hints>
   </connection>
