@@ -135,6 +135,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		self.cbEPSG.addItem( "3GK2 (BW)", "131466")
 		self.cbEPSG.addItem( "3GK3 (BW)", "131467")
 		self.cbEPSG.addItem( "3GK4 (BY)", "131468")
+		self.cbEPSG.addItem( "DHDN GK2 (BW)", "31466")
+		self.cbEPSG.addItem( "DHDN GK3 (BW)", "31467")
+		self.cbEPSG.addItem( "DHDN GK4 (BY)", "31468")
 		self.cbEPSG.setCurrentIndex( self.cbEPSG.findData( s.value( "epsg", "25832" ) ) )
 
 		self.pbAdd.clicked.connect(self.selFiles)
@@ -850,20 +853,24 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 					#	self.log( u"Kurze Datei %s übersprungen." % fn )
 					#	continue
 
-					if self.epsg==131466 or self.epsg==131467 or self.epsg==131468:
-						srs = "+init=custom:%d" % self.epsg
-						os.putenv( "PROJ_LIB", "." )
-					else:
-						srs = "EPSG:%d" % self.epsg
-
 					args = [self.ogr2ogr,
 						"-f", "PostgreSQL",
 						"-append",
 						"-update",
 						"PG:%s" % conn,
-						"-a_srs", srs,
 						"-gt", self.leGT.text()
 						]
+
+					if self.epsg==131466 or self.epsg==131467 or self.epsg==131468:
+						args.extend(["-a_srs", "+init=custom:%d" % self.epsg])
+						os.putenv( "PROJ_LIB", "." )
+
+					elif self.epsg==31466 or self.epsg==31467 or self.epsg==31468:
+						args.extend(["-s_srs", "+init=custom:1%d" % self.epsg, "-t_srs", "EPSG:%d" % self.epsg])
+						os.putenv( "PROJ_LIB", "." )
+
+					else:
+						args.extend(["-a_srs", "EPSG:%d" % self.epsg])
 
 					if self.cbxSkipFailures.isChecked():
 						args.append("-skipfailures")

@@ -34,7 +34,7 @@ export OGR_SKIP=GML,SEGY
 export NAS_INDICATOR="NAS-Operationen.xsd;NAS-Operationen_optional.xsd;AAA-Fachschema.xsd;ASDKOM-NAS-Operationen_1_1_NRW.xsd;aaa.xsd"
 
 export EPSG=25832
-export CRS=EPSG:$EPSG
+export CRS="-a_srs EPSG:$EPSG"
 export FNBRUCH=true
 
 bdate() {
@@ -278,8 +278,11 @@ EOF
 		EPSG=${src#epsg }
 
 		case "$EPSG" in
-		13146[67])
-			export PROJ_LIB=$B CRS=+init=custom:$EPSG
+		13146[678])
+			export PROJ_LIB=$B CRS="-a_srs +init=custom:$EPSG"
+			;;
+		3146[678])
+			export PROJ_LIB=$B CRS="-s_srs +init=custom:1$EPSG -t_srs EPSG:$EPSG"
 			;;
 		*)
 			;;
@@ -490,13 +493,13 @@ EOF
 
 	echo "IMPORT $(bdate): $dst $(memunits $s)"
 
-	echo RUNNING: ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs $CRS "$dst"
+	echo RUNNING: ogr2ogr -f $DRIVER $opt -append -update "$DST" $CRS "$dst"
 	t0=$(bdate +%s)
 	if [ -z "$T0" ]; then T0=$t0; fi
 	if [ -n "$GDB" ]; then
-		gdb --args ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs $CRS "$dst" </dev/tty >/dev/tty 2>&1
+		gdb --args ogr2ogr -f $DRIVER $opt -append -update "$DST" $CRS "$dst" </dev/tty >/dev/tty 2>&1
 	else
-		ogr2ogr -f $DRIVER $opt -append -update "$DST" -a_srs $CRS "$dst"
+		ogr2ogr -f $DRIVER $opt -append -update "$DST" $CRS "$dst"
 	fi
 	t1=$(bdate +%s)
 
