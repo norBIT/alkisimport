@@ -119,7 +119,6 @@ echo "START $(bdate)"
 
 GDAL_VERSION=$(unset CPL_DEBUG; ogr2ogr --version)
 echo $GDAL_VERSION
-ogr2ogr --utility_version
 
 export CPL_DEBUG
 export B

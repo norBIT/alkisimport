@@ -681,10 +681,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 			convertToLinear = int(m.group(1)) > 1
 
-			if not self.runProcess([self.ogr2ogr, "--utility_version"]):
-				self.log(u"Konnte ogr2ogr-Bibliotheksversion nicht abfragen!")
-				break
-
 			self.psql = which("psql")
 			if not self.psql:
 				self.psql = which("psql.exe")
@@ -886,8 +882,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 					args = [self.ogr2ogr,
 						"-f", "PostgreSQL",
-						"-append",
 						"-update",
+						"-append",
 						"PG:%s" % conn,
 						"-gt", self.leGT.text()
 						]
