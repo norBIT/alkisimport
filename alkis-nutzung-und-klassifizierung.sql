@@ -217,7 +217,7 @@ BEGIN
 		IF f<>'NULL' THEN
 			kv := kv
 			   || ' UNION SELECT ''' || r.kennung || ':''||k AS nutzung,'''
-			   || concat(n,fk) || '''|| v AS name'
+			   || coalesce(n,'') || coalesce(fk,'') || '''|| v AS name'
 			   || ' FROM alkis_wertearten WHERE element=''' || r.name || ''' AND bezeichnung=''' || f || ''''
 			   ;
 		END IF;
