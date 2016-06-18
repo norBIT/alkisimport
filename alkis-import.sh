@@ -36,6 +36,7 @@ export NAS_INDICATOR="NAS-Operationen.xsd;NAS-Operationen_optional.xsd;AAA-Fachs
 export EPSG=25832
 export CRS="-a_srs EPSG:$EPSG"
 export FNBRUCH=true
+export PGVERDRAENGEN=false
 
 bdate() {
 	local t=$1
@@ -191,7 +192,7 @@ do
 		DRIVER=PostgreSQL
 		sql() {
 			pushd "$B" >/dev/null
-			psql -P pager=off -v alkis_fnbruch=$FNBRUCH -v alkis_epsg=$EPSG -q -f "$1" "$DB"
+			psql -P pager=off -v alkis_pgverdraengen=$PGVERDRAENGEN -v alkis_fnbruch=$FNBRUCH -v alkis_epsg=$EPSG -q -f "$1" "$DB"
 			popd >/dev/null
 		}
 		runsql() {
@@ -279,6 +280,22 @@ EOF
 			;;
 		*)
 			echo "$P: Ungültiger Wert $FNBRUCH (true or false erwartet)"
+			exit 1
+			;;
+		esac
+		;;
+
+	"pgverdraengen "*)
+		PGVERDRAENGEN=${src#pgverdraenen }
+		case "$FNBRUCH" in
+		an|on|true|an)
+			PGVERDRAENGEN=true
+			;;
+		aus|off|false)
+			PGVERDRAENGEN=false
+			;;
+		*)
+			echo "$P: Ungültiger Wert $PGVERDRAENGEN (true or false erwartet)"
 			exit 1
 			;;
 		esac
@@ -521,13 +538,13 @@ EOF
 
 	echo "IMPORT $(bdate): $dst $(memunits $s)"
 
-	echo RUNNING: ogr2ogr -f $DRIVER $opt -append -update "$DST" $CRS "$dst"
+	echo RUNNING: ogr2ogr -f $DRIVER $opt -update -append "$DST" $CRS "$dst"
 	t0=$(bdate +%s)
 	if [ -z "$T0" ]; then T0=$t0; fi
 	if [ -n "$GDB" ]; then
-		gdb --args ogr2ogr -f $DRIVER $opt -append -update "$DST" $CRS "$dst" </dev/tty >/dev/tty 2>&1
+		gdb --args ogr2ogr -f $DRIVER $opt -update -append "$DST" $CRS "$dst" </dev/tty >/dev/tty 2>&1
 	else
-		ogr2ogr -f $DRIVER $opt -append -update "$DST" $CRS "$dst"
+		ogr2ogr -f $DRIVER $opt -update -append "$DST" $CRS "$dst"
 	fi
 	t1=$(bdate +%s)
 

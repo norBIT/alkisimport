@@ -19,6 +19,14 @@
 -- \timing
 -- \set ECHO queries
 
+--
+-- Variablen:
+-- alkis_epsg		Koordinatensystem
+-- alkis_fnbruch	Bruchstrichdarstellung für Flurstücksnummern voreinstellen
+-- alkis_pgverdraengen	Niederwertige zu höherwertige politischen Grenzen NICHT erzeugen
+-- alkis_modelle	Zu verwendende Modelle
+--
+
 /*
 	1XXX = Fläche
 	2XXX = Linie
@@ -80,6 +88,8 @@ SET client_min_messages TO notice;
 \set ON_ERROR_STOP
 
 SELECT 'Koordinatensystem: ' || :alkis_epsg;
+SELECT 'Bruchstrichvoreinstellung: ' || CASE WHEN :alkis_fnbruch THEN 'Bruchstrich' ELSE 'Schrägstrich' END;
+SELECT 'Niederwertige politische Grenzen verdrängen: ' || CASE WHEN :alkis_pgverdraengen THEN 'Ja' ELSE 'Nein' END;
 -- SELECT 'Aktive Modelle: ' || array_to_string(:alkis_modelle,', ');
 
 SELECT alkis_dropobject('alkis_positionierungsregeln');
@@ -175,14 +185,24 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION alkis_besondereflurstuecksgrenze() RETURNS varchar AS $$
+SELECT alkis_dropobject('alkis_politischegrenzen');
+CREATE TABLE alkis_politischegrenzen(i INTEGER, sn VARCHAR, adfs INTEGER[]);
+INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (1, '2016', ARRAY[7101]);
+INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (2, '2018', ARRAY[7102]);
+INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (3, '2020', ARRAY[7103]);
+INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (4, '2026', ARRAY[7108]);
+INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (5, '2010', ARRAY[2500,7104]);
+INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (6, '2022', ARRAY[7106]);
+INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (7, '2024', ARRAY[7107]);
+INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (8, '2014', ARRAY[7003]);
+INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (9, '2012', ARRAY[3000]);
+
+CREATE OR REPLACE FUNCTION alkis_besondereflurstuecksgrenze(verdraengen BOOLEAN) RETURNS varchar AS $$
 DECLARE
 	r0 RECORD;
 	r1 RECORD;
 	r2 RECORD;
 	r VARCHAR;
-	adf INTEGER;
-	sn VARCHAR;
 	m VARCHAR[];
 	p0 GEOMETRY;
 	p1 GEOMETRY;
@@ -191,27 +211,34 @@ DECLARE
 	np INTEGER;
 	i INTEGER;
 	j INTEGER;
-	adfs INTEGER[];
-	sns VARCHAR[];
+	doneadfs INTEGER[];
+	adf RECORD;
 	c refcursor;
 BEGIN
-	adfs := ARRAY[ 2500,   3000,   7003,   7101,   7102,   7103,   7104,   7106,   7107,   7108];
-	sns  := ARRAY['2010', '2012', '2014', '2016', '2018', '2020', '2010', '2022', '2024', '2026'];
-	DELETE FROM po_lines WHERE layer='ax_besondereflurstuecksgrenze' AND signaturnummer = ANY (sns);
+	DELETE FROM po_lines WHERE layer='ax_besondereflurstuecksgrenze' AND signaturnummer = ANY ((SELECT DISTINCT sn FROM alkis_politischegrenzen));
 
-	FOR i IN array_lower(adfs,1)..array_upper(adfs,1)
+	FOR adf IN SELECT sn,adfs FROM alkis_politischegrenzen g ORDER BY g.i
 	LOOP
-		adf := adfs[i];
-		sn  := sns[i];
-
-		INSERT INTO alkis_joinlines(ogc_fid,gml_id,line,visited,modell)
-			SELECT ogc_fid,gml_id,wkb_geometry AS line,false AS visited,advstandardmodell||sonstigesmodell
-			FROM ax_besondereflurstuecksgrenze
-			WHERE ARRAY[adf] <@ artderflurstuecksgrenze AND endet IS NULL;
+		IF verdraengen THEN
+			INSERT INTO alkis_joinlines(ogc_fid,gml_id,line,visited,modell)
+				SELECT ogc_fid,gml_id,wkb_geometry AS line,false AS visited,advstandardmodell||sonstigesmodell
+				FROM ax_besondereflurstuecksgrenze
+				WHERE adf.adfs && artderflurstuecksgrenze
+				  AND NOT doneadfs && artderflurstuecksgrenze
+				  AND endet IS NULL;
+		ELSE
+			INSERT INTO alkis_joinlines(ogc_fid,gml_id,line,visited,modell)
+				SELECT ogc_fid,gml_id,wkb_geometry AS line,false AS visited,advstandardmodell||sonstigesmodell
+				FROM ax_besondereflurstuecksgrenze
+				WHERE adf.adfs && artderflurstuecksgrenze
+				  AND endet IS NULL;
+		END IF;
 
 		GET DIAGNOSTICS n = ROW_COUNT;
 
-		RAISE NOTICE 'adf:% sn:% n:%', adf, sn, n;
+		RAISE NOTICE 'adfs:% sn:% n:%', adf.adfs, adf.sn, n;
+
+		doneadfs := array_cat(doneadfs, adf.adfs);
 
 		WHILE n>0
 		LOOP
@@ -293,12 +320,12 @@ bei von:% bis:%',
 
 			INSERT
 				INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
-				VALUES (r0.gml_id,'Politische Grenzen','ax_besondereflurstuecksgrenze',st_multi(l),sn,m);
+				VALUES (r0.gml_id,'Politische Grenzen','ax_besondereflurstuecksgrenze',st_multi(l),adf.sn,m);
 		END LOOP;
 
 		SELECT COUNT(*) INTO n FROM alkis_joinlines WHERE NOT visited;
 		IF n>0 THEN
-			RAISE NOTICE 'adf:% sn:%: % verbliebene Linien', adf, sn, n;
+			RAISE NOTICE 'adf:% sn:%: % verbliebene Linien', adf.adfs, adf.sn, n;
 		END IF;
 		DELETE FROM alkis_joinlines;
 	END LOOP;
@@ -600,7 +627,7 @@ CREATE INDEX alkis_joinlines_line ON alkis_joinlines USING GIST (line);
 CREATE INDEX alkis_joinlines_visited ON alkis_joinlines(visited);
 
 SELECT 'Politische Grenze werden verschmolzen';
-SELECT alkis_besondereflurstuecksgrenze();
+SELECT alkis_besondereflurstuecksgrenze(:alkis_pgverdraengen);
 
 SELECT alkis_dropobject('alkis_joinlines');
 

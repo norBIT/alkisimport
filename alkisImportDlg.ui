@@ -69,7 +69,7 @@
          <string>Port</string>
         </property>
         <property name="buddy">
-         <cstring>leHOST</cstring>
+         <cstring>lePORT</cstring>
         </property>
        </widget>
       </item>
@@ -119,7 +119,7 @@
          <string>Paßwort</string>
         </property>
         <property name="buddy">
-         <cstring>leUID</cstring>
+         <cstring>lePWD</cstring>
         </property>
        </widget>
       </item>
@@ -371,27 +371,6 @@
       <string>Importeinstellungen</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="2" column="1">
-       <widget class="QComboBox" name="cbEPSG">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>Flurstücksnummerndarstellung</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Koordinatensystem</string>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="1">
        <widget class="QComboBox" name="cbFnbruch">
         <item>
@@ -406,14 +385,37 @@
         </item>
        </widget>
       </item>
-      <item row="4" column="0">
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Koordinatensystem</string>
+        </property>
+        <property name="buddy">
+         <cstring>cbEPSG</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Flurstücksnummerndarstellung</string>
+        </property>
+        <property name="buddy">
+         <cstring>cbFnbruch</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
        <widget class="QLabel" name="label_10">
         <property name="text">
          <string>Transaktionsgröße</string>
         </property>
+        <property name="buddy">
+         <cstring>leGT</cstring>
+        </property>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="5" column="1">
        <widget class="QLineEdit" name="leGT">
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
@@ -429,7 +431,7 @@
         </property>
        </widget>
       </item>
-      <item row="9" column="0" colspan="2">
+      <item row="11" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QCheckBox" name="cbxSkipFailures">
@@ -472,6 +474,37 @@
         </item>
        </layout>
       </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="cbEPSG">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>Politische Grenzen</string>
+        </property>
+        <property name="buddy">
+         <cstring>cbPgVerdraengen</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QComboBox" name="cbPgVerdraengen">
+        <item>
+         <property name="text">
+          <string>Alle Grenzen darstellen</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Nur jeweils höchstwertige Grenze darstellen</string>
+         </property>
+        </item>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -484,8 +517,11 @@
   <tabstop>leDBNAME</tabstop>
   <tabstop>leUID</tabstop>
   <tabstop>lePWD</tabstop>
+  <tabstop>cbxCreate</tabstop>
+  <tabstop>cbxClean</tabstop>
   <tabstop>cbEPSG</tabstop>
   <tabstop>cbFnbruch</tabstop>
+  <tabstop>cbPgVerdraengen</tabstop>
   <tabstop>leGT</tabstop>
   <tabstop>cbxSkipFailures</tabstop>
   <tabstop>cbxClearProtocol</tabstop>

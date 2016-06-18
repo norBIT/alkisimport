@@ -127,6 +127,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		self.lstFiles.addItems( s.value( "files", [] ) or [] )
 		self.cbxSkipFailures.setChecked( s.value( "skipfailures", False, type=bool ) )
 		self.cbFnbruch.setCurrentIndex( 0 if s.value( "fnbruch", True, type=bool ) else 1 )
+		self.cbPgVerdraengen.setCurrentIndex( 1 if s.value( "pgverdraengen", False, type=bool ) else 0 )
 		self.cbxUseCopy.setChecked( s.value( "usecopy", True, type=bool ) )
 		self.cbxCreate.setChecked( False )
 		self.cbxClean.setChecked( False )
@@ -494,6 +495,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 				self.psql,
 				"-v", "alkis_epsg=%s" % self.epsg,
 				"-v", "alkis_fnbruch=%s" % ("true" if self.fnbruch else "false"),
+				"-v", "alkis_pgverdraengen=%s" % ("true" if self.pgverdraengen else "false"),
 				"-q", "-f", fn, conn])
 
 	def run(self):
@@ -553,6 +555,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 		self.fnbruch = self.cbFnbruch.currentIndex()==0
 		s.setValue( "fnbruch", self.fnbruch )
+
+		self.pgverdraengen = self.cbPgVerdraengen.currentIndex()==1
+		s.setValue( "pgverdraengen", self.pgverdraengen )
 
 		self.epsg = int( self.cbEPSG.itemData( self.cbEPSG.currentIndex() ) )
 		s.setValue( "epsg", self.epsg)
