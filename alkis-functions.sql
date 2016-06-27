@@ -267,10 +267,6 @@ DECLARE
 BEGIN
 	NEW.context := coalesce(lower(NEW.context),'delete');
 
-	IF NEW.anlass IS NULL THEN
-		NEW.anlass := '';
-	END IF;
-
 	IF length(NEW.featureid)=32 THEN
 		beginnt := substr(NEW.featureid, 17, 4) || '-'
 		        || substr(NEW.featureid, 21, 2) || '-'
@@ -350,12 +346,15 @@ BEGIN
 
 	END IF;
 
-	s := 'UPDATE ' || NEW.typename
-	  || ' SET endet=''' || NEW.endet || ''''
-	  || ',anlass=''' || NEW.anlass || ''''
-	  || ' WHERE gml_id=''' || substr(NEW.featureid, 1, 16) || ''''
-	  || ' AND beginnt=''' || beginnt || ''''
-	  ;
+	s := 'UPDATE ' || NEW.typename || ' SET endet=''' || NEW.endet || '''';
+
+	IF NEW.context='update' THEN
+		s := s || ',anlass=''' || coalesce(NEW.anlass,'') || '''';
+	END IF;
+
+	s := s || ' WHERE gml_id=''' || substr(NEW.featureid, 1, 16) || ''''
+	       || ' AND beginnt=''' || beginnt || ''''
+	       ;
 	EXECUTE s;
 	GET DIAGNOSTICS n = ROW_COUNT;
 	-- RAISE NOTICE 'SQL[%]:%', n, s;
