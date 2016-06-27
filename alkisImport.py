@@ -523,7 +523,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		return conn
 
 	def rund(self,conn,dir):
-		for f in glob.glob("%s.d/*.sql" % dir):
+		for f in sorted(glob("%s.d/*.sql" % dir)):
 			self.status( u"%s wird gestartet..." % f )
 			if not self.runSQLScript( conn, f ):
 				self.log( u"%s gescheitert." % f )

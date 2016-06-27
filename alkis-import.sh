@@ -85,7 +85,7 @@ log() {
 rund() {
 	local dir=$1
 
-	for i in ${dir}.d/*; do
+	for i in $(ls -1 ${dir}.d/* | sort); do
 		if [ -r "$i" ]; then
 			echo "SQL RUNNING: $i $(bdate)"
 			sql $i
