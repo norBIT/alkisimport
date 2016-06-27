@@ -21,9 +21,16 @@
 import re
 import sys
 import os
+from itertools import islice
+
+patterns = []
 
 f = open(os.path.join( os.path.dirname(__file__), "re"), "rbU")
-pattern = re.compile( f.read().strip("\n").replace("\n","|") )
+while True:
+	l = list(islice(f, 50))
+	if not l:
+		break
+	patterns.append( re.compile( "|".join( map(str.strip, l) ) ) )
 f.close()
 
 if len(sys.argv)>2:
@@ -43,10 +50,17 @@ while True:
 	l = f.readline()
 	if l=="":
 		break
-	elif pattern.match(l):
+
+	found = False
+	for p in patterns:
+		if p.match(l):
+			found = True
+			break
+
+	if found:
 		continue
-	else:
-		print l,
-		sys.stdout.flush()
+
+	print l,
+	sys.stdout.flush()
 
 f.close()

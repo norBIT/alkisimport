@@ -15,15 +15,16 @@
 ^OGR: OGROpen\(.*\) succeeded as NAS\.\s*$
 ^OGR: OGROpen\(PG:.*\) succeeded as PostgreSQL\.\s*$
 ^GDAL: In GDALDestroy - unloading GDAL shared library\.\s*$
-^psql:.*: (NOTICE|HINWEIS):  (function|Funktion) (alkis_drop\(\)|alkis_dropobject\(text\)|alkis_delete\(\)|alkis_mviews\(\)|alkis_update_schema\(\)) (does not exist, skipping|existiert nicht, wird \S+bersprungen)$
+^psql:.*: (NOTICE|HINWEIS):  (function|Funktion) alkis_(drop\(\)|dropobject\(text\)|delete\(\)|mviews\(\)|update_schema\(\)) (does not exist, skipping|existiert nicht, wird \S+bersprungen)$
 ^psql:.*: (NOTICE|HINWEIS):  Dropping (table|view|sequence) 
 ^psql:.*: (NOTICE|HINWEIS):  gserialized_gist_joinsel: jointype 4 not supported\s*$
+^psql:.*: (NOTICE|HINWEIS):  (geometry|LWGEOM)_gist_joinsel called with incorrect join type\s*$
 ^CONTEXT:  SQL statement in PL\/PgSQL function "alkis_(update_schema|set_comments)" near line \d+\s*$
+^CONTEXT:  SQL statement "ALTER TABLE alkis_(flaechen|linien|schriften) ADD PRIMARY KEY \(katalog,signaturnummer\)"
 psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*$
 ^(LINE 1|QUERY):\s+WITH RECURSIVE element\(name,base\) AS 
 ^\s+\^\s*$
-^PL\/pgSQL function alkis_dropobject\(text\) line \d+ at EXECUTE statement
-^PL\/pgSQL-Funktion alkis_dropobject\(text\) Zeile \d+ bei EXECUTE-Anweisung
+^PL\/pgSQL( function|-Funktion) alkis_dropobject\(text\) (line|Zeile) \d+ (at|bei) EXECUTE( statement|-Anweisung)
 ^.*: (NOTICE|HINWEIS):  CREATE TABLE
 ^NOTICE:  CREATE TABLE
 .*drop cascades to 
@@ -37,6 +38,7 @@ psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*
 ^psql:alkis-compat.sql:.*: FEHLER:  Berechtigung nur f\S+r Eigent\S+mer der Funktion st_dump\s*$
 ^psql:alkis-compat.sql:.*: ERROR:  aggregate public\.array_agg\(anyelement\) does not exist
 ^psql:alkis-compat.sql:.*: FEHLER:  Aggregatfunktion public\.array_agg\(anyelement\) existiert nicht\s*$
+^psql:alkis-update.sql:.*: NOTICE:  ALTER TABLE \/ ADD PRIMARY KEY will create implicit index "alkis_(flaechen|linien|schriften)_pkey" for table "alkis_(flaechen|linien|schriften)"
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*gel\S+scht\..*$
 ^\s+(addgeometrycolumn|alkis_clean|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|version|postgis_version|\?column\?)\s*$
 ^-+\s*$
@@ -52,13 +54,13 @@ psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*
 ^\(\d+ (Zeilen?|rows?)\)\s*$
 ^removed.*\.(gfs|xml)'\s*$
 ^[CK]ONTEXT:  (SQL statement|SQL-Anweisung) \S+(DROP TABLE .* CASCADE|CREATE TABLE)
-PL\/pgSQL( function|-Funktion) "(alkis_dropobject|alkis_clean|alkis_drop|alkis_joinlines|alkis_besondereflurstuecksgrenze)" (line|Zeile) \d+ (at|bei) (EXECUTE|SQL|execute)( statement|-Anweisung)
+PL\/pgSQL( function|-Funktion) "(alkis_dropobject|alkis_clean|alkis_drop|alkis_joinlines|alkis_besondereflurstuecksgrenze|alkis_update_schema)" (line|Zeile) \d+ (at|bei) ((EXECUTE|SQL|execute)( statement|-Anweisung)|PERFORM)
 PL\/pgSQL( function|-Funktion) alkis_drop\(\) (line|Zeile) \d+ (at|bei) EXECUTE( statement|-Anweisung)
 PL\/pgSQL( function|-Funktion) alkis_update_schema\(\) (line|Zeile) \d+ (at|bei) PERFORM
 ERROR:  relation "public\.alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
 ERROR:  table "alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
 ERROR:  sequence "alkis_(farben|konturen|linie|randlinie|strichart|stricharten|stricharten_i)_id_seq" does not exist
-SQL( statement|-Anweisung) \S+SELECT alkis_dropobject\('alkis_konturen'\)\S+
+SQL( statement|-Anweisung) \S+SELECT\s+alkis_dropobject\('alkis_konturen'\)
 ^.*(ERROR|FEHLER):.*application_name
 ^\s+(alkis_createklassifizierung|alkis_createnutzung|alkis_checkflurstueck|alkis_createausfuehrendestellen|ax_besondereflurstuecksgrenze|alkis_create_bcrs)\s+$
 ^ ax_klassifizierung und ax_klassifizierungsschluessel erzeugt\.\s*$
@@ -69,7 +71,6 @@ SQL( statement|-Anweisung) \S+SELECT alkis_dropobject\('alkis_konturen'\)\S+
 ^\s+\d+\s*$
 ^GML: Minimum arc step angle is \d+ degrees \(was \d+\.\d+°\)\.
 ^GML: Minimum arc step segment length is \d+\.\d+ was \d\.\d+ with \d+\.\d+°\)\.
-^GML: Minimum arc step angle is \d+ degrees \(was \d+\.\d+°; segment length \d+\.\d+\)\.
 ^GML: Minimum arc step angle is \d+ degrees \(was \d+\.\d+°; segment length \d+\.\d+\)\.
 ^GML: Increasing arc step to \d+\.\d+° \(was \d+\.\d+° with segment length \d+\.\d+ at radius \d+\.\d+; min segment length is \d+\.\d+\)
 ^NAS: Overwriting existing property ((AX_[^.]+)\.(hat|hat|an|zu|weistAuf|zeigtAuf|gehoertAnteiligZu|weitereAdressen)|AX_Gebaeude\.name|AX_HistorischesFlurstueck(OhneRaumbezug)?\.(nachfolger|vorgaenger)Flurstueckskennzeichen|AX_(GrablochDer)?Bodenschaetzung\.(bedeutung|sonstigeAngaben)|AP_PTO\.dientZurDarstellungVon|(AX_Bodenschaetzung|AX_MusterLandesmusterUndVergleichsstueck)\.entstehungsartOderKlimastufeWasserverhaeltnisse|AX_(Grenzpunkt|SonstigerVermessungspunkt|BesondererBauwerkspunkt|BesondererGebaeudepunkt|Aufnahmepunkt|Sicherungspunkt|BesondererTopographischerPunkt)\.sonstigeEigenschaft|AX_Flurstueck\.sonstigeEigenschaften\|AX_SonstigeEigenschaften_Flurstueck\|(kennungSchluessel|flaecheDesAbschnitts|angabenZumAbschnittFlurstueck|angabenZumAbschnittNummerAktenzeichen|angabenZumAbschnittFlurstueck|kennungSchluessel|flaecheDesAbschnitts)|(AX_[^.]+|AP_(PTO|LTO|LPO|PPO|Darstellung))\.modellart\|AA_Modellart\|(advStandardModell|sonstigesModell)|AX_Punktort(TA|AG)\.qualitaetsangaben\|AX_DQPunktort\|herkunft\|LI_Lineage\|processStep\|LI_ProcessStep\|(description\|CharacterString|dateTime\|DateTime|(processor\|CI_ResponsibleParty\|(role\|individualName\|CharacterString)))|AX_HistorischesFlurstueck(ALB)?\.(buchung\||nachfolgerFlurstueckskennzeichen|vorgaengerFlurstueckskennzeichen)|AX_Gemarkung\.istAmtsbezirkVon|AX_Flurstueck\.zustaendigeStelle\|AX_Dienststelle_Schluessel\|(land|stelle)) of value '.*' with '.*' \(gml_id: .*\)\.\s*$

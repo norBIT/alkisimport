@@ -26,12 +26,13 @@ for c in [ "QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVa
 import sys
 import os
 import traceback
-import tempfile
-import zipfile
 import gzip
 import re
-import tempfile
-import glob
+
+from zipfile import ZipFile
+from tempfile import gettempdir
+from itertools import islice
+from glob import glob
 
 from PyQt4.QtCore import QSettings, QProcess, QVariant, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QTime, QByteArray
 from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox, QFont, QIntValidator
@@ -172,11 +173,17 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		self.skipScroll = False
 		self.logqry = None
 
-		self.reFilter = None
+		self.reFilter = []
 
 	def loadRe(self):
 		f = open("re", "r")
-		self.reFilter = re.compile( f.read().rstrip("\n").replace("\n","|") )
+		while True:
+		    l = list(islice(f, 50))
+		    if not l:
+			break
+
+		    self.reFilter.append( re.compile( "|".join( map(str.rstrip, l) ) ) )
+
 		f.close()
 
 		if not self.reFilter:
@@ -402,10 +409,11 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 		if not self.reFilter:
 			self.loadRe()
 
-		if self.reFilter.match(l):
-			return False
-		else:
-			return True
+		for r in self.reFilter:
+			if r.match(l):
+				return False
+
+		return True
 
 	def processOutput(self, current, output):
 		if output.isEmpty():
@@ -721,7 +729,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 						self.status( u"%s wird abgefragt..." % fn )
 						app.processEvents()
 
-						f = zipfile.ZipFile(fn, "r")
+						f = ZipFile(fn, "r")
 						il = f.infolist()
 						if len(il) <> 1:
 							raise ProcessError(u"ZIP-Archiv %s enthält mehr als eine Datei!" % fn)
@@ -831,7 +839,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 						self.status( u"%s wird extrahiert." % fn )
 						app.processEvents()
 
-						src = os.path.join( tempfile.gettempdir(), os.path.basename(src) )
+						src = os.path.join( gettempdir(), os.path.basename(src) )
 
 						f_in = gzip.open(fn)
 						f_out = open(src, "wb")
@@ -854,9 +862,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 						self.status( u"%s wird extrahiert." % fn )
 						app.processEvents()
 
-						src = os.path.join( tempfile.gettempdir(), os.path.basename(src) )
+						src = os.path.join( gettempdir(), os.path.basename(src) )
 
-						zipf = zipfile.ZipFile(fn, "r")
+						zipf = ZipFile(fn, "r")
 						f_in = zipf.open( zipf.infolist()[0].filename )
 						f_out = open(src, "wb")
 						while True:
