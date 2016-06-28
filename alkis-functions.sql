@@ -348,8 +348,8 @@ BEGIN
 
 	s := 'UPDATE ' || NEW.typename || ' SET endet=''' || NEW.endet || '''';
 
-	IF NEW.context='update' THEN
-		s := s || ',anlass=''' || coalesce(NEW.anlass,'') || '''';
+	IF NEW.context='update' AND NEW.anlass IS NOT NULL THEN
+		s := s || ',anlass=array_append(anlass,''' || NEW.anlass || ''')';
 	END IF;
 
 	s := s || ' WHERE gml_id=''' || substr(NEW.featureid, 1, 16) || ''''
@@ -750,6 +750,32 @@ BEGIN
 		END;
 
 		UPDATE alkis_version SET version=9;
+	END IF;
+
+	IF v<10 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 10';
+
+		i := 0;
+		FOR c IN
+			SELECT table_name
+			FROM information_schema.columns a
+			WHERE a.table_schema='public'
+			  AND (a.table_name LIKE 'ax_%' OR a.table_name LIKE 'ap_%' OR a.table_name LIKE 'ks_%')
+			  AND a.column_name='anlass'
+			  AND a.data_type='character varying'
+		LOOP
+			EXECUTE 'ALTER TABLE ' || c.table_name || ' RENAME anlass TO anlass_';
+			EXECUTE 'ALTER TABLE ' || c.table_name || ' ADD anlass varchar[]';
+			EXECUTE 'UPDATE ' || c.table_name || ' SET anlass=ARRAY[anlass_]';
+			EXECUTE 'ALTER TABLE ' || c.table_name || ' DROP anlass_';
+			i := i + 1;
+		END LOOP;
+
+		IF i > 0 THEN
+			r := coalesce(r||E'\n','') || i || ' anlass-Spalten angepaßt (character varying->character varying[])';
+		END IF;
+
+		UPDATE alkis_version SET version=10;
 
 		r := coalesce(r||E'\n','') || 'ALKIS-Schema migriert';
 	END IF;
