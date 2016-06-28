@@ -33,7 +33,7 @@
 SELECT alkis_drop();
 
 CREATE TABLE alkis_version(version integer);
-INSERT INTO alkis_version(version) VALUES (10);
+INSERT INTO alkis_version(version) VALUES (11);
 
 -- BW/BY-Koordinatensystem anlegen
 SELECT alkis_create_bsrs(:alkis_epsg);
@@ -46,7 +46,7 @@ CREATE TABLE "delete" (
 	context		varchar,		-- delete/replace/update
 	safetoignore	varchar,		-- replace.safetoignore 'true'/'false'
 	replacedBy	varchar,		-- gmlid
-	anlass		varchar,		-- update.anlass
+	anlass		varchar[],		-- update.anlass
 	endet		character(20),		-- update.endet
 	ignored		boolean DEFAULT false,	-- Satz wurde nicht verarbeitet
 	CONSTRAINT delete_pk PRIMARY KEY (ogc_fid)

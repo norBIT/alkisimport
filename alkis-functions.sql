@@ -349,7 +349,7 @@ BEGIN
 	s := 'UPDATE ' || NEW.typename || ' SET endet=''' || NEW.endet || '''';
 
 	IF NEW.context='update' AND NEW.anlass IS NOT NULL THEN
-		s := s || ',anlass=array_append(anlass,''' || NEW.anlass || ''')';
+		s := s || ',anlass=array_cat(anlass,''{' || array_to_string(NEW.anlass,',') || '}'')';
 	END IF;
 
 	s := s || ' WHERE gml_id=''' || substr(NEW.featureid, 1, 16) || ''''
@@ -776,6 +776,21 @@ BEGIN
 		END IF;
 
 		UPDATE alkis_version SET version=10;
+	END IF;
+
+	IF v<11 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 11';
+
+		EXECUTE 'ALTER TABLE "delete" RENAME anlass TO anlass_';
+		EXECUTE 'ALTER TABLE "delete" ADD anlass varchar[]';
+		EXECUTE 'UPDATE "delete" SET anlass=ARRAY[anlass_]';
+		EXECUTE 'ALTER TABLE "delete" DROP anlass_';
+
+		IF i > 0 THEN
+			r := coalesce(r||E'\n','') || 'Spalte delete.anlass angepaßt (character varying->character varying[])';
+		END IF;
+
+		UPDATE alkis_version SET version=11;
 
 		r := coalesce(r||E'\n','') || 'ALKIS-Schema migriert';
 	END IF;
