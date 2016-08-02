@@ -197,6 +197,32 @@ INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (7, '2024', ARRAY[7107]);
 INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (8, '2014', ARRAY[7003]);
 INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (9, '2012', ARRAY[3000]);
 
+SELECT alkis_dropobject('ax_besondereflurstuecksgrenze2');
+CREATE TABLE ax_besondereflurstuecksgrenze2 (
+        ogc_fid                 serial NOT NULL,
+        gml_id                  character(16) NOT NULL,
+        modell			varchar[],
+        artderflurstuecksgrenze integer[],
+        CONSTRAINT ax_besondereflurstuecksgrenze2_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('ax_besondereflurstuecksgrenze2','wkb_geometry',:alkis_epsg,'LINESTRING',2);
+
+CREATE INDEX ax_besondereflurstuecksgrenze2_geom_idx   ON ax_besondereflurstuecksgrenze2 USING gist (wkb_geometry);
+CREATE UNIQUE INDEX ax_besondereflurstuecksgrenze2_gml ON ax_besondereflurstuecksgrenze2 USING btree (gml_id);
+CREATE INDEX ax_besondereflurstuecksgrenze2_adfg       ON ax_besondereflurstuecksgrenze2 USING gin (artderflurstuecksgrenze);
+
+INSERT INTO ax_besondereflurstuecksgrenze2(ogc_fid,gml_id,modell,artderflurstuecksgrenze,wkb_geometry)
+	SELECT
+		min(ogc_fid),
+		min(gml_id),
+		ARRAY(SELECT DISTINCT unnest(array_accum(advstandardmodell||sonstigesmodell)) AS modell ORDER BY modell) AS modell,
+		ARRAY(SELECT DISTINCT unnest(array_accum(artderflurstuecksgrenze)) AS artderflurstuecksgrenze ORDER BY artderflurstuecksgrenze) AS artderflurstuecksgrenze,
+		wkb_geometry
+	FROM ax_besondereflurstuecksgrenze
+	WHERE endet IS NULL
+	GROUP BY wkb_geometry,st_asbinary(wkb_geometry);
+
 CREATE OR REPLACE FUNCTION alkis_besondereflurstuecksgrenze(verdraengen BOOLEAN) RETURNS varchar AS $$
 DECLARE
 	r0 RECORD;
@@ -213,7 +239,8 @@ DECLARE
 	j INTEGER;
 	doneadfs INTEGER[];
 	adf RECORD;
-	c refcursor;
+	c REFCURSOR;
+	joined BOOLEAN;
 BEGIN
 	DELETE FROM po_lines WHERE layer='ax_besondereflurstuecksgrenze' AND signaturnummer = ANY ((SELECT DISTINCT sn FROM alkis_politischegrenzen));
 
@@ -221,17 +248,15 @@ BEGIN
 	LOOP
 		IF verdraengen THEN
 			INSERT INTO alkis_joinlines(ogc_fid,gml_id,line,visited,modell)
-				SELECT ogc_fid,gml_id,wkb_geometry AS line,false AS visited,advstandardmodell||sonstigesmodell
-				FROM ax_besondereflurstuecksgrenze
+				SELECT ogc_fid,gml_id,wkb_geometry AS line,false AS visited,modell
+				FROM ax_besondereflurstuecksgrenze2
 				WHERE adf.adfs && artderflurstuecksgrenze
-				  AND NOT doneadfs && artderflurstuecksgrenze
-				  AND endet IS NULL;
+				  AND NOT doneadfs && artderflurstuecksgrenze;
 		ELSE
 			INSERT INTO alkis_joinlines(ogc_fid,gml_id,line,visited,modell)
-				SELECT ogc_fid,gml_id,wkb_geometry AS line,false AS visited,advstandardmodell||sonstigesmodell
-				FROM ax_besondereflurstuecksgrenze
-				WHERE adf.adfs && artderflurstuecksgrenze
-				  AND endet IS NULL;
+				SELECT ogc_fid,gml_id,wkb_geometry AS line,false AS visited,modell
+				FROM ax_besondereflurstuecksgrenze2
+				WHERE adf.adfs && artderflurstuecksgrenze;
 		END IF;
 
 		GET DIAGNOSTICS n = ROW_COUNT;
@@ -253,68 +278,54 @@ BEGIN
 			l := r0.line;
 			m := r0.modell;
 
-			<<joinlines>> WHILE n>0
+			joined := true;
+			<<joined>> WHILE n>0 AND joined
 			LOOP
-				np := st_numpoints(l);
-				p0 := st_startpoint(l);
-				p1 := st_endpoint(l);
+				joined := false;
 
-				FOR i IN 0..3
+				FOR i in 0..1
 				LOOP
+					np := st_numpoints(l);
+					p0 := st_startpoint(l);
+					p1 := st_endpoint(l);
+
+					IF st_equals(p0,p1) THEN
+						EXIT joined;
+					END IF;
+
 					IF i=0 THEN
-						OPEN c FOR SELECT ogc_fid,line,visited FROM alkis_joinlines WHERE p0 && line AND p0=st_endpoint(line) AND st_equals(p0,st_endpoint(line)) AND NOT p1=st_startpoint(line) ORDER BY visited LIMIT 2;
-					ELSIF i=1 THEN
-						OPEN c FOR SELECT ogc_fid,st_reverse(line) AS line,visited FROM alkis_joinlines WHERE p0 && line AND p0=st_startpoint(line) AND st_equals(p0,st_startpoint(line)) AND NOT p1=st_endpoint(line) ORDER BY visited LIMIT 2;
-					ELSIF i=2 THEN
-						OPEN c FOR SELECT ogc_fid,line AS line,visited FROM alkis_joinlines WHERE p1 && line AND p1=st_startpoint(line) AND st_equals(p1,st_startpoint(line)) AND NOT p0=st_endpoint(line) ORDER BY visited LIMIT 2;
-					ELSIF i=3 THEN
-						OPEN c FOR SELECT ogc_fid,st_reverse(line) AS line,visited FROM alkis_joinlines WHERE p1 && line AND p1=st_endpoint(line) AND st_equals(p1,st_endpoint(line)) AND NOT p0=st_startpoint(line) ORDER BY visited LIMIT 2;
+						OPEN c FOR SELECT ogc_fid,            line AS line FROM alkis_joinlines WHERE p0 && line AND p0=st_endpoint(line)   AND st_equals(p0,st_endpoint(line))   AND NOT visited
+				                     UNION SELECT ogc_fid,st_reverse(line) AS line FROM alkis_joinlines WHERE p0 && line AND p0=st_startpoint(line) AND st_equals(p0,st_startpoint(line)) AND NOT visited
+						     LIMIT 2;
+					ELSE
+						OPEN c FOR SELECT ogc_fid,            line AS line FROM alkis_joinlines WHERE p1 && line AND p1=st_startpoint(line) AND st_equals(p1,st_startpoint(line)) AND NOT visited
+				                     UNION SELECT ogc_fid,st_reverse(line) AS line FROM alkis_joinlines WHERE p1 && line AND p1=st_endpoint(line)   AND st_equals(p1,st_endpoint(line))   AND NOT visited
+						     LIMIT 2;
 					END IF;
 
 					FETCH c INTO r1;
-					IF FOUND AND NOT r1.visited THEN
+					IF FOUND THEN
 						FETCH c INTO r2;
 						IF NOT FOUND THEN
-							-- unique hit found
-							EXIT;
+							l := st_setsrid(st_linemerge(st_collect(l,r1.line)),st_srid(l));
+
+							IF geometrytype(l)='MULTILINESTRING' THEN
+								RAISE EXCEPTION 'MULTILINESTRING after merge: %', st_astext(l);
+							ELSIF st_numpoints(l)=np THEN
+								RAISE EXCEPTION 'merge failed: % with %',
+									st_astext(l),
+									st_astext(r1.line);
+							END IF;
+
+							UPDATE alkis_joinlines SET visited=true WHERE alkis_joinlines.ogc_fid=r1.ogc_fid;
+							n  := n - 1;
+							joined := true;
 						END IF;
 					END IF;
 
 					CLOSE c;
-					IF i=3 THEN
-						EXIT joinlines;
-					END IF;
 				END LOOP;
-
-				IF r1.visited THEN
-					RAISE EXCEPTION '%: bereits besucht (von:% nach:%)
-bei von:% bis:%',
-						r1.ogc_fid,
-						st_astext(st_startpoint(r1.line)),
-						st_astext(st_endpoint(r1.line)),
-						st_astext(p0),
-						st_astext(p1);
---				ELSE
---					RAISE NOTICE 'WEITER %:		von:%	nach:%)',
---						r1.ogc_fid,
---						st_astext(st_startpoint(r1.line)),
---						st_astext(st_endpoint(r1.line));
-				END IF;
-
-				l := st_setsrid(st_linemerge(st_collect(l,r1.line)),st_srid(l));
-
-				IF geometrytype(l)='MULTILINESTRING' THEN
-					RAISE EXCEPTION 'MULTILINESTRING after merge: %', st_astext(l);
-				ELSIF st_numpoints(l)=np THEN
-					RAISE EXCEPTION 'merge failed: % with %',
-						st_astext(l),
-						st_astext(r1.line);
-				END IF;
-
-				UPDATE alkis_joinlines SET visited=true WHERE alkis_joinlines.ogc_fid=r1.ogc_fid;
-				CLOSE c;
-				n  := n - 1;
-			END LOOP joinlines;
+			END LOOP;
 
 			-- RAISE NOTICE 'insert line (n:%)', n;
 
@@ -620,7 +631,8 @@ CREATE TABLE alkis_joinlines(
 	ogc_fid integer PRIMARY KEY,
 	gml_id character(16),
 	visited boolean,
-	modell varchar[]
+	modell varchar[],
+	adf integer[]
 );
 SELECT AddGeometryColumn('alkis_joinlines','line',(SELECT srid FROM geometry_columns WHERE f_table_name='po_lines' AND f_geometry_column='line'),'LINESTRING',2);
 CREATE INDEX alkis_joinlines_line ON alkis_joinlines USING GIST (line);

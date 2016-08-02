@@ -90,7 +90,7 @@ def getFiles(pattern, directory):
 
 		if fi.isDir():
 			files.extend( getFiles( pattern, unicode( fi.filePath() ) ) )
-		elif re.search( pattern, f):
+		elif re.search( pattern, f, re.IGNORECASE):
 			files.append( os.path.abspath( unicode( fi.filePath() ) ) )
 
 	return files
@@ -720,11 +720,11 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 					item = self.lstFiles.item(i)
 					fn = unicode( item.text() )
 
-					if fn[-4:].lower() == ".xml":
+					if fn.lower().endswith(".xml"):
 						s = os.path.getsize(fn)
 						sizes[ fn ] = s
 
-					elif fn[-4:].lower() == ".zip":
+					elif fn.lower().endswith(".zip"):
 						l = -8 if fn[-8:].lower() == ".xml.zip" else -4
 						self.status( u"%s wird abgefragt..." % fn )
 						app.processEvents()
@@ -736,7 +736,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 						s = il[0].file_size
 						sizes[ fn[:l] + ".xml" ] = s
 
-					elif fn[-7:].lower() == ".xml.gz":
+					elif fn.lower().endswith(".xml.gz"):
 						self.status( u"%s wird abgefragt..." % fn )
 
 						f = gzip.open(fn)
@@ -832,7 +832,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 					fn = unicode( item.text() )
 
 					src = ""
-					if fn[-7:] == ".xml.gz":
+					if fn.lower().endswith(".xml.gz"):
 						src = fn[:-3]
 						size = sizes[ src ]
 
@@ -855,7 +855,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 						self.logDb( u"%s wurde entpackt." % fn )
 
-					elif fn[-4:] == ".zip":
+					elif fn.lower().endswith(".zip"):
 						src = fn[:-4] + ".xml"
 						size = sizes[ src ]
 

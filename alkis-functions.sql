@@ -984,4 +984,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP AGGREGATE IF EXISTS array_accum(anyarray);
+
+CREATE AGGREGATE array_accum (anyarray) (
+    sfunc = array_cat,
+    stype = anyarray,
+    initcond = '{}'
+);
+
 \set ON_ERROR_STOP
