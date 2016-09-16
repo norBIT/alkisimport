@@ -756,7 +756,15 @@ CREATE TABLE afst_shl (
 CREATE INDEX afst_shl_idx0 ON afst_shl(ausf_st);
 
 CREATE TEMPORARY TABLE amtlbestfl AS
-	SELECT bestdnr,SUM(amtlflsfl*CASE WHEN anteil IS NULL OR anteil='0/0' THEN 1.0 ELSE split_part(anteil,'/',1)::float8 / split_part(anteil,'/',2)::float8 END) AS amtlbestfl
+	SELECT
+		bestdnr,
+		SUM(
+			amtlflsfl*
+			CASE
+			WHEN anteil IS NULL OR split_part(anteil,'/',2)::float8=0 THEN 1.0
+			ELSE split_part(anteil,'/',1)::float8 / split_part(anteil,'/',2)::float8
+			END
+		) AS amtlbestfl
 	FROM flurst
 	JOIN eignerart ON flurst.flsnr=eignerart.flsnr
 	GROUP BY bestdnr;
