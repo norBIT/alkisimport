@@ -401,7 +401,7 @@ SELECT alkis_dropobject('bestand');
 CREATE TABLE bestand (
 	bestdnr character(16) NOT NULL,
 	gbbz character(4),
-	gbblnr character(6),
+	gbblnr character(7),
 	anteil character(24),
 	auftlnr character(12),
 	bestfl varchar,
@@ -419,7 +419,7 @@ INSERT INTO bestand(bestdnr,gbbz,gbblnr,anteil,auftlnr,bestfl,ff_entst,ff_stand,
 	SELECT
 		to_char(alkis_toint(land),'fm00') || to_char(alkis_toint(bezirk),'fm0000') || '-' || trim(buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
 		to_char(alkis_toint(bezirk),'fm0000') AS gbbz,
-		to_char(to_number(buchungsblattnummermitbuchstabenerweiterung,'000000')::int,'fm000000') AS gbblnr,
+		to_char(to_number(buchungsblattnummermitbuchstabenerweiterung,'0000000')::int,'fm0000000') AS gbblnr,
 		NULL AS anteil,
 		NULL AS auftrlnr,
 		NULL AS bestfl,
