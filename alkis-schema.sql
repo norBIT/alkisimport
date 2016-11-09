@@ -33,7 +33,7 @@
 SELECT alkis_drop();
 
 CREATE TABLE alkis_version(version integer);
-INSERT INTO alkis_version(version) VALUES (11);
+INSERT INTO alkis_version(version) VALUES (12);
 
 -- BW/BY-Koordinatensystem anlegen
 SELECT alkis_create_bsrs(:alkis_epsg);
@@ -96,26 +96,6 @@ CREATE TRIGGER insert_beziehung_trigger
 	FOR EACH ROW
 	EXECUTE PROCEDURE alkis_beziehung_inserted();
 
-
--- S o n s t i g e s   B a u w e r k
--- ----------------------------------
--- Wird von OGR generiert, ist aber keiner Objektartengruppe zuzuordnen.
-CREATE TABLE ks_sonstigesbauwerk (
-	ogc_fid			serial NOT NULL,
-	gml_id			character(16) NOT NULL,
-	beginnt			character(20),
-	endet			character(20),
-	sonstigesmodell		varchar[],
-	anlass			varchar[],
-	bauwerksfunktion	integer,
-	CONSTRAINT ks_sonstigesbauwerk_pk PRIMARY KEY (ogc_fid)
-);
-
-SELECT AddGeometryColumn('ks_sonstigesbauwerk','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
-
-CREATE INDEX ks_sonstigesbauwerk_geom_idx ON ks_sonstigesbauwerk USING gist (wkb_geometry);
-
-COMMENT ON TABLE  ks_sonstigesbauwerk IS 'Sonstiges Bauwerk';
 
 --*** ############################################################
 --*** Objektbereich: AAA Basisschema
@@ -4086,6 +4066,8 @@ CREATE TABLE aa_antragsgebiet (
 
 SELECT AddGeometryColumn('aa_antragsgebiet','wkb_geometry',:alkis_epsg,'POLYGON',2);
 
+CREATE INDEX aa_antragsgebiet_geom_idx ON aa_antragsgebiet USING gist (wkb_geometry);
+
 CREATE TABLE aa_meilenstein (
 	ogc_fid			serial NOT NULL,
 	gml_id			character(16) NOT NULL,
@@ -4128,24 +4110,16 @@ CREATE TABLE ks_einrichtunginoeffentlichenbereichen (
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
 	art			varchar,
+	oberflaechenmaterial 	integer,
+	material 		integer[],
+	bezeichnung		varchar,
+	zustand			integer,
 	CONSTRAINT ks_einrichtunginoeffentlichenbereichen_pk PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ks_einrichtunginoeffentlichenbereichen','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
-CREATE TABLE ks_bauwerkimgewaesserbereich (
-	ogc_fid			serial NOT NULL,
-	gml_id			character(16) NOT NULL,
-	beginnt			character(20),
-	endet			character(20),
-	advstandardmodell 	varchar[],
-	sonstigesmodell		varchar[],
-	anlass			varchar[],
-	bauwerksfunktion	integer,
-	CONSTRAINT ks_bauwerkimgewaesserbereich_pk PRIMARY KEY (ogc_fid)
-);
-
-SELECT AddGeometryColumn('ks_bauwerkimgewaesserbereich','wkb_geometry',:alkis_epsg,'LINESTRING',2);
+CREATE INDEX ks_einrichtunginoeffentlichenbereichen_geom_idx ON ks_einrichtunginoeffentlichenbereichen USING gist (wkb_geometry);
 
 CREATE TABLE ks_bauwerkanlagenfuerverundentsorgung (
 	ogc_fid			serial NOT NULL,
@@ -4157,10 +4131,49 @@ CREATE TABLE ks_bauwerkanlagenfuerverundentsorgung (
 	anlass			varchar[],
 	art			integer,
 	bezeichnung		varchar,
+	zustand			integer,
 	CONSTRAINT ks_bauwerkanlagenfuerverundentsorgung_pk PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ks_bauwerkanlagenfuerverundentsorgung','wkb_geometry',:alkis_epsg,'POINT',2);
+
+CREATE INDEX ks_bauwerkanlagenfuerverundentsorgung_geom_idx ON ks_bauwerkanlagenfuerverundentsorgung USING gist (wkb_geometry);
+
+CREATE TABLE ks_sonstigesbauwerk (
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	anlass			varchar[],
+	bauwerksfunktion	integer,
+	bezeichnung		varchar,
+	CONSTRAINT ks_sonstigesbauwerk_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('ks_sonstigesbauwerk','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
+
+CREATE INDEX ks_sonstigesbauwerk_geom_idx ON ks_sonstigesbauwerk USING gist (wkb_geometry);
+
+CREATE TABLE ks_einrichtungimstrassenverkehr(
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	anlass			varchar[],
+	art			integer,
+	oberflaechenmaterial	integer,
+	bezeichnung		varchar,
+	zustand			integer,
+	CONSTRAINT ks_einrichtungimstrassenverkehr_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('ks_einrichtungimstrassenverkehr','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
+
+CREATE INDEX ks_einrichtungimstrassenverkehr_geom_idx ON ks_einrichtungimstrassenverkehr USING gist (wkb_geometry);
 
 CREATE TABLE ks_verkehrszeichen (
 	ogc_fid			serial NOT NULL,
@@ -4170,13 +4183,110 @@ CREATE TABLE ks_verkehrszeichen (
 	advstandardmodell 	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
-	verkehrseinrichtung	integer,
+	gefahrzeichen		integer[],
+	vorschriftzeichen	integer[],
+	richtzeichen		integer[],
+	verkehrseinrichtung	integer[],
+	zusatzzeichen		integer[],
+	bezeichnung		varchar,
 	CONSTRAINT ks_verkehrszeichen_pk PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ks_verkehrszeichen','wkb_geometry',:alkis_epsg,'POINT',2);
 
+CREATE INDEX ks_verkehrszeichen_geom_idx ON ks_verkehrszeichen USING gist (wkb_geometry);
+
+CREATE TABLE ks_einrichtungimbahnverkehr(
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	anlass			varchar[],
+	art			integer,
+	bezeichnung		varchar,
+	CONSTRAINT ks_einrichtungimbahnverkehr_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('ks_einrichtungimbahnverkehr','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
+
+CREATE INDEX ks_einrichtungimbahnverkehr_geom_idx ON ks_einrichtungimbahnverkehr USING gist (wkb_geometry);
+
+CREATE TABLE ks_bauwerkimgewaesserbereich (
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	anlass			varchar[],
+	bauwerksfunktion	integer,
+	bezeichnung		varchar,
+	zustand			integer,
+	CONSTRAINT ks_bauwerkimgewaesserbereich_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('ks_bauwerkimgewaesserbereich','wkb_geometry',:alkis_epsg,'LINESTRING',2);
+
+CREATE INDEX ks_bauwerkimgewaesserbereich_geom_idx ON ks_bauwerkimgewaesserbereich USING gist (wkb_geometry);
+
+CREATE TABLE ks_vegetationsmerkmal (
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	anlass			varchar[],
+	bewuchs			integer,
+	zustand			integer,
+	breitedesobjekts	double precision,
+	name			varchar,
+	bezeichnung		varchar,
+	CONSTRAINT ks_vegetationsmerkmal_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('ks_vegetationsmerkmal','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
+
+CREATE INDEX ks_vegetationsmerkmal_geom_idx ON ks_vegetationsmerkmal USING gist (wkb_geometry);
+
+CREATE TABLE ks_bauraumoderbodenordnungsrecht (
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	anlass			varchar[],
+	artderfestlegung	integer,
+	bezeichnung		varchar,
+	CONSTRAINT ks_bauraumoderbodenordnungsrecht_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('ks_bauraumoderbodenordnungsrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
+
+CREATE INDEX ks_bauraumoderbodenordnungsrecht_geom_idx ON ks_vegetationsmerkmal USING gist (wkb_geometry);
+
+CREATE TABLE ks_kommunalerbesitz (
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell 	varchar[],
+	sonstigesmodell		varchar[],
+	anlass			varchar[],
+	zustaendigkeit		varchar,
+	nutzung			varchar,
+	CONSTRAINT ks_kommunalerbesitz_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('ks_kommunalerbesitz','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
+
+CREATE INDEX ks_kommunalerbesitz_geom_idx ON ks_vegetationsmerkmal USING gist (wkb_geometry);
+
 \i alkis-wertearten.sql
+\i alkis-wertearten-nrw.sql
 SELECT alkis_set_comments();
 
 

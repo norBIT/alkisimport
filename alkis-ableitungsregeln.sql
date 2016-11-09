@@ -36,7 +36,7 @@
 Linien-Signaturen mit Konturen:
 	2504
 		51004 ax_transportanlage
-			Förderband, unterirsch (BWF 1102, OFL 1200/1700)
+			Förderband, unterirdisch (BWF 1102, OFL 1200/1700)
 
 	2510
 		51007 ax_historischesbauwerkoderhistorischeeinrichtung
@@ -199,11 +199,11 @@ INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (9, '2012', ARRAY[3000]);
 
 SELECT alkis_dropobject('ax_besondereflurstuecksgrenze2');
 CREATE TABLE ax_besondereflurstuecksgrenze2 (
-        ogc_fid                 serial NOT NULL,
-        gml_id                  character(16) NOT NULL,
-        modell			varchar[],
-        artderflurstuecksgrenze integer[],
-        CONSTRAINT ax_besondereflurstuecksgrenze2_pk PRIMARY KEY (ogc_fid)
+	ogc_fid                 serial NOT NULL,
+	gml_id                  character(16) NOT NULL,
+	modell			varchar[],
+	artderflurstuecksgrenze integer[],
+	CONSTRAINT ax_besondereflurstuecksgrenze2_pk PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_besondereflurstuecksgrenze2','wkb_geometry',:alkis_epsg,'LINESTRING',2);
@@ -6462,6 +6462,450 @@ FROM (
 */
 
 --
+
+--
+-- Einrichtungen im öffentlichen Bereichen (59102; NRW)
+--
+
+-- Punkte
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Verkehr' AS thema,
+	'ks_einrichtunginoeffentlichenbereichen' AS layer,
+	st_multi(wkb_geometry) AS point,
+	0 AS drehwinkel,
+	CASE
+	WHEN art='1100' THEN 'KS_1014'
+	WHEN art='1200' THEN 'KS_1002'
+	WHEN art='1300' THEN 'KS_1003'
+	WHEN art='1400' THEN 'KS_1004'
+	WHEN art='1500' THEN 'KS_1005'
+	WHEN art='1600' THEN 'KS_1006'
+	WHEN art='1700' THEN 'KS_1027'
+	ELSE 'KS_1001'
+	END AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_einrichtunginoeffentlichenbereichen o
+WHERE geometrytype(wkb_geometry) IN ('POINT','MULTIPOINT') AND endet IS NULL;
+
+-- Linien
+INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Verkehr' AS thema,
+	'ks_einrichtunginoeffentlichenbereichen' AS layer,
+	st_multi(wkb_geometry) AS point,
+	'KS_2001' AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_einrichtunginoeffentlichenbereichen o
+WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL;
+
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	gml_id,
+	'Verkehr' AS thema,
+	'ks_einrichtunginoeffentlichenbereichen' AS layer,
+	st_multi( st_lineinterpolatepoint(line,o.offset) ) AS point,
+	0.5*pi()-st_azimuth( st_lineinterpolatepoint(line,o.offset*0.9999), st_lineinterpolatepoint(line,CASE WHEN o.offset=0 THEN 0.001 WHEN o.offset*1.0001>1 THEN 1 ELSE o.offset*1.0001 END) ) AS drehwinkel,
+	signaturnummer,
+	modell
+FROM (
+	SELECT
+		o.gml_id,
+		o.wkb_geometry AS line,
+		generate_series(125,(st_length(wkb_geometry)*1000.0-125)::int,250) / 1000.0 / st_length(wkb_geometry) AS offset,
+		'KS_1003' AS signaturnummer,
+		advstandardmodell||sonstigesmodell AS modell
+	FROM ks_einrichtunginoeffentlichenbereichen o
+	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art='1300'
+) AS o WHERE NOT signaturnummer IS NULL;
+
+
+-- Flächen
+INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Verkehr' AS thema,
+	'ks_einrichtunginoeffentlichenbereichen' AS layer,
+	st_multi(wkb_geometry) AS polygon,
+	'KS_3001' AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_einrichtunginoeffentlichenbereichen o
+WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL;
+
+--
+-- Bauwerk, Anlagen für Ver- und Entsorgen (59103; NRW)
+--
+
+-- Punkte
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Verkehr' AS thema,
+	'ks_bauwerkanlagenfuerverundentsorgung' AS layer,
+	st_multi(wkb_geometry) AS point,
+	0 AS drehwinkel,
+	CASE
+	WHEN art='1200' THEN 'KS_1007'
+	WHEN art='1300' THEN 'KS_1008'
+	WHEN art IN ('1400', '2100', '2200') THEN 'KS_1009'
+	WHEN art='1500' THEN 'KS_1010'
+	WHEN art IN ('3100', '3200', '3300', '3400') THEN 'KS_1011'
+	END AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_bauwerkanlagenfuerverundentsorgung o
+WHERE geometrytype(wkb_geometry) IN ('POINT','MULTIPOINT') AND endet IS NULL;
+
+-- Linien
+INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Verkehr' AS thema,
+	'ks_bauwerkanlagenfuerverundentsorgung' AS layer,
+	st_multi(wkb_geometry) AS point,
+	'KS_2002' AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_bauwerkanlagenfuerverundentsorgung o
+WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art='1100';
+
+-- Flächen
+INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Verkehr' AS thema,
+	'ks_bauwerkanlagenfuerverundentsorgung' AS layer,
+	st_multi(wkb_geometry) AS polygon,
+	'KS_3001' AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_bauwerkanlagenfuerverundentsorgung o
+WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL AND art='1100';
+
+--
+-- Sonstiges Bauwerk (59109; NRW)
+--
+
+-- Punkte
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Gebäude' AS thema,
+	'ks_sonstigesbauwerk' AS layer,
+	st_multi(wkb_geometry) AS point,
+	0 AS drehwinkel,
+	'KS_1012' AS signaturnummer,
+	advstandardmodell||sonstigesmodell AS modell
+FROM ks_sonstigesbauwerk o
+WHERE geometrytype(wkb_geometry) IN ('POINT','MULTIPOINT') AND endet IS NULL AND bauwerksfunktion='4000';
+
+-- Linien
+INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Gebäude' AS thema,
+	'ks_sonstigesbauwerk' AS layer,
+	st_multi(wkb_geometry) AS point,
+	'KS_2001' AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_sonstigesbauwerk o
+WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND bauwerksfunktion='3000';
+
+-- Punktförmige Begleitsignaturen an Linien
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	gml_id,
+	'Gebäude' AS thema,
+	'ks_sonstigesbauwerk' AS layer,
+	st_multi( st_lineinterpolatepoint(line,o.offset) ) AS point,
+	winkel-st_azimuth( st_lineinterpolatepoint(line,o.offset*0.9999), st_lineinterpolatepoint(line,CASE WHEN o.offset=0 THEN 0.001 WHEN o.offset*1.0001>1 THEN 1 ELSE o.offset*1.0001 END) ) AS drehwinkel,
+	signaturnummer,
+	modell
+FROM (
+	SELECT
+		o.gml_id,
+		o.wkb_geometry AS line,
+		generate_series(1000, (st_length(wkb_geometry)*1000.0)::int, 2000) / 1000.0 / st_length(wkb_geometry) AS offset,
+		0.5*pi() AS winkel,
+		'KS_1026' AS  signaturnummer,
+		advstandardmodell||sonstigesmodell AS modell
+	FROM ks_sonstigesbauwerk o
+	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND bauwerksfunktion='3000'
+	UNION
+	SELECT
+		o.gml_id,
+		o.wkb_geometry AS line,
+		generate_series(2000, (st_length(wkb_geometry)*1000.0)::int, 2000) / 1000.0 / st_length(wkb_geometry) AS offset,
+		1.5*pi() AS winkel,
+		'KS_1026' AS  signaturnummer,
+		advstandardmodell||sonstigesmodell AS modell
+	FROM ks_sonstigesbauwerk o
+	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND bauwerksfunktion='3000'
+) AS o WHERE NOT signaturnummer IS NULL;
+
+-- Flächen
+INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Gebäude' AS thema,
+	'ks_sonstigesbauwerk' AS layer,
+	st_multi(wkb_geometry) AS polygon,
+	'KS_2001' AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_sonstigesbauwerk o
+WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL AND bauwerksfunktion IN (1100, 5000);
+
+
+--
+-- Einrichtung im Straßenverkehr (59201; NRW)
+--
+
+-- Punkte
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Verkehr' AS thema,
+	'ks_einrichtungimstrassenverkehr' AS layer,
+	st_multi(wkb_geometry) AS point,
+	0 AS drehwinkel,
+	CASE
+	WHEN art='4100' THEN 'KS_1013'
+	ELSE 'KS_1001'
+	END AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_einrichtungimstrassenverkehr o
+WHERE geometrytype(wkb_geometry) IN ('POINT','MULTIPOINT') AND endet IS NULL;
+
+-- Linien
+INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Verkehr' AS thema,
+	'ks_einrichtungimstrassenverkehr' AS layer,
+	st_multi(wkb_geometry) AS line,
+	CASE
+	WHEN art='2200' THEN 'KS_2002'
+	ELSE 'KS_2001'
+	END AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_einrichtungimstrassenverkehr o
+WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL;
+
+-- Flächen
+INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Verkehr' AS thema,
+	'ks_einrichtungimstrassenverkehr' AS layer,
+	st_multi(wkb_geometry) AS polygon,
+	'KS_3001' AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_einrichtungimstrassenverkehr o
+WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL;
+
+--
+-- Verkehrszeichen (59202; NRW)
+--
+
+-- Punkte
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Verkehr' AS thema,
+	'ks_verkehrszeichen' AS layer,
+	st_multi(wkb_geometry) AS point,
+	0 AS drehwinkel,
+	CASE
+	WHEN gefahrzeichen IS NOT NULL OR vorschriftzeichen IS NOT NULL OR zusatzzeichen IS NOT NULL THEN 'KS_1015'
+	WHEN 1200 = ANY(richtzeichen) THEN 'KS_1016'
+	WHEN 1100 = ANY(verkehrseinrichtung) THEN 'KS_1017'
+	WHEN ARRAY[1210,1220] && verkehrseinrichtung THEN 'KS_1018'
+	WHEN 1400 = ANY(verkehrseinrichtung) THEN 'KS_1019'
+	END AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_verkehrszeichen o
+WHERE geometrytype(wkb_geometry) IN ('POINT','MULTIPOINT') AND endet IS NULL;
+
+-- Linien
+INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Verkehr' AS thema,
+	'ks_verkehrszeichen' AS layer,
+	st_multi(wkb_geometry) AS line,
+	CASE
+	WHEN 1111 = ANY(richtzeichen) THEN 'KS_2002'
+	WHEN ARRAY[1110,1199] && verkehrseinrichtung THEN 'KS_2003'
+	WHEN 1600 = ANY(verkehrseinrichtung) THEN 'KS_2004'
+	ELSE 'KS_2001'
+	END AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_verkehrszeichen o
+WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL;
+
+-- Flächen
+INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Verkehr' AS thema,
+	'ks_verkehrszeichen' AS layer,
+	st_multi(wkb_geometry) AS polygon,
+	'KS_3001' AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_verkehrszeichen o
+WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL;
+
+--
+-- Einrichtung im Bahnverkehr (59206; NRW)
+--
+
+-- Punkte
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Verkehr' AS thema,
+	'ks_einrichtungimbahnverkehr' AS layer,
+	st_multi(wkb_geometry) AS point,
+	0 AS drehwinkel,
+	CASE
+	WHEN art=1100 THEN 'KS_1012'
+	WHEN art=1200 THEN 'KS_1020'
+	END AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_einrichtungimbahnverkehr o
+WHERE geometrytype(wkb_geometry) IN ('POINT','MULTIPOINT') AND endet IS NULL AND art IN (1100,1200);
+
+-- Linien
+INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Verkehr' AS thema,
+	'ks_einrichtungimbahnverkehr' AS layer,
+	st_multi(wkb_geometry) AS line,
+	'KS_2001' AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_einrichtungimbahnverkehr o
+WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art=1100;
+
+--
+-- Bauwerk im Gewässerbereich (59207; NRW)
+--
+
+-- Punkte
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Gewässer' AS thema,
+	'ks_bauwerkimgewaesserbereich' AS layer,
+	st_multi(wkb_geometry) AS point,
+	0 AS drehwinkel,
+	'KS_1022' AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_bauwerkimgewaesserbereich o
+WHERE geometrytype(wkb_geometry) IN ('POINT','MULTIPOINT') AND endet IS NULL AND bauwerksfunktion=1200;
+
+-- Linien
+INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Gewässer' AS thema,
+	'ks_bauwerkimgewaesserbereich' AS layer,
+	st_multi(wkb_geometry) AS line,
+	CASE
+	WHEN bauwerksfunktion=1100 THEN 'KS_2001'
+	WHEN bauwerksfunktion=1200 THEN 'KS_2002'
+	END AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_bauwerkimgewaesserbereich o
+WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND bauwerksfunktion IN (1100,1200);
+
+--
+-- Vegetationsmerkmal (59301; NRW)
+--
+
+-- Punkte
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Vegetation' AS thema,
+	'ks_vegetationsmerkmal' AS layer,
+	st_multi(wkb_geometry) AS point,
+	0 AS drehwinkel,
+	CASE
+	WHEN bewuchs=1013 THEN 'KS_1023'
+	WHEN bewuchs=2100 THEN 'KS_1024'
+	WHEN bewuchs=2200 THEN 'KS_1025'
+	END AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_vegetationsmerkmal o
+WHERE geometrytype(wkb_geometry) IN ('POINT','MULTIPOINT') AND endet IS NULL AND bewuchs IN (1013,2100,2200);
+
+-- Flächen
+INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Vegetation' AS thema,
+	'ks_vegetationsmerkmal' AS layer,
+	st_multi(wkb_geometry) AS polygon,
+	'KS_2001' AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_vegetationsmerkmal o
+WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL AND bewuchs IN (1100,3100);
+
+--
+-- Bau-, Raum- oder Bodenordnungsrecht (59401; NRW)
+--
+
+INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Rechtliche Festlegungen' AS thema,
+	'ks_bauraumoderbodenordnungsrecht' AS layer,
+	st_multi(wkb_geometry) AS line,
+	'KS_2001' AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_bauraumoderbodenordnungsrecht o
+WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL;
+
+-- Flächen
+INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Rechtliche Festlegungen' AS thema,
+	'ks_bauraumoderbodenordnungsrecht' AS layer,
+	st_multi(wkb_geometry) AS polygon,
+	'KS_3002' AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_bauraumoderbodenordnungsrecht o
+WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL;
+
+--
+-- Kommunaler Besitz (59402; NRW)
+--
+
+INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+SELECT
+	o.gml_id,
+	'Flurstücke' AS thema,
+	'ks_kommunalerbesitz' AS layer,
+	st_multi(wkb_geometry) AS line,
+	'KS_2001' AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_kommunalerbesitz o
+WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL;
+
+-- Flächen
+INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+SELECT
+	gml_id,
+	'Flurstücke' AS thema,
+	'ks_kommunalerbesitz' AS layer,
+	st_multi(wkb_geometry) AS polygon,
+	'KS_3003' AS signaturnummer,
+	advstandardmodell||sonstigesmodell
+FROM ks_kommunalerbesitz
+WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL;
+
+--
 -- Damm, Wall, Deich (61003)
 --
 
@@ -7690,3 +8134,5 @@ UNION SELECT 'Beschriftungen',count(*),array_agg(distinct signaturnummer)
 	HAVING count(*)>0;
 
 END;
+
+-- vim: foldmethod=marker

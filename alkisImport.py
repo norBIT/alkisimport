@@ -816,7 +816,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 					break
 				self.log( u"Signaturen importiert." )
 
-				ok = True
+				ok = self.rund(conn, "preprocessing")
 
 				self.pbProgress.setVisible( True )
 

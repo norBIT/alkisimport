@@ -97,7 +97,7 @@ BEGIN
 	FOR c IN SELECT table_type,table_name FROM information_schema.tables
 		   WHERE table_schema='public'
 		     AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_')
-		           OR table_name IN ('alkis_beziehungen','delete','alkis_version') )
+			   OR table_name IN ('alkis_beziehungen','delete','alkis_version') )
 		   ORDER BY table_type DESC LOOP
 		IF c.table_type = 'VIEW' THEN
 			r := coalesce(r||E'\n','') || 'Sicht ' || c.table_name || ' gelöscht.';
@@ -131,7 +131,7 @@ BEGIN
 	FOR c IN SELECT table_name FROM information_schema.tables
 		   WHERE table_schema='public' AND table_type='BASE TABLE'
 		     AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_')
-		           OR table_name IN ('alkis_beziehungen','delete') )
+			   OR table_name IN ('alkis_beziehungen','delete') )
 		   ORDER BY table_type DESC LOOP
 		r := coalesce(r||E'\n','') || 'Tabelle ' || c.table_name || ' geleert.';
 		EXECUTE 'DELETE FROM ' || c.table_name;
@@ -269,7 +269,7 @@ BEGIN
 
 	IF length(NEW.featureid)=32 THEN
 		beginnt := substr(NEW.featureid, 17, 4) || '-'
-		        || substr(NEW.featureid, 21, 2) || '-'
+			|| substr(NEW.featureid, 21, 2) || '-'
 			|| substr(NEW.featureid, 23, 2) || 'T'
 			|| substr(NEW.featureid, 26, 2) || ':'
 			|| substr(NEW.featureid, 28, 2) || ':'
@@ -278,8 +278,8 @@ BEGIN
 	ELSIF length(NEW.featureid)=16 THEN
 		-- Ältestes nicht gelöschtes Objekt
 		EXECUTE 'SELECT min(beginnt) FROM ' || NEW.typename
-		        || ' WHERE gml_id=''' || substr(NEW.featureid, 1, 16) || ''''
-		        || ' AND endet IS NULL'
+			|| ' WHERE gml_id=''' || substr(NEW.featureid, 1, 16) || ''''
+			|| ' AND endet IS NULL'
 			INTO beginnt;
 
 		IF beginnt IS NULL THEN
@@ -307,12 +307,12 @@ BEGIN
 
 		IF length(NEW.replacedby)=32 AND NEW.replacedby<>NEW.featureid THEN
 			NEW.endet := substr(NEW.replacedby, 17, 4) || '-'
-			          || substr(NEW.replacedby, 21, 2) || '-'
-			          || substr(NEW.replacedby, 23, 2) || 'T'
-			          || substr(NEW.replacedby, 26, 2) || ':'
-			          || substr(NEW.replacedby, 28, 2) || ':'
-			          || substr(NEW.replacedby, 30, 2) || 'Z'
-			          ;
+				  || substr(NEW.replacedby, 21, 2) || '-'
+				  || substr(NEW.replacedby, 23, 2) || 'T'
+				  || substr(NEW.replacedby, 26, 2) || ':'
+				  || substr(NEW.replacedby, 28, 2) || ':'
+				  || substr(NEW.replacedby, 30, 2) || 'Z'
+				  ;
 		END IF;
 
 		IF NEW.endet IS NULL THEN
@@ -791,6 +791,214 @@ BEGIN
 		END IF;
 
 		UPDATE alkis_version SET version=11;
+	END IF;
+
+	IF v<12 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 12';
+
+		ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD oberflaechenmaterial integer;
+		ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD material integer[];
+		ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD bezeichnung varchar;
+		ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD zustand integer;
+
+		CREATE INDEX ks_einrichtunginoeffentlichenbereichen_geom_idx ON ks_einrichtunginoeffentlichenbereichen USING gist (wkb_geometry);
+
+		BEGIN
+			ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung RENAME TO ks_bauwerkanlagenfuerverundentsorgung_;
+			r := coalesce(r||E'\n','') || 'ks_bauwerkanlagenfuerverundentsorgung umbenannt - INHALT MANUELL MIGRIEREN.';
+
+			ALTER INDEX ks_bauwerkanlagenfuerverundentsorgung_pk RENAME TO ks_bauwerkanlagenfuerverundentsorgung__pk;
+		EXCEPTION WHEN OTHERS THEN
+		END;
+
+		CREATE TABLE ks_bauwerkanlagenfuerverundentsorgung (
+			ogc_fid                 serial NOT NULL,
+			gml_id                  character(16) NOT NULL,
+			beginnt                 character(20),
+			endet                   character(20),
+			advstandardmodell       varchar[],
+			sonstigesmodell         varchar[],
+			anlass                  varchar[],
+			art                     integer,
+			bezeichnung             varchar,
+			zustand                 integer,
+			CONSTRAINT ks_bauwerkanlagenfuerverundentsorgung_pk PRIMARY KEY (ogc_fid)
+		);
+
+		PERFORM AddGeometryColumn('ks_bauwerkanlagenfuerverundentsorgung','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'POINT',2);
+
+		CREATE INDEX ks_bauwerkanlagenfuerverundentsorgung_geom_idx ON ks_bauwerkanlagenfuerverundentsorgung USING gist (wkb_geometry);
+
+		ALTER TABLE ks_sonstigesbauwerk ADD advstandardmodell varchar[];
+		ALTER TABLE ks_sonstigesbauwerk ADD bezeichnung varchar;
+
+		BEGIN
+			ALTER TABLE ks_einrichtungimstrassenverkehr RENAME TO ks_einrichtungimstrassenverkehr_;
+			r := coalesce(r||E'\n','') || 'ks_einrichtungimstrassenverkehr umbenannt - INHALT MANUELL MIGRIEREN.';
+
+			ALTER INDEX ks_einrichtungimstrassenverkehr_pk RENAME TO ks_einrichtungimstrassenverkehr__pk;
+		EXCEPTION WHEN OTHERS THEN
+		END;
+
+		CREATE TABLE ks_einrichtungimstrassenverkehr(
+			ogc_fid                 serial NOT NULL,
+			gml_id                  character(16) NOT NULL,
+			beginnt                 character(20),
+			endet                   character(20),
+			advstandardmodell       varchar[],
+			sonstigesmodell         varchar[],
+			anlass                  varchar[],
+			art                     integer,
+			oberflaechenmaterial    integer,
+			bezeichnung             varchar,
+			zustand                 integer,
+			CONSTRAINT ks_einrichtungimstrassenverkehr_pk PRIMARY KEY (ogc_fid)
+		);
+
+		PERFORM AddGeometryColumn('ks_einrichtungimstrassenverkehr','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+
+		CREATE INDEX ks_einrichtungimstrassenverkehr_geom_idx ON ks_einrichtungimstrassenverkehr USING gist (wkb_geometry);
+
+		ALTER TABLE ks_verkehrszeichen ADD gefahrzeichen integer[];
+		ALTER TABLE ks_verkehrszeichen ADD vorschriftzeichen integer[];
+		ALTER TABLE ks_verkehrszeichen ADD richtzeichen integer[];
+
+		ALTER TABLE ks_verkehrszeichen RENAME verkehrseinrichtung TO verkehrseinrichtung_;
+		ALTER TABLE ks_verkehrszeichen ADD verkehrseinrichtung integer[];
+		UPDATE ks_verkehrszeichen SET verkehrseinrichtung=ARRAY[verkehrseinrichtung_];
+		ALTER TABLE ks_verkehrszeichen DROP verkehrseinrichtung_;
+
+		ALTER TABLE ks_verkehrszeichen ADD zusatzzeichen integer[];
+		ALTER TABLE ks_verkehrszeichen ADD bezeichnung varchar;
+
+		BEGIN
+			ALTER TABLE ks_einrichtungimbahnverkehr RENAME TO ks_einrichtungimbahnverkehr_;
+			r := coalesce(r||E'\n','') || 'ks_einrichtungimbahnverkehr umbenannt - INHALT MANUELL MIGRIEREN.';
+
+			ALTER INDEX ks_einrichtungimbahnverkehr_pk RENAME TO ks_einrichtungimbahnverkehr__pk;
+		EXCEPTION WHEN OTHERS THEN
+		END;
+
+		CREATE TABLE ks_einrichtungimbahnverkehr(
+			ogc_fid                 serial NOT NULL,
+			gml_id                  character(16) NOT NULL,
+			beginnt                 character(20),
+			endet                   character(20),
+			advstandardmodell       varchar[],
+			sonstigesmodell         varchar[],
+			anlass                  varchar[],
+			art                     integer,
+			bezeichnung             varchar,
+			CONSTRAINT ks_einrichtungimbahnverkehr_pk PRIMARY KEY (ogc_fid)
+		);
+
+		PERFORM AddGeometryColumn('ks_einrichtungimbahnverkehr','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+
+		CREATE INDEX ks_einrichtungimbahnverkehr_geom_idx ON ks_einrichtungimbahnverkehr USING gist (wkb_geometry);
+
+		BEGIN
+			ALTER TABLE ks_bauwerkimgewaesserbereich RENAME TO ks_einrichtungimbahnverkehr_;
+			r := coalesce(r||E'\n','') || 'ks_bauwerkimgewaesserbereich umbenannt - INHALT MANUELL MIGRIEREN.';
+
+			ALTER INDEX ks_bauwerkimgewaesserbereich_pk RENAME TO ks_bauwerkimgewaesserbereich__pk;
+		EXCEPTION WHEN OTHERS THEN
+		END;
+
+		CREATE TABLE ks_bauwerkimgewaesserbereich (
+			ogc_fid                 serial NOT NULL,
+			gml_id                  character(16) NOT NULL,
+			beginnt                 character(20),
+			endet                   character(20),
+			advstandardmodell       varchar[],
+			sonstigesmodell         varchar[],
+			anlass                  varchar[],
+			bauwerksfunktion        integer,
+			bezeichnung             varchar,
+			zustand                 integer,
+			CONSTRAINT ks_bauwerkimgewaesserbereich_pk PRIMARY KEY (ogc_fid)
+		);
+
+		PERFORM AddGeometryColumn('ks_bauwerkimgewaesserbereich','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'LINESTRING',2);
+
+		CREATE INDEX ks_bauwerkimgewaesserbereich_geom_idx ON ks_bauwerkimgewaesserbereich USING gist (wkb_geometry);
+
+		BEGIN
+			ALTER TABLE ks_vegetationsmerkmal RENAME TO ks_vegetationsmerkmal_;
+			r := coalesce(r||E'\n','') || 'ks_vegetationsmerkmal umbenannt - INHALT MANUELL MIGRIEREN.';
+
+			ALTER INDEX ks_vegetationsmerkmal_pk RENAME TO ks_vegetationsmerkmal__pk;
+		EXCEPTION WHEN OTHERS THEN
+		END;
+
+		CREATE TABLE ks_vegetationsmerkmal (
+			ogc_fid                 serial NOT NULL,
+			gml_id                  character(16) NOT NULL,
+			beginnt                 character(20),
+			endet                   character(20),
+			advstandardmodell       varchar[],
+			sonstigesmodell         varchar[],
+			anlass                  varchar[],
+			bewuchs                 integer,
+			zustand                 integer,
+			breitedesobjekts        double precision,
+			name                    varchar,
+			bezeichnung             varchar,
+			CONSTRAINT ks_vegetationsmerkmal_pk PRIMARY KEY (ogc_fid)
+		);
+
+		PERFORM AddGeometryColumn('ks_vegetationsmerkmal','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+
+		CREATE INDEX ks_vegetationsmerkmal_geom_idx ON ks_vegetationsmerkmal USING gist (wkb_geometry);
+
+		BEGIN
+			ALTER TABLE ks_bauraumoderbodenordnungsrecht RENAME TO ks_bauraumoderbodenordnungsrecht_;
+			ALTER INDEX ks_bauraumoderbodenordnungsrecht_pk RENAME TO ks_bauraumoderbodenordnungsrecht__pk;
+		EXCEPTION WHEN OTHERS THEN
+		END;
+
+		CREATE TABLE ks_bauraumoderbodenordnungsrecht (
+			ogc_fid                 serial NOT NULL,
+			gml_id                  character(16) NOT NULL,
+			beginnt                 character(20),
+			endet                   character(20),
+			advstandardmodell       varchar[],
+			sonstigesmodell         varchar[],
+			anlass                  varchar[],
+			artderfestlegung        integer,
+			bezeichnung             varchar,
+			CONSTRAINT ks_bauraumoderbodenordnungsrecht_pk PRIMARY KEY (ogc_fid)
+		);
+
+		PERFORM AddGeometryColumn('ks_bauraumoderbodenordnungsrecht','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+
+		CREATE INDEX ks_bauraumoderbodenordnungsrecht_geom_idx ON ks_vegetationsmerkmal USING gist (wkb_geometry);
+
+		BEGIN
+			ALTER TABLE ks_kommunalerbesitz RENAME TO ks_kommunalerbesitz_;
+			r := coalesce(r||E'\n','') || 'ks_kommunalerbesitz umbenannt - INHALT MANUELL MIGRIEREN.';
+
+			ALTER INDEX ks_kommunalerbesitz_pk RENAME TO ks_kommunalerbesitz__pk;
+		EXCEPTION WHEN OTHERS THEN
+		END;
+
+		CREATE TABLE ks_kommunalerbesitz (
+			ogc_fid                 serial NOT NULL,
+			gml_id                  character(16) NOT NULL,
+			beginnt                 character(20),
+			endet                   character(20),
+			advstandardmodell       varchar[],
+			sonstigesmodell         varchar[],
+			anlass                  varchar[],
+			zustaendigkeit          varchar,
+			nutzung                 varchar,
+			CONSTRAINT ks_kommunalerbesitz_pk PRIMARY KEY (ogc_fid)
+		);
+
+		PERFORM AddGeometryColumn('ks_kommunalerbesitz','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+
+		CREATE INDEX ks_kommunalerbesitz_geom_idx ON ks_vegetationsmerkmal USING gist (wkb_geometry);
+
+		UPDATE alkis_version SET version=12;
 
 		r := coalesce(r||E'\n','') || 'ALKIS-Schema migriert';
 	END IF;
@@ -837,7 +1045,7 @@ BEGIN
 			SELECT a.table_name
 			FROM information_schema.tables a
 			JOIN (SELECT 1 AS o,'alkis_schriften' AS table_name
-		        UNION SELECT 2 AS o,'alkis_linien'
+			UNION SELECT 2 AS o,'alkis_linien'
 			UNION SELECT 3 AS o,'alkis_linie'
 			UNION SELECT 4 AS o,'alkis_flaechen'
 			UNION SELECT 9 AS o,'po_labels'
@@ -956,7 +1164,7 @@ BEGIN
 				UNION
 				SELECT b.element,a.bezeichnung,a.datentyp,a.kardinalitaet,a.kennung,a.definition FROM alkis_attributart a JOIN typ b ON a.element=lower(b.datentyp)
 				-- FIXME: kommen unterschiedliche Kardinalitäten bei Element und Attribut vor?
-		        )
+			)
 		SELECT col.table_name,col.column_name,a.definition,a.datentyp,a.kardinalitaet,a.kennung
 		FROM element t
 		JOIN typ a ON t.base=a.element

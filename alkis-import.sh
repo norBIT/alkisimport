@@ -127,6 +127,7 @@ export B
 opt=
 log=
 gdb=
+preprocessed=0
 
 T0=
 
@@ -325,7 +326,7 @@ EOF
 		fi
 
 		echo "CREATE $(bdate)"
-		pushd "$B/$sql" >/dev/null
+		pushd "$B" >/dev/null
 		rund precreate
 		sql alkis-schema.sql
 		sql alkis-compat.sql
@@ -343,7 +344,7 @@ EOF
 		fi
 
 		echo "CLEAN $(bdate)"
-		pushd "$B/$sql" >/dev/null
+		pushd "$B" >/dev/null
 		rund preclean
 		sql alkis-clean.sql
 		rund postclean
@@ -359,7 +360,7 @@ EOF
 		fi
 
 		echo "UPDATE $(bdate)"
-		pushd "$B/$sql" >/dev/null
+		pushd "$B" >/dev/null
 		sql alkis-compat.sql
 		sql alkis-update.sql
 		popd >/dev/null
@@ -514,6 +515,14 @@ EOF
 
 	esac
 
+	if (( preprocessed == 0 )); then
+		pushd "$B" >/dev/null
+		sql alkis-signaturen.sql
+		preprocessed=1
+		rund preprocessing
+		popd >/dev/null
+	fi
+
 	if [ -z "$DB" ]; then
 		echo "$P: Keine Datenbankverbindungsdaten angegeben" >&2
 		exit 1
@@ -578,17 +587,8 @@ fi
 
 if [ "$src" != "exit" -a "$src" != "error" ]; then
 	pushd "$B" >/dev/null
-
-	for i in alkis-signaturen.sql alkis-ableitungsregeln.sql
-	do
-		if [ -r "$i" ]; then
-			echo "SQL RUNNING: $i $(bdate)"
-			sql $i
-		fi
-	done
-
+	sql alkis-ableitungsregeln.sql
 	rund postprocessing
-
 	popd >/dev/null
 fi
 
