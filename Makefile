@@ -1,6 +1,6 @@
 PKG=alkis-import
 VERSION = 2.1
-P=$(shell cat .pkg || echo 1)
+P=$(shell cat .pkg-$(VERSION) || echo 1)
 
 O4W=osgeo4w/apps/$(PKG)
 INSTFILES=\
@@ -17,8 +17,9 @@ INSTFILES=\
 	alkis-wertearten-nrw.sql \
 	alkis-po-tables.sql \
 	alkis-ableitungsregeln.sql \
-	alkis-nutzung-und-klassifizierung.sql \
 	cleanGeometry.sql \
+	postcreate.d/nas2alb.sql \
+	postclean.d/nas2alb.sql \
 	postprocessing.d/nas2alb.sql \
 	postprocessing.d/postnas-keytables.sql
 
@@ -38,7 +39,7 @@ package:
 osgeo4w: package
 	for i in x86 x86_64; do rsync setup.hint osgeo4w/$(PKG)-$(VERSION)-$(P).tar.bz2 upload.osgeo.org:osgeo4w/$$i/release/$(PKG)/; done
 	wget -O - http://upload.osgeo.org/cgi-bin/osgeo4w-regen.sh
-	echo $$(( $(P) + 1 )) >.pkg
+	echo $$(( $(P) + 1 )) >.pkg-$(VERSION)
 
 archive:
 	mkdir -p archive
