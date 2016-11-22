@@ -19,7 +19,7 @@ INSTFILES=\
 	alkis-ableitungsregeln.sql \
 	cleanGeometry.sql \
 	postcreate.d/nas2alb.sql \
-	postclean.d/nas2alb.sql \
+	postupdate.d/nas2alb.sql \
 	postprocessing.d/nas2alb.sql \
 	postprocessing.d/postnas-keytables.sql
 

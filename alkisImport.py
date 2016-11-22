@@ -805,10 +805,16 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 						if not self.rund(conn, "postclean"):
 							break
 
+					if not self.rund(conn, "preupdate"):
+						break
+
 					self.status( u"Datenbankschema wird geprüft..." )
 					if not self.runSQLScript( conn, "alkis-update.sql" ):
 						self.log( u"Schemaprüfung schlug fehl." )
 						break
+
+					if not self.rund(conn, "postupdate"):
+                                                break
 
 				self.status( u"Signaturen werden importiert..." )
 				if not self.runSQLScript( conn, "alkis-signaturen.sql" ):

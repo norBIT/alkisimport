@@ -43,6 +43,10 @@ SET client_min_messages TO notice;
 
 -- ax_flurstueck => flurst
 
+SELECT alkis_dropobject('alb_version');
+CREATE TABLE alb_version(version integer);
+INSERT INTO alb_version(version) VALUES (1);
+
 -- Sichten löschen, die von alkis_toint abhängen
 SELECT alkis_dropobject('ax_tatsaechlichenutzung');
 SELECT alkis_dropobject('ax_klassifizierung');

@@ -362,7 +362,9 @@ EOF
 		echo "UPDATE $(bdate)"
 		pushd "$B" >/dev/null
 		sql alkis-compat.sql
+		rund preupdate
 		sql alkis-update.sql
+		rund postupdate
 		popd >/dev/null
 
 		continue

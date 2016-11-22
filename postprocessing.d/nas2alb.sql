@@ -43,6 +43,7 @@ SET client_min_messages TO notice;
 
 -- ax_flurstueck => flurst
 
+DELETE FROM flurst;
 INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl,af,flurknr,baublock,flskoord,fora,fina,h1shl,h2shl,hinwshl,strshl,gemshl,hausnr,lagebez,k_anlverm,anl_verm,blbnr,n_flst,ff_entst,ff_stand,ff_datum)
    SELECT
      alkis_flsnr(a) AS flsnr,
@@ -91,6 +92,7 @@ INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl
 	)
      ;
 
+DELETE FROM str_shl;
 INSERT INTO str_shl(strshl,strname,gemshl)
 	SELECT DISTINCT
 		to_char(alkis_toint(land),'fm00')||regierungsbezirk||to_char(alkis_toint(kreis),'fm00')||to_char(alkis_toint(gemeinde),'fm000')||'    '||trim(lage) AS strshl,
@@ -104,6 +106,7 @@ INSERT INTO str_shl(strshl,strname,gemshl)
 SELECT alkis_dropobject('strassen_pk_seq');
 CREATE SEQUENCE strassen_pk_seq;
 
+DELETE FROM strassen;
 INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 	SELECT
 		flsnr,
@@ -130,6 +133,7 @@ INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 		WHERE NOT l.lage IS NULL AND l.endet IS NULL
 	) AS foo;
 
+DELETE FROM gem_shl;
 INSERT INTO gem_shl(gemshl,gemname)
 	SELECT
 		to_char(alkis_toint(schluesselgesamt),'fm00000000') AS gemshl,
@@ -138,6 +142,7 @@ INSERT INTO gem_shl(gemshl,gemname)
 	WHERE endet IS NULL
 	GROUP BY to_char(alkis_toint(schluesselgesamt),'fm00000000');
 
+DELETE FROM gema_shl;
 INSERT INTO gema_shl(gemashl,gemarkung)
 	SELECT
 		to_char(alkis_toint(land),'fm00')||to_char(alkis_toint(gemarkungsnummer),'fm0000') AS gemashl,
@@ -146,6 +151,7 @@ INSERT INTO gema_shl(gemashl,gemarkung)
 	WHERE endet IS NULL
 	GROUP BY to_char(alkis_toint(land),'fm00')||to_char(alkis_toint(gemarkungsnummer),'fm0000');
 
+DELETE FROM eignerart;
 INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,lkfs)
 	SELECT
 		alkis_flsnr(f) AS flsnr,
@@ -185,6 +191,7 @@ INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,l
 SELECT alkis_dropobject('bem_best_pk_seq');
 CREATE SEQUENCE bem_best_pk_seq;
 
+DELETE FROM bem_best;
 INSERT INTO bem_best(bestdnr,pk,lnr,text,ff_entst,ff_stand)
 	SELECT
 		to_char(alkis_toint(bb.land),'fm00') || to_char(alkis_toint(bb.bezirk),'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
@@ -197,6 +204,7 @@ INSERT INTO bem_best(bestdnr,pk,lnr,text,ff_entst,ff_stand)
 	JOIN ax_buchungsblatt bb ON bb.gml_id=bs.istbestandteilvon AND bb.endet IS NULL
 	WHERE bs.beschreibungdessondereigentums IS NOT NULL AND bs.endet IS NULL;
 
+DELETE FROM bestand;
 INSERT INTO bestand(bestdnr,gbbz,gbblnr,anteil,auftlnr,bestfl,ff_entst,ff_stand,pz)
 	SELECT
 		to_char(alkis_toint(land),'fm00') || to_char(alkis_toint(bezirk),'fm0000') || '-' || trim(buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
@@ -224,6 +232,7 @@ INSERT INTO bestand(bestdnr,gbbz,gbblnr,anteil,auftlnr,bestfl,ff_entst,ff_stand,
 SELECT alkis_dropobject('eigner_pk_seq');
 CREATE SEQUENCE eigner_pk_seq;
 
+DELETE FROM eigner;
 INSERT INTO eigner(bestdnr,pk,ab,namensnr,ea,antverh,name,name1,name2,name3,name4,name5,name6,name7,name8,anrede,vorname,nachname,namensteile,ak_grade,geb_name,geb_datum,str_hnr,plz_pf,postfach,plz,ort,land,ff_entst,ff_stand)
 	SELECT
 		to_char(alkis_toint(bb.land),'fm00') || to_char(alkis_toint(bb.bezirk),'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
@@ -292,6 +301,7 @@ UPDATE str_shl SET strname=trim(regexp_replace(strname,' H$','')) WHERE strshl L
 --
 --
 
+DELETE FROM eign_shl;
 INSERT INTO eign_shl(b,eignerart)
 	SELECT
 		k AS b,
@@ -300,8 +310,10 @@ INSERT INTO eign_shl(b,eignerart)
 	WHERE element='ax_buchungsstelle'
 	  AND bezeichnung='buchungsart';
 
+DELETE FROM fortf;
 INSERT INTO fortf(ffnr,beschreibung) VALUES (1, 'Aus ALKIS übernommen: '||to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"'));
 
+DELETE FROM fs;
 INSERT INTO fs(fs_key,fs_obj,alb_key)
   SELECT ogc_fid,gml_id,alkis_flsnr(ax_flurstueck) FROM ax_flurstueck WHERE endet IS NULL;
 
@@ -333,6 +345,7 @@ SELECT "Buchdaten","Anzahl" FROM (
   SELECT 5, 'Flurstücke ohne Eignerart', count(*) FROM flurst WHERE NOT EXISTS (SELECT * FROM eignerart WHERE eignerart.flsnr=flurst.flsnr)
 ) AS stat ORDER BY o;
 
+DELETE FROM v_schutzgebietnachwasserrecht;
 INSERT INTO v_schutzgebietnachwasserrecht
     SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
     FROM ax_schutzgebietnachwasserrecht s
@@ -341,6 +354,7 @@ INSERT INTO v_schutzgebietnachwasserrecht
 CREATE TEMP SEQUENCE a;
 UPDATE v_schutzgebietnachwasserrecht SET ogc_fid=nextval('a');
 
+DELETE FROM v_schutzgebietnachnaturumweltoderbodenschutzrecht;
 INSERT INTO v_schutzgebietnachnaturumweltoderbodenschutzrecht
     SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
     FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht s
@@ -350,9 +364,11 @@ DROP SEQUENCE a;
 CREATE TEMP SEQUENCE a;
 UPDATE v_schutzgebietnachwasserrecht SET ogc_fid=nextval('a');
 
+DELETE FROM kls_shl;
 INSERT INTO kls_shl(klf,klf_text)
   SELECT klassifizierung,name FROM ax_klassifizierungsschluessel;
 
+DELETE FROM nutz_shl;
 INSERT INTO nutz_shl(nutzshl,nutzung)
   SELECT nutzung,name FROM ax_tatsaechlichenutzungsschluessel;
 
@@ -362,6 +378,7 @@ SELECT 'Bestimme Flurstücksklassifizierungen...';
 SELECT alkis_dropobject('klas_3x_pk_seq');
 CREATE SEQUENCE klas_3x_pk_seq;
 
+DELETE FROM klas_3x;
 INSERT INTO klas_3x(flsnr,pk,klf,wertz1,wertz2,gemfl,fl,ff_entst,ff_stand)
   SELECT
     alkis_flsnr(f) AS flsnr,
@@ -384,6 +401,7 @@ SELECT 'Bestimme Flurstücksnutzungen...';
 SELECT alkis_dropobject('nutz_shl_pk_seq');
 CREATE SEQUENCE nutz_shl_pk_seq;
 
+DELETE FROM nutz_21;
 INSERT INTO nutz_21(flsnr,pk,nutzsl,gemfl,fl,ff_entst,ff_stand)
   SELECT
     alkis_flsnr(f) AS flsnr,
@@ -404,6 +422,7 @@ SELECT 'Bestimme ausführende Stellen für Flurstücke...';
 SELECT alkis_dropobject('ausfst_pk_seq');
 CREATE SEQUENCE ausfst_pk_seq;
 
+DELETE FROM ausfst;
 INSERT INTO ausfst(flsnr,pk,ausf_st,verfnr,verfshl,ff_entst,ff_stand)
   SELECT
     alkis_flsnr(f) AS flsnr,
@@ -418,6 +437,7 @@ INSERT INTO ausfst(flsnr,pk,ausf_st,verfnr,verfshl,ff_entst,ff_stand)
   WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,s.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||s.name||':'||s.gml_id))::int>0
   GROUP BY alkis_flsnr(f), s.ausfuehrendestelle;
 
+DELETE FROM afst_shl;
 INSERT INTO afst_shl(ausf_st,afst_txt)
   SELECT
     to_char(alkis_toint(d.land),'fm00') || d.stelle,
