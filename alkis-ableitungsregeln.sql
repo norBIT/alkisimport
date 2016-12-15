@@ -5863,7 +5863,7 @@ FROM (
 			WHEN bewuchs=1050          THEN '3470'
 			WHEN bewuchs=1260          THEN '3601'
 			WHEN bewuchs=1400          THEN '3603'
-			WHEN bewuchs IN(1500,1510) THEN '3613'
+			WHEN bewuchs IN(1500,1510) THEN '3413'
 			WHEN bewuchs=1600          THEN '3605'
 			WHEN bewuchs=1700          THEN '3607'
 			WHEN bewuchs=1800          THEN '3609'
