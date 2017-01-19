@@ -135,11 +135,11 @@ S1=0
 
 case "$GDAL_VERSION" in
 "GDAL 2."*)
-	CONVERT_TO_LINEAR=" -nlt CONVERT_TO_LINEAR"
-	opt="$opt$CONVERT_TO_LINEAR"
+	GDAL2_OPTS=" -nlt CONVERT_TO_LINEAR -ds_transaction"
+	opt="$opt$GDAL2_OPTS"
 	;;
 *)
-	CONVERT_TO_LINEAR=""
+	GDAL2_OPTS=""
 	;;
 esac
 
@@ -404,7 +404,7 @@ EOF
 		if [ "$DRIVER" = OCI ]; then
 			opt="$opt -relaxedFieldNameMatch"
 		fi
-		opt="$opt$CONVERT_TO_LINEAR"
+		opt="$opt$GDAL2OPTS"
 		continue
 		;;
 

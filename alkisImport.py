@@ -692,7 +692,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 				self.log(u"GDAL-Version nicht gefunden")
 				break
 
-			convertToLinear = int(m.group(1)) > 1
+			gdal2 = int(m.group(1)) > 1
 
 			self.psql = which("psql")
 			if not self.psql:
@@ -923,8 +923,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 					args.extend( ["--config", "PG_USE_COPY", "YES" if self.cbxUseCopy.isChecked() else "NO" ] )
 
-					if convertToLinear:
-						args.extend( ["-nlt", "CONVERT_TO_LINEAR" ] )
+					if gdal2:
+						args.extend( ["-nlt", "CONVERT_TO_LINEAR", "-ds_transaction"] )
 
 					args.append(src)
 
