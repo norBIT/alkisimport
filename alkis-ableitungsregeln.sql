@@ -5200,7 +5200,7 @@ FROM (
 	SELECT
 		o.gml_id,
 		o.wkb_geometry AS line,
-		generate_series( 0, (st_length(wkb_geometry)*1000.0)::int,
+		generate_series( 0, trunc(st_length(wkb_geometry)*1000.0)::int,
 			CASE
 			WHEN bahnkategorie IN (2100,2200,2300,2400,2600) THEN 16000
 			WHEN bahnkategorie=2500                          THEN 20000
@@ -5284,7 +5284,7 @@ FROM (
 	SELECT
 		o.gml_id,
 		o.wkb_geometry AS line,
-		generate_series(0,(st_length(wkb_geometry)*1000.0)::int,
+		generate_series(0,trunc(st_length(wkb_geometry)*1000.0)::int,
 			CASE
 			WHEN bahnkategorie IN (1201,1300,1302)           THEN 16000
 			WHEN bahnkategorie IN (1301)                     THEN 8000
@@ -5757,7 +5757,7 @@ FROM (
 		gml_id,
 		signaturnummer,
 		line,
-		generate_series(einzug,(st_length(line)*1000)::int,abstand)/100.0/st_length(line) AS offset,
+		generate_series(einzug,trunc(st_length(line)*1000.0)::int,abstand)/100.0/st_length(line) AS offset,
 		modell
 	FROM (
 		SELECT
@@ -6514,7 +6514,7 @@ FROM (
 	SELECT
 		o.gml_id,
 		o.wkb_geometry AS line,
-		generate_series(125,(st_length(wkb_geometry)*1000.0-125)::int,250) / 1000.0 / st_length(wkb_geometry) AS offset,
+		generate_series(125,trunc(st_length(wkb_geometry)*1000.0-125)::int,250) / 1000.0 / st_length(wkb_geometry) AS offset,
 		'KS_1003' AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ks_einrichtunginoeffentlichenbereichen o
@@ -6624,7 +6624,7 @@ FROM (
 	SELECT
 		o.gml_id,
 		o.wkb_geometry AS line,
-		generate_series(1000, (st_length(wkb_geometry)*1000.0)::int, 2000) / 1000.0 / st_length(wkb_geometry) AS offset,
+		generate_series(1000, trunc(st_length(wkb_geometry)*1000.0)::int, 2000) / 1000.0 / st_length(wkb_geometry) AS offset,
 		0.5*pi() AS winkel,
 		'KS_1026' AS  signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
@@ -6634,7 +6634,7 @@ FROM (
 	SELECT
 		o.gml_id,
 		o.wkb_geometry AS line,
-		generate_series(2000, (st_length(wkb_geometry)*1000.0)::int, 2000) / 1000.0 / st_length(wkb_geometry) AS offset,
+		generate_series(2000, trunc(st_length(wkb_geometry)*1000.0)::int, 2000) / 1000.0 / st_length(wkb_geometry) AS offset,
 		1.5*pi() AS winkel,
 		'KS_1026' AS  signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
@@ -6956,7 +6956,7 @@ FROM (
 		WHEN art IN ('2011','2013') THEN alkis_safe_offsetcurve(o.line, 0.34,''::text)
 		ELSE o.line
 		END AS line,
-		generate_series( 3650, (st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS offset,
+		generate_series( 3650, trunc(st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS offset,
 		modell
 	FROM (
 		SELECT
@@ -6987,7 +6987,7 @@ FROM (
 		WHEN art='2002' THEN alkis_safe_offsetcurve(o.line, 0.17,''::text)
 		ELSE line
 		END AS line,
-		generate_series( 5950, (st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS offset,
+		generate_series( 5950, trunc(st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS offset,
 		modell
 	FROM (
 		SELECT
@@ -7018,7 +7018,7 @@ FROM (
 		WHEN art='2002' THEN alkis_safe_offsetcurve(o.line, 0.17,''::text)
 		ELSE line
 		END AS line,
-		generate_series( 2900, (st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS offset,
+		generate_series( 2900, trunc(st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS offset,
 		modell
 	FROM (
 		SELECT
@@ -7142,7 +7142,7 @@ FROM (
 		gml_id,
 		signaturnummer,
 		line,
-		generate_series(einzug,(st_length(line)*1000)::int,abstand) / 1000.0 / st_length(line) AS offset,
+		generate_series(einzug,trunc(st_length(line)*1000)::int,abstand) / 1000.0 / st_length(line) AS offset,
 		modell
 	FROM (
 		SELECT
