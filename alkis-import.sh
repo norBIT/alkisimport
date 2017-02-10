@@ -404,7 +404,7 @@ EOF
 		if [ "$DRIVER" = OCI ]; then
 			opt="$opt -relaxedFieldNameMatch"
 		fi
-		opt="$opt$GDAL2OPTS"
+		opt="$opt$GDAL2_OPTS"
 		continue
 		;;
 
