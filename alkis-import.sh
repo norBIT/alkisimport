@@ -287,7 +287,7 @@ EOF
 		;;
 
 	"pgverdraengen "*)
-		PGVERDRAENGEN=${src#pgverdraenen }
+		PGVERDRAENGEN=${src#pgverdraengen }
 		case "$PGVERDRAENGEN" in
 		an|on|true|an)
 			PGVERDRAENGEN=true
