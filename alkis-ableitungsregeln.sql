@@ -3832,7 +3832,7 @@ SELECT
 	3523 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
 FROM ax_transportanlage
-WHERE bauwerksfunktion=1103 AND lagezurerdoberflaeche IS NULL AND endet IS NULL;
+WHERE bauwerksfunktion=1103 AND geometrytype(wkb_geometry) IN ('POINT','MULTIPOINT') AND lagezurerdoberflaeche IS NULL AND endet IS NULL;
 
 -- Transportanlage, Anschrieb Produkt
 -- TODO: welche Text sind NULL?
