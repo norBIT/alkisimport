@@ -34,6 +34,7 @@ package:
 	cp alkis-import.cmd osgeo4w/bin
 	cp postinstall.bat osgeo4w/etc/postinstall/$(PKG).cmd
 	cp preremove.bat osgeo4w/etc/preremove/$(PKG).cmd
+	perl -i -pe 's/#VERSION#/$(VERSION)-$(P)/' osgeo4w/apps/$(PKG)/about.ui osgeo4w/apps/$(PKG)/alkisImportDlg.ui
 	tar -C osgeo4w --remove-files -cjf osgeo4w/$(PKG)-$(VERSION)-$(P).tar.bz2 apps bin etc
 
 osgeo4w: package

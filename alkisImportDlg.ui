@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ALKIS-Import</string>
+   <string>ALKIS-Import #VERSION#</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="13" column="0" colspan="2">
