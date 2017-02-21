@@ -1006,12 +1006,9 @@ SELECT
 	coalesce(tx.advstandardmodell||tx.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_lagebezeichnungmithausnummer o
 JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon AND tx.endet IS NULL AND tx.art='HNR'
-WHERE o.endet IS NULL AND
-  (
-  EXISTS (SELECT * FROM ax_turm     t WHERE o.gml_id=t.zeigtauf AND t.endet IS NULL)
-  OR
-  EXISTS (SELECT * FROM ax_gebaeude g WHERE ARRAY[o.gml_id] <@ g.zeigtauf AND g.endet IS NULL)
-  );
+LEFT OUTER JOIN ax_turm t ON o.gml_id=t.zeigtauf AND t.endet IS NULL
+LEFT OUTER JOIN ax_gebaeude g ON ARRAY[o.gml_id] <@ g.zeigtauf AND g.endet IS NULL
+WHERE o.endet IS NULL AND (t.gml_id IS NOT NULL OR g.gml_id IS NOT NULL);
 
 -- Sonstige Hausnummern ohne art (kommen z.B. in DEHE vor)
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
