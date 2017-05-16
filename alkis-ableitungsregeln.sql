@@ -6,7 +6,7 @@
  * Author:   Jürgen E. Fischer jef@norbit.de
  *
  ***************************************************************************
- * Copyright (c) 2013-2014 Juergen E. Fischer (jef@norbit.de)              *
+ * Copyright (c) 2013-2017 Juergen E. Fischer (jef@norbit.de)              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -209,19 +209,7 @@ CREATE TABLE ax_besondereflurstuecksgrenze2 (
 SELECT AddGeometryColumn('ax_besondereflurstuecksgrenze2','wkb_geometry',:alkis_epsg,'LINESTRING',2);
 
 CREATE INDEX ax_besondereflurstuecksgrenze2_geom_idx   ON ax_besondereflurstuecksgrenze2 USING gist (wkb_geometry);
-CREATE UNIQUE INDEX ax_besondereflurstuecksgrenze2_gml ON ax_besondereflurstuecksgrenze2 USING btree (gml_id);
 CREATE INDEX ax_besondereflurstuecksgrenze2_adfg       ON ax_besondereflurstuecksgrenze2 USING gin (artderflurstuecksgrenze);
-
-INSERT INTO ax_besondereflurstuecksgrenze2(ogc_fid,gml_id,modell,artderflurstuecksgrenze,wkb_geometry)
-	SELECT
-		min(ogc_fid),
-		min(gml_id),
-		ARRAY(SELECT DISTINCT unnest(array_accum(advstandardmodell||sonstigesmodell)) AS modell ORDER BY modell) AS modell,
-		ARRAY(SELECT DISTINCT unnest(array_accum(artderflurstuecksgrenze)) AS artderflurstuecksgrenze ORDER BY artderflurstuecksgrenze) AS artderflurstuecksgrenze,
-		wkb_geometry
-	FROM ax_besondereflurstuecksgrenze
-	WHERE endet IS NULL
-	GROUP BY wkb_geometry,st_asbinary(wkb_geometry);
 
 CREATE OR REPLACE FUNCTION alkis_besondereflurstuecksgrenze(verdraengen BOOLEAN) RETURNS varchar AS $$
 DECLARE
@@ -639,6 +627,18 @@ CREATE INDEX alkis_joinlines_line ON alkis_joinlines USING GIST (line);
 CREATE INDEX alkis_joinlines_visited ON alkis_joinlines(visited);
 
 SELECT 'Politische Grenze werden verschmolzen';
+
+INSERT INTO ax_besondereflurstuecksgrenze2(ogc_fid,gml_id,modell,artderflurstuecksgrenze,wkb_geometry)
+	SELECT
+		min(ogc_fid),
+		min(gml_id),
+		ARRAY(SELECT DISTINCT unnest(array_accum(advstandardmodell||sonstigesmodell)) AS modell ORDER BY modell) AS modell,
+		ARRAY(SELECT DISTINCT unnest(array_accum(artderflurstuecksgrenze)) AS artderflurstuecksgrenze ORDER BY artderflurstuecksgrenze) AS artderflurstuecksgrenze,
+		wkb_geometry
+	FROM ax_besondereflurstuecksgrenze
+	WHERE endet IS NULL
+	GROUP BY wkb_geometry,st_asbinary(wkb_geometry);
+
 SELECT alkis_besondereflurstuecksgrenze(:alkis_pgverdraengen);
 
 SELECT alkis_dropobject('alkis_joinlines');
@@ -692,14 +692,12 @@ UPDATE po_points
 		WHEN '3024' THEN '3025'
 		ELSE '3021'
 		END
+	FROM ax_flurstueck f
 	WHERE layer='ax_grenzpunkt'
-	  AND EXISTS (
-		SELECT *
-		FROM ax_flurstueck f
-		WHERE f.endet IS NULL
-		  AND f.abweichenderrechtszustand='true'
-		  AND po_points.point && f.wkb_geometry
-		  AND st_intersects(po_points.point,f.wkb_geometry));
+	  AND f.endet IS NULL
+	  AND f.abweichenderrechtszustand='true'
+	  AND po_points.point && f.wkb_geometry
+	  AND st_intersects(po_points.point,f.wkb_geometry);
 
 -- Grenzpunktnummern
 -- TODO: 4071/2 PNR 3001
@@ -974,6 +972,13 @@ FROM ax_lagebezeichnungmithausnummer o
 JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art='Ort'
 WHERE coalesce(schriftinhalt,'')<>'' AND o.endet IS NULL;
 
+CREATE TABLE alkis_gebaeudeoderturm_zeigtauf_hausnummer AS
+	SELECT zeigtauf FROM ax_turm WHERE zeigtauf IS NOT NULL AND endet IS NULL
+	UNION
+	SELECT unnest(zeigtauf) FROM ax_gebaeude WHERE zeigtauf IS NOT NULL AND endet IS NULL;
+
+CREATE UNIQUE INDEX alkis_gebaeudeoderturm_zeigtauf_hausnummer_idx ON alkis_gebaeudeoderturm_zeigtauf_hausnummer(zeigtauf);
+
 -- mit Hausnummer (bezieht sich auf Gebäude, Turm oder Flurstück)
 -- TODO: 4070 PNR 3002
 SELECT 'Gebäudehausnummern...';
@@ -990,9 +995,8 @@ SELECT
 FROM ax_lagebezeichnungmithausnummer o
 JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon AND tx.endet IS NULL AND tx.art='HNR'
 JOIN ax_flurstueck f ON ARRAY[o.gml_id] <@ f.weistauf AND f.endet IS NULL
-WHERE o.endet IS NULL
-  AND NOT EXISTS (SELECT * FROM ax_turm     t WHERE o.gml_id=t.zeigtauf AND t.endet IS NULL)
-  AND NOT EXISTS (SELECT * FROM ax_gebaeude g WHERE ARRAY[o.gml_id] <@ g.zeigtauf AND g.endet IS NULL);
+LEFT OUTER JOIN alkis_gebaeudeoderturm_zeigtauf_hausnummer gt ON o.gml_id=gt.zeigtauf
+WHERE o.endet IS NULL AND gt.zeigtauf IS NULL;
 
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
@@ -1006,9 +1010,10 @@ SELECT
 	coalesce(tx.advstandardmodell||tx.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_lagebezeichnungmithausnummer o
 JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon AND tx.endet IS NULL AND tx.art='HNR'
-LEFT OUTER JOIN ax_turm t ON o.gml_id=t.zeigtauf AND t.endet IS NULL
-LEFT OUTER JOIN ax_gebaeude g ON ARRAY[o.gml_id] <@ g.zeigtauf AND g.endet IS NULL
-WHERE o.endet IS NULL AND (t.gml_id IS NOT NULL OR g.gml_id IS NOT NULL);
+LEFT OUTER JOIN alkis_gebaeudeoderturm_zeigtauf_hausnummer gt ON o.gml_id=gt.zeigtauf
+WHERE o.endet IS NULL AND gt.zeigtauf IS NOT NULL;
+
+DROP TABLE alkis_gebaeudeoderturm_zeigtauf_hausnummer;
 
 -- Sonstige Hausnummern ohne art (kommen z.B. in DEHE vor)
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
@@ -8015,8 +8020,9 @@ ORDER BY "#Objekte" DESC;
 
 -- 'Randsignatur' für Flächen mit Umrandung eintragen
 UPDATE po_polygons
-	SET sn_randlinie='rn'||signaturnummer
-	WHERE EXISTS (SELECT * FROM alkis_flaechen WHERE alkis_flaechen.signaturnummer=po_polygons.signaturnummer AND NOT alkis_flaechen.randlinie IS NULL);
+	SET sn_randlinie='rn'||po_polygons.signaturnummer
+	FROM alkis_flaechen
+	WHERE alkis_flaechen.signaturnummer=po_polygons.signaturnummer AND NOT alkis_flaechen.randlinie IS NULL;
 
 -- Winkel in Grad berechnen
 UPDATE po_points SET drehwinkel_grad=degrees(drehwinkel);
@@ -8085,17 +8091,19 @@ UPDATE po_labels
 	SET
 		layer='ax_flurstueck_nummer_rpnoart',
 		point=st_translate(point,0,3)
-	WHERE gml_id LIKE 'DERP%'
+	FROM ap_pto t
+	WHERE po_labels.gml_id LIKE 'DERP%'
 		AND layer='ax_flurstueck_nummer'
-		AND EXISTS (SELECT * FROM ap_pto t WHERE ARRAY[po_labels.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art IS NULL);
+		AND ARRAY[po_labels.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art IS NULL;
 
 UPDATE po_lines
 	SET
 		layer='ax_flurstueck_nummer_rpnoart',
 		line=st_translate(line,0,3)
-	WHERE gml_id LIKE 'DERP%'
+	FROM  ap_pto t
+	WHERE po_lines.gml_id LIKE 'DERP%'
 	  AND layer='ax_flurstueck_nummer'
-	  AND EXISTS (SELECT * FROM ap_pto t WHERE ARRAY[po_lines.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art IS NULL);
+	  AND ARRAY[po_lines.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art IS NULL;
 
 SELECT 'Lösche nicht darzustellende Signaturen...';
 
