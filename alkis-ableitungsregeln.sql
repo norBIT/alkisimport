@@ -659,6 +659,7 @@ SELECT
 	CASE abmarkung_marke
 	WHEN 9600 THEN 3022
 	WHEN 9998 THEN 3024
+	WHEN 1700 THEN 3024
 	ELSE 3020
 	END AS signaturnummer,
 	o.advstandardmodell||o.sonstigesmodell||p.advstandardmodell||p.sonstigesmodell AS modell
