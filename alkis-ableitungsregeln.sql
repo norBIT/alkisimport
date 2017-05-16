@@ -6422,48 +6422,148 @@ FROM (
 	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
 ) AS n WHERE NOT text IS NULL;
 
-/*
 --
 -- Böschungslinie, Kliff (61001)
--- TODO: geometrielos?
 --
 
 SELECT 'Böschungen und Kliffe werden verarbeitet.';
 
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
-SELECT
-	gml_id,
-	'Topographie' AS thema,
-	'ax_boeschungsliniekliff' AS layer,
-	st_multi(wkb_geometry) AS line,
-	2531 AS signaturnummer,
-	advstandardmodell||sonstigesmodell
-FROM ax_boeschungsliniekliff
-WHERE endet IS NULL;
+CREATE OR REPLACE FUNCTION alkis_boeschung(srid INTEGER) RETURNS varchar AS $$
+DECLARE
+	ok GEOMETRY;
+	uk GEOMETRY;
+	sk GEOMETRY;
+	maxdistance DOUBLE PRECISION;
+	p0 GEOMETRY;
+	p1 GEOMETRY;
+	i INTEGER;
+	a0 DOUBLE PRECISION;
+	a1 DOUBLE PRECISION;
+	dx DOUBLE PRECISION;
+	dy DOUBLE PRECISION;
+	s INTEGER;
+	l DOUBLE PRECISION;
+	ol DOUBLE PRECISION;
+	o DOUBLE PRECISION;
+	int GEOMETRY;
+	b GEOMETRY;
+	b1 GEOMETRY[];
+	b1l DOUBLE PRECISION[];
+	r RECORD;
+BEGIN
+	DELETE FROM po_lines WHERE layer='ax_boeschungkliff';
 
--- Namen
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
-SELECT
-	gml_id,
-	'Topographie' AS thema,
-	'ax_boeschungsliniekliff' AS layer,
-	point,
-	text,
-	signaturnummer,
-	modell
-FROM (
-	SELECT
-		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
-		coalesce(t.schriftinhalt,name) AS text,
-		coalesce(t.signaturnummer,'4118') AS signaturnummer,
-		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-	FROM ax_boeschungsliniekliff o
-	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
-	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
-) AS n WHERE NOT text IS NULL;
-*/
+	FOR r IN SELECT gml_id, advstandardmodell||sonstigesmodell AS modell FROM ax_boeschungkliff WHERE endet IS NULL LOOP
+		-- RAISE NOTICE 'gml_id:%', r.gml_id;
 
---
+		SELECT wkb_geometry INTO ok FROM ax_gelaendekante WHERE istteilvon=r.gml_id AND artdergelaendekante=1220 AND endet IS NULL;
+		IF ok IS NULL THEN
+			CONTINUE;
+		END IF;
+
+		SELECT wkb_geometry INTO uk FROM ax_gelaendekante WHERE istteilvon=r.gml_id AND artdergelaendekante=1230 AND endet IS NULL;
+		IF uk IS NULL THEN
+			RAISE NOTICE '%: Keine Unterkante', r.gml_id;
+			CONTINUE;
+		END IF;
+
+		SELECT st_union(st_union(wkb_geometry), uk) INTO sk FROM ax_gelaendekante WHERE istteilvon=r.gml_id AND artdergelaendekante=1240 AND endet IS NULL;
+		SELECT st_maxdistance(uk, ok)*1.1 INTO maxdistance;
+
+		p0 := st_pointn(ok, 1);
+
+		p1 := st_pointn(ok, 2);
+		a0 := st_azimuth(p0, p1);
+
+		p1 := st_pointn(uk, 1);
+		a1 := st_azimuth(p0, p1);
+
+		s := CASE WHEN a1 - a0 > pi() THEN -1 ELSE 1 END;
+
+		o := 0.0;
+		ol := st_length(ok);
+		WHILE o < ol-3 LOOP
+			-- RAISE NOTICE '1 %: %', r.gml_id, o;
+
+			p0 := st_lineinterpolatepoint(ok, o/ol);
+			p1 := st_lineinterpolatepoint(ok, (o+0.001)/ol);
+			l := st_distance(p0, p1);
+
+			dx := (st_x(p1) - st_x(p0)) / l;
+			dy := (st_y(p1) - st_y(p0)) / l;
+
+			b := st_makeline(
+				p0,
+				st_setsrid(
+					st_point(
+						st_x(p0) + s * dy * maxdistance,
+						st_y(p0) - s * dx * maxdistance
+					),
+					srid
+				)
+			);
+
+			int := st_intersection(b, sk);
+
+			IF int IS NOT NULL THEN
+				IF geometrytype(int) = 'POINT' THEN
+					b := st_makeline(p0, int);
+				ELSE
+					b := (SELECT st_makeline(p0, (SELECT * FROM (SELECT (st_dump(int)).geom AS pi) AS pi ORDER BY st_distance(p0, pi) LIMIT 1)));
+				END IF;
+
+				b1 := array_append(b1, b);
+				b1l := array_append(b1l, st_length(b));
+			END IF;
+
+			o := o + 6.0;
+		END LOOP;
+
+		i := 2;
+		o := 3.0;
+		WHILE o < ol-3 LOOP
+			p0 := st_lineinterpolatepoint(ok, o/ol);
+			p1 := st_lineinterpolatepoint(ok, (o+0.001)/ol);
+			l := st_distance(p0, p1);
+
+			dx := (st_x(p1) - st_x(p0)) / l;
+			dy := (st_y(p1) - st_y(p0)) / l;
+
+			l := (b1l[i-1]+b1l[i])/4;
+
+			b1 := array_append(
+				b1,
+				st_makeline(
+					p0,
+					st_setsrid(
+						st_point(
+							st_x(p0) + s * dy * l,
+							st_y(p0) - s * dx * l
+						),
+						srid
+					)
+				)
+			);
+
+			o := o + 6.0;
+			i := i + 1;
+		END LOOP;
+
+		INSERT INTO po_lines(
+			gml_id, thema, layer, line, signaturnummer, modell
+		) VALUES (
+			r.gml_id, 'Topographie', 'ax_boeschungkliff', st_multi(st_collect(b1)), '2531', r.modell
+		);
+
+		b1l := ARRAY[]::double precision[];
+		b1 := ARRAY[]::GEOMETRY[];
+	END LOOP;
+
+	RETURN 'Böschungen berechnet.';
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT alkis_boeschung(:alkis_epsg);
 
 --
 -- Einrichtungen im öffentlichen Bereichen (59102; NRW)
@@ -7370,11 +7470,16 @@ SELECT
 	'ax_gelaendekante' AS layer,
 	st_multi(wkb_geometry) AS line,
 	CASE
-	WHEN art IN (1220,1230,1240) THEN 2531
-	WHEN art=1210 THEN 2622
+	WHEN artdergelaendekante IN (1220,1230) AND gml_id LIKE 'DENW%' THEN
+		CASE identifikation
+		WHEN 5400 THEN 2531
+		WHEN 5410 THEN 8223
+		END
+	WHEN artdergelaendekante IN (1220,1230,1240) THEN 2531
+	WHEN artdergelaendekante=1210 THEN 2622
 	END AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_gelaendekante WHERE art IN (1210,1220,1230,1240) AND endet IS NULL;
+FROM ax_gelaendekante WHERE artdergelaendekante IN (1210,1220,1230,1240) AND endet IS NULL;
 
 
 --
