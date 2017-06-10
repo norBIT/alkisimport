@@ -31,7 +31,7 @@ export OGR_ARC_MINLENGTH=0.1
 export OGR_SKIP=GML,SEGY
 
 # Headerkennungen die NAS-Daten identifizieren
-export NAS_INDICATOR="NAS-Operationen.xsd;NAS-Operationen_optional.xsd;AAA-Fachschema.xsd;ASDKOM-NAS-Operationen_1_1_NRW.xsd;aaa.xsd"
+export NAS_INDICATOR="NAS-Operationen.xsd;NAS-Operationen_optional.xsd;AAA-Fachschema.xsd;ASDKOM-NAS-Operationen_1_1_NRW.xsd;aaa.xsd;aaa-suite"
 
 export EPSG=25832
 export CRS="-a_srs EPSG:$EPSG"
