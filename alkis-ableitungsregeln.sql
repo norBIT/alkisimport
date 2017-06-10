@@ -656,9 +656,10 @@ SELECT
 	'ax_grenzpunkt' AS layer,
 	st_multi(o.wkb_geometry) AS point,
 	0 AS drehwinkel,
-	CASE abmarkung_marke
-	WHEN 9600 THEN 3022
-	WHEN 9998 THEN 3024
+	CASE
+	WHEN abmarkung_marke=1700 AND p.gml_id LIKE 'DENW%' THEN 3024
+	WHEN abmarkung_marke=9600 THEN 3022
+	WHEN abmarkung_marke=9998 THEN 3024
 	ELSE 3020
 	END AS signaturnummer,
 	o.advstandardmodell||o.sonstigesmodell||p.advstandardmodell||p.sonstigesmodell AS modell
