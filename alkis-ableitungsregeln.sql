@@ -8137,6 +8137,9 @@ UPDATE po_points SET drehwinkel_grad=degrees(drehwinkel);
 UPDATE po_labels SET skalierung=1 WHERE skalierung IS NULL;
 UPDATE po_labels SET drehwinkel_grad=degrees(drehwinkel);
 
+-- Zeilenumbrüche austauschen
+UPDATE po_labels SET text=replace(text,E'\\n',E'\n') WHERE text LIKE '%\\n%';
+
 -- Pfeilspitzen
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 	SELECT
