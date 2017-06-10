@@ -6,7 +6,7 @@
 # Author:   Jürgen E. Fischer <jef@norbit.de>
 #
 ################################################################################
-# Copyright (c) 2012-2014, Jürgen E. Fischer <jef@norbit.de>
+# Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -128,6 +128,7 @@ opt=
 log=
 gdb=
 preprocessed=0
+sfre=
 
 T0=
 
@@ -398,6 +399,11 @@ EOF
 		continue
 		;;
 
+	"skipfailuresregex "*)
+		export sfre=${src#skipfailuresregex }
+		continue
+		;;
+
 	options|"options"*)
 		opt=${src#options}
 		opt=${opt# }
@@ -549,13 +555,18 @@ EOF
 
 	echo "IMPORT $(bdate): $dst $(memunits $s)"
 
-	echo RUNNING: ogr2ogr -f $DRIVER $opt -update -append "$DST" $CRS "$dst"
+	sf_opt=
+	if [ -n "$sfre" ] && eval [[ "$src" =~ "$sfre" ]]; then
+		sf_opt=-skipfailures
+	fi
+
+	echo RUNNING: ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst"
 	t0=$(bdate +%s)
 	if [ -z "$T0" ]; then T0=$t0; fi
 	if [ -n "$GDB" ]; then
-		gdb --args ogr2ogr -f $DRIVER $opt -update -append "$DST" $CRS "$dst" </dev/tty >/dev/tty 2>&1
+		gdb --args ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst" </dev/tty >/dev/tty 2>&1
 	else
-		ogr2ogr -f $DRIVER $opt -update -append "$DST" $CRS "$dst"
+		ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst"
 	fi
 	t1=$(bdate +%s)
 
