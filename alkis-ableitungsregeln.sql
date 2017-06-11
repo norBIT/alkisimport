@@ -1166,7 +1166,7 @@ INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	o.gml_id,
 	'Gebäude' AS thema,
-	'ax_gebaeude' AS layer,
+	'ax_gebaeude_funktion' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(d.signaturnummer,p.signaturnummer,o.signaturnummer) AS signaturnummer,
@@ -1218,7 +1218,7 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,ho
 SELECT
 	gml_id,
 	'Gebäude' AS thema,
-	'ax_gebaeude' AS layer,
+	'ax_gebaeude_funktion' AS layer,
 	point,
 	text,
 	signaturnummer,
@@ -1275,7 +1275,7 @@ INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	o.gml_id,
 	'Gebäude' AS thema,
-	'ax_gebaeude' AS layer,
+	'ax_gebaeude_funktion' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	p.drehwinkel,
 	coalesce(d.signaturnummer,p.signaturnummer,o.signaturnummer) AS signaturnummer,
@@ -1327,7 +1327,7 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,ho
 SELECT
 	o.gml_id,
 	'Gebäude' AS thema,
-	'ax_gebaeude' AS layer,
+	'ax_gebaeude_funktion' AS layer,
 	point,
 	text,
 	signaturnummer,
@@ -1389,7 +1389,7 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,ho
 SELECT
 	o.gml_id,
 	'Gebäude' AS thema,
-	'ax_gebaeude' AS layer,
+	'ax_gebaeude_geschosse' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	coalesce(
 		trim(to_char(o.anzahlderoberirdischengeschosse,'RN'))||' / -'||trim(to_char(o.anzahlderunterirdischengeschosse,'RN')),
@@ -1408,7 +1408,7 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,ho
 SELECT
 	o.gml_id,
 	'Gebäude' AS thema,
-	'ax_gebaeude' AS layer,
+	'ax_gebaeude_dachform' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	CASE dachform
 	WHEN 1000 THEN 'F'
@@ -1439,7 +1439,7 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,ho
 SELECT
 	o.gml_id,
 	'Gebäude' AS thema,
-	'ax_gebaeude' AS layer,
+	'ax_gebaeude_zustand' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	coalesce(
 		t.schriftinhalt,
