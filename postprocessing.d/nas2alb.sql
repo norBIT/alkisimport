@@ -156,7 +156,7 @@ INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,l
 	SELECT
 		alkis_flsnr(f) AS flsnr,
 		to_char(alkis_toint(bb.land),'fm00') || to_char(alkis_toint(bb.bezirk),'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
-		lpad(laufendenummer,4,'0') AS bvnr,
+		lpad(substr(laufendenummer,length(laufendenummer)-3),4,'0') AS bvnr,
 		buchungsart AS b,
 		coalesce(bs.zaehler || '/' || bs.nenner,bs.zaehler::text) AS anteil,
 		laufendenummer AS auftrlnr,
@@ -172,7 +172,7 @@ INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,l
 	SELECT
 		alkis_flsnr(f) AS flsnr,
 		to_char(alkis_toint(bb.land),'fm00') || to_char(alkis_toint(bb.bezirk),'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
-		lpad(bs.laufendenummer,4,'0') AS bvnr,
+		lpad(substr(bs.laufendenummer,length(bs.laufendenummer)-3),4,'0') AS bvnr,
 		bs.buchungsart AS b,
 		coalesce(bs.zaehler || '/' || bs.nenner, bs.zaehler::text) AS anteil,
 		-- bs.nummerimaufteilungsplan AS auftrlnr,
@@ -339,10 +339,10 @@ UPDATE bestand SET bestfl=amtlbestfl::int WHERE amtlbestfl<=2147483647; -- maxin
 
 SELECT "Buchdaten","Anzahl" FROM (
   SELECT 1 AS o, 'Bestände' AS "Buchdaten", count(*) AS "Anzahl" FROM bestand UNION
-  SELECT 2, 'Bestände ohne Eignerart', count(*) FROM bestand WHERE NOT EXISTS (SELECT * FROM eignerart WHERE eignerart.bestdnr=bestand.bestdnr) UNION
-  SELECT 3, 'Bestände ohne Eigner', count(*) FROM bestand WHERE NOT EXISTS (SELECT * FROM eigner WHERE eigner.bestdnr=bestand.bestdnr) UNION
+  SELECT 2, 'Bestände ohne Eigentümerart', count(*) FROM bestand WHERE NOT EXISTS (SELECT * FROM eignerart WHERE eignerart.bestdnr=bestand.bestdnr) UNION
+  SELECT 3, 'Bestände ohne Eigentümer', count(*) FROM bestand WHERE NOT EXISTS (SELECT * FROM eigner WHERE eigner.bestdnr=bestand.bestdnr) UNION
   SELECT 4, 'Flurstücke', count(*) FROM flurst UNION
-  SELECT 5, 'Flurstücke ohne Eignerart', count(*) FROM flurst WHERE NOT EXISTS (SELECT * FROM eignerart WHERE eignerart.flsnr=flurst.flsnr)
+  SELECT 5, 'Flurstücke ohne Eigentümerart', count(*) FROM flurst WHERE NOT EXISTS (SELECT * FROM eignerart WHERE eignerart.flsnr=flurst.flsnr)
 ) AS stat ORDER BY o;
 
 DELETE FROM v_schutzgebietnachwasserrecht;
