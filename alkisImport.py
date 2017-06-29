@@ -487,7 +487,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         return current + lastline
 
     def runProcess(self, args):
-        self.logDb(u"BEFEHL: '{}'".format(u"' '".join(args)))
+        self.logDb(u"BEFEHL: '{}'".format(re.sub(u'password=\S+', u'password=*removed*', u"' '".join(args))))
 
         currout = ""
         currerr = ""

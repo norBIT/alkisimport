@@ -560,7 +560,7 @@ EOF
 		sf_opt=-skipfailures
 	fi
 
-	echo RUNNING: ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst"
+	echo RUNNING: ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst" | sed -Ee 's/password=\S+/password=*removed*/'
 	t0=$(bdate +%s)
 	if [ -z "$T0" ]; then T0=$t0; fi
 	if [ -n "$GDB" ]; then
