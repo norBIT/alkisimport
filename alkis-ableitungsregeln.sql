@@ -6466,6 +6466,11 @@ BEGIN
 
 		-- RAISE NOTICE 'Oberkante:%', st_astext(ok);
 
+		IF geometrytype(ok) <> 'LINESTRING' THEN
+			RAISE NOTICE '%: LINESTRING als Oberkante erwartet: %', r.gml_id, st_astext(ok);
+			CONTINUE;
+		END IF;
+
 		SELECT st_linemerge(st_collect(wkb_geometry)) INTO uk FROM ax_gelaendekante WHERE istteilvon=r.gml_id AND artdergelaendekante=1230 AND endet IS NULL;
 		IF uk IS NULL THEN
 			RAISE NOTICE '%: Keine Unterkante', r.gml_id;
@@ -6479,7 +6484,7 @@ BEGIN
 
 		-- RAISE NOTICE 'Schnittkanten:%', st_astext(sk);
 
-		s := CASE WHEN st_distance( st_offsetcurve(ok, -0.001), uk) > st_distance( st_offsetcurve(ok, 0.001), uk) THEN -1 ELSE 1 END;
+		s := CASE WHEN st_distance( st_offsetcurve(ok, -0.001), uk ) > st_distance( st_offsetcurve(ok, 0.001), uk ) THEN -1 ELSE 1 END;
 
 		o := 0.0;
 		ol := st_length(ok);
@@ -6500,7 +6505,7 @@ BEGIN
 
 			int := st_intersection(b, sk);
 
-			IF int IS NOT NULL THEN
+			IF int IS NOT NULL AND NOT st_isempty(int) THEN
 				IF geometrytype(int) = 'POINT' THEN
 					b := st_makeline(p0, int);
 				ELSE
@@ -6513,6 +6518,49 @@ BEGIN
 
 			o := o + 6.0;
 		END LOOP;
+
+		IF b1 IS NOT NULL AND array_length(b1,1)>1 THEN
+			DECLARE
+				idxs INTEGER[];
+				j INTEGER;
+				k INTEGER;
+				b2 GEOMETRY[];
+			BEGIN
+				SELECT array_agg(g.i) INTO idxs FROM (
+					SELECT g.i FROM (
+						SELECT (g).path[1] AS i,st_length((g).geom) AS l FROM (
+							SELECT st_dump(st_collect(b1)) AS g
+						) AS g
+					) AS g ORDER BY g.l DESC
+				) AS g;
+
+				FOR j IN 1..array_upper(idxs, 1) LOOP
+					i := idxs[j];
+
+					b2 := ARRAY[]::GEOMETRY[];
+					FOR k IN 1..array_upper(b1, 1) LOOP
+						IF k<>i THEN
+							b2 := array_append(b2, b1[k]);
+						END IF;
+					END LOOP;
+
+					b := st_collect(b2);
+					p0 := st_startpoint(b1[i]);
+					int := st_intersection(b1[i], b);
+
+					IF int IS NULL OR st_isempty(int) THEN
+						CONTINUE;
+					ELSIF geometrytype(int) = 'POINT' THEN
+						b := st_makeline(p0, int);
+					ELSE
+						b := (SELECT st_makeline(p0, (SELECT * FROM (SELECT (st_dump(int)).geom AS pi) AS pi ORDER BY st_distance(p0, pi) LIMIT 1)));
+					END IF;
+
+					b1[i] := b;
+					b1l[i] := st_length(b);
+				END LOOP;
+			END;
+		END IF;
 
 		i := 2;
 		o := 3.0;
