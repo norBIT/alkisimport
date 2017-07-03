@@ -997,8 +997,41 @@ BEGIN
 		PERFORM AddGeometryColumn('ks_kommunalerbesitz','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 
 		CREATE INDEX ks_kommunalerbesitz_geom_idx ON ks_vegetationsmerkmal USING gist (wkb_geometry);
+	END IF;
 
-		UPDATE alkis_version SET version=12;
+	IF v<13 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 13';
+
+		BEGIN
+			ALTER TABLE ax_landschaft RENAME TO ax_landschaft_;
+			r := coalesce(r||E'\n','') || 'ax_landschaft umbenannt - INHALT MANUELL MIGRIEREN.';
+
+			ALTER INDEX ax_landschaft_pk RENAME TO ax_landschaft__pk;
+			ALTER INDEX ax_landschaft_geom_idx RENAME TO ax_landschaft__geom_idx;
+			ALTER INDEX ax_landschaft_gml RENAME TO ax_landschaft__gml;
+		EXCEPTION WHEN OTHERS THEN
+			RAISE NOTICE 'Migration auf Version 13 schlug fehlt.';
+		END;
+
+		CREATE TABLE ax_landschaft(
+			ogc_fid                 serial NOT NULL,
+			gml_id                  character(16) NOT NULL,
+			beginnt                 character(20),
+			endet                   character(20),
+			advstandardmodell       varchar[],
+			sonstigesmodell         varchar[],
+			anlass                  varchar[],
+			landschaftstyp          integer,
+			name                    varchar,
+			CONSTRAINT ax_landschaft_pk PRIMARY KEY (ogc_fid)
+		);
+
+		PERFORM AddGeometryColumn('ax_landschaft','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2); -- POINT/LINESTRING
+
+		CREATE INDEX ax_landschaft_geom_idx   ON ax_landschaft USING gist (wkb_geometry);
+		CREATE UNIQUE INDEX ax_landschaft_gml ON ax_landschaft USING btree (gml_id,beginnt);
+
+		UPDATE alkis_version SET version=13;
 
 		r := coalesce(r||E'\n','') || 'ALKIS-Schema migriert';
 	END IF;

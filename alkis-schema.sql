@@ -33,7 +33,7 @@
 SELECT alkis_drop();
 
 CREATE TABLE alkis_version(version integer);
-INSERT INTO alkis_version(version) VALUES (12);
+INSERT INTO alkis_version(version) VALUES (13);
 
 -- BW/BY-Koordinatensystem anlegen
 SELECT alkis_create_bsrs(:alkis_epsg);
@@ -3806,9 +3806,26 @@ CREATE INDEX ax_lagebezeichnungkatalogeintrag_bez  ON ax_lagebezeichnungkataloge
 --** Objektartengruppe: Geographische Gebietseinheiten
 --   ===================================================================
 
-
 -- Objektart: AX_Landschaft Kennung: 74001
 -- "Landschaft" ist hinsichtlich des äußeren Erscheinungsbildes (Bodenformen, Bewuchs, Besiedlung, Bewirtschaftung) ein in bestimmter Weise geprägter Teil der Erdoberfläche.
+
+CREATE TABLE ax_landschaft(
+	ogc_fid			serial NOT NULL,
+	gml_id			character(16) NOT NULL,
+	beginnt			character(20),
+	endet			character(20),
+	advstandardmodell	varchar[],
+	sonstigesmodell		varchar[],
+	anlass			varchar[],
+	landschaftstyp		integer,
+	name			varchar,
+	CONSTRAINT ax_landschaft_pk PRIMARY KEY (ogc_fid)
+);
+
+SELECT AddGeometryColumn('ax_landschaft','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POINT/LINESTRING
+
+CREATE INDEX ax_landschaft_geom_idx   ON ax_landschaft USING gist (wkb_geometry);
+CREATE UNIQUE INDEX ax_landschaft_gml ON ax_landschaft USING btree (gml_id,beginnt);
 
 
 -- k l e i n r ä u m i g e r   L a n d s c h a f t s t e i l

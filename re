@@ -15,7 +15,7 @@
 ^OGR: OGROpen\(PG:.*\) succeeded as PostgreSQL\.\s*$
 ^GDAL: In GDALDestroy - unloading GDAL shared library\.\s*$
 ^psql:.*: (NOTICE|HINWEIS):  (function|Funktion) alkis_(drop\(\)|dropobject\(text\)|delete\(\)|mviews\(\)|update_schema\(\)) (does not exist, skipping|existiert nicht, wird \S+bersprungen)$
-^psql:.*: (NOTICE|HINWEIS):  (function|Funktion|Aggregatfunktion) array_accum\(anyarray\) (does not exist, skipping|existiert nicht, wird \S+bersprungen)$
+^psql:.*: (NOTICE|HINWEIS):  (function|Funktion|Aggregatfunktion) array_accum\(anyarray\) (does not exist, skipping|existiert nicht, wird \S+bersprungen)
 ^psql:.*: (NOTICE|HINWEIS):  Dropping (table|view|sequence) 
 ^psql:.*: (NOTICE|HINWEIS):  gserialized_gist_joinsel: jointype 4 not supported\s*$
 ^psql:.*: (NOTICE|HINWEIS):  (geometry|LWGEOM)_gist_joinsel called with incorrect join type\s*$
@@ -25,7 +25,6 @@
 psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*$
 ^(LINE 1|QUERY):\s+WITH RECURSIVE element\(name,base\) AS 
 ^\s+\^\s*$
-^PL\/pgSQL( function|-Funktion) alkis_dropobject\(text\) (line|Zeile) \d+ (at|bei) EXECUTE( statement|-Anweisung)
 ^.*: (NOTICE|HINWEIS):  CREATE TABLE
 ^NOTICE:  CREATE TABLE
 .*drop cascades to 
@@ -56,14 +55,15 @@ psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*
 ^removed.*\.(gfs|xml)'\s*$
 ^[CK]ONTEXT:  (SQL statement|SQL-Anweisung) \S+(DROP TABLE .* CASCADE|CREATE TABLE)
 PL\/pgSQL( function|-Funktion) "(alkis_dropobject|alkis_clean|alkis_drop|alkis_joinlines|alkis_besondereflurstuecksgrenze|alkis_update_schema)" (line|Zeile) \d+ (at|bei) ((EXECUTE|SQL|execute)( statement|-Anweisung)|PERFORM|RAISE)
-PL\/pgSQL( function|-Funktion) alkis_drop\(\) (line|Zeile) \d+ (at|bei) EXECUTE( statement|-Anweisung)
+PL\/pgSQL( function|-Funktion) alkis_drop\(\) (line|Zeile) \d+ (at|bei) EXECUTE
+PL\/pgSQL( function|-Funktion) alkis_dropobject\(text\) (line|Zeile) \d+ (at|bei) EXECUTE
 PL\/pgSQL( function|-Funktion) (alkis_update_schema\(\)|alb_update_schema\(\)) (line|Zeile) \d+ (at|bei) PERFORM
 ERROR:  relation "public\.alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
 ERROR:  table "alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
 ERROR:  sequence "alkis_(farben|konturen|linie|randlinie|strichart|stricharten|stricharten_i)_id_seq" does not exist
 SQL( statement|-Anweisung) \S+SELECT\s+alkis_dropobject\('alkis_konturen'\)
 ^.*(ERROR|FEHLER):.*application_name
-^\s+(alkis_createklassifizierung|alkis_createnutzung|alkis_checkflurstueck|alkis_createausfuehrendestellen|ax_besondereflurstuecksgrenze|alkis_create_bcrs)\s+$
+^\s+(alkis_createklassifizierung|alkis_createnutzung|alkis_checkflurstueck|alkis_createausfuehrendestellen|ax_besondereflurstuecksgrenze|alkis_create_bcrs|alkis_boeschung|alb_update_schema)\s*$
 ^ ax_klassifizierung und ax_klassifizierungsschluessel erzeugt\.\s*$
 ^ ax_tatsaechlichenutzung und ax_tatsaechlichenutzungsschluessel erzeugt\.\s*$
 ^ ax_ausfuehrendestellen erzeugt\.\s*$

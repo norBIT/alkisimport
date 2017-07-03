@@ -211,6 +211,7 @@ SELECT AddGeometryColumn('ax_besondereflurstuecksgrenze2','wkb_geometry',:alkis_
 CREATE INDEX ax_besondereflurstuecksgrenze2_geom_idx   ON ax_besondereflurstuecksgrenze2 USING gist (wkb_geometry);
 CREATE INDEX ax_besondereflurstuecksgrenze2_adfg       ON ax_besondereflurstuecksgrenze2 USING gin (artderflurstuecksgrenze);
 
+SELECT alkis_dropobject('alkis_besondereflurstuecksgrenze');
 CREATE OR REPLACE FUNCTION alkis_besondereflurstuecksgrenze(verdraengen BOOLEAN) RETURNS varchar AS $$
 DECLARE
 	r0 RECORD;
@@ -335,6 +336,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+SELECT alkis_dropobject('alkis_safe_offsetcurve');
 CREATE OR REPLACE FUNCTION alkis_safe_offsetcurve(g0 geometry,offs float8,params text) RETURNS geometry AS $$
 DECLARE
 	res GEOMETRY;
@@ -6429,7 +6431,8 @@ FROM (
 
 SELECT 'Böschungen und Kliffe werden verarbeitet.';
 
-CREATE OR REPLACE FUNCTION alkis_boeschung(srid INTEGER) RETURNS varchar AS $$
+SELECT alkis_dropobject('alkis_boeschung');
+CREATE OR REPLACE FUNCTION alkis_boeschung() RETURNS varchar AS $$
 DECLARE
 	ok GEOMETRY;
 	uk GEOMETRY;
@@ -6438,8 +6441,6 @@ DECLARE
 	p0 GEOMETRY;
 	p1 GEOMETRY;
 	i INTEGER;
-	a0 DOUBLE PRECISION;
-	a1 DOUBLE PRECISION;
 	dx DOUBLE PRECISION;
 	dy DOUBLE PRECISION;
 	s INTEGER;
@@ -6457,29 +6458,28 @@ BEGIN
 	FOR r IN SELECT gml_id, advstandardmodell||sonstigesmodell AS modell FROM ax_boeschungkliff WHERE endet IS NULL LOOP
 		-- RAISE NOTICE 'gml_id:%', r.gml_id;
 
-		SELECT wkb_geometry INTO ok FROM ax_gelaendekante WHERE istteilvon=r.gml_id AND artdergelaendekante=1220 AND endet IS NULL;
+		SELECT st_linemerge(st_collect(wkb_geometry)) INTO ok FROM ax_gelaendekante WHERE istteilvon=r.gml_id AND artdergelaendekante=1220 AND endet IS NULL;
 		IF ok IS NULL THEN
+			RAISE NOTICE '%: Oberkante fehlt', r.gml_id;
 			CONTINUE;
 		END IF;
 
-		SELECT wkb_geometry INTO uk FROM ax_gelaendekante WHERE istteilvon=r.gml_id AND artdergelaendekante=1230 AND endet IS NULL;
+		-- RAISE NOTICE 'Oberkante:%', st_astext(ok);
+
+		SELECT st_linemerge(st_collect(wkb_geometry)) INTO uk FROM ax_gelaendekante WHERE istteilvon=r.gml_id AND artdergelaendekante=1230 AND endet IS NULL;
 		IF uk IS NULL THEN
 			RAISE NOTICE '%: Keine Unterkante', r.gml_id;
 			CONTINUE;
 		END IF;
 
-		SELECT st_union(st_union(wkb_geometry), uk) INTO sk FROM ax_gelaendekante WHERE istteilvon=r.gml_id AND artdergelaendekante=1240 AND endet IS NULL;
+		-- RAISE NOTICE 'Unterkante:%', st_astext(uk);
+
+		SELECT coalesce(st_union(st_union(wkb_geometry),uk),uk) INTO sk FROM ax_gelaendekante WHERE istteilvon=r.gml_id AND artdergelaendekante=1240 AND endet IS NULL;
 		SELECT st_maxdistance(uk, ok)*1.1 INTO maxdistance;
 
-		p0 := st_pointn(ok, 1);
+		-- RAISE NOTICE 'Schnittkanten:%', st_astext(sk);
 
-		p1 := st_pointn(ok, 2);
-		a0 := st_azimuth(p0, p1);
-
-		p1 := st_pointn(uk, 1);
-		a1 := st_azimuth(p0, p1);
-
-		s := CASE WHEN a1 - a0 > pi() THEN -1 ELSE 1 END;
+		s := CASE WHEN st_distance( st_offsetcurve(ok, -0.001), uk) > st_distance( st_offsetcurve(ok, 0.001), uk) THEN -1 ELSE 1 END;
 
 		o := 0.0;
 		ol := st_length(ok);
@@ -6495,13 +6495,7 @@ BEGIN
 
 			b := st_makeline(
 				p0,
-				st_setsrid(
-					st_point(
-						st_x(p0) + s * dy * maxdistance,
-						st_y(p0) - s * dx * maxdistance
-					),
-					srid
-				)
+				st_translate(p0, s * dy * maxdistance, -s * dx * maxdistance)
 			);
 
 			int := st_intersection(b, sk);
@@ -6536,13 +6530,7 @@ BEGIN
 				b1,
 				st_makeline(
 					p0,
-					st_setsrid(
-						st_point(
-							st_x(p0) + s * dy * l,
-							st_y(p0) - s * dx * l
-						),
-						srid
-					)
+					st_translate(p0, s * dy * l, -s * dx * l)
 				)
 			);
 
@@ -6550,11 +6538,16 @@ BEGIN
 			i := i + 1;
 		END LOOP;
 
-		INSERT INTO po_lines(
-			gml_id, thema, layer, line, signaturnummer, modell
-		) VALUES (
-			r.gml_id, 'Topographie', 'ax_boeschungkliff', st_multi(st_collect(b1)), '2531', r.modell
-		);
+		IF b1 IS NOT NULL AND array_length(b1,1)>0 THEN
+			INSERT INTO po_lines(
+				gml_id, thema, layer, line, signaturnummer, modell
+			) VALUES (
+				r.gml_id, 'Topographie', 'ax_boeschungkliff', st_multi(st_collect(b1)), '2531', r.modell
+			);
+		ELSE
+			RAISE NOTICE '%: Böschungsgeometrie leer', r.gml_id;
+		END IF;
+
 
 		b1l := ARRAY[]::double precision[];
 		b1 := ARRAY[]::GEOMETRY[];
@@ -6564,7 +6557,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT alkis_boeschung(:alkis_epsg);
+SELECT alkis_boeschung();
 
 --
 -- Einrichtungen im öffentlichen Bereichen (59102; NRW)
