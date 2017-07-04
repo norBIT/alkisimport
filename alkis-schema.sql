@@ -33,7 +33,7 @@
 SELECT alkis_drop();
 
 CREATE TABLE alkis_version(version integer);
-INSERT INTO alkis_version(version) VALUES (13);
+INSERT INTO alkis_version(version) VALUES (14);
 
 -- BW/BY-Koordinatensystem anlegen
 SELECT alkis_create_bsrs(:alkis_epsg);
@@ -49,7 +49,7 @@ CREATE TABLE "delete" (
 	anlass		varchar[],		-- update.anlass
 	endet		character(20),		-- update.endet
 	ignored		boolean DEFAULT false,	-- Satz wurde nicht verarbeitet
-	CONSTRAINT delete_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('delete','dummy',:alkis_epsg,'POINT',2);
@@ -77,7 +77,7 @@ CREATE TABLE alkis_beziehungen (
        beziehung_von           character(16) NOT NULL,
        beziehungsart           varchar,
        beziehung_zu            character(16) NOT NULL,
-       CONSTRAINT alkis_beziehungen_pk PRIMARY KEY (ogc_fid)
+       PRIMARY KEY (ogc_fid)
 );
 
 CREATE INDEX alkis_beziehungen_von_idx ON alkis_beziehungen USING btree (beziehung_von);
@@ -124,7 +124,7 @@ CREATE TABLE ap_ppo (
 	-- Beziehung
 	dientzurdarstellungvon	character(16)[],
 
-	CONSTRAINT ap_ppo_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ap_ppo','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POINT/MULTIPOLYGON
@@ -154,7 +154,7 @@ CREATE TABLE ap_lpo (
 	-- Beziehung
 	dientzurdarstellungvon	character(16)[],
 
-	CONSTRAINT ap_lpo_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ap_lpo','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/MULTILINESTRING
@@ -191,7 +191,7 @@ CREATE TABLE ap_pto (
 	dientzurdarstellungvon	character(16)[],
 	hat			character(16),
 
-	CONSTRAINT ap_pto_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ap_pto','wkb_geometry',:alkis_epsg,'POINT',2);
@@ -231,7 +231,7 @@ CREATE TABLE ap_lto (
 	dientzurdarstellungvon	character(16)[],
 	hat			character(16),
 
-	CONSTRAINT ap_lto_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ap_lto','wkb_geometry',:alkis_epsg,'LINESTRING',2);
@@ -263,7 +263,7 @@ CREATE TABLE ap_darstellung (
 	-- Beziehung
 	dientzurdarstellungvon	character(16)[],
 
-	CONSTRAINT ap_darstellung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ap_darstellung','dummy',:alkis_epsg,'POINT',2);
@@ -332,7 +332,7 @@ CREATE TABLE ax_flurstueck (
 	weistauf				character(16)[],
 	gehoertanteiligzu			character(16)[],
 
-	CONSTRAINT ax_flurstueck_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_flurstueck','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -362,7 +362,7 @@ CREATE TABLE ax_besondereflurstuecksgrenze (
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
 	artderflurstuecksgrenze	integer[],
-	CONSTRAINT ax_besondereflurstuecksgrenze_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_besondereflurstuecksgrenze','wkb_geometry',:alkis_epsg,'LINESTRING',2);
@@ -399,7 +399,7 @@ CREATE TABLE ax_grenzpunkt (
 	-- Beziehung
 	zeigtauf			character(16),
 
-	CONSTRAINT ax_grenzpunkt_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_grenzpunkt','dummy',:alkis_epsg,'POINT',2);
@@ -436,7 +436,7 @@ CREATE TABLE ax_lagebezeichnungohnehausnummer (
 	beschreibt			character(16)[],
 	gehoertzu			varchar[],
 
-	CONSTRAINT ax_lagebezeichnungohnehausnummer_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_lagebezeichnungohnehausnummer','dummy',:alkis_epsg,'POINT',2);
@@ -473,7 +473,7 @@ CREATE TABLE ax_lagebezeichnungmithausnummer (
 	gehoertzu		character(16)[],
 	weistzum		character(16),
 
-	CONSTRAINT ax_lagebezeichnungmithausnummer_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_lagebezeichnungmithausnummer','dummy',:alkis_epsg,'POINT',2);
@@ -512,7 +512,7 @@ CREATE TABLE ax_lagebezeichnungmitpseudonummer (
 	-- Beziehung
 	gehoertzu		character(16),
 
-	CONSTRAINT ax_lagebezeichnungmitpseudonummer_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_lagebezeichnungmitpseudonummer','dummy',:alkis_epsg,'POINT',2);
@@ -552,7 +552,7 @@ CREATE TABLE ax_georeferenziertegebaeudeadresse (
 	-- Beziehung
 	hatauch			character(16),
 
-	CONSTRAINT ax_georeferenziertegebaeudeadresse_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_georeferenziertegebaeudeadresse','wkb_geometry',:alkis_epsg,'POINT',2);
@@ -587,7 +587,7 @@ CREATE TABLE ax_aufnahmepunkt (
 	-- Beziehung
 	hat			character(16)[],
 
-	CONSTRAINT ax_aufnahmepunkt_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_aufnahmepunkt','dummy',:alkis_epsg,'POINT',2);
@@ -620,7 +620,7 @@ CREATE TABLE ax_sicherungspunkt (
 	beziehtsichauf		character(16),
 	gehoertzu		character(16),
 
-	CONSTRAINT ax_sicherungspunkt_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_sicherungspunkt','dummy',:alkis_epsg,'POINT',2);
@@ -652,7 +652,7 @@ CREATE TABLE ax_sonstigervermessungspunkt (
 	-- Beziehung
 	hat			character(16)[],
 
-	CONSTRAINT ax_sonstigervermessungspunkt_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_sonstigervermessungspunkt','dummy',:alkis_epsg,'POINT',2);
@@ -692,7 +692,7 @@ CREATE TABLE ax_punktortag (
 	-- Beziehungen
 	istteilvon		character(16),
 
-	CONSTRAINT ax_punktortag_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_punktortag','wkb_geometry',:alkis_epsg,'POINT',2);
@@ -725,7 +725,7 @@ CREATE TABLE ax_punktortau (
 	-- Beziehung
 	istteilvon			character(16),
 
-	CONSTRAINT ax_punktortau_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_punktortau','wkb_geometry',:alkis_epsg,'POINT',3); -- 0, 0, Höhe
@@ -759,7 +759,7 @@ CREATE TABLE ax_punktortta (
 	-- Beziehung
 	istteilvon                character(16),
 
-	CONSTRAINT ax_punktortta_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_punktortta','wkb_geometry',:alkis_epsg,'POINT',2);
@@ -798,7 +798,7 @@ CREATE TABLE ax_fortfuehrungsnachweisdeckblatt (
 	-- Beziehung
 	beziehtsichauf			character(16),
 
-	CONSTRAINT ax_fortfuehrungsnachweisdeckblatt_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_fortfuehrungsnachweisdeckblatt','dummy',:alkis_epsg,'POINT',2);
@@ -826,7 +826,7 @@ CREATE TABLE ax_fortfuehrungsfall (
 	zeigtaufaltesflurstueck			character(20)[],
 	zeigtaufneuesflurstueck			character(20)[],
 
-	CONSTRAINT ax_fortfuehrungsfall_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_fortfuehrungsfall','dummy',:alkis_epsg,'POINT',2);
@@ -853,7 +853,7 @@ CREATE TABLE ax_reservierung (
 	ablaufderreservierung	varchar,
 	antragsnummer		varchar,
 	auftragsnummer		varchar,
-	CONSTRAINT ax_reservierung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_reservierung','dummy',:alkis_epsg,'POINT',2);
@@ -872,7 +872,7 @@ CREATE TABLE ax_punktkennunguntergegangen (
 	anlass			varchar[],
 	punktkennung		varchar,
 	art			integer,
-	CONSTRAINT ax_punktkennunguntergegangen_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_punktkennunguntergegangen','dummy',:alkis_epsg,'POINT',2);
@@ -929,7 +929,7 @@ CREATE TABLE ax_historischesflurstueck (
 	buchungsblattnummermitbuchstabenerweiterung	varchar[],
 	laufendenummerderbuchungsstelle			varchar,			-- tlw. nicht nummerische Werte in SN
 
-	CONSTRAINT ax_historischesflurstueck_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_historischesflurstueck','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
@@ -999,7 +999,7 @@ CREATE TABLE ax_historischesflurstueckalb (
 	vorgaengerflurstueckskennzeichen		varchar[],
 	nachfolgerflurstueckskennzeichen		varchar[],
 
-	CONSTRAINT ax_historischesflurstueckalb_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_historischesflurstueckalb','dummy',:alkis_epsg,'POINT',2);
@@ -1054,7 +1054,7 @@ CREATE TABLE ax_historischesflurstueckohneraumbezug (
 	zeigtauf				character(16)[],
 	istgebucht				character(16),
 
-	CONSTRAINT ax_historischesflurstueckohneraumbezug_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_historischesflurstueckohneraumbezug','dummy',:alkis_epsg,'POINT',2);
@@ -1111,7 +1111,7 @@ CREATE TABLE ax_person (
 	zeigtauf			character(16),
 	benennt				character(16)[],
 
-	CONSTRAINT ax_person_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_person','dummy',:alkis_epsg,'POINT',2);
@@ -1161,7 +1161,7 @@ CREATE TABLE ax_anschrift (
 	beziehtsichauf			character(16)[],
 	gehoertzu			character(16)[],
 
-	CONSTRAINT ax_anschrift_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_anschrift','dummy',:alkis_epsg,'POINT',2);
@@ -1187,7 +1187,7 @@ CREATE TABLE ax_verwaltung (
 	beziehtsichauf		character(16)[],
 	haengtan		character(16),
 
-	CONSTRAINT ax_verwaltung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_verwaltung','dummy',:alkis_epsg,'POINT',2);
@@ -1210,7 +1210,7 @@ CREATE TABLE ax_vertretung (
 	haengtan		character(16),
 	beziehtsichauf		character(16)[],
 
-	CONSTRAINT ax_vertretung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_vertretung','dummy',:alkis_epsg,'POINT',2);
@@ -1242,7 +1242,7 @@ CREATE TABLE ax_namensnummer (
 	hatvorgaenger				character(16)[],
 	benennt					character(16),
 
-	CONSTRAINT ax_namensnummer_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_namensnummer','dummy',:alkis_epsg,'POINT',2);
@@ -1277,7 +1277,7 @@ CREATE TABLE ax_buchungsblatt (
 	-- Beziehung
 	bestehtaus		character(16)[],
 
-	CONSTRAINT ax_buchungsblatt_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_buchungsblatt','dummy',:alkis_epsg,'POINT',2);
@@ -1318,7 +1318,7 @@ CREATE TABLE ax_buchungsstelle (
 	wirdverwaltetvon			character(16),
 	beziehtsichauf				character(16)[],
 
-	CONSTRAINT ax_buchungsstelle_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_buchungsstelle','dummy',:alkis_epsg,'POINT',2);
@@ -1385,7 +1385,7 @@ CREATE TABLE ax_gebaeude (
 	zeigtauf		character(16)[],
 	haengtzusammenmit	character(16),
 
-	CONSTRAINT ax_gebaeude_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_gebaeude','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
@@ -1416,7 +1416,7 @@ CREATE TABLE ax_bauteil (
 	anzahlderoberirdischengeschosse	integer,
 	anzahlderunterirdischengeschosse	integer,
 	lagezurerdoberflaeche	integer,
-	CONSTRAINT ax_bauteil_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_bauteil','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1439,7 +1439,7 @@ CREATE TABLE ax_besonderegebaeudelinie (
 	sonstigesmodell		varchar[],
 	beschaffenheit		integer[],
 	anlass			varchar[],
-	CONSTRAINT ax_besonderegebaeudelinie_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_besonderegebaeudelinie','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/MULTILINESTRING
@@ -1463,7 +1463,7 @@ CREATE TABLE ax_firstlinie (
 	anlass			varchar[],
 	art			varchar,
 	uri			varchar,
-	CONSTRAINT ax_firstlinie_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_firstlinie','wkb_geometry',:alkis_epsg,'LINESTRING',2);
@@ -1490,7 +1490,7 @@ CREATE TABLE ax_besonderergebaeudepunkt (
 	art			varchar,
 	name			varchar[],
 	sonstigeeigenschaft	varchar[],
-	CONSTRAINT ax_besonderergebaeudepunkt_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_besonderergebaeudepunkt','dummy',:alkis_epsg,'POINT',2);
@@ -1525,7 +1525,7 @@ CREATE TABLE ax_wohnbauflaeche (
 	artderbebauung		integer,
 	zustand			integer,
 	name			varchar,
-	CONSTRAINT ax_wohnbauflaeche_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_wohnbauflaeche','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1553,7 +1553,7 @@ CREATE TABLE ax_industrieundgewerbeflaeche (
 	foerdergut		integer,
 	primaerenergie		integer,
 	lagergut		integer,
-	CONSTRAINT ax_industrieundgewerbeflaeche_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_industrieundgewerbeflaeche','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/POINT
@@ -1578,7 +1578,7 @@ CREATE TABLE ax_halde (
 	lagergut		integer,
 	name			varchar,
 	zustand			integer,
-	CONSTRAINT ax_halde_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_halde','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1602,7 +1602,7 @@ CREATE TABLE ax_bergbaubetrieb (
 	name			varchar,
 	bezeichnung		varchar,
 	zustand			integer,
-	CONSTRAINT ax_bergbaubetrieb_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_bergbaubetrieb','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1626,7 +1626,7 @@ CREATE TABLE ax_tagebaugrubesteinbruch (
 	name			varchar,
 	zustand			integer,
 
-	CONSTRAINT ax_tagebaugrubesteinbruch_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_tagebaugrubesteinbruch','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1652,7 +1652,7 @@ CREATE TABLE ax_flaechegemischternutzung (
 	funktion		integer,
 	name			varchar,
 	zustand			integer,
-	CONSTRAINT ax_flaechegemischternutzung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_flaechegemischternutzung','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1676,7 +1676,7 @@ CREATE TABLE ax_flaechebesondererfunktionalerpraegung (
 	artderbebauung		integer,
 	name			varchar,
 	zustand			integer,
-	CONSTRAINT ax_flaechebesondererfunktionalerpraegung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_flaechebesondererfunktionalerpraegung','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1699,7 +1699,7 @@ CREATE TABLE ax_sportfreizeitunderholungsflaeche (
 	funktion		integer,
 	zustand			integer,
 	name			varchar,
-	CONSTRAINT ax_sportfreizeitunderholungsflaeche_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_sportfreizeitunderholungsflaeche','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1723,7 +1723,7 @@ CREATE TABLE ax_friedhof (
 	funktion		integer,
 	name			varchar,
 	zustand			integer,
-	CONSTRAINT ax_friedhof_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_friedhof','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1756,7 +1756,7 @@ CREATE TABLE ax_strassenverkehr (
 	gemeinde		varchar,
 	lage			varchar,
 	unverschluesselt	varchar,
-	CONSTRAINT ax_strassenverkehr_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_strassenverkehr','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1785,7 +1785,7 @@ CREATE TABLE ax_weg (
 	gemeinde		varchar,
 	lage			varchar,
 	unverschluesselt	varchar,
-	CONSTRAINT ax_weg_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_weg','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1814,7 +1814,7 @@ CREATE TABLE ax_platz (
 	gemeinde		varchar,
 	lage			varchar, -- Straßenschlüssel
 	unverschluesselt	varchar, -- Gewanne?
-	CONSTRAINT ax_platz_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_platz','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1840,7 +1840,7 @@ CREATE TABLE ax_bahnverkehr (
 	nummerderbahnstrecke	varchar,
 	zweitname		varchar,
 	zustand			integer,
-	CONSTRAINT ax_bahnverkehr_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_bahnverkehr','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1866,7 +1866,7 @@ CREATE TABLE ax_flugverkehr (
 	bezeichnung		varchar,
 	nutzung			integer,
 	zustand			integer,
-	CONSTRAINT ax_flugverkehr_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_flugverkehr','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1889,7 +1889,7 @@ CREATE TABLE ax_schiffsverkehr (
 	funktion		integer,
 	name			varchar,
 	zustand			integer,
-	CONSTRAINT ax_schiffsverkehr_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_schiffsverkehr','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1914,7 +1914,7 @@ CREATE TABLE ax_landwirtschaft (
 	anlass			varchar[],
 	vegetationsmerkmal	integer,
 	name			varchar,
-	CONSTRAINT ax_landwirtschaft_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_landwirtschaft','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1937,7 +1937,7 @@ CREATE TABLE ax_wald (
 	vegetationsmerkmal	integer,
 	name			varchar,
 	bezeichnung		varchar,
-	CONSTRAINT ax_wald_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_wald','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1960,7 +1960,7 @@ CREATE TABLE ax_gehoelz (
 	vegetationsmerkmal	integer,
 	name			varchar,
 	funktion		integer,
-	CONSTRAINT ax_gehoelz_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_gehoelz','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -1981,7 +1981,7 @@ CREATE TABLE ax_heide (
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
 	name			varchar,
-	CONSTRAINT ax_heide_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_heide','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2002,7 +2002,7 @@ CREATE TABLE ax_moor (
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
 	name			varchar,
-	CONSTRAINT ax_moor_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_moor','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2025,7 +2025,7 @@ CREATE TABLE ax_sumpf (
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
 	name			varchar,
-	CONSTRAINT ax_sumpf_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_sumpf','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2048,7 +2048,7 @@ CREATE TABLE ax_unlandvegetationsloseflaeche (
 	oberflaechenmaterial	integer,
 	name			varchar,
 	funktion		integer,
-	CONSTRAINT ax_unlandvegetationsloseflaeche_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_unlandvegetationsloseflaeche','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2075,7 +2075,7 @@ CREATE TABLE ax_fliessgewaesser (
 	name			varchar,
 	zustand			integer,
 	unverschluesselt	varchar,
-	CONSTRAINT ax_fliessgewaesser_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_fliessgewaesser','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2098,7 +2098,7 @@ CREATE TABLE ax_hafenbecken (
 	funktion		integer,
 	name			varchar,
 	nutzung			integer,
-	CONSTRAINT ax_hafenbecken_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_hafenbecken','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2123,7 +2123,7 @@ CREATE TABLE ax_stehendesgewaesser (
 	gewaesserkennziffer	varchar,
 	hydrologischesmerkmal	integer,
 	unverschluesselt	varchar,
-	CONSTRAINT ax_stehendesgewaesser_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_stehendesgewaesser','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2147,7 +2147,7 @@ CREATE TABLE ax_meer (
 	name			varchar,
 	bezeichnung		varchar,
 	tidemerkmal		integer,
-	CONSTRAINT ax_meer_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_meer','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2183,7 +2183,7 @@ CREATE TABLE ax_turm (
 	-- Beziehung
 	zeigtauf		character(16),
 
-	CONSTRAINT ax_turm_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_turm','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2208,7 +2208,7 @@ CREATE TABLE ax_bauwerkoderanlagefuerindustrieundgewerbe (
 	name			varchar,
 	zustand			integer,
 	objekthoehe		double precision,
-	CONSTRAINT ax_bauwerkoderanlagefuerindustrieundgewerbe_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_bauwerkoderanlagefuerindustrieundgewerbe','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/POINT
@@ -2232,7 +2232,7 @@ CREATE TABLE ax_vorratsbehaelterspeicherbauwerk (
 	bauwerksfunktion	integer,
 	lagezurerdoberflaeche   integer,
 	name			varchar,
-	CONSTRAINT ax_vorratsbehaelterspeicherbauwerk_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_vorratsbehaelterspeicherbauwerk','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2257,7 +2257,7 @@ CREATE TABLE ax_transportanlage (
 	art			varchar,
 	name			varchar,
 	produkt                 integer,
-	CONSTRAINT ax_transportanlage_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_transportanlage','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POINT/LINESTRING
@@ -2279,7 +2279,7 @@ CREATE TABLE ax_leitung (
 	anlass			varchar[],
 	bauwerksfunktion	integer,
 	spannungsebene		integer,
-	CONSTRAINT ax_leitung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_leitung','wkb_geometry',:alkis_epsg,'LINESTRING',2);
@@ -2302,7 +2302,7 @@ CREATE TABLE ax_bauwerkoderanlagefuersportfreizeitunderholung (
 	bauwerksfunktion	integer,
 	sportart		integer,
 	name			varchar,
-	CONSTRAINT ax_bauwerkoderanlagefuersportfreizeitunderholung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_bauwerkoderanlagefuersportfreizeitunderholung','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/POINT
@@ -2324,7 +2324,7 @@ CREATE TABLE ax_historischesbauwerkoderhistorischeeinrichtung (
 	anlass			varchar[],
 	archaeologischertyp	integer,
 	name			varchar,
-	CONSTRAINT ax_historischesbauwerkoderhistorischeeinrichtung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_historischesbauwerkoderhistorischeeinrichtung','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/POINT
@@ -2346,7 +2346,7 @@ CREATE TABLE ax_heilquellegasquelle (
 	anlass			varchar[],
 	art			integer,
 	name			varchar,
-	CONSTRAINT ax_heilquellegasquelle_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_heilquellegasquelle','wkb_geometry',:alkis_epsg,'POINT',2);
@@ -2375,7 +2375,7 @@ CREATE TABLE ax_sonstigesbauwerkodersonstigeeinrichtung (
 	gehoertZuBauwerk	character(16),
 	gehoertzu		character(16),
 
-	CONSTRAINT ax_sonstigesbauwerkodersonstigeeinrichtung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_sonstigesbauwerkodersonstigeeinrichtung','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/LINESTRING
@@ -2399,7 +2399,7 @@ CREATE TABLE ax_einrichtunginoeffentlichenbereichen (
 	anlass			varchar[],
 	art			integer,
 	kilometerangabe         varchar,
-	CONSTRAINT ax_einrichtunginoeffentlichenbereichen_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_einrichtunginoeffentlichenbereichen','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2423,7 +2423,7 @@ CREATE TABLE ax_besondererbauwerkspunkt (
 	land			varchar,
 	stelle			varchar,
 	sonstigeeigenschaft	varchar[],
-	CONSTRAINT ax_besondererbauwerkspunkt_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_besondererbauwerkspunkt','dummy',:alkis_epsg,'POINT',2);
@@ -2452,7 +2452,7 @@ CREATE TABLE ax_bauwerkimverkehrsbereich (
 	bauwerksfunktion	integer,
 	name                    varchar,
 	zustand			integer,
-	CONSTRAINT ax_bauwerkimverkehrsbereich_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_bauwerkimverkehrsbereich','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
@@ -2475,7 +2475,7 @@ CREATE TABLE ax_strassenverkehrsanlage (
 	art			integer,
 	bezeichnung             varchar,
 	name			varchar,
-	CONSTRAINT ax_strassenverkehrsanlage_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_strassenverkehrsanlage','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/MULTIPOLYGON
@@ -2497,7 +2497,7 @@ CREATE TABLE ax_wegpfadsteig (
 	anlass			varchar[],
 	art			integer,
 	name			varchar,
-	CONSTRAINT ax_wegpfadsteig_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_wegpfadsteig','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/POLYGON
@@ -2520,7 +2520,7 @@ CREATE TABLE ax_bahnverkehrsanlage (
 	bahnhofskategorie	integer,
 	bahnkategorie		integer,
 	name			varchar,
-	CONSTRAINT ax_bahnverkehrsanlage_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_bahnverkehrsanlage','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POINT/POLYGON
@@ -2542,7 +2542,7 @@ CREATE TABLE ax_seilbahnschwebebahn (
 	anlass			varchar[],
 	bahnkategorie		integer,
 	name			varchar,
-	CONSTRAINT ax_seilbahnschwebebahn_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_seilbahnschwebebahn','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/MULTILINESTRING
@@ -2566,7 +2566,7 @@ CREATE TABLE ax_gleis (
 	art			integer,
 	lagezuroberflaeche      integer,
 	name			varchar,
-	CONSTRAINT ax_gleis_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_gleis','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/POLYGON
@@ -2589,7 +2589,7 @@ CREATE TABLE ax_flugverkehrsanlage (
 	art			integer,
 	oberflaechenmaterial	integer,
 	name			varchar,
-	CONSTRAINT ax_flugverkehrsanlage_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_flugverkehrsanlage','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2612,7 +2612,7 @@ CREATE TABLE ax_einrichtungenfuerdenschiffsverkehr (
 	art			integer,
 	kilometerangabe		varchar,
 	name			varchar,
-	CONSTRAINT ax_einrichtungfuerdenschiffsverkehr_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_einrichtungenfuerdenschiffsverkehr','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POINT/POLYGON
@@ -2635,7 +2635,7 @@ CREATE TABLE ax_bauwerkimgewaesserbereich (
 	bauwerksfunktion	integer,
 	name			varchar,
 	zustand			integer,
-	CONSTRAINT ax_bauwerkimgewaesserbereich_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_bauwerkimgewaesserbereich','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/POINT
@@ -2661,7 +2661,7 @@ CREATE TABLE ax_vegetationsmerkmal (
 	bewuchs			integer,
 	zustand			integer,
 	name			varchar,
-	CONSTRAINT ax_vegetationsmerkmal_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_vegetationsmerkmal','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2686,7 +2686,7 @@ CREATE TABLE ax_gewaessermerkmal (
 	anlass			varchar[],
 	art			integer,
 	name			varchar,
-	CONSTRAINT ax_gewaessermerkmal_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_gewaessermerkmal','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POINT/LINESTRING/POLYGON
@@ -2710,7 +2710,7 @@ CREATE TABLE ax_untergeordnetesgewaesser (
 	lagezurerdoberflaeche	integer,
 	hydrologischesmerkmal	integer,
 	name			varchar,
-	CONSTRAINT ax_untergeordnetesgewaesser_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_untergeordnetesgewaesser','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/POLYGON
@@ -2746,7 +2746,7 @@ CREATE TABLE ax_wasserspiegelhoehe (
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
 	hoehedeswasserspiegels	double precision,
-	CONSTRAINT ax_wasserspiegelhoehe_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_wasserspiegelhoehe','wkb_geometry',:alkis_epsg,'POINT',2);
@@ -2768,7 +2768,7 @@ CREATE TABLE ax_schifffahrtsliniefaehrverkehr (
 	anlass			varchar[],
 	art			integer[],
 	name			varchar,
-	CONSTRAINT ax_schifffahrtsliniefaehrverkehr_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_schifffahrtsliniefaehrverkehr','wkb_geometry',:alkis_epsg,'LINESTRING',2);
@@ -2797,7 +2797,7 @@ CREATE TABLE ax_boeschungkliff (
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
 	objekthoehe		double precision,
-	CONSTRAINT ax_boeschungkliff_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_boeschungkliff','dummy',:alkis_epsg,'POINT',2);
@@ -2820,7 +2820,7 @@ CREATE TABLE ax_boeschungsflaeche (
 	-- Beziehung
 	istteilvon		character(16),
 
-	CONSTRAINT ax_boeschungsflaeche_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_boeschungsflaeche','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2844,7 +2844,7 @@ CREATE TABLE ax_dammwalldeich (
 	art			integer,
 	name			varchar,
 	funktion		integer,
-	CONSTRAINT ax_dammwalldeich_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_dammwalldeich','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- LINESTRING/POLYGON
@@ -2866,7 +2866,7 @@ CREATE TABLE ax_hoehleneingang (
 	anlass			varchar[],
 	name			varchar,
 	ax_datenerhebung	integer,
-	CONSTRAINT ax_hoehleneingang_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_hoehleneingang','wkb_geometry',:alkis_epsg,'POINT',2);
@@ -2887,7 +2887,7 @@ CREATE TABLE ax_felsenfelsblockfelsnadel (
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
 	name			varchar,
-	CONSTRAINT ax_felsenfelsblockfelsnadel_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_felsenfelsblockfelsnadel','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2908,7 +2908,7 @@ CREATE TABLE ax_duene (
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
 	name			varchar,
-	CONSTRAINT ax_duene_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_duene','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -2929,7 +2929,7 @@ CREATE TABLE ax_hoehenlinie (
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
 	hoehevonhoehenlinie	double precision,
-	CONSTRAINT ax_hoehenlinie_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_hoehenlinie','wkb_geometry',:alkis_epsg,'LINESTRING',2);
@@ -2953,7 +2953,7 @@ CREATE TABLE ax_besonderertopographischerpunkt (
 	stelle			varchar,
 	punktkennung		varchar,
 	sonstigeeigenschaft	varchar[],
-	CONSTRAINT ax_besonderertopographischerpunkt_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_besonderertopographischerpunkt','dummy',:alkis_epsg,'POINT',2);
@@ -2973,7 +2973,7 @@ CREATE TABLE ax_soll (
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
 	name			varchar,
-	CONSTRAINT ax_soll_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_soll','wkb_geometry',:alkis_epsg,'POLYGON',2);
@@ -3006,7 +3006,7 @@ CREATE TABLE ax_gelaendekante (
 	-- Beziehung
 	istteilvon		character(16),
 
-	CONSTRAINT ax_gelaendekante_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_gelaendekante','wkb_geometry',:alkis_epsg,'LINESTRING',2);
@@ -3035,7 +3035,7 @@ CREATE TABLE ax_besondererhoehenpunkt (
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
 	besonderebedeutung	integer,
-	CONSTRAINT ax_besondererhoehenpunkt_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_besondererhoehenpunkt','wkb_geometry',:alkis_epsg,'POINT',2);
@@ -3074,7 +3074,7 @@ CREATE TABLE ax_klassifizierungnachstrassenrecht (
 	land			varchar,
 	stelle			varchar,
 	bezeichnung		varchar,
-	CONSTRAINT ax_klassifizierungnachstrassenrecht_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_klassifizierungnachstrassenrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
@@ -3103,7 +3103,7 @@ CREATE TABLE ax_klassifizierungnachwasserrecht (
 	artderfestlegung	integer,
 	land			varchar,
 	stelle			varchar,
-	CONSTRAINT ax_klassifizierungnachwasserrecht_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_klassifizierungnachwasserrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -3126,7 +3126,7 @@ CREATE TABLE ax_anderefestlegungnachwasserrecht (
 	artderfestlegung	integer,
 	land			varchar,
 	stelle			varchar,
-	CONSTRAINT ax_anderefestlegungnachwasserrecht_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_anderefestlegungnachwasserrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -3153,7 +3153,7 @@ CREATE TABLE ax_schutzgebietnachwasserrecht (
 	art			varchar[],
 	name			varchar,
 	nummerdesschutzgebietes	varchar,
-	CONSTRAINT ax_schutzgebietnachwasserrecht_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_schutzgebietnachwasserrecht','dummy',:alkis_epsg,'POINT',2);
@@ -3177,7 +3177,7 @@ CREATE TABLE ax_naturumweltoderbodenschutzrecht (
 	land			varchar,
 	stelle			varchar,
 	name			varchar,
-	CONSTRAINT ax_naturumweltoderbodenschutzrecht_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_naturumweltoderbodenschutzrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
@@ -3202,7 +3202,7 @@ CREATE TABLE ax_schutzgebietnachnaturumweltoderbodenschutzrecht (
 	land			varchar,
 	stelle			varchar,
 	name			varchar,
-	CONSTRAINT ax_schutzgebietnachnaturumweltoderbodenschutzrecht_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_schutzgebietnachnaturumweltoderbodenschutzrecht','dummy',:alkis_epsg,'POINT',2);
@@ -3229,7 +3229,7 @@ CREATE TABLE ax_bauraumoderbodenordnungsrecht (
 	stelle			varchar,
 	bezeichnung		varchar,
 	datumanordnung		varchar,
-	CONSTRAINT ax_bauraumoderbodenordnungsrecht_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_bauraumoderbodenordnungsrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -3254,7 +3254,7 @@ CREATE TABLE ax_denkmalschutzrecht (
 	stelle			varchar,
 	art			varchar,
 	name			varchar,
-	CONSTRAINT ax_denkmalschutzrecht_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_denkmalschutzrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
@@ -3279,7 +3279,7 @@ CREATE TABLE ax_forstrecht (
 	besonderefunktion	integer,
 	land			varchar,
 	stelle			varchar,
-	CONSTRAINT ax_forstrecht_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_forstrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
@@ -3308,7 +3308,7 @@ CREATE TABLE ax_sonstigesrecht (
 	art			varchar,
 	name			varchar,
 	funktion		integer,
-	CONSTRAINT ax_sonstigesrecht_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_sonstigesrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -3334,7 +3334,7 @@ CREATE TABLE ax_schutzzone (
 	-- Beziehung
 	istteilvon		character(16),  -- Nur RP?
 
-	CONSTRAINT ax_schutzzone_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_schutzzone','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
@@ -3370,7 +3370,7 @@ CREATE TABLE ax_bodenschaetzung (
 	ackerzahlodergruenlandzahl	varchar,
 	sonstigeangaben			integer[],
 	jahreszahl			integer,
-	CONSTRAINT ax_bodenschaetzung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_bodenschaetzung','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
@@ -3402,7 +3402,7 @@ CREATE TABLE ax_musterlandesmusterundvergleichsstueck (
 	ackerzahlodergruenlandzahl	varchar,
 	sonstigeangaben			integer,
 
-	CONSTRAINT ax_musterlandesmusterundvergleichsstueck_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_musterlandesmusterundvergleichsstueck','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/POINT
@@ -3434,7 +3434,7 @@ CREATE TABLE ax_grablochderbodenschaetzung (
 	-- Beziehung
 	gehoertzu			character(16),
 
-	CONSTRAINT ax_grablochderbodenschaetzung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_grablochderbodenschaetzung','wkb_geometry',:alkis_epsg,'POINT',2);
@@ -3455,7 +3455,7 @@ CREATE TABLE ax_bewertung (
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
 	klassifizierung		integer,
-	CONSTRAINT ax_bewertung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_bewertung','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -3477,7 +3477,7 @@ CREATE TABLE ax_tagesabschnitt (
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
 	tagesabschnittsnummer	varchar,
-	CONSTRAINT ax_tagesabschnitt_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_tagesabschnitt','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POLYGON/MULTIPOLYGON
@@ -3507,7 +3507,7 @@ CREATE TABLE ax_bundesland (
 	land			varchar,
 	stelle			varchar,
 
-	CONSTRAINT ax_bundesland_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_bundesland','dummy',:alkis_epsg,'POINT',2);
@@ -3530,7 +3530,7 @@ CREATE TABLE ax_regierungsbezirk (
 	bezeichnung			varchar,
 	land				varchar,
 	regierungsbezirk		varchar,
-	CONSTRAINT ax_regierungsbezirk_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_regierungsbezirk','dummy',:alkis_epsg,'POINT',2);
@@ -3554,7 +3554,7 @@ CREATE TABLE ax_kreisregion (
 	land				varchar,
 	regierungsbezirk		varchar,
 	kreis				varchar,
-	CONSTRAINT ax_kreisregion_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_kreisregion','dummy',:alkis_epsg,'POINT',2);
@@ -3584,7 +3584,7 @@ CREATE TABLE ax_gemeinde (
 	-- Beziehungen
 	istamtsbezirkvon        character(16)[],
 
-	CONSTRAINT ax_gemeinde_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_gemeinde','dummy',:alkis_epsg,'POINT',2);
@@ -3612,7 +3612,7 @@ CREATE TABLE ax_gemeindeteil (
 	kreis			varchar,
 	gemeinde		varchar,
 	gemeindeteil		integer,
-	CONSTRAINT ax_gemeindeteil_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_gemeindeteil','dummy',:alkis_epsg,'POINT',2);
@@ -3636,7 +3636,7 @@ CREATE TABLE ax_gemarkung (
 	land			varchar,
 	gemarkungsnummer	varchar,
 	stelle			varchar,
-	CONSTRAINT ax_gemarkung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_gemarkung','dummy',:alkis_epsg,'POINT',2);
@@ -3665,7 +3665,7 @@ CREATE TABLE ax_gemarkungsteilflur (
 	-- Beziehung
 	gehoertzu		character(16)[],
 
-	CONSTRAINT ax_gemarkungsteilflur_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_gemarkungsteilflur','dummy',:alkis_epsg,'POINT',2);
@@ -3692,7 +3692,7 @@ CREATE TABLE ax_verwaltungsgemeinschaft (
 	regierungsbezirk	varchar,
 	kreis			varchar,
 	verwaltungsgemeinschaft	integer,
-	CONSTRAINT ax_verwaltungsgemeinschaft_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_verwaltungsgemeinschaft','dummy',:alkis_epsg,'POINT',2);
@@ -3723,7 +3723,7 @@ CREATE TABLE ax_buchungsblattbezirk (
 	-- Beziehung
 	gehoertzu               character(16),
 
-	CONSTRAINT ax_buchungsblattbezirk_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_buchungsblattbezirk','dummy',:alkis_epsg,'POINT',2);
@@ -3755,7 +3755,7 @@ CREATE TABLE ax_dienststelle (
 	-- Beziehung
 	hat			character(16),
 
-	CONSTRAINT ax_dienststelle_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_dienststelle','dummy',:alkis_epsg,'POINT',2);
@@ -3787,7 +3787,7 @@ CREATE TABLE ax_lagebezeichnungkatalogeintrag (
 	kreis			varchar,
 	gemeinde		varchar,
 	lage			varchar, -- Straßenschlüssel
-	CONSTRAINT ax_lagebezeichnungkatalogeintrag_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_lagebezeichnungkatalogeintrag','dummy',:alkis_epsg,'POINT',2);
@@ -3819,7 +3819,7 @@ CREATE TABLE ax_landschaft(
 	anlass			varchar[],
 	landschaftstyp		integer,
 	name			varchar,
-	CONSTRAINT ax_landschaft_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_landschaft','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POINT/LINESTRING
@@ -3841,7 +3841,7 @@ CREATE TABLE ax_kleinraeumigerlandschaftsteil (
 	anlass			varchar[],
 	landschaftstyp		integer,
 	name			varchar,
-	CONSTRAINT ax_kleinraeumigerlandschaftsteil_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_kleinraeumigerlandschaftsteil','wkb_geometry',:alkis_epsg,'GEOMETRY',2); -- POINT/LINESTRING
@@ -3863,7 +3863,7 @@ CREATE TABLE ax_wohnplatz (
 	anlass			varchar[],
 	name			varchar,
 	zweitname		varchar,
-	CONSTRAINT ax_wohnplatz_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_wohnplatz','wkb_geometry',:alkis_epsg,'POINT',2);
@@ -3890,7 +3890,7 @@ CREATE TABLE ax_baublock (
 	anlass			varchar[],
 	baublockbezeichnung	varchar,
 	art			integer,
-	CONSTRAINT ax_baublock_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_baublock','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -3910,7 +3910,7 @@ CREATE TABLE ax_wirtschaftlicheeinheit (
 	advstandardmodell	varchar[],
 	sonstigesmodell		varchar[],
 	anlass			varchar[],
-	CONSTRAINT ax_wirtschaftlicheeinheit_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_wirtschaftlicheeinheit','dummy',:alkis_epsg,'POINT',2);
@@ -3933,7 +3933,7 @@ CREATE TABLE ax_kommunalesgebiet (
 	kreis			varchar,
 	gemeinde		varchar,
 	gemeindeflaeche		double precision,
-	CONSTRAINT ax_kommunalesgebiet_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_kommunalesgebiet','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -3992,7 +3992,7 @@ CREATE TABLE ax_gebaeudeausgestaltung (
 	-- Beziehung
 	zeigtauf		character(16),
 
-	CONSTRAINT ax_gebaeudeausgestaltung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_gebaeudeausgestaltung','wkb_geometry',:alkis_epsg,'GEOMETRY',2);  -- LINESTRING/MULTILINESTRING
@@ -4014,7 +4014,7 @@ CREATE TABLE ax_topographischelinie (
 	anlass			varchar[],
 	liniendarstellung	integer,
 	sonstigeeigenschaft	varchar,
-	CONSTRAINT ax_topographischelinie_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_topographischelinie','wkb_geometry',:alkis_epsg,'GEOMETRY',2);  -- LINESTRING/MULTILINESTRING
@@ -4035,7 +4035,7 @@ CREATE TABLE aa_antrag (
 	bearbeitungsstatus	character(16),
 	gebiet			character(16),
 	art			character(16),
-	CONSTRAINT aa_antrag_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('aa_antrag','dummy',:alkis_epsg,'POINT',2);
@@ -4050,7 +4050,7 @@ CREATE TABLE aa_projektsteuerung (
 	anlassdesprozesses	character(6),
 	enthaelt		character(16)[],
 	art			character(16),
-	CONSTRAINT aa_projektsteuerung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('aa_projektsteuerung','dummy',:alkis_epsg,'POINT',2);
@@ -4066,7 +4066,7 @@ CREATE TABLE aa_vorgang (
 	enthaelt		character(16)[],
 	status			character(16),
 	art			character(16),
-	CONSTRAINT aa_vorgang_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('aa_vorgang','dummy',:alkis_epsg,'POINT',2);
@@ -4078,7 +4078,7 @@ CREATE TABLE aa_antragsgebiet (
 	endet			character(20),
 	advstandardmodell 	varchar[],
 	sonstigesmodell		varchar[],
-	CONSTRAINT aa_antragsgebiet_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('aa_antragsgebiet','wkb_geometry',:alkis_epsg,'POLYGON',2);
@@ -4099,7 +4099,7 @@ CREATE TABLE aa_meilenstein (
 	vonvorgang		character(16),
 	wannabgeschlossen	character(20),
 	bemerkung		varchar,
-	CONSTRAINT aa_meilenstein_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('aa_meilenstein','dummy',:alkis_epsg,'POINT',2);
@@ -4113,7 +4113,7 @@ CREATE TABLE aa_aktivitaet (
 	sonstigesmodell		varchar[],
 	status			character(16),
 	art			character(16),
-	CONSTRAINT aa_aktivitaet_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('aa_aktivitaet','dummy',:alkis_epsg,'POINT',2);
@@ -4131,7 +4131,7 @@ CREATE TABLE ks_einrichtunginoeffentlichenbereichen (
 	material 		integer[],
 	bezeichnung		varchar,
 	zustand			integer,
-	CONSTRAINT ks_einrichtunginoeffentlichenbereichen_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ks_einrichtunginoeffentlichenbereichen','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -4149,7 +4149,7 @@ CREATE TABLE ks_bauwerkanlagenfuerverundentsorgung (
 	art			integer,
 	bezeichnung		varchar,
 	zustand			integer,
-	CONSTRAINT ks_bauwerkanlagenfuerverundentsorgung_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ks_bauwerkanlagenfuerverundentsorgung','wkb_geometry',:alkis_epsg,'POINT',2);
@@ -4166,7 +4166,7 @@ CREATE TABLE ks_sonstigesbauwerk (
 	anlass			varchar[],
 	bauwerksfunktion	integer,
 	bezeichnung		varchar,
-	CONSTRAINT ks_sonstigesbauwerk_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ks_sonstigesbauwerk','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -4185,7 +4185,7 @@ CREATE TABLE ks_einrichtungimstrassenverkehr(
 	oberflaechenmaterial	integer,
 	bezeichnung		varchar,
 	zustand			integer,
-	CONSTRAINT ks_einrichtungimstrassenverkehr_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ks_einrichtungimstrassenverkehr','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -4206,7 +4206,7 @@ CREATE TABLE ks_verkehrszeichen (
 	verkehrseinrichtung	integer[],
 	zusatzzeichen		integer[],
 	bezeichnung		varchar,
-	CONSTRAINT ks_verkehrszeichen_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ks_verkehrszeichen','wkb_geometry',:alkis_epsg,'POINT',2);
@@ -4223,7 +4223,7 @@ CREATE TABLE ks_einrichtungimbahnverkehr(
 	anlass			varchar[],
 	art			integer,
 	bezeichnung		varchar,
-	CONSTRAINT ks_einrichtungimbahnverkehr_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ks_einrichtungimbahnverkehr','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -4241,7 +4241,7 @@ CREATE TABLE ks_bauwerkimgewaesserbereich (
 	bauwerksfunktion	integer,
 	bezeichnung		varchar,
 	zustand			integer,
-	CONSTRAINT ks_bauwerkimgewaesserbereich_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ks_bauwerkimgewaesserbereich','wkb_geometry',:alkis_epsg,'LINESTRING',2);
@@ -4261,7 +4261,7 @@ CREATE TABLE ks_vegetationsmerkmal (
 	breitedesobjekts	double precision,
 	name			varchar,
 	bezeichnung		varchar,
-	CONSTRAINT ks_vegetationsmerkmal_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ks_vegetationsmerkmal','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
@@ -4278,12 +4278,12 @@ CREATE TABLE ks_bauraumoderbodenordnungsrecht (
 	anlass			varchar[],
 	artderfestlegung	integer,
 	bezeichnung		varchar,
-	CONSTRAINT ks_bauraumoderbodenordnungsrecht_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ks_bauraumoderbodenordnungsrecht','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
-CREATE INDEX ks_bauraumoderbodenordnungsrecht_geom_idx ON ks_vegetationsmerkmal USING gist (wkb_geometry);
+CREATE INDEX ks_bauraumoderbodenordnungsrecht_geom_idx ON ks_bauraumoderbodenordnungsrecht USING gist (wkb_geometry);
 
 CREATE TABLE ks_kommunalerbesitz (
 	ogc_fid			serial NOT NULL,
@@ -4295,12 +4295,12 @@ CREATE TABLE ks_kommunalerbesitz (
 	anlass			varchar[],
 	zustaendigkeit		varchar,
 	nutzung			varchar,
-	CONSTRAINT ks_kommunalerbesitz_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ks_kommunalerbesitz','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
-CREATE INDEX ks_kommunalerbesitz_geom_idx ON ks_vegetationsmerkmal USING gist (wkb_geometry);
+CREATE INDEX ks_kommunalerbesitz_geom_idx ON ks_kommunalerbesitz USING gist (wkb_geometry);
 
 \i alkis-wertearten.sql
 \i alkis-wertearten-nrw.sql

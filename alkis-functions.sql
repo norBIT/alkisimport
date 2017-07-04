@@ -14,6 +14,11 @@
  *
  ****************************************************************************/
 
+SELECT alkis_dropobject('alkis_string_append');
+CREATE OR REPLACE FUNCTION alkis_string_append(r varchar, m varchar) RETURNS varchar AS $$
+	SELECT CASE WHEN r='' OR r LIKE E'%\n' THEN r ELSE coalesce(r||E'\n','') END || coalesce(m, '');
+$$ LANGUAGE 'sql' IMMUTABLE;
+
 -- Table/View/Sequence löschen, wenn vorhanden
 CREATE OR REPLACE FUNCTION alkis_dropobject(t TEXT) RETURNS varchar AS $$
 DECLARE
@@ -32,22 +37,22 @@ BEGIN
 		ORDER BY relkind
 	LOOP
 		IF c.relkind = 'v' THEN
-			r := coalesce(r||E'\n','') || 'Sicht ' || c.relname || ' gelöscht.';
+			r := alkis_string_append(r, 'Sicht ' || c.relname || ' gelöscht.');
 			EXECUTE 'DROP VIEW ' || c.relname || ' CASCADE';
 		ELSIF c.relkind = 'r' THEN
-			r := coalesce(r||E'\n','') || 'Tabelle ' || c.relname || ' gelöscht.';
+			r := alkis_string_append(r, 'Tabelle ' || c.relname || ' gelöscht.');
 			EXECUTE 'DROP TABLE ' || c.relname || ' CASCADE';
 		ELSIF c.relkind = 'S' THEN
-			r := coalesce(r||E'\n','') || 'Sequenz ' || c.relname || ' gelöscht.';
+			r := alkis_string_append(r, 'Sequenz ' || c.relname || ' gelöscht.');
 			EXECUTE 'DROP SEQUENCE ' || c.relname;
 		ELSIF c.relkind <> 'i' THEN
-			r := coalesce(r||E'\n','') || 'Typ ' || c.table_type || '.' || c.table_name || ' unerwartet.';
+			r := alkis_string_append(r, 'Typ ' || c.table_type || '.' || c.table_name || ' unerwartet.');
 		END IF;
 	END LOOP;
 
 	FOR c IN SELECT indexname FROM pg_indexes WHERE schemaname='public' AND indexname=t
 	LOOP
-		r := coalesce(r||E'\n','') || 'Index ' || c.indexname || ' gelöscht.';
+		r := alkis_string_append(r, 'Index ' || c.indexname || ' gelöscht.');
 		EXECUTE 'DROP INDEX ' || c.indexname;
 	END LOOP;
 
@@ -56,7 +61,7 @@ BEGIN
 		JOIN pg_namespace ON pg_proc.pronamespace=pg_namespace.oid
 		WHERE pg_namespace.nspname='public' AND pg_proc.proname=t
 	LOOP
-		r := coalesce(r||E'\n','')|| 'Funktion ' || c.proname || ' gelöscht.';
+		r := alkis_string_append(r, 'Funktion ' || c.proname || ' gelöscht.');
 
 		s := 'DROP FUNCTION ' || c.proname || '(';
 		d := '';
@@ -78,7 +83,7 @@ BEGIN
 		JOIN pg_namespace ON pg_constraint.connamespace=pg_namespace.oid
 		WHERE pg_namespace.nspname='public' AND pg_constraint.conname=t
 	LOOP
-		r := coalesce(r||E'\n','') || 'Constraint ' || c.conname || ' von ' || c.relname || ' gelöscht.';
+		r := alkis_string_append(r, 'Constraint ' || c.conname || ' von ' || c.relname || ' gelöscht.');
 		EXECUTE 'ALTER TABLE ' || c.relname || ' DROP CONSTRAINT ' || c.conname;
 	END LOOP;
 
@@ -100,13 +105,13 @@ BEGIN
 			   OR table_name IN ('alkis_beziehungen','delete','alkis_version') )
 		   ORDER BY table_type DESC LOOP
 		IF c.table_type = 'VIEW' THEN
-			r := coalesce(r||E'\n','') || 'Sicht ' || c.table_name || ' gelöscht.';
+			r := alkis_string_append(r, 'Sicht ' || c.table_name || ' gelöscht.');
 			EXECUTE 'DROP VIEW ' || c.table_name || ' CASCADE';
 		ELSIF c.table_type = 'BASE TABLE' THEN
-			r := coalesce(r||E'\n','') || 'Tabelle ' || c.table_name || ' gelöscht.';
+			r := alkis_string_append(r, 'Tabelle ' || c.table_name || ' gelöscht.');
 			EXECUTE 'DROP TABLE ' || c.table_name || ' CASCADE';
 		ELSE
-			r := coalesce(r||E'\n','') || 'Typ ' || c.table_type || '.' || c.table_name || ' unerwartet.';
+			r := alkis_string_append(r, 'Typ ' || c.table_type || '.' || c.table_name || ' unerwartet.');
 		END IF;
 	END LOOP;
 
@@ -133,7 +138,7 @@ BEGIN
 		     AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_')
 			   OR table_name IN ('alkis_beziehungen','delete') )
 		   ORDER BY table_type DESC LOOP
-		r := coalesce(r||E'\n','') || 'Tabelle ' || c.table_name || ' geleert.';
+		r := alkis_string_append(r, 'Tabelle ' || c.table_name || ' geleert.');
 		EXECUTE 'DELETE FROM ' || c.table_name;
 	END LOOP;
 
@@ -213,7 +218,7 @@ BEGIN
 		  AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_')
 			OR table_name IN ('alkis_beziehungen','delete') )
 	LOOP
-		r := coalesce(r||E'\n','') || c.table_name || ' wurde geleert.';
+		r := alkis_string_append(r, c.table_name || ' wurde geleert.');
 		EXECUTE 'TRUNCATE '||c.table_name;
 	END LOOP;
 
@@ -413,12 +418,12 @@ BEGIN
 	LOOP
 		EXECUTE 'SELECT count(*) FROM ' || c.table_name || ' WHERE endet IS NULL GROUP BY gml_id HAVING count(*)>1' INTO n;
 		IF n>1 THEN
-			r := coalesce(r||E'\n','') || c.table_name || ': ' || n || ' Objekte, die in mehreren Versionen nicht beendet sind.';
+			r := alkis_string_append(r, c.table_name || ': ' || n || ' Objekte, die in mehreren Versionen nicht beendet sind.');
 		END IF;
 
 		EXECUTE 'SELECT count(*) FROM ' || c.table_name || ' WHERE beginnt>=endet' INTO n;
 		IF n>1 THEN
-			r := coalesce(r||E'\n','') || c.table_name || ': ' || n || ' Objekte mit ungültiger Lebensdauer.';
+			r := alkis_string_append(r, c.table_name || ': ' || n || ' Objekte mit ungültiger Lebensdauer.');
 		END IF;
 
 		EXECUTE 'SELECT count(*)'
@@ -426,7 +431,7 @@ BEGIN
 			|| ' JOIN ' || c.table_name || ' b ON a.gml_id=b.gml_id AND a.ogc_fid<>b.ogc_fid AND a.beginnt<b.endet AND a.endet>b.beginnt'
 			INTO n;
 		IF n>0 THEN
-			r := coalesce(r||E'\n','') || c.table_name || ': ' || n || ' Lebensdauerüberschneidungen.';
+			r := alkis_string_append(r, c.table_name || ': ' || n || ' Lebensdauerüberschneidungen.');
 		END IF;
 	END LOOP;
 
@@ -481,6 +486,22 @@ SELECT alkis_dropobject('alkis_update_schema');
 CREATE OR REPLACE FUNCTION alkis_update_schema() RETURNS varchar AS $$
 BEGIN
 	RETURN 'Keine Datenbankmigration bei PostgreSQL 8.3';
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT alkis_dropobject('alkis_rename_table');
+CREATE OR REPLACE FUNCTION alkis_rename_table(t TEXT) RETURNS varchar AS $$
+BEGIN
+	PERFORM alkis_dropobject(t || '_');
+
+	EXECUTE 'ALTER TABLE ' || t || ' RENAME TO ' || t || '_';
+
+	PERFORM alkis_dropobject(t || '_geom_idx');		   -- < GDAL 1.11
+	PERFORM alkis_dropobject(t || '_wkb_geometry_geom_idx');   -- >= GDAL 1.11
+
+	RETURN t || ' umbenannt - INHALT MANUELL MIGRIEREN.';
+EXCEPTION WHEN OTHERS THEN
+	RETURN '';
 END;
 $$ LANGUAGE plpgsql;
 
@@ -569,7 +590,7 @@ BEGIN
 		END LOOP;
 
 		IF i > 0 OR s > 0 THEN
-			r := coalesce(r||E'\n','') || i || ' Tabellen mit ' || s || ' lange AAA-Identifikatoren geändert.';
+			r := alkis_string_append(r, i || ' Tabellen mit ' || s || ' lange AAA-Identifikatoren geändert.');
 		END IF;
 
 		-- land, gemarkungsnummer, gemeinde, regierungsbezirk, bezirk, kreis, schluesselgesamt: integer => varchar
@@ -588,7 +609,7 @@ BEGIN
 		END LOOP;
 
 		IF i > 0 THEN
-			r := coalesce(r||E'\n','') || i || ' Spalten angepaßt (integer->character varying).';
+			r := alkis_string_append(r, i || ' Spalten angepaßt (integer->character varying).');
 		END IF;
 
 		-- Relationen: varchar => character(16) bzw. varchar[] => character(16)[]
@@ -629,7 +650,7 @@ BEGIN
 		END LOOP;
 
 		IF i > 0 THEN
-			r := coalesce(r||E'\n','') || i || ' Spalten angepaßt (varchar->character(16)).';
+			r := alkis_string_append(r, i || ' Spalten angepaßt (varchar->character(16)).');
 		END IF;
 
 		UPDATE alkis_version SET version=1;
@@ -658,7 +679,7 @@ BEGIN
 		END LOOP;
 
 		IF i > 0 THEN
-			r := coalesce(r||E'\n','') || i || ' identifier-Spalten gelöscht.';
+			r := alkis_string_append(r, i || ' identifier-Spalten gelöscht.');
 		END IF;
 
 		UPDATE alkis_version SET version=2;
@@ -714,8 +735,6 @@ BEGIN
 		ALTER TABLE ax_gebaeude DROP baujahr_;
 
 		UPDATE alkis_version SET version=7;
-
-		r := coalesce(r||E'\n','');
 	END IF;
 
 	IF v<8 THEN
@@ -772,7 +791,7 @@ BEGIN
 		END LOOP;
 
 		IF i > 0 THEN
-			r := coalesce(r||E'\n','') || i || ' anlass-Spalten angepaßt (character varying->character varying[])';
+			r := alkis_string_append(r, i || ' anlass-Spalten angepaßt (character varying->character varying[])');
 		END IF;
 
 		UPDATE alkis_version SET version=10;
@@ -787,7 +806,7 @@ BEGIN
 		EXECUTE 'ALTER TABLE "delete" DROP anlass_';
 
 		IF i > 0 THEN
-			r := coalesce(r||E'\n','') || 'Spalte delete.anlass angepaßt (character varying->character varying[])';
+			r := alkis_string_append(r, 'Spalte delete.anlass angepaßt (character varying->character varying[])');
 		END IF;
 
 		UPDATE alkis_version SET version=11;
@@ -803,13 +822,7 @@ BEGIN
 
 		CREATE INDEX ks_einrichtunginoeffentlichenbereichen_geom_idx ON ks_einrichtunginoeffentlichenbereichen USING gist (wkb_geometry);
 
-		BEGIN
-			ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung RENAME TO ks_bauwerkanlagenfuerverundentsorgung_;
-			r := coalesce(r||E'\n','') || 'ks_bauwerkanlagenfuerverundentsorgung umbenannt - INHALT MANUELL MIGRIEREN.';
-
-			ALTER INDEX ks_bauwerkanlagenfuerverundentsorgung_pk RENAME TO ks_bauwerkanlagenfuerverundentsorgung__pk;
-		EXCEPTION WHEN OTHERS THEN
-		END;
+		r := alkis_string_append(r, alkis_rename_table('ks_bauwerkanlagenfuerverundentsorgung'));
 
 		CREATE TABLE ks_bauwerkanlagenfuerverundentsorgung (
 			ogc_fid                 serial NOT NULL,
@@ -822,7 +835,7 @@ BEGIN
 			art                     integer,
 			bezeichnung             varchar,
 			zustand                 integer,
-			CONSTRAINT ks_bauwerkanlagenfuerverundentsorgung_pk PRIMARY KEY (ogc_fid)
+			PRIMARY KEY (ogc_fid)
 		);
 
 		PERFORM AddGeometryColumn('ks_bauwerkanlagenfuerverundentsorgung','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'POINT',2);
@@ -832,13 +845,7 @@ BEGIN
 		ALTER TABLE ks_sonstigesbauwerk ADD advstandardmodell varchar[];
 		ALTER TABLE ks_sonstigesbauwerk ADD bezeichnung varchar;
 
-		BEGIN
-			ALTER TABLE ks_einrichtungimstrassenverkehr RENAME TO ks_einrichtungimstrassenverkehr_;
-			r := coalesce(r||E'\n','') || 'ks_einrichtungimstrassenverkehr umbenannt - INHALT MANUELL MIGRIEREN.';
-
-			ALTER INDEX ks_einrichtungimstrassenverkehr_pk RENAME TO ks_einrichtungimstrassenverkehr__pk;
-		EXCEPTION WHEN OTHERS THEN
-		END;
+		r := alkis_string_append(r, alkis_rename_table('ks_einrichtungimstrassenverkehr'));
 
 		CREATE TABLE ks_einrichtungimstrassenverkehr(
 			ogc_fid                 serial NOT NULL,
@@ -852,7 +859,7 @@ BEGIN
 			oberflaechenmaterial    integer,
 			bezeichnung             varchar,
 			zustand                 integer,
-			CONSTRAINT ks_einrichtungimstrassenverkehr_pk PRIMARY KEY (ogc_fid)
+			PRIMARY KEY (ogc_fid)
 		);
 
 		PERFORM AddGeometryColumn('ks_einrichtungimstrassenverkehr','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
@@ -871,13 +878,7 @@ BEGIN
 		ALTER TABLE ks_verkehrszeichen ADD zusatzzeichen integer[];
 		ALTER TABLE ks_verkehrszeichen ADD bezeichnung varchar;
 
-		BEGIN
-			ALTER TABLE ks_einrichtungimbahnverkehr RENAME TO ks_einrichtungimbahnverkehr_;
-			r := coalesce(r||E'\n','') || 'ks_einrichtungimbahnverkehr umbenannt - INHALT MANUELL MIGRIEREN.';
-
-			ALTER INDEX ks_einrichtungimbahnverkehr_pk RENAME TO ks_einrichtungimbahnverkehr__pk;
-		EXCEPTION WHEN OTHERS THEN
-		END;
+		r := alkis_string_append(r, alkis_rename_table('ks_einrichtungimbahnverkehr'));
 
 		CREATE TABLE ks_einrichtungimbahnverkehr(
 			ogc_fid                 serial NOT NULL,
@@ -889,20 +890,14 @@ BEGIN
 			anlass                  varchar[],
 			art                     integer,
 			bezeichnung             varchar,
-			CONSTRAINT ks_einrichtungimbahnverkehr_pk PRIMARY KEY (ogc_fid)
+			PRIMARY KEY (ogc_fid)
 		);
 
 		PERFORM AddGeometryColumn('ks_einrichtungimbahnverkehr','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 
 		CREATE INDEX ks_einrichtungimbahnverkehr_geom_idx ON ks_einrichtungimbahnverkehr USING gist (wkb_geometry);
 
-		BEGIN
-			ALTER TABLE ks_bauwerkimgewaesserbereich RENAME TO ks_einrichtungimbahnverkehr_;
-			r := coalesce(r||E'\n','') || 'ks_bauwerkimgewaesserbereich umbenannt - INHALT MANUELL MIGRIEREN.';
-
-			ALTER INDEX ks_bauwerkimgewaesserbereich_pk RENAME TO ks_bauwerkimgewaesserbereich__pk;
-		EXCEPTION WHEN OTHERS THEN
-		END;
+		r := alkis_string_append(r, alkis_rename_table('ks_bauwerkimgewaesserbereich'));
 
 		CREATE TABLE ks_bauwerkimgewaesserbereich (
 			ogc_fid                 serial NOT NULL,
@@ -915,20 +910,14 @@ BEGIN
 			bauwerksfunktion        integer,
 			bezeichnung             varchar,
 			zustand                 integer,
-			CONSTRAINT ks_bauwerkimgewaesserbereich_pk PRIMARY KEY (ogc_fid)
+			PRIMARY KEY (ogc_fid)
 		);
 
 		PERFORM AddGeometryColumn('ks_bauwerkimgewaesserbereich','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'LINESTRING',2);
 
 		CREATE INDEX ks_bauwerkimgewaesserbereich_geom_idx ON ks_bauwerkimgewaesserbereich USING gist (wkb_geometry);
 
-		BEGIN
-			ALTER TABLE ks_vegetationsmerkmal RENAME TO ks_vegetationsmerkmal_;
-			r := coalesce(r||E'\n','') || 'ks_vegetationsmerkmal umbenannt - INHALT MANUELL MIGRIEREN.';
-
-			ALTER INDEX ks_vegetationsmerkmal_pk RENAME TO ks_vegetationsmerkmal__pk;
-		EXCEPTION WHEN OTHERS THEN
-		END;
+		r := alkis_string_append(r, alkis_rename_table('ks_vegetationsmerkmal'));
 
 		CREATE TABLE ks_vegetationsmerkmal (
 			ogc_fid                 serial NOT NULL,
@@ -943,18 +932,14 @@ BEGIN
 			breitedesobjekts        double precision,
 			name                    varchar,
 			bezeichnung             varchar,
-			CONSTRAINT ks_vegetationsmerkmal_pk PRIMARY KEY (ogc_fid)
+			PRIMARY KEY (ogc_fid)
 		);
 
 		PERFORM AddGeometryColumn('ks_vegetationsmerkmal','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 
 		CREATE INDEX ks_vegetationsmerkmal_geom_idx ON ks_vegetationsmerkmal USING gist (wkb_geometry);
 
-		BEGIN
-			ALTER TABLE ks_bauraumoderbodenordnungsrecht RENAME TO ks_bauraumoderbodenordnungsrecht_;
-			ALTER INDEX ks_bauraumoderbodenordnungsrecht_pk RENAME TO ks_bauraumoderbodenordnungsrecht__pk;
-		EXCEPTION WHEN OTHERS THEN
-		END;
+		r := alkis_string_append(r, alkis_rename_table('ks_bauraumoderbodenordnungsrecht'));
 
 		CREATE TABLE ks_bauraumoderbodenordnungsrecht (
 			ogc_fid                 serial NOT NULL,
@@ -966,20 +951,14 @@ BEGIN
 			anlass                  varchar[],
 			artderfestlegung        integer,
 			bezeichnung             varchar,
-			CONSTRAINT ks_bauraumoderbodenordnungsrecht_pk PRIMARY KEY (ogc_fid)
+			PRIMARY KEY (ogc_fid)
 		);
 
 		PERFORM AddGeometryColumn('ks_bauraumoderbodenordnungsrecht','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 
 		CREATE INDEX ks_bauraumoderbodenordnungsrecht_geom_idx ON ks_vegetationsmerkmal USING gist (wkb_geometry);
 
-		BEGIN
-			ALTER TABLE ks_kommunalerbesitz RENAME TO ks_kommunalerbesitz_;
-			r := coalesce(r||E'\n','') || 'ks_kommunalerbesitz umbenannt - INHALT MANUELL MIGRIEREN.';
-
-			ALTER INDEX ks_kommunalerbesitz_pk RENAME TO ks_kommunalerbesitz__pk;
-		EXCEPTION WHEN OTHERS THEN
-		END;
+		r := alkis_string_append(r, alkis_rename_table('ks_kommunalerbesitz'));
 
 		CREATE TABLE ks_kommunalerbesitz (
 			ogc_fid                 serial NOT NULL,
@@ -991,27 +970,20 @@ BEGIN
 			anlass                  varchar[],
 			zustaendigkeit          varchar,
 			nutzung                 varchar,
-			CONSTRAINT ks_kommunalerbesitz_pk PRIMARY KEY (ogc_fid)
+			PRIMARY KEY (ogc_fid)
 		);
 
 		PERFORM AddGeometryColumn('ks_kommunalerbesitz','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 
 		CREATE INDEX ks_kommunalerbesitz_geom_idx ON ks_vegetationsmerkmal USING gist (wkb_geometry);
+
+		UPDATE alkis_version SET version=12;
 	END IF;
 
 	IF v<13 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 13';
 
-		BEGIN
-			ALTER TABLE ax_landschaft RENAME TO ax_landschaft_;
-			r := coalesce(r||E'\n','') || 'ax_landschaft umbenannt - INHALT MANUELL MIGRIEREN.';
-
-			ALTER INDEX ax_landschaft_pk RENAME TO ax_landschaft__pk;
-			ALTER INDEX ax_landschaft_geom_idx RENAME TO ax_landschaft__geom_idx;
-			ALTER INDEX ax_landschaft_gml RENAME TO ax_landschaft__gml;
-		EXCEPTION WHEN OTHERS THEN
-			RAISE NOTICE 'Migration auf Version 13 schlug fehlt.';
-		END;
+		r := alkis_string_append(r, alkis_rename_table('ax_landschaft'));
 
 		CREATE TABLE ax_landschaft(
 			ogc_fid                 serial NOT NULL,
@@ -1023,7 +995,7 @@ BEGIN
 			anlass                  varchar[],
 			landschaftstyp          integer,
 			name                    varchar,
-			CONSTRAINT ax_landschaft_pk PRIMARY KEY (ogc_fid)
+			PRIMARY KEY (ogc_fid)
 		);
 
 		PERFORM AddGeometryColumn('ax_landschaft','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2); -- POINT/LINESTRING
@@ -1032,8 +1004,20 @@ BEGIN
 		CREATE UNIQUE INDEX ax_landschaft_gml ON ax_landschaft USING btree (gml_id,beginnt);
 
 		UPDATE alkis_version SET version=13;
+	END IF;
 
-		r := coalesce(r||E'\n','') || 'ALKIS-Schema migriert';
+	IF v<14 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 14';
+
+		PERFORM alkis_dropobject('ks_bauraumoderbodenordnungsrecht_geom_idx');
+		CREATE INDEX ks_bauraumoderbodenordnungsrecht_geom_idx ON ks_bauraumoderbodenordnungsrecht USING gist (wkb_geometry);
+
+		PERFORM alkis_dropobject('ks_kommunalerbesitz_geom_idx');
+		CREATE INDEX ks_kommunalerbesitz_geom_idx ON ks_kommunalerbesitz USING gist (wkb_geometry);
+
+		UPDATE alkis_version SET version=14;
+
+		r := alkis_string_append(r, 'ALKIS-Schema migriert');
 	END IF;
 
 	--
@@ -1228,9 +1212,9 @@ $$ LANGUAGE plpgsql;
 DROP AGGREGATE IF EXISTS array_accum(anyarray);
 
 CREATE AGGREGATE array_accum (anyarray) (
-    sfunc = array_cat,
-    stype = anyarray,
-    initcond = '{}'
+	sfunc = array_cat,
+	stype = anyarray,
+	initcond = '{}'
 );
 
 \set ON_ERROR_STOP

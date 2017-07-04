@@ -203,7 +203,7 @@ CREATE TABLE ax_besondereflurstuecksgrenze2 (
 	gml_id                  character(16) NOT NULL,
 	modell			varchar[],
 	artderflurstuecksgrenze integer[],
-	CONSTRAINT ax_besondereflurstuecksgrenze2_pk PRIMARY KEY (ogc_fid)
+	PRIMARY KEY (ogc_fid)
 );
 
 SELECT AddGeometryColumn('ax_besondereflurstuecksgrenze2','wkb_geometry',:alkis_epsg,'LINESTRING',2);
