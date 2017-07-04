@@ -1515,7 +1515,7 @@ INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	o.gml_id,
 	'Gebäude' AS thema,
-	'ax_bauteil' AS layer,
+	'ax_bauteil_funktion' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(p.signaturnummer,'3336') AS signaturnummer,
@@ -1529,7 +1529,7 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,ho
 SELECT
 	o.gml_id,
 	'Gebäude' AS thema,
-	'ax_bauteil' AS layer,
+	'ax_bauteil_dachform' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	CASE dachform
 	WHEN 1000 THEN 'F'
@@ -1560,7 +1560,7 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,ho
 SELECT
 	o.gml_id,
 	'Gebäude' AS thema,
-	'ax_bauteil' AS layer,
+	'ax_bauteil_geschosse' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	trim(to_char(o.anzahlderoberirdischengeschosse,'RN')) AS text,
 	coalesce(t.signaturnummer,'4070') AS signaturnummer,
@@ -3487,7 +3487,7 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,ho
 SELECT
 	gml_id,
 	'Gebäude' AS thema,
-	'ax_turm' AS layer,
+	'ax_turm_funktion' AS layer,
 	point,
 	text,
 	signaturnummer,
@@ -3519,7 +3519,7 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,ho
 SELECT
 	gml_id,
 	'Gebäude' AS thema,
-	'ax_turm' AS layer,
+	'ax_turm_funktion' AS layer,
 	point,
 	text,
 	signaturnummer,
