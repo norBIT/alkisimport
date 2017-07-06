@@ -5204,7 +5204,7 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
-		o.wkb_geometry AS line,
+		CASE geometrytype(wkb_geometry) WHEN 'MULTILINESTRING' THEN (st_dump(wkb_geometry)).geom ELSE wkb_geometry END AS line,
 		generate_series( 0, trunc(st_length(wkb_geometry)*1000.0)::int,
 			CASE
 			WHEN bahnkategorie IN (2100,2200,2300,2400,2600) THEN 16000
@@ -5220,6 +5220,7 @@ FROM (
 		o.advstandardmodell||o.sonstigesmodell AS modell
 	FROM ax_seilbahnschwebebahn o
 	WHERE o.endet IS NULL
+	  AND geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
 ) AS o WHERE NOT signaturnummer IS NULL;
 
 -- Namen
@@ -6484,7 +6485,7 @@ BEGIN
 
 		-- RAISE NOTICE 'Schnittkanten:%', st_astext(sk);
 
-		s := CASE WHEN st_distance( st_offsetcurve(ok, -0.001), uk ) > st_distance( st_offsetcurve(ok, 0.001), uk ) THEN -1 ELSE 1 END;
+		s := CASE WHEN st_distance( alkis_safe_offsetcurve(ok, -0.001, ''::text), uk ) > st_distance( alkis_safe_offsetcurve(ok, 0.001, ''::text), uk ) THEN -1 ELSE 1 END;
 
 		o := 0.0;
 		ol := st_length(ok);
@@ -8179,7 +8180,7 @@ UPDATE po_labels SET skalierung=1 WHERE skalierung IS NULL;
 UPDATE po_labels SET drehwinkel_grad=degrees(drehwinkel);
 
 -- Zeilenumbrüche austauschen
-UPDATE po_labels SET text=replace(text,E'\\n',E'\n') WHERE text LIKE '%\\n%';
+UPDATE po_labels SET text=replace(text,E'\\n',E'\n') WHERE text LIKE E'%\\n%';
 
 -- Pfeilspitzen
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)

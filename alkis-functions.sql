@@ -14,11 +14,6 @@
  *
  ****************************************************************************/
 
-SELECT alkis_dropobject('alkis_string_append');
-CREATE OR REPLACE FUNCTION alkis_string_append(r varchar, m varchar) RETURNS varchar AS $$
-	SELECT CASE WHEN r='' OR r LIKE E'%\n' THEN r ELSE coalesce(r||E'\n','') END || coalesce(m, '');
-$$ LANGUAGE 'sql' IMMUTABLE;
-
 -- Table/View/Sequence löschen, wenn vorhanden
 CREATE OR REPLACE FUNCTION alkis_dropobject(t TEXT) RETURNS varchar AS $$
 DECLARE
@@ -90,6 +85,11 @@ BEGIN
 	RETURN r;
 END;
 $$ LANGUAGE plpgsql;
+
+SELECT alkis_dropobject('alkis_string_append');
+CREATE OR REPLACE FUNCTION alkis_string_append(r varchar, m varchar) RETURNS varchar AS $$
+	SELECT CASE WHEN r='' OR r LIKE E'%\n' THEN r ELSE coalesce(r||E'\n','') END || coalesce(m, '');
+$$ LANGUAGE 'sql' IMMUTABLE;
 
 -- Alle ALKIS-Tabellen löschen
 SELECT alkis_dropobject('alkis_drop');
