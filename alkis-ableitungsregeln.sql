@@ -6527,12 +6527,12 @@ BEGIN
 				k INTEGER;
 				b2 GEOMETRY[];
 			BEGIN
-				SELECT array_agg(g.i) INTO idxs FROM (
-					SELECT g.i FROM (
-						SELECT (g).path[1] AS i,st_length((g).geom) AS l FROM (
+				SELECT array_agg(g.idx) INTO idxs FROM (
+					SELECT g.idx FROM (
+						SELECT (g).path[1] AS idx,st_length((g).geom) AS len FROM (
 							SELECT st_dump(st_collect(b1)) AS g
 						) AS g
-					) AS g ORDER BY g.l DESC
+					) AS g ORDER BY g.len DESC
 				) AS g;
 
 				FOR j IN 1..array_upper(idxs, 1) LOOP

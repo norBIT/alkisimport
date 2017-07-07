@@ -87,8 +87,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 SELECT alkis_dropobject('alkis_string_append');
-CREATE OR REPLACE FUNCTION alkis_string_append(r varchar, m varchar) RETURNS varchar AS $$
-	SELECT CASE WHEN r='' OR r LIKE E'%\n' THEN r ELSE coalesce(r||E'\n','') END || coalesce(m, '');
+CREATE OR REPLACE FUNCTION alkis_string_append(varchar, varchar) RETURNS varchar AS $$
+        SELECT CASE WHEN $1='' OR $1 LIKE E'%\n' THEN $1 ELSE coalesce($1||E'\n','') END || coalesce($2, '');
 $$ LANGUAGE 'sql' IMMUTABLE;
 
 -- Alle ALKIS-Tabellen löschen
