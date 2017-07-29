@@ -675,7 +675,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
             self.log("PostGIS-Version: {}".format(qry.value(0)))
 
-            qry = self.db.exec_("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='alkis_importlog'")
+            qry = self.db.exec_("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='alkis_importlog'")
             if not qry or not qry.next():
                 self.log(u"Konnte Existenz von Protokolltabelle nicht überprüfen.")
                 break
@@ -693,7 +693,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.cbxClearProtocol.setChecked(False)
                 self.log(u"Protokolltabelle gelöscht.")
 
-            qry = self.db.exec_("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='ax_flurstueck'")
+            qry = self.db.exec_("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='ax_flurstueck'")
             if not qry or not qry.next():
                 self.log(u"Konnte Existenz des ALKIS-Schema nicht überprüfen.")
                 break

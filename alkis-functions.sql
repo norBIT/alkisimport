@@ -28,7 +28,7 @@ BEGIN
 	FOR c IN SELECT relkind,relname
 		FROM pg_class
 		JOIN pg_namespace ON pg_class.relnamespace=pg_namespace.oid
-		WHERE pg_namespace.nspname='public' AND pg_class.relname=t
+		WHERE pg_namespace.nspname=current_schema() AND pg_class.relname=t
 		ORDER BY relkind
 	LOOP
 		IF c.relkind = 'v' THEN
@@ -45,7 +45,7 @@ BEGIN
 		END IF;
 	END LOOP;
 
-	FOR c IN SELECT indexname FROM pg_indexes WHERE schemaname='public' AND indexname=t
+	FOR c IN SELECT indexname FROM pg_indexes WHERE schemaname=current_schema() AND indexname=t
 	LOOP
 		r := alkis_string_append(r, 'Index ' || c.indexname || ' gelöscht.');
 		EXECUTE 'DROP INDEX ' || c.indexname;
@@ -54,7 +54,7 @@ BEGIN
 	FOR c IN SELECT proname,proargtypes
 		FROM pg_proc
 		JOIN pg_namespace ON pg_proc.pronamespace=pg_namespace.oid
-		WHERE pg_namespace.nspname='public' AND pg_proc.proname=t
+		WHERE pg_namespace.nspname=current_schema() AND pg_proc.proname=t
 	LOOP
 		r := alkis_string_append(r, 'Funktion ' || c.proname || ' gelöscht.');
 
@@ -76,7 +76,7 @@ BEGIN
 		FROM pg_constraint
 		JOIN pg_class ON pg_constraint.conrelid=pg_constraint.oid
 		JOIN pg_namespace ON pg_constraint.connamespace=pg_namespace.oid
-		WHERE pg_namespace.nspname='public' AND pg_constraint.conname=t
+		WHERE pg_namespace.nspname=current_schema() AND pg_constraint.conname=t
 	LOOP
 		r := alkis_string_append(r, 'Constraint ' || c.conname || ' von ' || c.relname || ' gelöscht.');
 		EXECUTE 'ALTER TABLE ' || c.relname || ' DROP CONSTRAINT ' || c.conname;
@@ -100,7 +100,7 @@ DECLARE
 BEGIN
 	-- drop tables & views
 	FOR c IN SELECT table_type,table_name FROM information_schema.tables
-		   WHERE table_schema='public'
+		   WHERE table_schema=current_schema()
 		     AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_')
 			   OR table_name IN ('alkis_beziehungen','delete','alkis_version') )
 		   ORDER BY table_type DESC LOOP
@@ -117,7 +117,7 @@ BEGIN
 
 	-- clean geometry_columns
 	DELETE FROM geometry_columns
-		WHERE f_table_schema='public'
+		WHERE f_table_schema=current_schema()
 		AND ( substr(f_table_name,1,2) IN ('ax_','ap_','ks_','aa_')
 		 OR f_table_name IN ('alkis_beziehungen','delete') );
 
@@ -134,7 +134,7 @@ DECLARE
 BEGIN
 	-- clean tables
 	FOR c IN SELECT table_name FROM information_schema.tables
-		   WHERE table_schema='public' AND table_type='BASE TABLE'
+		   WHERE table_schema=current_schema() AND table_type='BASE TABLE'
 		     AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_')
 			   OR table_name IN ('alkis_beziehungen','delete') )
 		   ORDER BY table_type DESC LOOP
@@ -214,7 +214,7 @@ BEGIN
 	FOR c IN
 		SELECT table_name
 		FROM information_schema.tables
-		WHERE table_schema='public' AND table_type='BASE TABLE'
+		WHERE table_schema=current_schema() AND table_type='BASE TABLE'
 		  AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_')
 			OR table_name IN ('alkis_beziehungen','delete') )
 	LOOP
@@ -414,7 +414,7 @@ DECLARE
 	n INTEGER;
 	r VARCHAR;
 BEGIN
-	FOR c IN SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_') AND table_type='BASE TABLE'
+	FOR c IN SELECT table_name FROM information_schema.tables WHERE table_schema=current_schema() AND substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_') AND table_type='BASE TABLE'
 	LOOP
 		EXECUTE 'SELECT count(*) FROM ' || c.table_name || ' WHERE endet IS NULL GROUP BY gml_id HAVING count(*)>1' INTO n;
 		IF n>1 THEN
@@ -520,7 +520,7 @@ BEGIN
 	-- ALKIS-Schema
 	--
 	SELECT count(*) INTO n FROM information_schema.columns
-		WHERE table_schema='public'
+		WHERE table_schema=current_schema()
 		  AND table_name='ax_flurstueck'
 		  AND column_name='sonstigesmodell';
 	IF n=0 THEN
@@ -574,7 +574,7 @@ BEGIN
 		FOR c IN
 			SELECT table_name
 			FROM information_schema.columns a
-			WHERE a.table_schema='public'
+			WHERE a.table_schema=current_schema()
 			  AND (a.table_name LIKE 'ax_%' OR a.table_name LIKE 'ap_%')
 			  AND a.column_name='gml_id'
 			  AND a.data_type='character varying'
@@ -598,7 +598,7 @@ BEGIN
 		FOR c IN
 			SELECT table_name, column_name
 			FROM information_schema.columns a
-			WHERE a.table_schema='public'
+			WHERE a.table_schema=current_schema()
 			  AND a.table_name LIKE 'ax_%'
 			  AND a.column_name IN ('land','gemarkungsnummer','gemeinde','regierungsbezirk','bezirk','kreis','schluesselgesamt')
 			  AND a.data_type='integer'
@@ -669,7 +669,7 @@ BEGIN
 		FOR c IN
 			SELECT table_name
 			FROM information_schema.columns a
-			WHERE a.table_schema='public'
+			WHERE a.table_schema=current_schema()
 			  AND (a.table_name LIKE 'ax_%' OR a.table_name LIKE 'ap_%')
 			  AND a.column_name='identifier'
 		LOOP
@@ -778,7 +778,7 @@ BEGIN
 		FOR c IN
 			SELECT table_name
 			FROM information_schema.columns a
-			WHERE a.table_schema='public'
+			WHERE a.table_schema=current_schema()
 			  AND (a.table_name LIKE 'ax_%' OR a.table_name LIKE 'ap_%' OR a.table_name LIKE 'ks_%')
 			  AND a.column_name='anlass'
 			  AND a.data_type='character varying'
@@ -1067,7 +1067,7 @@ BEGIN
 			UNION SELECT 4 AS o,'alkis_flaechen'
 			UNION SELECT 9 AS o,'po_labels'
 			) AS b ON a.table_name=b.table_name
-			WHERE a.table_schema='public'
+			WHERE a.table_schema=current_schema()
 			ORDER BY b.o
 		LOOP
 
@@ -1153,7 +1153,7 @@ BEGIN
 		SELECT table_name,definition,replace(table_type,'BASE TABLE','TABLE') AS table_type
 		FROM alkis_elemente
 		JOIN information_schema.tables ON lower(name)=table_name
-		WHERE table_type IN ('BASE TABLE','VIEW') AND NOT definition IS NULL
+		WHERE table_type IN ('BASE TABLE','VIEW') AND NOT definition IS NULL AND table_schema=current_schema()
 	LOOP
 		EXECUTE 'COMMENT ON '||c.table_type||' "'||c.table_name||'" IS '''||replace(c.definition,'''','''''')||'''';
 	END LOOP;
@@ -1161,7 +1161,7 @@ BEGIN
 	FOR c IN
 		SELECT table_name,column_name
 		FROM alkis_elemente
-		JOIN information_schema.columns ON lower(name)=table_name AND 'gml_id'=column_name
+		JOIN information_schema.columns ON lower(name)=table_name AND 'gml_id'=column_name AND table_schema=current_schema()
 	LOOP
 		EXECUTE 'COMMENT ON COLUMN '||c.table_name||'.gml_id IS ''Identifikator, global eindeutig''';
 	END LOOP;
@@ -1185,7 +1185,7 @@ BEGIN
 		SELECT col.table_name,col.column_name,a.definition,a.datentyp,a.kardinalitaet,a.kennung
 		FROM element t
 		JOIN typ a ON t.base=a.element
-		JOIN information_schema.columns col ON lower(t.name)=col.table_name AND lower(a.bezeichnung)=col.column_name
+		JOIN information_schema.columns col ON lower(t.name)=col.table_name AND lower(a.bezeichnung)=col.column_name AND table_schema=current_schema()
 		WHERE NOT a.definition IS NULL
 	LOOP
 		EXECUTE 'COMMENT ON COLUMN "'||c.table_name||'"."'||c.column_name||'" IS '''||c.kennung||'['||c.datentyp||CASE WHEN c.kardinalitaet='1' THEN '' ELSE ' '||c.kardinalitaet END||'] '||replace(c.definition,'''','''''')||'''';
@@ -1194,7 +1194,7 @@ BEGIN
 	FOR c IN
 		SELECT table_name,column_name,zielobjektart,kardinalitaet,anmerkung
 		FROM alkis_relationsart
-		JOIN information_schema.columns ON lower(element)=table_name AND lower(bezeichnung)=column_name
+		JOIN information_schema.columns ON lower(element)=table_name AND lower(bezeichnung)=column_name AND table_schema=current_schema()
 		WHERE NOT anmerkung IS NULL
 	LOOP
 		EXECUTE 'COMMENT ON COLUMN "'||c.table_name||'"."'||c.column_name||'" IS ''Beziehung zu '||c.zielobjektart||' ('||c.kardinalitaet||'): '||replace(c.anmerkung,'''','''''')||'''';
@@ -1202,7 +1202,7 @@ BEGIN
 
 	FOR c IN
 		SELECT table_name,column_name,bezeichnung,element,kardinalitaet FROM alkis_relationsart
-		JOIN information_schema.columns ON lower(zielobjektart)=table_name AND lower(inv__relation)=column_name
+		JOIN information_schema.columns ON lower(zielobjektart)=table_name AND lower(inv__relation)=column_name AND table_schema=current_schema()
 	LOOP
 		EXECUTE 'COMMENT ON COLUMN "'||c.table_name||'"."'||c.column_name||'" IS ''Inverse Beziehung zu '||c.element||'.'||c.bezeichnung||'.''';
 	END LOOP;
