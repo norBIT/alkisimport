@@ -50,7 +50,7 @@ INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl
      alkis_flsnrk(a) AS flsnrk,
      to_char(alkis_toint(a.land),'fm00') || to_char(alkis_toint(a.gemarkungsnummer),'fm0000') AS gemashl,
      to_char(coalesce(a.flurnummer,0),'fm000') AS flr,
-     substr(a.zeitpunktderentstehung,1,4)  || '/     -  ' AS entst,
+     to_char(date_part('year', a.zeitpunktderentstehung), 'fm0000') || '/     -  ' AS entst,
      NULL AS fortf,
      amtlicheflaeche::int AS flsfl,
      amtlicheflaeche AS amtlflsfl,
@@ -65,7 +65,7 @@ INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl
      NULL AS h2shl,
      NULL AS hinwshl,
      NULL AS strshl,
-     to_char(alkis_toint(a.land),'fm00')||a.regierungsbezirk||to_char(alkis_toint(a.kreis),'fm00')||to_char(alkis_toint(a.gemeinde),'fm000') AS gemshl,
+     to_char(alkis_toint(a.gemeindezugehoerigkeit_land),'fm00')||a.gemeindezugehoerigkeit_regierungsbezirk||to_char(alkis_toint(a.gemeindezugehoerigkeit_kreis),'fm00')||to_char(alkis_toint(a.gemeindezugehoerigkeit_gemeinde),'fm000') AS gemshl,
      NULL AS hausnr,
      (
       SELECT array_to_string(array_agg(DISTINCT unverschluesselt),E'\n')
@@ -349,7 +349,7 @@ DELETE FROM v_schutzgebietnachwasserrecht;
 INSERT INTO v_schutzgebietnachwasserrecht
     SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
     FROM ax_schutzgebietnachwasserrecht s
-    JOIN ax_schutzzone z ON z.istteilvon=s.gml_id AND z.endet IS NULL
+    JOIN ax_schutzzone z ON ARRAY[s.gml_id] <@ z.istteilvon AND z.endet IS NULL
     WHERE s.endet IS NULL;
 CREATE TEMP SEQUENCE a;
 UPDATE v_schutzgebietnachwasserrecht SET ogc_fid=nextval('a');
@@ -358,7 +358,7 @@ DELETE FROM v_schutzgebietnachnaturumweltoderbodenschutzrecht;
 INSERT INTO v_schutzgebietnachnaturumweltoderbodenschutzrecht
     SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
     FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht s
-    JOIN ax_schutzzone z ON z.istteilvon=s.gml_id AND z.endet IS NULL
+    JOIN ax_schutzzone z ON ARRAY[s.gml_id] <@ z.istteilvon AND z.endet IS NULL
     WHERE s.endet IS NULL;
 DROP SEQUENCE a;
 CREATE TEMP SEQUENCE a;

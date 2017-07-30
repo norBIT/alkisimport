@@ -7,6 +7,7 @@ INSTFILES=\
 	alkis-import.sh re refilter.py custom \
 	alkisImport.py alkisImportDlg.ui about.ui logo.ico logo.svg \
 	alkis-schema.sql \
+	alkis-init.sql \
 	alkis-clean.sql \
 	alkis-update.sql \
 	alkis-functions.sql \

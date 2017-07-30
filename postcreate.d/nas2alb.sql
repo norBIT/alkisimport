@@ -45,7 +45,7 @@ SET client_min_messages TO notice;
 
 SELECT alkis_dropobject('alb_version');
 CREATE TABLE alb_version(version integer);
-INSERT INTO alb_version(version) VALUES (1);
+INSERT INTO alb_version(version) VALUES (2);
 
 -- Sichten löschen, die von alkis_toint abhängen
 SELECT alkis_dropobject('ax_tatsaechlichenutzung');
@@ -72,11 +72,11 @@ BEGIN
 	RETURN
 		CASE
 		WHEN f.gml_id LIKE 'DESL%' THEN
-			to_char(f.zaehler,'fm0000') || '/' || to_char(coalesce(alkis_toint(f.nenner),0),'fm0000')
+			to_char(alkis_toint(f.zaehler),'fm0000') || '/' || to_char(coalesce(alkis_toint(f.nenner),0),'fm0000')
 		WHEN f.gml_id LIKE 'DESN%' THEN
-			to_char(f.zaehler,'fm00000') || '/' || substring(f.flurstueckskennzeichen,15,4)
+			to_char(alkis_toint(f.zaehler),'fm00000') || '/' || substring(f.flurstueckskennzeichen,15,4)
 		ELSE
-			to_char(f.zaehler,'fm00000') || '/' || to_char(coalesce(mod(alkis_toint(f.nenner),1000)::int,0),'fm000')
+			to_char(alkis_toint(f.zaehler),'fm00000') || '/' || to_char(coalesce(mod(alkis_toint(f.nenner),1000)::int,0),'fm000')
 		END;
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
@@ -149,6 +149,7 @@ CREATE TABLE flurst (
 	primary key (flsnr)
 ) WITH OIDS;
 
+SELECT alkis_dropobject('ax_flurstueck_flsnr');
 CREATE INDEX ax_flurstueck_flsnr ON ax_flurstueck USING btree (alkis_flsnr(ax_flurstueck));
 
 CREATE INDEX flurst_idx0 ON flurst(oid);
@@ -267,7 +268,7 @@ CREATE TABLE eigner (
 	bestdnr character(16),
 	pk character(8) NOT NULL,
 	ab character(4),
-	namensnr character(16),
+	namensnr varchar,
 	ea character(2),
 	antverh varchar,
 
@@ -858,14 +859,14 @@ BEGIN
 	CREATE TABLE v_schutzgebietnachwasserrecht AS
 		SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
 		FROM ax_schutzgebietnachwasserrecht s
-		JOIN ax_schutzzone z ON z.istteilvon=s.gml_id AND z.endet IS NULL
+		JOIN ax_schutzzone z ON ARRAY[s.gml_id] <@ z.istteilvon AND z.endet IS NULL
 		WHERE false;
 
 	PERFORM alkis_dropobject('v_schutzgebietnachnaturumweltoderbodenschutzrecht');
 	CREATE TABLE v_schutzgebietnachnaturumweltoderbodenschutzrecht AS
 		SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
 		FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht s
-		JOIN ax_schutzzone z ON z.istteilvon=s.gml_id AND z.endet IS NULL
+		JOIN ax_schutzzone z ON ARRAY[s.gml_id] <@ z.istteilvon AND z.endet IS NULL
 		WHERE false;
 
 	r := ARRAY[

@@ -14,9 +14,6 @@
  *
  ****************************************************************************/
 
--- Automatisch erzeugt mit alkis-parse-ok.pl
--- Änderungen werden überschrieben
---
 \set ON_ERROR_STOP
 BEGIN;
 SELECT alkis_dropobject('alkis_methode');

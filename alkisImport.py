@@ -58,9 +58,13 @@ os.putenv("OGR_ARC_MINLENGTH", "0.1")
 os.putenv("OGR_SKIP", "GML,SEGY")
 
 # Headerkennungen die NAS-Daten identifizieren
-os.putenv("NAS_INDICATOR", "NAS-Operationen.xsd;NAS-Operationen_optional.xsd;AAA-Fachschema.xsd;ASDKOM-NAS-Operationen_1_1_NRW.xsd;aaa.xsd;aaa-suite")
+os.putenv("NAS_INDICATOR", "NAS-Operationen;AAA-Fachschema;aaa.xsd;aaa-suite")
 
 os.putenv("PGCLIENTENCODING", "UTF8")
+
+os.putenv("NAS_GFS_TEMPLATE", os.path.join(d, "alkis-schema.gfs"))
+
+os.putenv("NAS_NO_RELATION_LAYER", "YES")
 
 
 def which(program):
@@ -128,6 +132,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.leDBNAME.setText(s.value("dbname", ""))
         self.leUID.setText(s.value("uid", ""))
         self.lePWD.setText(s.value("pwd", ""))
+        self.leSCHEMA.setText(s.value("schema", "public"))
         self.leGT.setText(s.value("gt", "20000"))
         self.leGT.setValidator(QIntValidator(-1, 99999999))
 
@@ -173,6 +178,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.pbAbout.clicked.connect(self.about)
         self.pbClose.clicked.connect(self.accept)
         self.pbProgress.setVisible(False)
+        self.pbProgressFile.setVisible(False)
 
         f = QFont("Monospace")
         f.setStyleHint(QFont.TypeWriter)
@@ -454,14 +460,54 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         return True
 
+    def processOutputOut(self, current, output):
+        if output.isEmpty():
+            return current
+
+        current = self.processOutput(current, output)
+
+        if current == "0" or current[:2] == "0.":
+            if not self.pbProgressFile.isVisible():
+                self.pbProgressFile.setVisible(True)
+                self.pbProgressFile.setRange(0, 1000)
+
+            p = current
+
+            while p.startswith("."):
+                p = p[1:]
+
+            progress = 0
+
+            for i in range(0, 100, 10):
+                if p.startswith(str(i)):
+                    progress = i * 10
+                    p = p[len(str(i)):]
+
+                    while p.startswith("."):
+                        progress += 25
+                        p = p[1:]
+
+            self.pbProgressFile.setValue(progress)
+            if progress == 1000:
+                self.pbProgressFile.setVisible(False)
+
+            app.processEvents()
+
+        return current
+
+    def processOutputErr(self, current, output):
+        if output.isEmpty():
+            return current
+
+        return self.processOutput(current, output)
+
     def processOutput(self, current, output):
         if output.isEmpty():
-            return
+            return current
 
         if not current:
             current = ""
 
-        # r = str(output).decode('utf-8')
         r = output.data().decode('utf-8')
 
         lines = r.split("\n")
@@ -472,10 +518,10 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             lastline = ""
 
         if current != "" and len(lines) > 0:
-            if r.startsWith("\n"):
+            if r.startswith("\n"):
                 lines.prepend(current)
             else:
-                lines[0].prepend(current)
+                lines[0] = current + lines[0]
             current = ""
 
         for l in lines:
@@ -501,8 +547,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             self.alive.setText(self.alive.text()[:-1] + ("-\|/")[i % 4])
             app.processEvents()
 
-            currout = self.processOutput(currout, p.readAllStandardOutput())
-            currerr = self.processOutput(currerr, p.readAllStandardError())
+            currout = self.processOutputOut(currout, p.readAllStandardOutput())
+            currerr = self.processOutputErr(currerr, p.readAllStandardError())
 
             if p.state() != QProcess.Running:
                 if self.canceled:
@@ -513,11 +559,11 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.log(u"Prozeß wird abgebrochen.")
                 p.kill()
 
-        currout = self.processOutput(currout, p.readAllStandardOutput())
+        currout = self.processOutputOut(currout, p.readAllStandardOutput())
         if currout and currout != "":
             self.log("E {}".format(currout))
 
-        currerr = self.processOutput(currerr, p.readAllStandardError())
+        currerr = self.processOutputErr(currerr, p.readAllStandardError())
         if currerr and currerr != "":
             self.log("E {}".format(currerr))
 
@@ -534,12 +580,15 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         p.close()
 
+        self.pbProgressFile.setVisible(False)
+
         return ok
 
     def runSQLScript(self, conn, fn, parallel=False):
         return self.runProcess([
             self.psql,
             "-v", "alkis_epsg={}".format(self.epsg),
+            "-v", "alkis_schema={}".format(self.schema),
             "-v", "alkis_fnbruch={}".format("true" if self.fnbruch else "false"),
             "-v", "alkis_pgverdraengen={}".format("true" if self.pgverdraengen else "false"),
             "-q", "-f", fn, conn])
@@ -594,6 +643,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         s.setValue("dbname", self.leDBNAME.text())
         s.setValue("uid", self.leUID.text())
         s.setValue("pwd", self.lePWD.text())
+        s.setValue("schema", self.leSCHEMA.text())
+        self.schema = self.leSCHEMA.text()
         s.setValue("gt", self.leGT.text())
         s.setValue("files", files)
 
@@ -823,7 +874,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         break
 
                     self.status(u"Datenbestand wird angelegt...")
-                    if not self.runSQLScript(conn, "alkis-schema.sql"):
+                    if not self.runSQLScript(conn, "alkis-init.sql"):
                         self.log(u"Anlegen des Datenbestands schlug fehl.")
                         break
                     self.log(u"Datenbestand angelegt.")
@@ -951,6 +1002,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         "-f", "PostgreSQL",
                         "-update",
                         "-append",
+                        "-progress",
                         u"PG:{}".format(conn),
                     ]
 

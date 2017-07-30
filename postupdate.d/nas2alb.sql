@@ -41,8 +41,14 @@ BEGIN
                 RAISE NOTICE 'Migriere auf Schema-Version 1';
 
 		ALTER TABLE bestand ALTER gbblnr TYPE character(7);
+	END IF;
 
-		UPDATE alb_version SET version=1;
+        IF v<2 THEN
+                RAISE NOTICE 'Migriere auf Schema-Version 2';
+
+		ALTER TABLE eigner ALTER namensnr TYPE varchar;
+
+		UPDATE alb_version SET version=2;
 
 		r := coalesce(r||E'\n','') || 'ALB-Schema migriert';
 	END IF;

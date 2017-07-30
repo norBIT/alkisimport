@@ -36,21 +36,21 @@ psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*
 ^psql:alkis-compat.sql:.*: FEHLER:  Funktion combine_bbox\(box2d, geometry\) existiert nicht\s*$
 ^psql:alkis-compat.sql:.*: ERROR:  function combine_bbox\(box2d, geometry\) does not exist\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Berechtigung nur f\S+r Eigent\S+mer der Funktion st_dump\s*$
-^psql:alkis-compat.sql:.*: ERROR:  aggregate public\.array_agg\(anyelement\) does not exist
-^psql:alkis-compat.sql:.*: FEHLER:  Aggregatfunktion public\.array_agg\(anyelement\) existiert nicht\s*$
+^psql:alkis-compat.sql:.*: ERROR:  aggregate [^.]+\.array_agg\(anyelement\) does not exist
+^psql:alkis-compat.sql:.*: FEHLER:  Aggregatfunktion [^.]\.array_agg\(anyelement\) existiert nicht\s*$
 ^psql:alkis-update.sql:.*: NOTICE:  ALTER TABLE \/ ADD PRIMARY KEY will create implicit index "alkis_(flaechen|linien|schriften)_pkey" for table "alkis_(flaechen|linien|schriften)"
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*gel\S+scht\..*$
 ^\s+(addgeometrycolumn|alkis_clean|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|version|postgis_version|\?column\?)\s*$
 ^-+\s*$
-^\s+public\..*\.(wkb_geometry|dummy) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$
-^\s+public\.ax_punktortau\.wkb_geometry SRID:\d+ TYPE:POINT DIMS:3\+?\s*$
-^\s+public\.po_points\.point SRID:\d+ TYPE:MULTIPOINT DIMS:2\+?\s*$
-^\s+public\.po_lines\.line SRID:\d+ TYPE:MULTILINESTRING DIMS:2\+?\s*$
-^\s+public\.po_polygons\.polygon SRID:\d+ TYPE:MULTIPOLYGON DIMS:2\+?\s*$
-^\s+public\.po_labels\.(point|line) SRID:\d+ TYPE:(POINT|LINESTRING) DIMS:2\+?\s*$
-^\s+public\.alkis_schriften\.position SRID:0 TYPE:POINT DIMS:2\+?\s*$
-^\s+public\.alkis_joinlines\.line SRID:\d+ TYPE:LINESTRING DIMS:2\+?\s*$
-^\s+public\.alkis_linie\.position SRID:0 TYPE:LINESTRING DIMS:2\+?\s*$
+^\s+[^.]+\..*\.(wkb_geometry|dummy|objektkoordinaten) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$
+^\s+[^.]+\.ax_punktortau\.wkb_geometry SRID:\d+ TYPE:POINT DIMS:3\+?\s*$
+^\s+[^.]+\.po_points\.point SRID:\d+ TYPE:MULTIPOINT DIMS:2\+?\s*$
+^\s+[^.]+\.po_lines\.line SRID:\d+ TYPE:MULTILINESTRING DIMS:2\+?\s*$
+^\s+[^.]+\.po_polygons\.polygon SRID:\d+ TYPE:MULTIPOLYGON DIMS:2\+?\s*$
+^\s+[^.]+\.po_labels\.(point|line) SRID:\d+ TYPE:(POINT|LINESTRING) DIMS:2\+?\s*$
+^\s+[^.]+\.alkis_schriften\.position SRID:0 TYPE:POINT DIMS:2\+?\s*$
+^\s+[^.]+\.alkis_joinlines\.line SRID:\d+ TYPE:LINESTRING DIMS:2\+?\s*$
+^\s+[^.]+\.alkis_linie\.position SRID:0 TYPE:LINESTRING DIMS:2\+?\s*$
 ^\(\d+ (Zeilen?|rows?)\)\s*$
 ^removed.*\.(gfs|xml)'\s*$
 ^[CK]ONTEXT:  (SQL statement|SQL-Anweisung) \S+(DROP TABLE .* CASCADE|CREATE TABLE)
@@ -58,7 +58,7 @@ PL\/pgSQL( function|-Funktion) "(alkis_dropobject|alkis_clean|alkis_drop|alkis_j
 PL\/pgSQL( function|-Funktion) alkis_drop\(\) (line|Zeile) \d+ (at|bei) EXECUTE
 PL\/pgSQL( function|-Funktion) alkis_dropobject\(text\) (line|Zeile) \d+ (at|bei) EXECUTE
 PL\/pgSQL( function|-Funktion) (alkis_update_schema\(\)|alb_update_schema\(\)) (line|Zeile) \d+ (at|bei) PERFORM
-ERROR:  relation "public\.alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
+ERROR:  relation "[^.]+\.alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
 ERROR:  table "alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie|konturen|strichart|flaechen|farben)" does not exist
 ERROR:  sequence "alkis_(farben|konturen|linie|randlinie|strichart|stricharten|stricharten_i)_id_seq" does not exist
 SQL( statement|-Anweisung) \S+SELECT\s+alkis_dropobject\('alkis_konturen'\)
