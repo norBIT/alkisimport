@@ -14459,8 +14459,8 @@
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
-      <Name>description</Name>
-      <ElementPath>erfassung|AX_Erfassung_DGM|description</ElementPath>
+      <Name>ax_dqerfassungsmethode</Name>
+      <ElementPath>erfassung|AX_Erfassung_DGM|AX_DQErfassungsmethode</ElementPath>
       <Type>Integer</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -14594,8 +14594,8 @@
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
-      <Name>description</Name>
-      <ElementPath>erfassungGewaesserbegrenzung|AX_ErfassungGewaesserbegrenzung|description</ElementPath>
+      <Name>ax_dqerfassungsmethodegewaesserbegrenzung</Name>
+      <ElementPath>erfassungGewaesserbegrenzung|AX_ErfassungGewaesserbegrenzung|AX_DQErfassungsmethodeGewaesserbegrenzung</ElementPath>
       <Type>Integer</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -14739,8 +14739,8 @@
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
-      <Name>description</Name>
-      <ElementPath>erfassungStrukturierteGelaendepunkte|AX_ErfassungStrukturierteGelaendepunkte|description</ElementPath>
+      <Name>ax_dqerfassungsmethodestrukturiertegelaendepunkte</Name>
+      <ElementPath>erfassungStrukturierteGelaendepunkte|AX_ErfassungStrukturierteGelaendepunkte|AX_DQErfassungsmethodeStrukturierteGelaendepunkte</ElementPath>
       <Type>Integer</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -16729,8 +16729,8 @@
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
-      <Name>description</Name>
-      <ElementPath>erfassungMarkanterGelaendepunkt|AX_ErfassungMarkanterGelaendepunkt|description</ElementPath>
+      <Name>ax_dqerfassungsmethodemarkantergelaendepunkt</Name>
+      <ElementPath>erfassungMarkanterGelaendepunkt|AX_ErfassungMarkanterGelaendepunkt|AX_DQErfassungsmethodeMarkanterGelaendepunkt</ElementPath>
       <Type>Integer</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -16859,8 +16859,8 @@
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
-      <Name>erfassungbesondererhoehenpunkt_description</Name>
-      <ElementPath>erfassungBesondererHoehenpunkt|AX_Erfassung_DGMBesondererHoehenpunkt|description</ElementPath>
+      <Name>ax_dqerfassungsmethodebesondererhoehenpunkt</Name>
+      <ElementPath>erfassungBesondererHoehenpunkt|AX_Erfassung_DGMBesondererHoehenpunkt|AX_DQErfassungsmethodeBesondererHoehenpunkt</ElementPath>
       <Type>Integer</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -17654,8 +17654,8 @@
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
-      <Name>erfassung_description</Name>
-      <ElementPath>erfassung|AX_Erfassung_DGM|description</ElementPath>
+      <Name>erfassung_ax_dqerfassungsmethode</Name>
+      <ElementPath>erfassung|AX_Erfassung_DGM|AX_DQErfassungsmethode</ElementPath>
       <Type>Integer</Type>
     </PropertyDefn>
     <PropertyDefn>
