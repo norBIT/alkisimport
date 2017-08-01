@@ -71,8 +71,6 @@ CREATE INDEX alkis_beziehungen_von_idx ON alkis_beziehungen USING btree (beziehu
 CREATE INDEX alkis_beziehungen_zu_idx  ON alkis_beziehungen USING btree (beziehung_zu);
 CREATE INDEX alkis_beziehungen_art_idx ON alkis_beziehungen USING btree (beziehungsart);
 
-SELECT AddGeometryColumn('alkis_beziehungen','dummy',:alkis_epsg,'POINT',2);
-
 COMMENT ON TABLE  alkis_beziehungen               IS 'zentrale Multi-Verbindungstabelle';
 COMMENT ON COLUMN alkis_beziehungen.beziehung_von IS 'Join auf Feld gml_id verschiedener Tabellen';
 COMMENT ON COLUMN alkis_beziehungen.beziehung_zu  IS 'Join auf Feld gml_id verschiedener Tabellen';
