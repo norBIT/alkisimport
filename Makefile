@@ -1,5 +1,5 @@
-PKG=alkis-import
-VERSION = 2.1
+PKG=alkis-import-dev
+VERSION = 2.99
 P=$(shell cat .pkg-$(VERSION) || echo 1)
 
 O4W=osgeo4w/apps/$(PKG)
@@ -7,6 +7,7 @@ INSTFILES=\
 	alkis-import.sh re refilter.py custom \
 	alkisImport.py alkisImportDlg.ui about.ui logo.ico logo.svg \
 	alkis-schema.sql \
+	alkis-schema.gfs \
 	alkis-init.sql \
 	alkis-clean.sql \
 	alkis-update.sql \
@@ -32,7 +33,7 @@ all:
 package:
 	mkdir -p osgeo4w/apps/$(PKG)/postprocessing.d osgeo4w/bin osgeo4w/etc/postinstall osgeo4w/etc/preremove
 	git archive --format=tar --prefix=$(O4W)/ HEAD | tar -xf - $(addprefix $(O4W)/,$(INSTFILES))
-	cp alkis-import.cmd osgeo4w/bin
+	cp alkis-import.cmd osgeo4w/bin/$(PKG).cmd
 	cp postinstall.bat osgeo4w/etc/postinstall/$(PKG).cmd
 	cp preremove.bat osgeo4w/etc/preremove/$(PKG).cmd
 	perl -i -pe 's/#VERSION#/$(VERSION)-$(P)/' osgeo4w/apps/$(PKG)/about.ui osgeo4w/apps/$(PKG)/alkisImportDlg.ui

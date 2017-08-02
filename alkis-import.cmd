@@ -1,4 +1,5 @@
 @echo off
 call "%~dp0\o4w_env.bat"
-cd "%OSGEO4W_ROOT%\apps\alkis-import"
+call "%~dp0\gdal-dev-nas-env.bat"
+cd "%OSGEO4W_ROOT%\apps\alkis-import-dev"
 start "ALKIS-Import" /B pythonw alkisImport.py
