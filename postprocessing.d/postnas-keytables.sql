@@ -15,176 +15,180 @@
  ****************************************************************************/
 
 SET search_path = :"alkis_schema", :"postgis_schema", public;
+\set ON_ERROR_STOP
 
 -- TODO: Sichten mit Nutzungdaten (nutzung*)
 
 SELECT alkis_dropobject('v_geb_bauweise');
 CREATE VIEW v_geb_bauweise AS
-	SELECT k::int AS bauweise_id, v AS bauweise_beschreibung, d AS bauweise_erklaerung FROM alkis_wertearten WHERE element='ax_gebaeude' AND bezeichnung='bauweise';
+	SELECT wert::int AS bauweise_id, beschreibung AS bauweise_beschreibung, dokumentation AS bauweise_erklaerung FROM ax_bauweise_gebaeude;
 
 SELECT alkis_dropobject('v_geb_funktion');
 CREATE VIEW v_geb_funktion AS
-	SELECT k::int AS wert, v AS bezeichner, d AS erklaer FROM alkis_wertearten WHERE element='ax_gebaeude' AND bezeichnung='gebaeudefunktion';
+	SELECT wert::int AS wert, beschreibung AS bezeichner, dokumentation AS erklaer FROM ax_gebaeudefunktion;
 
 SELECT alkis_dropobject('v_geb_weiterefkt');
 CREATE VIEW v_geb_weiterefkt AS
-	SELECT k::int AS wert, v AS bezeichner, d AS erklaer FROM alkis_wertearten WHERE element='ax_gebaeude' AND bezeichnung='weiteregebaeudefunktion';
+	SELECT wert::int AS wert, beschreibung AS bezeichner, dokumentation AS erklaer FROM ax_weitere_gebaeudefunktion;
 
 SELECT alkis_dropobject('v_geb_dachform');
 CREATE VIEW v_geb_dachform AS
-	SELECT k::int AS wert, v AS bezeichner, d AS erklaer FROM alkis_wertearten WHERE element='ax_gebaeude' AND bezeichnung='dachform';
+	SELECT wert::int AS wert, beschreibung AS bezeichner, dokumentation AS erklaer FROM ax_dachform;
 
 SELECT alkis_dropobject('v_geb_zustand');
 CREATE VIEW v_geb_zustand AS
-	SELECT k::int AS wert, v AS bezeichner, d AS erklaer FROM alkis_wertearten WHERE element='ax_gebaeude' AND bezeichnung='zustand';
+	SELECT wert::int AS wert, beschreibung AS bezeichner, dokumentation AS erklaer FROM ax_zustand_gebaeude;
 
 SELECT alkis_dropobject('v_geb_lagezeo');
 CREATE VIEW v_geb_lagezeo AS
-	SELECT k::int AS wert, v AS bezeichner, d AS erklaer FROM alkis_wertearten WHERE element='ax_gebaeude' AND bezeichnung='lagezurerdoberflaeche';
+	SELECT wert::int AS wert, beschreibung AS bezeichner, dokumentation AS erklaer FROM ax_lagezurerdoberflaeche_gebaeude;
 
 SELECT alkis_dropobject('v_geb_dachgeschossausbau');
 CREATE VIEW v_geb_dachgeschossausbau AS
-	SELECT k::int AS wert, v AS bezeichner, d AS erklaer FROM alkis_wertearten WHERE element='ax_gebaeude' AND bezeichnung='dachgeschossausbau';
+	SELECT wert::int AS wert, beschreibung AS bezeichner, dokumentation AS erklaer FROM ax_dachgeschossausbau_gebaeude;
 
 SELECT alkis_dropobject('v_bs_buchungsart');
 CREATE VIEW v_bs_buchungsart AS
-	SELECT k::int AS wert, v AS bezeichner, d AS erklaer FROM alkis_wertearten WHERE element='ax_buchungsstelle' AND bezeichnung='buchungsart';
+	SELECT wert::int AS wert, beschreibung AS bezeichner, dokumentation AS erklaer FROM ax_buchungsart_buchungsstelle;
 
 SELECT alkis_dropobject('v_bs_buchungsart');
 CREATE VIEW v_bs_buchungsart AS
-	SELECT k::int AS wert, v AS bezeichner, d AS erklaer FROM alkis_wertearten WHERE element='ax_buchungsstelle' AND bezeichnung='buchungsart';
+	SELECT wert::int AS wert, beschreibung AS bezeichner, dokumentation AS erklaer FROM ax_buchungsart_buchungsstelle;
 
 SELECT alkis_dropobject('v_namnum_eigart');
 CREATE VIEW v_namnum_eigart AS
-	SELECT k::int AS wert, v AS bezeichner, d AS erklaer FROM alkis_wertearten WHERE element='ax_namensnummer' AND bezeichnung='eigentuemerart';
+	SELECT wert::int AS wert, beschreibung AS bezeichner, dokumentation AS erklaer FROM ax_eigentuemerart_namensnummer;
 
 SELECT alkis_dropobject('v_baurecht_adf');
 CREATE VIEW v_baurecht_adf AS
-	SELECT k::int AS wert, v AS bezeichner, d AS erklaer FROM alkis_wertearten WHERE element='ax_bauraumoderbodenordnungsrecht' and bezeichnung='artderfestlegung';
+	SELECT wert::int AS wert, beschreibung AS bezeichner, dokumentation AS erklaer FROM ax_artderfestlegung_bauraumoderbodenordnungsrecht;
 
 SELECT alkis_dropobject('v_bschaetz_kulturart');
 CREATE VIEW v_bschaetz_kulturart AS
 	SELECT
-		k::int AS wert
-		,regexp_replace( v , E'^.*\\((.*)\\)$', E'\\1') AS kurz
-		,v AS bezeichner
-	FROM alkis_wertearten WHERE element='ax_bodenschaetzung' and bezeichnung='kulturart';
+		wert::int AS wert
+		,regexp_replace( beschreibung, E'^.*\\((.*)\\)$', E'\\1') AS kurz
+		,beschreibung AS bezeichner
+	FROM ax_kulturart_bodenschaetzung;
 
 SELECT alkis_dropobject('v_bschaetz_bodenart');
 CREATE VIEW v_bschaetz_bodenart AS
 	SELECT
-		k::int AS wert
-		,regexp_replace( v , E'^.*\\((.*)\\)$', E'\\1') AS kurz
-		,v AS bezeichner
-	FROM alkis_wertearten WHERE element='ax_bodenschaetzung' and bezeichnung='bodenart';
+		wert::int AS wert
+		,regexp_replace( beschreibung, E'^.*\\((.*)\\)$', E'\\1') AS kurz
+		,beschreibung AS bezeichner
+	FROM ax_bodenart_bodenschaetzung;
 
 SELECT alkis_dropobject('v_bschaetz_zustandsstufe');
 CREATE VIEW v_bschaetz_zustandsstufe AS
 	SELECT
-		k::int AS wert
-		,regexp_replace( v , E'^.*\\((.*)\\)$', E'\\1') AS kurz
-		,v AS bezeichner
-	FROM alkis_wertearten WHERE element='ax_bodenschaetzung' and bezeichnung='zustandsstufeoderbodenstufe';
+		wert::int AS wert
+		,regexp_replace( beschreibung, E'^.*\\((.*)\\)$', E'\\1') AS kurz
+		,beschreibung AS bezeichner
+	FROM ax_zustandsstufeoderbodenstufe_bodenschaetzung;
 
 SELECT alkis_dropobject('v_muster_merkmal');
 CREATE VIEW v_muster_merkmal AS
 	SELECT
-		k::int AS wert
-		,regexp_replace( v , E'^.*\\((.*)\\)$', E'\\1') AS kurz
-		,v AS bezeichner
-	FROM alkis_wertearten WHERE element='ax_musterlandesmusterundvergleichsstueck' and bezeichnung='merkmal';
+		wert::int AS wert
+		,regexp_replace( beschreibung, E'^.*\\((.*)\\)$', E'\\1') AS kurz
+		,beschreibung AS bezeichner
+	FROM ax_merkmal_musterlandesmusterundvergleichsstueck;
 
 SELECT alkis_dropobject('v_grabloch_bedeutg');
 CREATE VIEW v_grabloch_bedeutg AS
-	SELECT k::int AS wert, v AS bezeichner FROM alkis_wertearten WHERE element='ax_grablochderbodenschaetzung' and bezeichnung='bedeutung';
+	SELECT wert::int AS wert, beschreibung AS bezeichner FROM ax_bedeutung_grablochderbodenschaetzung;
 
 SELECT alkis_dropobject('v_bschaetz_sonst');
 CREATE VIEW v_bschaetz_sonst AS
 	SELECT
-		k::int AS wert
-		,regexp_replace( v , E'^.*\\((.*)\\)$', E'\\1') AS kurz
-		,v AS bezeichner
-	FROM alkis_wertearten WHERE element='ax_bodenschaetzung' and bezeichnung='sonstigeangaben';
+		wert::int AS wert
+		,regexp_replace( beschreibung, E'^.*\\((.*)\\)$', E'\\1') AS kurz
+		,beschreibung AS bezeichner
+	FROM ax_sonstigeangaben_bodenschaetzung;
 
 SELECT alkis_dropobject('v_bewertg_klass');
 CREATE VIEW v_bewertg_klass AS
-	SELECT k::int AS wert, v AS bezeichner, d AS erklaer FROM alkis_wertearten WHERE element='ax_bewertung' and bezeichnung='klassifizierung';
+	SELECT wert::int AS wert, beschreibung AS bezeichner, dokumentation AS erklaer FROM ax_klassifizierung_bewertung;
 
 SELECT alkis_dropobject('v_forstrecht_adf');
 CREATE VIEW v_forstrecht_adf AS
-	SELECT k::int AS wert, v AS bezeichner FROM alkis_wertearten WHERE element='ax_forstrecht' and bezeichnung='artderfestlegung';
+	SELECT wert::int AS wert, beschreibung AS bezeichner FROM ax_artderfestlegung_forstrecht;
 
 SELECT alkis_dropobject('v_forstrecht_besfkt');
 CREATE VIEW v_forstrecht_besfkt AS
-	SELECT k::int AS wert, v AS bezeichner FROM alkis_wertearten WHERE element='ax_forstrecht' and bezeichnung='besonderefunktion';
+	SELECT wert::int AS wert, beschreibung AS bezeichner FROM ax_besonderefunktion_forstrecht;
 
 SELECT alkis_dropobject('v_datenerhebung');
 CREATE VIEW v_datenerhebung AS
-	SELECT k::int AS wert, v AS bezeichner FROM alkis_wertearten WHERE element='ax_li_source_mitdatenerhebung' and bezeichnung='description';
+	SELECT wert::int AS wert, beschreibung AS bezeichner FROM ax_datenerhebung;
 
 SELECT alkis_dropobject('v_sbauwerk_bwfkt');
 CREATE VIEW v_sbauwerk_bwfkt AS
-	SELECT k::int AS wert, v AS bezeichner FROM alkis_wertearten WHERE element='ax_sonstigesbauwerkodersonstigeeinrichtung' and bezeichnung='bauwerksfunktion';
+	SELECT
+		wert::int AS wert,
+		beschreibung AS bezeichner
+	FROM ax_bauwerksfunktion_sonstigesbauwerkodersonstigeeinrichtun;
 
 SELECT alkis_dropobject('v_bauteil_bauart');
 CREATE VIEW v_bauteil_bauart AS
 	SELECT
-		k::int AS wert
-		,v AS bezeichner
-		,(SELECT kennung FROM alkis_elemente WHERE name=element) AS kennung
-		,element AS objektart
-	FROM alkis_wertearten WHERE element='ax_bauteil' and bezeichnung='bauart';
+		wert::int AS wert
+		,beschreibung AS bezeichner
+		,(SELECT kennung FROM alkis_elemente WHERE name='ax_bauteil') AS kennung
+		,'ax_bauteil'::text AS objektart
+	FROM ax_bauart_bauteil;
 
 SELECT alkis_dropobject('v_klass_strass_adf');
 CREATE VIEW v_klass_strass_adf AS
 	SELECT
-		k::int AS wert
-		,v AS bezeichner
-		,(SELECT kennung FROM alkis_elemente WHERE name=element) AS kennung
-		,element AS objektart
-	FROM alkis_wertearten WHERE element='ax_klassifizierungnachstrassenrecht' and bezeichnung='artderfestlegung';
+		wert::int AS wert
+		,beschreibung AS bezeichner
+		,(SELECT kennung FROM alkis_elemente WHERE name='ax_klassifizierungnachstrassenrecht') AS kennung
+		,'ax_klassifizierungnachstrassenrecht'::text AS objektart
+	FROM ax_artderfestlegung_klassifizierungnachstrassenrecht;
 
 SELECT alkis_dropobject('v_klass_wasser_adf');
 CREATE VIEW v_klass_wasser_adf AS
 	SELECT
-		k::int AS wert
-		,v AS bezeichner
-		,(SELECT kennung FROM alkis_elemente WHERE name=element) AS kennung
-		,element AS objektart
-	FROM alkis_wertearten WHERE element='ax_klassifizierungnachwasserrecht' and bezeichnung='artderfestlegung';
+		wert::int AS wert
+		,beschreibung AS bezeichner
+		,(SELECT kennung FROM alkis_elemente WHERE name='ax_klassifizierungnachwasserrecht') AS kennung
+		,'ax_klassifizierungnachwasserrecht'::text AS objektart
+	FROM ax_artderfestlegung_klassifizierungnachwasserrecht;
 
 SELECT alkis_dropobject('v_andstrass_adf');
 CREATE VIEW v_andstrass_adf AS
 	SELECT
-		k::int AS wert
-		,v AS bezeichner
-		,(SELECT kennung FROM alkis_elemente WHERE name=element) AS kennung
-		,element AS objektart
-	FROM alkis_wertearten WHERE element='ax_anderefestlegungnachstrassenrecht' and bezeichnung='artderfestlegung';
+		wert::int AS wert
+		,beschreibung AS bezeichner
+		,(SELECT kennung FROM alkis_elemente WHERE name='ax_anderefestlegungnachstrassenrecht') AS kennung
+		,'ax_anderefestlegungnachstrassenrecht'::text AS objektart
+	FROM ax_artderfestlegung_anderefestlegungnachstrassenrecht;
 
 SELECT alkis_dropobject('v_umweltrecht_adf');
 CREATE VIEW v_umweltrecht_adf AS
 	SELECT
-		k::int AS wert
-		,v AS bezeichner
-		,(SELECT kennung FROM alkis_elemente WHERE name=element) AS kennung
-		,element AS objektart
-	FROM alkis_wertearten WHERE element='ax_naturumweltoderbodenschutzrecht' and bezeichnung='artderfestlegung';
+		wert::int AS wert
+		,beschreibung AS bezeichner
+		,(SELECT kennung FROM alkis_elemente WHERE name='ax_naturumweltoderbodenschutzrecht') AS kennung
+		,'ax_naturumweltoderbodenschutzrecht'::text AS objektart
+	FROM ax_artderfestlegung_naturumweltoderbodenschutzrecht;
 
 SELECT alkis_dropobject('v_denkmal_adf');
 CREATE VIEW v_denkmal_adf AS
 	SELECT
-		k::int AS wert
-		,v AS bezeichner
-		,(SELECT kennung FROM alkis_elemente WHERE name=element) AS kennung
-		,element AS objektart
-	FROM alkis_wertearten WHERE element='ax_denkmalschutzrecht' and bezeichnung='artderfestlegung';
+		wert::int AS wert
+		,beschreibung AS bezeichner
+		,(SELECT kennung FROM alkis_elemente WHERE name='ax_denkmalschutzrecht') AS kennung
+		,'ax_denkmalschutzrecht'::text AS objektart
+	FROM ax_artderfestlegung_denkmalschutzrecht;
 
 SELECT alkis_dropobject('v_sonstrecht_adf');
 CREATE VIEW v_sonstrecht_adf AS
 	SELECT
-		k::int AS wert
-		,v AS bezeichner
-		,(SELECT kennung FROM alkis_elemente WHERE name=element) AS kennung
-		,element AS objektart
-	FROM alkis_wertearten WHERE element='ax_sonstigesrecht' and bezeichnung='artderfestlegung';
+		wert::int AS wert
+		,beschreibung AS bezeichner
+		,(SELECT kennung FROM alkis_elemente WHERE name='ax_sonstigesrecht') AS kennung
+		,'ax_sonstigesrecht'::text AS objektart
+	FROM ax_artderfestlegung_sonstigesrecht;

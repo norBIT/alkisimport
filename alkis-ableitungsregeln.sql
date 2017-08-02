@@ -1246,7 +1246,7 @@ FROM (
 				CASE
 				WHEN gebaeudefunktion=2513 THEN 'Wbh'
 				WHEN gebaeudefunktion IN (3011,3016,3017,3019,3024,3031,3033,3035,3036,3061,3062,3073,3074,3075,3080,3081,3092,3242) THEN
-					(select v from alkis_wertearten where element='ax_gebaeude' AND bezeichnung='gebaeudefunktion' AND k=gebaeudefunktion::text)
+					(SELECT beschreibung FROM ax_gebaeudefunktion WHERE wert=gebaeudefunktion)
 				WHEN gebaeudefunktion=3022 THEN 'Schule'
 				WHEN gebaeudefunktion=3023 THEN 'Hochschule'
 				WHEN gebaeudefunktion=3038 THEN 'Burg'
@@ -1711,16 +1711,16 @@ FROM (
 			WHEN coalesce(lagergut,0) IN (0,9999) THEN
 				coalesce(
 					schriftinhalt,
-					(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+					(select beschreibung from ax_funktion_industrieundgewerbeflaeche where wert=funktion)
 				)
 			ELSE
 				coalesce(
 					schriftinhalt,
-					(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+					(select beschreibung from ax_funktion_industrieundgewerbeflaeche where wert=funktion)
 					|| E'\n('
-					||(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='lagergut' AND k=lagergut::text)
+					||(select beschreibung from ax_lagergut_industrieundgewerbeflaeche where wert=lagergut)
 					||')',
-					(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+					(select beschreibung from ax_funktion_industrieundgewerbeflaeche where wert=funktion)
 				)
 			END
 		WHEN o.gml_id LIKE 'DERP%' AND funktion=2502 THEN 'Versorgungsanlage'
@@ -1729,28 +1729,28 @@ FROM (
 		WHEN funktion IN (2520,2522, 2550,2552, 2560,2562, 2580.2582, 2610,2612, 2620,2622, 2630, 2640 ) THEN
 			coalesce(
 				schriftinhalt,
-				(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+				(SELECT beschreibung FROM ax_funktion_industrieundgewerbeflaeche WHERE wert=funktion)
 			)
 		WHEN funktion IN (2530,2532) THEN
 			coalesce(
 				schriftinhalt,
-				'(' || (select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='primaerenergie' AND k=primaerenergie::text) || ')'
+				'(' || (SELECT beschreibung FROM ax_primaerenergie_industrieundgewerbeflaeche WHERE wert=primaerenergie) || ')'
 			)
 		WHEN funktion IN (2570,2572) THEN
 			CASE
 			WHEN primaerenergie IS NULL THEN
 				coalesce(
 					schriftinhalt,
-					(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+					(SELECT beschreibung FROM ax_funktion_industrieundgewerbeflaeche WHERE wert=funktion)
 				)
 			ELSE
 				coalesce(
 					schriftinhalt,
-					(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+					(SELECT beschreibung FROM ax_funktion_industrieundgewerbeflaeche WHERE wert=funktion)
 					|| E'\n('
-					|| (select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='primaerenergie' AND k=primaerenergie::text)
+					|| (SELECT beschreibung FROM ax_primaerenergie_industrieundgewerbeflaeche WHERE wert=primaerenergie)
 					|| ')',
-					(select v from alkis_wertearten where element='ax_industrieundgewerbeflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+					(SELECT beschreibung FROM ax_funktion_industrieundgewerbeflaeche WHERE wert=funktion)
 				)
 			END
 		END AS text,
@@ -1830,7 +1830,7 @@ FROM (
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(
 			schriftinhalt,
-			E'Halde\n(' || (select v from alkis_wertearten where element='ax_halde' AND bezeichnung='lagergut' AND k=lagergut::text) ||')',
+			E'Halde\n(' || (SELECT beschreibung FROM ax_lagergut_halde WHERE wert=lagergut) ||')',
 			'Halde'
 		) AS text,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -1919,7 +1919,7 @@ FROM (
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(
 			schriftinhalt,
-			E'(' || (select v from alkis_wertearten where element='ax_bergbaubetrieb' AND bezeichnung='abbaugut' AND k=abbaugut::text) ||')'
+			E'(' || (SELECT beschreibung FROM ax_abbaugut_bergbaubetrieb WHERE wert=abbaugut) ||')'
 		) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -1988,7 +1988,7 @@ FROM (
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(
 		schriftinhalt,
-		E'(' || (select v from alkis_wertearten where element='ax_tagebaugrubesteinbruch' AND bezeichnung='abbaugut' AND k=abbaugut::text) ||')',
+		E'(' || (SELECT beschreibung FROM ax_abbaugut_tagebaugrubesteinbruch WHERE wert=abbaugut) ||')',
 		CASE WHEN abbaugut=4100 THEN '(Torfstich)' ELSE NULL END
 		) AS text,
 		coalesce(t.signaturnummer,'4141') AS signaturnummer,
@@ -2134,7 +2134,7 @@ FROM (
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(
 			t.schriftinhalt,
-			(select v from alkis_wertearten where element='ax_flaechebesondererfunktionalerpraegung' AND bezeichnung='funktion' AND k=funktion::text)
+			(SELECT beschreibung FROM ax_funktion_flaechebesondererfunktionalerpraegung WHERE wert=funktion)
 		) AS text,
 		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
@@ -2182,11 +2182,11 @@ FROM (
 			WHEN funktion IN (4300,4301) THEN 'Erholungsfläche'
 			WHEN funktion IN (4320,4321) THEN 'Bad'
 			WHEN funktion IN (4110,4200,4230,4240,4250,4260,4270,4280,4290,4310,4450) THEN
-				(select v from alkis_wertearten where element='ax_sportfreizeitunderholungsflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+				(SELECT beschreibung FROM ax_funktion_sportfreizeitunderholungsflaeche WHERE wert=funktion)
 			WHEN o.gml_id LIKE 'DERP%' THEN
 				CASE
 				WHEN funktion IN (4120,4130,4140,4150,4160,4170,4230) THEN
-					(select v from alkis_wertearten where element='ax_sportfreizeitunderholungsflaeche' AND bezeichnung='funktion' AND k=funktion::text)
+					(SELECT beschreibung FROM ax_funktion_sportfreizeitunderholungsflaeche WHERE wert=funktion)
 				WHEN funktion IS NULL THEN 'Sportfläche'
 				END
 			END
@@ -2373,7 +2373,7 @@ FROM (
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(
 			t.schriftinhalt,
-			(select v from alkis_wertearten where element='ax_strassenverkehr' AND bezeichnung='funktion' AND k=funktion::text)
+			(SELECT beschreibung FROM ax_funktion_strasse WHERE wert=funktion)
 		) AS text,
 		coalesce(t.signaturnummer,'4100') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
@@ -2523,7 +2523,7 @@ FROM (
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(
 			t.schriftinhalt,
-			(select v from alkis_wertearten where element='ax_platz' AND bezeichnung='funktion' AND k=funktion::text)
+			(SELECT beschreibung FROM ax_funktion_platz WHERE wert=funktion)
 		) AS text,
 		coalesce(t.signaturnummer,'4140') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
@@ -2675,7 +2675,7 @@ FROM (
 	FROM ax_flugverkehr o
 	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
 	WHERE o.endet IS NULL
-    ) AS n
+) AS n
 WHERE text IS NOT NULL;
 
 
@@ -2742,7 +2742,7 @@ FROM (
 			CASE
 			WHEN funktion=5610 THEN 'Hafenanlage'
 			WHEN funktion IN (5630,5640) THEN
-				(select v from alkis_wertearten where element='ax_schiffsverkehr' AND bezeichnung='funktion' AND k=funktion::text)
+				(SELECT beschreibung FROM ax_funktion_schiffsverkehr WHERE wert=funktion)
 			END
 		) AS text,
 		coalesce(t.signaturnummer,'4140') AS signaturnummer,
@@ -3521,7 +3521,7 @@ FROM (
 			t.schriftinhalt,
 			CASE
 			WHEN bauwerksfunktion && ARRAY[1000,1010,1011] THEN
-				(select v from alkis_wertearten where element='ax_turm' AND bezeichnung='bauwerksfunktion' AND k=bauwerksfunktion::text) ||
+				(SELECT beschreibung FROM ax_bauwerksfunktion_turm WHERE ARRAY[wert] <@ bauwerksfunktion LIMIT 1) ||
 				CASE
 				WHEN zustand=2100 THEN E'\n(außer Betrieb)'
 				WHEN zustand=2200 THEN E'\n(zerstört)'
@@ -3657,7 +3657,7 @@ FROM (
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(
 			t.schriftinhalt,
-			(select v from alkis_wertearten where element='ax_bauwerkoderanlagefuerindustrieundgewerbe' AND bezeichnung='bauwerksfunktion' AND k=bauwerksfunktion::text)
+			(SELECT beschreibung FROM ax_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewer WHERE wert=bauwerksfunktion)
 		) AS text,
 		coalesce(
 			t.signaturnummer,
@@ -3882,7 +3882,7 @@ FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
-		(select v from alkis_wertearten where element='ax_vorratsbehaelterspeicherbauwerk' AND bezeichnung='produkt' AND k=produkt::text) AS text,
+		(SELECT beschreibung FROM ax_produkt_transportanlage WHERE wert=produkt) AS text,
 		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
 		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
@@ -3988,7 +3988,7 @@ FROM (
 		WHEN bauwerksfunktion=1450 THEN
 			coalesce(
 				t.schriftinhalt,
-				(select v from alkis_wertearten where element='ax_bauwerkoderanlagefuersportfreizeitunderholung' AND bezeichnung='bauwerksfunktion' AND k=bauwerksfunktion::text)
+				(SELECT beschreibung FROM ax_bauwerksfunktion_bauwerkoderanlagefuersportfreizeitunde WHERE wert=bauwerksfunktion)
 			)
 		WHEN o.gml_id LIKE 'DERP%' AND bauwerksfunktion=1410 THEN
 			coalesce(
@@ -4203,7 +4203,7 @@ FROM (
 			archaeologischertyp IN (1000,1110)
 			OR (archaeologischertyp=1420 AND coalesce(name,n.schriftinhalt) IS NULL)
 		THEN
-			(select v from alkis_wertearten where element='ax_historischesbauwerkoderhistorischeeinrichtung' AND bezeichnung='archaeologischertyp' AND k=archaeologischertyp::text)
+			(SELECT beschreibung FROM ax_archaeologischertyp_historischesbauwerkoderhistorischee WHERE wert=archaeologischertyp)
 		WHEN archaeologischertyp=1100 THEN
 			coalesce(t.schriftinhalt, 'Historische Wasserleitung')
 		WHEN archaeologischertyp=1210 THEN
@@ -4215,7 +4215,7 @@ FROM (
 		THEN
 			coalesce(
 				t.schriftinhalt,
-				(select v from alkis_wertearten where element='ax_historischesbauwerkoderhistorischeeinrichtung' AND bezeichnung='archaeologischertyp' AND k=archaeologischertyp::text)
+				(SELECT beschreibung FROM ax_archaeologischertyp_historischesbauwerkoderhistorischee WHERE wert=archaeologischertyp)
 			)
 		END AS text,
 		coalesce(t.signaturnummer,n.signaturnummer,'4070') AS signaturnummer,
@@ -4459,7 +4459,7 @@ FROM (
 		WHEN bauwerksfunktion IN (1650,1670) THEN
 			coalesce(
 				t.schriftinhalt,
-				(select v from alkis_wertearten where element='ax_sonstigesbauwerkodersonstigeeinrichtung' AND bezeichnung='bauwerksfunktion' AND k=bauwerksfunktion::text)
+				(SELECT beschreibung FROM ax_bauwerksfunktion_sonstigesbauwerkodersonstigeeinrichtun WHERE wert=bauwerksfunktion)
 			)
 		END AS text,
 		coalesce(
@@ -4917,7 +4917,7 @@ FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
-		(select v from alkis_wertearten where element='ax_strassenverkehrsanlage' AND bezeichnung='art' AND k=o.art::text) AS text,
+		(SELECT beschreibung FROM ax_art_strassenverkehrsanlage WHERE wert=o.art) AS text,
 		coalesce(t.signaturnummer,'4100') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
 		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
@@ -5683,7 +5683,7 @@ FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
-		(select v from alkis_wertearten where element='ax_bauwerkimgewaesserbereich' AND bezeichnung='bauwerksfunktion' AND k=o.bauwerksfunktion::text) AS text,
+		(SELECT beschreibung FROM ax_bauwerksfunktion_bauwerkimgewaesserbereich WHERE wert=o.bauwerksfunktion) AS text,
 		coalesce(t.signaturnummer,'4105') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
 		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
@@ -5709,7 +5709,7 @@ FROM (
 		CASE
 		WHEN zustand=2100 THEN '(außer Betrieb)'
 		WHEN zustand=4000 THEN
-			(select v from alkis_wertearten where element='ax_bauwerkimgewaesserbereich' AND bezeichnung='bauwerksfunktion' AND k=o.bauwerksfunktion::text)
+			(SELECT beschreibung FROM ax_bauwerksfunktion_bauwerkimgewaesserbereich WHERE wert=o.bauwerksfunktion)
 			|| E' (im Bau)'
 		END AS text,
 		coalesce(t.signaturnummer,'4070') AS signaturnummer,
@@ -6285,7 +6285,7 @@ FROM (
 			WHEN geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') THEN st_centroid(o.wkb_geometry)
 			END
 		) AS point,
-		(select v from alkis_wertearten where element='ax_untergeordnetesgewaesser' AND bezeichnung='lagezurerdoberflaeche' AND k=lagezurerdoberflaeche::text) AS text,
+		(SELECT beschreibung FROM ax_lagezurerdoberflaeche_untergeordnetesgewaesser WHERE wert=lagezurerdoberflaeche) AS text,
 		coalesce(t.signaturnummer,'4070') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
 		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
@@ -7676,11 +7676,11 @@ FROM (
 				WHEN artderfestlegung=1610 THEN 'Schutzfläche'
 				WHEN artderfestlegung=1656 THEN 'Ausgleichsfläche'
 				WHEN artderfestlegung IN (1612,1621,1622,1632,1634,1641,1642,1653,1655,1662) THEN
-					(select v from alkis_wertearten where element='ax_naturumweltoderbodenschutzrecht' AND bezeichnung='artderfestlegung' AND k=artderfestlegung::text)
+					(SELECT beschreibung FROM ax_artderfestlegung_naturumweltoderbodenschutzrecht WHERE wert=artderfestlegung)
 				END
 			)
 		ELSE
-			(select v from alkis_wertearten where element='ax_naturumweltoderbodenschutzrecht' AND bezeichnung='artderfestlegung' AND k=artderfestlegung::text)
+			(SELECT beschreibung FROM ax_artderfestlegung_naturumweltoderbodenschutzrecht WHERE wert=artderfestlegung)
 		END AS text,
 		coalesce(
 			t.signaturnummer,
@@ -7757,7 +7757,7 @@ FROM (
 	SELECT
 		o.gml_id,
 		coalesce(t.wkb_geometry,st_centroid(z.wkb_geometry)) AS point,
-		(select v from alkis_wertearten where element='ax_schutzgebietnachnaturumweltoderbodenschutzrecht ' AND bezeichnung='artderfestlegung' AND k=artderfestlegung::text) AS text,
+		(SELECT beschreibung FROM ax_artderfestlegung_schutzgebietnachnaturumweltoderbodensc WHERE wert=artderfestlegung) AS text,
 		coalesce(t.signaturnummer,'4143') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
 		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
@@ -7831,7 +7831,7 @@ FROM (
 			WHEN o.gml_id LIKE 'DERP%' THEN
 				CASE
 				WHEN artderfestlegung IN (1760,2610) THEN
-					(select v from alkis_wertearten where element='ax_bauraumoderbodenordnungsrecht' AND bezeichnung='artderfestlegung' AND k=artderfestlegung::text)
+					(SELECT beschreibung FROM ax_artderfestlegung_bauraumoderbodenordnungsrecht WHERE wert=artderfestlegung)
 				WHEN artderfestlegung=1810 THEN 'Entwickungsbereich'
 				END
 			END

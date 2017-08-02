@@ -104,3 +104,4 @@ SQL( statement|-Anweisung) \S+SELECT\s+alkis_dropobject\('alkis_konturen'\)
 (OGR2OGR|Warning 1|GDALVectorTranslate): Skipping field 'identifier' not found in destination layer '(ax|ap|ks|aa)_.*'\.
 (OGR2OGR|Warning 1|GDALVectorTranslate): Value '(?P<intvalue>\d+).0+' of field ax_gebaeude\.grundflaeche parsed incompletely to integer (?P=intvalue)\.
 GDALVectorTranslate: Unable to write feature \d+ into layer
+^Warning 6: Progress turned off as fast feature count is not available\.

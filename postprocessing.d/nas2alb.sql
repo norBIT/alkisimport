@@ -29,6 +29,7 @@ DECLARE
 	d  VARCHAR;
 	f  VARCHAR;
 	fk VARCHAR;
+	t  VARCHAR;
 	n  VARCHAR;
 	i  INTEGER;
 	invalid INTEGER;
@@ -147,6 +148,11 @@ BEGIN
 			RAISE EXCEPTION 'Unerwartete Nutzungstabelle %', r.name;
 		END IF;
 
+		t := CASE
+		     WHEN r.name='ax_strassenverkehr' THEN 'ax_funktion_strasse'
+                     ELSE 'ax_' || f || '_' || replace(r.name, 'ax_', '')
+                     END;
+
 		nv := nv
 		   || d
 		   || 'SELECT '
@@ -168,9 +174,9 @@ BEGIN
 
 		IF f<>'NULL' THEN
 			kv := kv
-			   || ' UNION SELECT ''' || r.kennung || ':''||k AS nutzung,'''
-			   || coalesce(n,'') || coalesce(fk,'') || '''|| v AS name'
-			   || ' FROM alkis_wertearten WHERE element=''' || r.name || ''' AND bezeichnung=''' || f || ''''
+			   || ' UNION SELECT ''' || r.kennung || ':''||wert AS nutzung,'''
+			   || coalesce(n,'') || coalesce(fk,'') || '''|| beschreibung AS name'
+			   || ' FROM ' || t
 			   ;
 		END IF;
 
@@ -251,8 +257,8 @@ BEGIN
 		kv := kv
 		   || d
 		   || 'SELECT '
-		   || '''' || f || ':''||k AS klassifizierung,v AS name'
-		   || '  FROM alkis_wertearten WHERE element=''' || r.name || ''' AND bezeichnung='''||p||''''
+		   || '''' || f || ':''||wert AS klassifizierung,beschreibung AS name'
+		   || '  FROM ax_' || p || '_' || replace(r.name, 'ax_', '')
 		   ;
 
 		d := E' UNION\n  ';
@@ -573,8 +579,8 @@ INSERT INTO eigner(bestdnr,pk,ab,namensnr,ea,antverh,name,name1,name2,name3,name
 		laufendenummernachdin1421 AS namensnr,
 		NULL AS ea,
 		zaehler||'/'||nenner AS antverh,
-		substr( coalesce( p.nachnameoderfirma, '(' || (SELECT v FROM alkis_wertearten WHERE element='ax_namensnummer' AND bezeichnung='artderrechtsgemeinschaft' AND k=artderrechtsgemeinschaft::varchar) || ')' ), 1, 4 ) AS name,
-		coalesce( p.nachnameoderfirma || coalesce(', ' || p.vorname, ''), '(' || (SELECT v FROM alkis_wertearten WHERE element='ax_namensnummer' AND bezeichnung='artderrechtsgemeinschaft' AND k=artderrechtsgemeinschaft::varchar) || ')', '(Verschiedene)' ) AS name1,
+		substr( coalesce( p.nachnameoderfirma, '(' || (SELECT beschreibung FROM ax_artderrechtsgemeinschaft_namensnummer WHERE wert=artderrechtsgemeinschaft) || ')' ), 1, 4 ) AS name,
+		coalesce( p.nachnameoderfirma || coalesce(', ' || p.vorname, ''), '(' || (SELECT beschreibung FROM ax_artderrechtsgemeinschaft_namensnummer WHERE wert=artderrechtsgemeinschaft) || ')', '(Verschiedene)' ) AS name1,
 		coalesce('geb. '||p.geburtsname||', ','') || '* ' || p.geburtsdatum AS name2,
 		an.strasse || coalesce(' ' || an.hausnummer,'') AS name3,
 		coalesce(an.postleitzahlpostzustellung||' ','')||an.ort_post AS name4,
@@ -582,7 +588,7 @@ INSERT INTO eigner(bestdnr,pk,ab,namensnr,ea,antverh,name,name1,name2,name3,name
 		NULL AS name6,
 		NULL AS name7,
 		NULL AS name8,
-		(SELECT v FROM alkis_wertearten WHERE element='ax_person' AND bezeichnung='anrede' AND k=p.anrede::text) AS anrede,
+		(SELECT beschreibung FROM ax_anrede_person WHERE wert=p.anrede) AS anrede,
 		p.vorname AS vorname,
 		p.nachnameoderfirma AS nachname,
 		p.namensbestandteil AS namensteile,
@@ -636,11 +642,9 @@ UPDATE str_shl SET strname=trim(regexp_replace(strname,' H$','')) WHERE strshl L
 DELETE FROM eign_shl;
 INSERT INTO eign_shl(b,eignerart)
 	SELECT
-		k AS b,
-		v AS eignerart
-	FROM alkis_wertearten
-	WHERE element='ax_buchungsstelle'
-	  AND bezeichnung='buchungsart';
+		wert AS b,
+		beschreibung AS eignerart
+	FROM ax_buchungsart_buchungsstelle;
 
 DELETE FROM fortf;
 INSERT INTO fortf(ffnr,beschreibung) VALUES (1, 'Aus ALKIS übernommen: '||to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"'));

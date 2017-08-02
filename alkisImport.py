@@ -724,8 +724,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.log(u"PostgreSQL-Version nicht im erwarteten Format")
                 break
 
-            if int(m.group(1)) < 8 or (int(m.group(1)) == 8 and int(m.group(2)) < 3):
-                self.log(u"Mindestens PostgreSQL 8.3 erforderlich")
+            if int(m.group(1)) < 8 or (int(m.group(1)) == 8 and int(m.group(2)) < 4):
+                self.log(u"Mindestens PostgreSQL 8.4 erforderlich")
                 break
 
             qry = self.db.exec_("SELECT postgis_version()")
@@ -799,7 +799,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.log(u"GDAL-Version nicht gefunden")
                 break
 
-            gdal2 = int(m.group(1)) > 1
+            if int(m.group(1)) < 2 or (int(m.group(1)) == 2 and int(m.group(2)) < 3):
+                self.log(u"Mindestens GDAL 2.3 erforderlich")
+                break
 
             self.psql = which("psql")
             if not self.psql:
@@ -1038,9 +1040,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         args.append("-skipfailures")
 
                     args.extend(["--config", "PG_USE_COPY", "YES" if self.cbxUseCopy.isChecked() else "NO"])
-
-                    if gdal2:
-                        args.extend(["-nlt", "CONVERT_TO_LINEAR", "-ds_transaction"])
+                    args.extend(["-nlt", "CONVERT_TO_LINEAR", "-ds_transaction"])
 
                     args.append(src)
 
