@@ -21,10 +21,7 @@
        <property name="title">
         <string>Datenbankverbindung</string>
        </property>
-       <layout class="QFormLayout" name="formLayout">
-        <property name="fieldGrowthPolicy">
-         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-        </property>
+       <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">
          <widget class="QLabel" name="label_6">
           <property name="text">
@@ -35,8 +32,38 @@
           </property>
          </widget>
         </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="lePORT">
+          <property name="inputMask">
+           <string>99999; </string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Datenbankname</string>
+          </property>
+          <property name="buddy">
+           <cstring>leDBNAME</cstring>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="1">
          <widget class="QLineEdit" name="leSERVICE"/>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Benutzername</string>
+          </property>
+          <property name="buddy">
+           <cstring>leUID</cstring>
+          </property>
+         </widget>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_7">
@@ -65,47 +92,17 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="lePORT">
-          <property name="inputMask">
-           <string>99999; </string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Datenbankname</string>
-          </property>
-          <property name="buddy">
-           <cstring>leDBNAME</cstring>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="1">
          <widget class="QLineEdit" name="leDBNAME"/>
         </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Benutzername</string>
-          </property>
-          <property name="buddy">
-           <cstring>leUID</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
+        <item row="0" column="3">
          <widget class="QLineEdit" name="leUID">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="1" column="2">
          <widget class="QLabel" name="label_3">
           <property name="text">
            <string>Paßwort</string>
@@ -115,7 +112,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="1" column="3">
          <widget class="QLineEdit" name="lePWD">
           <property name="text">
            <string/>
@@ -125,18 +122,35 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
+        <item row="2" column="2">
          <widget class="QLabel" name="label_12">
           <property name="text">
-           <string>Schema</string>
+           <string>ALKIS-Schema</string>
           </property>
           <property name="buddy">
-           <cstring>lePWD</cstring>
+           <cstring>leSCHEMA</cstring>
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
+        <item row="2" column="3">
          <widget class="QLineEdit" name="leSCHEMA">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QLabel" name="label_13">
+          <property name="text">
+           <string>PostGIS-Schema</string>
+          </property>
+          <property name="buddy">
+           <cstring>lePGSCHEMA</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="3">
+         <widget class="QLineEdit" name="lePGSCHEMA">
           <property name="text">
            <string/>
           </property>
@@ -385,14 +399,14 @@
     </widget>
    </item>
    <item>
-    <widget class="QProgressBar" name="pbProgress">
+    <widget class="QProgressBar" name="pbProgressFile">
      <property name="value">
       <number>24</number>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QProgressBar" name="pbProgressFile">
+    <widget class="QProgressBar" name="pbProgress">
      <property name="value">
       <number>24</number>
      </property>
@@ -553,8 +567,6 @@
   <tabstop>leHOST</tabstop>
   <tabstop>lePORT</tabstop>
   <tabstop>leDBNAME</tabstop>
-  <tabstop>leUID</tabstop>
-  <tabstop>lePWD</tabstop>
   <tabstop>cbxCreate</tabstop>
   <tabstop>cbxClean</tabstop>
   <tabstop>cbEPSG</tabstop>
@@ -592,8 +604,8 @@
      <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1622</x>
-     <y>137</y>
+     <x>1612</x>
+     <y>163</y>
     </hint>
    </hints>
   </connection>
@@ -620,12 +632,12 @@
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>302</y>
+     <x>928</x>
+     <y>358</y>
     </hint>
     <hint type="destinationlabel">
-     <x>453</x>
-     <y>450</y>
+     <x>473</x>
+     <y>534</y>
     </hint>
    </hints>
   </connection>

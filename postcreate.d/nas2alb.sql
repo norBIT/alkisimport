@@ -19,6 +19,8 @@ SET application_name='ALKIS-Import - Liegenschaftsbuchübernahme';
 SET client_min_messages TO notice;
 \set ON_ERROR_STOP
 
+SET search_path = :"alkis_schema", :"postgis_schema", public;
+
 SELECT alkis_dropobject('alb_version');
 CREATE TABLE alb_version(version integer);
 INSERT INTO alb_version(version) VALUES (2);

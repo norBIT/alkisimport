@@ -19,6 +19,8 @@ SET application_name='ALKIS-Import - Liegenschaftsbuchmigration';
 SET client_min_messages TO notice;
 \set ON_ERROR_STOP
 
+SET search_path = :"alkis_schema", :"postgis_schema", public;
+
 SELECT alkis_dropobject('alb_update_schema');
 CREATE FUNCTION alb_update_schema() RETURNS varchar AS $$
 DECLARE

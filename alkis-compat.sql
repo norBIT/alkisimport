@@ -14,9 +14,13 @@
  *                                                                         *
  ***************************************************************************/
 
+SET search_path = public;
+
 CREATE FUNCTION unnest(anyarray) RETURNS SETOF anyelement AS $$
   SELECT $1[i] FROM generate_series(array_lower($1,1), array_upper($1,1)) i;
 $$ LANGUAGE 'sql' IMMUTABLE;
+
+SET search_path = :"postgis_schema", :"alkis_schema", public;
 
 CREATE FUNCTION st_snaptogrid(geometry,float8,float8) RETURNS geometry AS $$
   SELECT snaptogrid($1,$2,$3);
@@ -227,6 +231,8 @@ CREATE AGGREGATE st_union (
 	finalfunc = unite_garray
 );
 
+SET search_path = :"alkis_schema", :"postgis_schema", public;
+
 CREATE FUNCTION alkis_intersect_lines( p0 geometry, p1 geometry, p2 geometry, p3 geometry ) RETURNS geometry AS $$
 DECLARE
 	d float8;
@@ -358,6 +364,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+SET search_path = :"postgis_schema", :"alkis_schema", public;
+
 CREATE FUNCTION st_offsetcurve(geometry,float8,text) RETURNS geometry AS $$
   SELECT alkis_offsetcurve($1,$2,$3);
 $$ LANGUAGE 'sql' IMMUTABLE;
@@ -390,7 +398,9 @@ CREATE FUNCTION st_ndims(geometry) RETURNS smallint AS $$
   SELECT ndims($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
-DROP AGGREGATE public.array_agg(anyelement);
+SET search_path = public;
+
+DROP AGGREGATE array_agg(anyelement);
 
 CREATE FUNCTION array_length(anyarray,integer) RETURNS integer AS $$
 DECLARE

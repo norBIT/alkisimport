@@ -98,6 +98,7 @@ DECLARE
 	c RECORD;
 	r VARCHAR;
 BEGIN
+	r := alkis_string_append(r, 'Aktives Schema: ' || current_schema());
 	-- drop tables & views
 	FOR c IN SELECT table_type,table_name FROM information_schema.tables
 		   WHERE table_schema=current_schema()
@@ -511,7 +512,7 @@ DECLARE
 	s INTEGER;
 	n INTEGER;
 	i INTEGER;
-	v INTEGER;
+	ver INTEGER;
 	r TEXT;
 BEGIN
 	r := NULL;
@@ -528,19 +529,19 @@ BEGIN
 	END IF;
 
 	BEGIN
-		SELECT version INTO v FROM alkis_version;
+		SELECT version INTO ver FROM alkis_version;
 
 	EXCEPTION WHEN OTHERS THEN
-		v := 0;
+		ver := 0;
 		CREATE TABLE alkis_version(version INTEGER);
-		INSERT INTO alkis_version(version) VALUES (v);
+		INSERT INTO alkis_version(version) VALUES (ver);
 
 		BEGIN ALTER TABLE ax_schutzgebietnachnaturumweltoderbodenschutzrecht ADD name varchar; EXCEPTION WHEN OTHERS THEN END;
 	END;
 
-	RAISE NOTICE 'ALKIS-Schema-Version: %', v;
+	RAISE NOTICE 'ALKIS-Schema-Version: %', ver;
 
-	IF v<1 THEN
+	IF ver<1 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 1';
 
 		PERFORM alkis_dropobject('ax_tatsaechlichenutzung');
@@ -656,7 +657,7 @@ BEGIN
 		UPDATE alkis_version SET version=1;
 	END IF;
 
-	IF v<2 THEN
+	IF ver<2 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 2';
 
 		-- Indizes ergänzen
@@ -685,7 +686,7 @@ BEGIN
 		UPDATE alkis_version SET version=2;
 	END IF;
 
-	IF v<3 THEN
+	IF ver<3 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 3';
 
 		ALTER TABLE ax_fortfuehrungsfall ALTER zeigtaufaltesflurstueck TYPE character(20)[];
@@ -694,7 +695,7 @@ BEGIN
 		UPDATE alkis_version SET version=3;
 	END IF;
 
-	IF v<4 THEN
+	IF ver<4 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 4';
 
 		BEGIN
@@ -707,7 +708,7 @@ BEGIN
 		UPDATE alkis_version SET version=4;
 	END IF;
 
-	IF v<5 THEN
+	IF ver<5 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 5';
 
 		DROP INDEX delete_fid;
@@ -716,7 +717,7 @@ BEGIN
 		UPDATE alkis_version SET version=5;
 	END IF;
 
-	IF v<6 THEN
+	IF ver<6 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 6';
 
 		CREATE INDEX ap_ppo_art ON ap_ppo USING btree (art);
@@ -725,7 +726,7 @@ BEGIN
 		UPDATE alkis_version SET version=6;
 	END IF;
 
-	IF v<7 THEN
+	IF ver<7 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 7';
 
 		ALTER TABLE ax_gebaeude ADD gebaeudekennzeichen varchar;
@@ -737,14 +738,14 @@ BEGIN
 		UPDATE alkis_version SET version=7;
 	END IF;
 
-	IF v<8 THEN
+	IF ver<8 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 8';
 
 		BEGIN
 			ALTER TABLE ax_tagesabschnitt DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_tagesabschnitt RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_tagesabschnitt','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_tagesabschnitt','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_tagesabschnitt SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_tagesabschnitt DROP wkb_geometry_;
 
@@ -754,14 +755,14 @@ BEGIN
 		UPDATE alkis_version SET version=8;
 	END IF;
 
-	IF v<9 THEN
+	IF ver<9 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 9';
 
 		BEGIN
 			ALTER TABLE ax_topographischelinie DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_topographischelinie RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_topographischelinie','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_topographischelinie','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_topographischelinie SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_topographischelinie DROP wkb_geometry_;
 
@@ -771,7 +772,7 @@ BEGIN
 		UPDATE alkis_version SET version=9;
 	END IF;
 
-	IF v<10 THEN
+	IF ver<10 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 10';
 
 		i := 0;
@@ -797,7 +798,7 @@ BEGIN
 		UPDATE alkis_version SET version=10;
 	END IF;
 
-	IF v<11 THEN
+	IF ver<11 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 11';
 
 		EXECUTE 'ALTER TABLE "delete" RENAME anlass TO anlass_';
@@ -812,7 +813,7 @@ BEGIN
 		UPDATE alkis_version SET version=11;
 	END IF;
 
-	IF v<12 THEN
+	IF ver<12 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 12';
 
 		ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD oberflaechenmaterial integer;
@@ -838,7 +839,7 @@ BEGIN
 			PRIMARY KEY (ogc_fid)
 		);
 
-		PERFORM AddGeometryColumn('ks_bauwerkanlagenfuerverundentsorgung','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'POINT',2);
+		PERFORM AddGeometryColumn('ks_bauwerkanlagenfuerverundentsorgung','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'POINT',2);
 
 		CREATE INDEX ks_bauwerkanlagenfuerverundentsorgung_geom_idx ON ks_bauwerkanlagenfuerverundentsorgung USING gist (wkb_geometry);
 
@@ -862,7 +863,7 @@ BEGIN
 			PRIMARY KEY (ogc_fid)
 		);
 
-		PERFORM AddGeometryColumn('ks_einrichtungimstrassenverkehr','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+		PERFORM AddGeometryColumn('ks_einrichtungimstrassenverkehr','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 
 		CREATE INDEX ks_einrichtungimstrassenverkehr_geom_idx ON ks_einrichtungimstrassenverkehr USING gist (wkb_geometry);
 
@@ -893,7 +894,7 @@ BEGIN
 			PRIMARY KEY (ogc_fid)
 		);
 
-		PERFORM AddGeometryColumn('ks_einrichtungimbahnverkehr','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+		PERFORM AddGeometryColumn('ks_einrichtungimbahnverkehr','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 
 		CREATE INDEX ks_einrichtungimbahnverkehr_geom_idx ON ks_einrichtungimbahnverkehr USING gist (wkb_geometry);
 
@@ -913,7 +914,7 @@ BEGIN
 			PRIMARY KEY (ogc_fid)
 		);
 
-		PERFORM AddGeometryColumn('ks_bauwerkimgewaesserbereich','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'LINESTRING',2);
+		PERFORM AddGeometryColumn('ks_bauwerkimgewaesserbereich','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'LINESTRING',2);
 
 		CREATE INDEX ks_bauwerkimgewaesserbereich_geom_idx ON ks_bauwerkimgewaesserbereich USING gist (wkb_geometry);
 
@@ -935,7 +936,7 @@ BEGIN
 			PRIMARY KEY (ogc_fid)
 		);
 
-		PERFORM AddGeometryColumn('ks_vegetationsmerkmal','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+		PERFORM AddGeometryColumn('ks_vegetationsmerkmal','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 
 		CREATE INDEX ks_vegetationsmerkmal_geom_idx ON ks_vegetationsmerkmal USING gist (wkb_geometry);
 
@@ -954,7 +955,7 @@ BEGIN
 			PRIMARY KEY (ogc_fid)
 		);
 
-		PERFORM AddGeometryColumn('ks_bauraumoderbodenordnungsrecht','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+		PERFORM AddGeometryColumn('ks_bauraumoderbodenordnungsrecht','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 
 		CREATE INDEX ks_bauraumoderbodenordnungsrecht_geom_idx ON ks_vegetationsmerkmal USING gist (wkb_geometry);
 
@@ -973,14 +974,14 @@ BEGIN
 			PRIMARY KEY (ogc_fid)
 		);
 
-		PERFORM AddGeometryColumn('ks_kommunalerbesitz','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+		PERFORM AddGeometryColumn('ks_kommunalerbesitz','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 
 		CREATE INDEX ks_kommunalerbesitz_geom_idx ON ks_vegetationsmerkmal USING gist (wkb_geometry);
 
 		UPDATE alkis_version SET version=12;
 	END IF;
 
-	IF v<13 THEN
+	IF ver<13 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 13';
 
 		r := alkis_string_append(r, alkis_rename_table('ax_landschaft'));
@@ -998,7 +999,7 @@ BEGIN
 			PRIMARY KEY (ogc_fid)
 		);
 
-		PERFORM AddGeometryColumn('ax_landschaft','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2); -- POINT/LINESTRING
+		PERFORM AddGeometryColumn('ax_landschaft','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2); -- POINT/LINESTRING
 
 		CREATE INDEX ax_landschaft_geom_idx   ON ax_landschaft USING gist (wkb_geometry);
 		CREATE UNIQUE INDEX ax_landschaft_gml ON ax_landschaft USING btree (gml_id,beginnt);
@@ -1006,7 +1007,7 @@ BEGIN
 		UPDATE alkis_version SET version=13;
 	END IF;
 
-	IF v<14 THEN
+	IF ver<14 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 14';
 
 		PERFORM alkis_dropobject('ks_bauraumoderbodenordnungsrecht_geom_idx');
@@ -1018,7 +1019,7 @@ BEGIN
 		UPDATE alkis_version SET version=14;
 	END IF;
 
-	IF v<15 THEN
+	IF ver<15 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 15';
 
 		-- aa_aktivitaet.art => art: character(16) => character varying
@@ -1063,7 +1064,7 @@ BEGIN
 			ALTER TABLE aa_antragsgebiet DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE aa_antragsgebiet RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('aa_antragsgebiet','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('aa_antragsgebiet','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE aa_antragsgebiet SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE aa_antragsgebiet DROP wkb_geometry_;
 			CREATE INDEX aa_antragsgebiet_wkb_geometry_idx ON aa_antragsgebiet USING gist(wkb_geometry);
@@ -1176,7 +1177,7 @@ BEGIN
 			ALTER TABLE ap_lto DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ap_lto RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ap_lto','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ap_lto','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ap_lto SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ap_lto DROP wkb_geometry_;
 			CREATE INDEX ap_lto_wkb_geometry_idx ON ap_lto USING gist(wkb_geometry);
@@ -1216,7 +1217,7 @@ BEGIN
 			ALTER TABLE ap_pto DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ap_pto RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ap_pto','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ap_pto','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ap_pto SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ap_pto DROP wkb_geometry_;
 			CREATE INDEX ap_pto_wkb_geometry_idx ON ap_pto USING gist(wkb_geometry);
@@ -1704,7 +1705,7 @@ BEGIN
 			ALTER TABLE ax_besondereflurstuecksgrenze DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_besondereflurstuecksgrenze RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_besondereflurstuecksgrenze','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_besondereflurstuecksgrenze','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_besondereflurstuecksgrenze SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_besondereflurstuecksgrenze DROP wkb_geometry_;
 			CREATE INDEX ax_besondereflurstuecksgrenze_wkb_geometry_idx ON ax_besondereflurstuecksgrenze USING gist(wkb_geometry);
@@ -1770,7 +1771,7 @@ BEGIN
 			ALTER TABLE ax_besondererhoehenpunkt DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_besondererhoehenpunkt RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_besondererhoehenpunkt','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_besondererhoehenpunkt','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_besondererhoehenpunkt SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_besondererhoehenpunkt DROP wkb_geometry_;
 			CREATE INDEX ax_besondererhoehenpunkt_wkb_geometry_idx ON ax_besondererhoehenpunkt USING gist(wkb_geometry);
@@ -2268,7 +2269,7 @@ BEGIN
 			ALTER TABLE ax_firstlinie DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_firstlinie RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_firstlinie','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_firstlinie','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_firstlinie SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_firstlinie DROP wkb_geometry_;
 			CREATE INDEX ax_firstlinie_wkb_geometry_idx ON ax_firstlinie USING gist(wkb_geometry);
@@ -2518,7 +2519,7 @@ BEGIN
 		ALTER TABLE ax_flurstueck ADD hatdirektunten character(16)[];
 		ALTER TABLE ax_flurstueck ADD istabgeleitetaus character(16)[];
 		ALTER TABLE ax_flurstueck ADD istteilvon character(16)[];
-		PERFORM AddGeometryColumn('ax_flurstueck','objektkoordinaten',find_srid('','ax_flurstueck','objektkoordinaten'),'POINT',2);
+		PERFORM AddGeometryColumn('ax_flurstueck','objektkoordinaten',find_srid(current_schema()::text,'ax_flurstueck','objektkoordinaten'),'POINT',2);
 		ALTER TABLE ax_flurstueck ADD traegtbeizu character(16)[];
 		ALTER TABLE ax_flurstueck ADD zeigtaufexternes_art character varying[];
 		ALTER TABLE ax_flurstueck ADD zeigtaufexternes_uri character varying[];
@@ -2803,7 +2804,7 @@ BEGIN
 			ALTER TABLE ax_gelaendekante DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_gelaendekante RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_gelaendekante','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_gelaendekante','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_gelaendekante SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_gelaendekante DROP wkb_geometry_;
 			CREATE INDEX ax_gelaendekante_wkb_geometry_idx ON ax_gelaendekante USING gist(wkb_geometry);
@@ -2920,7 +2921,7 @@ BEGIN
 			ALTER TABLE ax_georeferenziertegebaeudeadresse DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_georeferenziertegebaeudeadresse RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_georeferenziertegebaeudeadresse','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_georeferenziertegebaeudeadresse','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_georeferenziertegebaeudeadresse SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_georeferenziertegebaeudeadresse DROP wkb_geometry_;
 			CREATE INDEX ax_georeferenziertegebaeudeadresse_wkb_geometry_idx ON ax_georeferenziertegebaeudeadresse USING gist(wkb_geometry);
@@ -3035,7 +3036,7 @@ BEGIN
 			ALTER TABLE ax_grablochderbodenschaetzung DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_grablochderbodenschaetzung RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_grablochderbodenschaetzung','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_grablochderbodenschaetzung','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_grablochderbodenschaetzung SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_grablochderbodenschaetzung DROP wkb_geometry_;
 			CREATE INDEX ax_grablochderbodenschaetzung_wkb_geometry_idx ON ax_grablochderbodenschaetzung USING gist(wkb_geometry);
@@ -3232,7 +3233,7 @@ BEGIN
 			ALTER TABLE ax_heilquellegasquelle DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_heilquellegasquelle RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_heilquellegasquelle','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_heilquellegasquelle','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_heilquellegasquelle SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_heilquellegasquelle DROP wkb_geometry_;
 			CREATE INDEX ax_heilquellegasquelle_wkb_geometry_idx ON ax_heilquellegasquelle USING gist(wkb_geometry);
@@ -3352,7 +3353,7 @@ BEGIN
 		ALTER TABLE ax_historischesflurstueck ADD istabgeleitetaus character(16)[];
 		ALTER TABLE ax_historischesflurstueck ADD istteilvon character(16)[];
 		ALTER TABLE ax_historischesflurstueck ADD kennungschluessel character varying[];
-		PERFORM AddGeometryColumn('ax_historischesflurstueck','objektkoordinaten',find_srid('','ax_flurstueck','objektkoordinaten'),'POINT',2);
+		PERFORM AddGeometryColumn('ax_historischesflurstueck','objektkoordinaten',find_srid(current_schema()::text,'ax_flurstueck','objektkoordinaten'),'POINT',2);
 		ALTER TABLE ax_historischesflurstueck ADD traegtbeizu character(16)[];
 		ALTER TABLE ax_historischesflurstueck ADD zeigtaufexternes_uri character varying[];
 		CREATE INDEX alkis_2e76a0c0_6f40_4a62_8f6d_be5ef7fb08a4 ON ax_historischesflurstueck USING btree (endet);
@@ -3387,7 +3388,7 @@ BEGIN
 		ALTER TABLE ax_historischesflurstueckalb DROP zweifelhafterflurstuecksnachweis;
 		ALTER TABLE ax_historischesflurstueckalb ADD buchungsblattbezirk_land character varying[];
 		ALTER TABLE ax_historischesflurstueckalb ADD istteilvon character(16)[];
-		PERFORM AddGeometryColumn('ax_historischesflurstueckalb','objektkoordinaten',find_srid('','ax_flurstueck','objektkoordinaten'),'POINT',2);
+		PERFORM AddGeometryColumn('ax_historischesflurstueckalb','objektkoordinaten',find_srid(current_schema()::text,'ax_flurstueck','objektkoordinaten'),'POINT',2);
 		ALTER TABLE ax_historischesflurstueckalb ADD zeigtaufexternes_art character varying[];
 		ALTER TABLE ax_historischesflurstueckalb ADD zeigtaufexternes_uri character varying[];
 		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='ax_historischesflurstueckalb' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON ax_historischesflurstueckalb USING btree (nachfolgerflurstueckskennzeichen)';
@@ -3423,7 +3424,7 @@ BEGIN
 		ALTER TABLE ax_historischesflurstueckohneraumbezug ADD gemeindezugehoerigkeit_regierungsbezirk character varying;
 		ALTER TABLE ax_historischesflurstueckohneraumbezug ADD istteilvon character(16)[];
 		ALTER TABLE ax_historischesflurstueckohneraumbezug ADD kennungschluessel character varying[];
-		PERFORM AddGeometryColumn('ax_historischesflurstueckohneraumbezug','objektkoordinaten',find_srid('','ax_flurstueck','objektkoordinaten'),'POINT',2);
+		PERFORM AddGeometryColumn('ax_historischesflurstueckohneraumbezug','objektkoordinaten',find_srid(current_schema()::text,'ax_flurstueck','objektkoordinaten'),'POINT',2);
 		ALTER TABLE ax_historischesflurstueckohneraumbezug ADD zeigtaufexternes_art character varying[];
 		ALTER TABLE ax_historischesflurstueckohneraumbezug ADD zeigtaufexternes_uri character varying[];
 		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='ax_historischesflurstueckohneraumbezug' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON ax_historischesflurstueckohneraumbezug USING btree (nachfolgerflurstueckskennzeichen)';
@@ -3442,7 +3443,7 @@ BEGIN
 			ALTER TABLE ax_hoehenlinie DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_hoehenlinie RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_hoehenlinie','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_hoehenlinie','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_hoehenlinie SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_hoehenlinie DROP wkb_geometry_;
 			CREATE INDEX ax_hoehenlinie_wkb_geometry_idx ON ax_hoehenlinie USING gist(wkb_geometry);
@@ -3489,7 +3490,7 @@ BEGIN
 			ALTER TABLE ax_hoehleneingang DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_hoehleneingang RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_hoehleneingang','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_hoehleneingang','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_hoehleneingang SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_hoehleneingang DROP wkb_geometry_;
 			CREATE INDEX ax_hoehleneingang_wkb_geometry_idx ON ax_hoehleneingang USING gist(wkb_geometry);
@@ -3806,7 +3807,7 @@ BEGIN
 			ALTER TABLE ax_leitung DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_leitung RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_leitung','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_leitung','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_leitung SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_leitung DROP wkb_geometry_;
 			CREATE INDEX ax_leitung_wkb_geometry_idx ON ax_leitung USING gist(wkb_geometry);
@@ -4131,7 +4132,7 @@ BEGIN
 			ALTER TABLE ax_punktortag DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_punktortag RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_punktortag','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_punktortag','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_punktortag SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_punktortag DROP wkb_geometry_;
 			CREATE INDEX ax_punktortag_wkb_geometry_idx ON ax_punktortag USING gist(wkb_geometry);
@@ -4193,7 +4194,7 @@ BEGIN
 			ALTER TABLE ax_punktortau DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_punktortau RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_punktortau','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_punktortau','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_punktortau SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_punktortau DROP wkb_geometry_;
 			CREATE INDEX ax_punktortau_wkb_geometry_idx ON ax_punktortau USING gist(wkb_geometry);
@@ -4253,7 +4254,7 @@ BEGIN
 			ALTER TABLE ax_punktortta DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_punktortta RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_punktortta','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_punktortta','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_punktortta SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_punktortta DROP wkb_geometry_;
 			CREATE INDEX ax_punktortta_wkb_geometry_idx ON ax_punktortta USING gist(wkb_geometry);
@@ -4343,7 +4344,7 @@ BEGIN
 			ALTER TABLE ax_schifffahrtsliniefaehrverkehr DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_schifffahrtsliniefaehrverkehr RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_schifffahrtsliniefaehrverkehr','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_schifffahrtsliniefaehrverkehr','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_schifffahrtsliniefaehrverkehr SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_schifffahrtsliniefaehrverkehr DROP wkb_geometry_;
 			CREATE INDEX ax_schifffahrtsliniefaehrverkehr_wkb_geometry_idx ON ax_schifffahrtsliniefaehrverkehr USING gist(wkb_geometry);
@@ -4581,7 +4582,7 @@ BEGIN
 			ALTER TABLE ax_soll DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_soll RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_soll','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_soll','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_soll SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_soll DROP wkb_geometry_;
 			CREATE INDEX ax_soll_wkb_geometry_idx ON ax_soll USING gist(wkb_geometry);
@@ -5438,7 +5439,7 @@ BEGIN
 			ALTER TABLE ax_wasserspiegelhoehe DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_wasserspiegelhoehe RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_wasserspiegelhoehe','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_wasserspiegelhoehe','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_wasserspiegelhoehe SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_wasserspiegelhoehe DROP wkb_geometry_;
 			CREATE INDEX ax_wasserspiegelhoehe_wkb_geometry_idx ON ax_wasserspiegelhoehe USING gist(wkb_geometry);
@@ -5619,7 +5620,7 @@ BEGIN
 			ALTER TABLE ax_wohnplatz DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_wohnplatz RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_wohnplatz','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_wohnplatz','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_wohnplatz SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_wohnplatz DROP wkb_geometry_;
 			CREATE INDEX ax_wohnplatz_wkb_geometry_idx ON ax_wohnplatz USING gist(wkb_geometry);
@@ -12350,7 +12351,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ap_fpo_gml ON ap_fpo USING btree (gml_id,beginnt);
 		CREATE INDEX ap_fpo_endet ON ap_fpo USING btree (endet);
-		PERFORM AddGeometryColumn('ap_fpo', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ap_fpo', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ap_fpo_wkb_geometry_idx ON ap_fpo USING gist (wkb_geometry);
 		CREATE INDEX ap_fpo_dientzurdarstellungvon ON ap_fpo USING gin (dientzurdarstellungvon);
 		CREATE INDEX ap_fpo_istabgeleitetaus ON ap_fpo USING gin (istabgeleitetaus);
@@ -12418,7 +12419,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_polder_gml ON ax_polder USING btree (gml_id,beginnt);
 		CREATE INDEX ax_polder_endet ON ax_polder USING btree (endet);
-		PERFORM AddGeometryColumn('ax_polder', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_polder', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_polder_wkb_geometry_idx ON ax_polder USING gist (wkb_geometry);
 		CREATE INDEX ax_polder_istabgeleitetaus ON ax_polder USING gin (istabgeleitetaus);
 		CREATE INDEX ax_polder_traegtbeizu ON ax_polder USING gin (traegtbeizu);
@@ -12481,7 +12482,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_kondominium_gml ON ax_kondominium USING btree (gml_id,beginnt);
 		CREATE INDEX ax_kondominium_endet ON ax_kondominium USING btree (endet);
-		PERFORM AddGeometryColumn('ax_kondominium', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_kondominium', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_kondominium_wkb_geometry_idx ON ax_kondominium USING gist (wkb_geometry);
 		CREATE INDEX ax_kondominium_istabgeleitetaus ON ax_kondominium USING gin (istabgeleitetaus);
 		CREATE INDEX ax_kondominium_traegtbeizu ON ax_kondominium USING gin (traegtbeizu);
@@ -12519,7 +12520,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_aussparungsflaeche_gml ON ax_aussparungsflaeche USING btree (gml_id,beginnt);
 		CREATE INDEX ax_aussparungsflaeche_endet ON ax_aussparungsflaeche USING btree (endet);
-		PERFORM AddGeometryColumn('ax_aussparungsflaeche', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_aussparungsflaeche', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_aussparungsflaeche_wkb_geometry_idx ON ax_aussparungsflaeche USING gist (wkb_geometry);
 		CREATE INDEX ax_aussparungsflaeche_istabgeleitetaus ON ax_aussparungsflaeche USING gin (istabgeleitetaus);
 		CREATE INDEX ax_aussparungsflaeche_traegtbeizu ON ax_aussparungsflaeche USING gin (traegtbeizu);
@@ -12583,7 +12584,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_hafen_gml ON ax_hafen USING btree (gml_id,beginnt);
 		CREATE INDEX ax_hafen_endet ON ax_hafen USING btree (endet);
-		PERFORM AddGeometryColumn('ax_hafen', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_hafen', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_hafen_wkb_geometry_idx ON ax_hafen USING gist (wkb_geometry);
 		CREATE INDEX ax_hafen_istabgeleitetaus ON ax_hafen USING gin (istabgeleitetaus);
 		CREATE INDEX ax_hafen_traegtbeizu ON ax_hafen USING gin (traegtbeizu);
@@ -12670,7 +12671,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_testgelaende_gml ON ax_testgelaende USING btree (gml_id,beginnt);
 		CREATE INDEX ax_testgelaende_endet ON ax_testgelaende USING btree (endet);
-		PERFORM AddGeometryColumn('ax_testgelaende', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_testgelaende', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_testgelaende_wkb_geometry_idx ON ax_testgelaende USING gist (wkb_geometry);
 		CREATE INDEX ax_testgelaende_istabgeleitetaus ON ax_testgelaende USING gin (istabgeleitetaus);
 		CREATE INDEX ax_testgelaende_traegtbeizu ON ax_testgelaende USING gin (traegtbeizu);
@@ -12758,7 +12759,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_schleuse_gml ON ax_schleuse USING btree (gml_id,beginnt);
 		CREATE INDEX ax_schleuse_endet ON ax_schleuse USING btree (endet);
-		PERFORM AddGeometryColumn('ax_schleuse', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_schleuse', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_schleuse_wkb_geometry_idx ON ax_schleuse USING gist (wkb_geometry);
 		CREATE INDEX ax_schleuse_istabgeleitetaus ON ax_schleuse USING gin (istabgeleitetaus);
 		CREATE INDEX ax_schleuse_traegtbeizu ON ax_schleuse USING gin (traegtbeizu);
@@ -12847,7 +12848,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_ortslage_gml ON ax_ortslage USING btree (gml_id,beginnt);
 		CREATE INDEX ax_ortslage_endet ON ax_ortslage USING btree (endet);
-		PERFORM AddGeometryColumn('ax_ortslage', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_ortslage', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_ortslage_wkb_geometry_idx ON ax_ortslage USING gist (wkb_geometry);
 		CREATE INDEX ax_ortslage_istabgeleitetaus ON ax_ortslage USING gin (istabgeleitetaus);
 		CREATE INDEX ax_ortslage_traegtbeizu ON ax_ortslage USING gin (traegtbeizu);
@@ -12933,7 +12934,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_grenzuebergang_gml ON ax_grenzuebergang USING btree (gml_id,beginnt);
 		CREATE INDEX ax_grenzuebergang_endet ON ax_grenzuebergang USING btree (endet);
-		PERFORM AddGeometryColumn('ax_grenzuebergang', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_grenzuebergang', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_grenzuebergang_wkb_geometry_idx ON ax_grenzuebergang USING gist (wkb_geometry);
 		CREATE INDEX ax_grenzuebergang_istabgeleitetaus ON ax_grenzuebergang USING gin (istabgeleitetaus);
 		CREATE INDEX ax_grenzuebergang_traegtbeizu ON ax_grenzuebergang USING gin (traegtbeizu);
@@ -12995,7 +12996,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_insel_gml ON ax_insel USING btree (gml_id,beginnt);
 		CREATE INDEX ax_insel_endet ON ax_insel USING btree (endet);
-		PERFORM AddGeometryColumn('ax_insel', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_insel', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_insel_wkb_geometry_idx ON ax_insel USING gist (wkb_geometry);
 		CREATE INDEX ax_insel_istabgeleitetaus ON ax_insel USING gin (istabgeleitetaus);
 		CREATE INDEX ax_insel_traegtbeizu ON ax_insel USING gin (traegtbeizu);
@@ -13034,7 +13035,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_gewann_gml ON ax_gewann USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gewann_endet ON ax_gewann USING btree (endet);
-		PERFORM AddGeometryColumn('ax_gewann', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_gewann', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_gewann_wkb_geometry_idx ON ax_gewann USING gist (wkb_geometry);
 		CREATE INDEX ax_gewann_istabgeleitetaus ON ax_gewann USING gin (istabgeleitetaus);
 		CREATE INDEX ax_gewann_traegtbeizu ON ax_gewann USING gin (traegtbeizu);
@@ -13096,7 +13097,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_abschnitt_gml ON ax_abschnitt USING btree (gml_id,beginnt);
 		CREATE INDEX ax_abschnitt_endet ON ax_abschnitt USING btree (endet);
-		PERFORM AddGeometryColumn('ax_abschnitt', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_abschnitt', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_abschnitt_wkb_geometry_idx ON ax_abschnitt USING gist (wkb_geometry);
 		CREATE INDEX ax_abschnitt_istabgeleitetaus ON ax_abschnitt USING gin (istabgeleitetaus);
 		CREATE INDEX ax_abschnitt_traegtbeizu ON ax_abschnitt USING gin (traegtbeizu);
@@ -13181,7 +13182,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_ast_gml ON ax_ast USING btree (gml_id,beginnt);
 		CREATE INDEX ax_ast_endet ON ax_ast USING btree (endet);
-		PERFORM AddGeometryColumn('ax_ast', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_ast', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_ast_wkb_geometry_idx ON ax_ast USING gist (wkb_geometry);
 		CREATE INDEX ax_ast_istabgeleitetaus ON ax_ast USING gin (istabgeleitetaus);
 		CREATE INDEX ax_ast_traegtbeizu ON ax_ast USING gin (traegtbeizu);
@@ -13254,7 +13255,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_geripplinie_gml ON ax_geripplinie USING btree (gml_id,beginnt);
 		CREATE INDEX ax_geripplinie_endet ON ax_geripplinie USING btree (endet);
-		PERFORM AddGeometryColumn('ax_geripplinie', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_geripplinie', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_geripplinie_wkb_geometry_idx ON ax_geripplinie USING gist (wkb_geometry);
 		CREATE INDEX ax_geripplinie_istabgeleitetaus ON ax_geripplinie USING gin (istabgeleitetaus);
 		CREATE INDEX ax_geripplinie_traegtbeizu ON ax_geripplinie USING gin (traegtbeizu);
@@ -13316,7 +13317,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_gewaesserbegrenzung_gml ON ax_gewaesserbegrenzung USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gewaesserbegrenzung_endet ON ax_gewaesserbegrenzung USING btree (endet);
-		PERFORM AddGeometryColumn('ax_gewaesserbegrenzung', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_gewaesserbegrenzung', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_gewaesserbegrenzung_wkb_geometry_idx ON ax_gewaesserbegrenzung USING gist (wkb_geometry);
 		CREATE INDEX ax_gewaesserbegrenzung_istabgeleitetaus ON ax_gewaesserbegrenzung USING gin (istabgeleitetaus);
 		CREATE INDEX ax_gewaesserbegrenzung_traegtbeizu ON ax_gewaesserbegrenzung USING gin (traegtbeizu);
@@ -13379,7 +13380,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_strukturierterfasstegelaendepunkte_gml ON ax_strukturierterfasstegelaendepunkte USING btree (gml_id,beginnt);
 		CREATE INDEX ax_strukturierterfasstegelaendepunkte_endet ON ax_strukturierterfasstegelaendepunkte USING btree (endet);
-		PERFORM AddGeometryColumn('ax_strukturierterfasstegelaendepunkte', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_strukturierterfasstegelaendepunkte', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_strukturierterfasstegelaendepunkte_wkb_geometry_idx ON ax_strukturierterfasstegelaendepunkte USING gist (wkb_geometry);
 		CREATE INDEX ax_strukturierterfasstegelaendepunkte_istabgeleitetaus ON ax_strukturierterfasstegelaendepunkte USING gin (istabgeleitetaus);
 		CREATE INDEX ax_strukturierterfasstegelaendepunkte_traegtbeizu ON ax_strukturierterfasstegelaendepunkte USING gin (traegtbeizu);
@@ -13431,7 +13432,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_einschnitt_gml ON ax_einschnitt USING btree (gml_id,beginnt);
 		CREATE INDEX ax_einschnitt_endet ON ax_einschnitt USING btree (endet);
-		PERFORM AddGeometryColumn('ax_einschnitt', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_einschnitt', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_einschnitt_wkb_geometry_idx ON ax_einschnitt USING gist (wkb_geometry);
 		CREATE INDEX ax_einschnitt_istabgeleitetaus ON ax_einschnitt USING gin (istabgeleitetaus);
 		CREATE INDEX ax_einschnitt_traegtbeizu ON ax_einschnitt USING gin (traegtbeizu);
@@ -13475,7 +13476,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_abgeleitetehoehenlinie_gml ON ax_abgeleitetehoehenlinie USING btree (gml_id,beginnt);
 		CREATE INDEX ax_abgeleitetehoehenlinie_endet ON ax_abgeleitetehoehenlinie USING btree (endet);
-		PERFORM AddGeometryColumn('ax_abgeleitetehoehenlinie', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_abgeleitetehoehenlinie', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_abgeleitetehoehenlinie_wkb_geometry_idx ON ax_abgeleitetehoehenlinie USING gist (wkb_geometry);
 		CREATE INDEX ax_abgeleitetehoehenlinie_istabgeleitetaus ON ax_abgeleitetehoehenlinie USING gin (istabgeleitetaus);
 		CREATE INDEX ax_abgeleitetehoehenlinie_traegtbeizu ON ax_abgeleitetehoehenlinie USING gin (traegtbeizu);
@@ -13542,7 +13543,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_nullpunkt_gml ON ax_nullpunkt USING btree (gml_id,beginnt);
 		CREATE INDEX ax_nullpunkt_endet ON ax_nullpunkt USING btree (endet);
-		PERFORM AddGeometryColumn('ax_nullpunkt', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_nullpunkt', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_nullpunkt_wkb_geometry_idx ON ax_nullpunkt USING gist (wkb_geometry);
 		CREATE INDEX ax_nullpunkt_istabgeleitetaus ON ax_nullpunkt USING gin (istabgeleitetaus);
 		CREATE INDEX ax_nullpunkt_traegtbeizu ON ax_nullpunkt USING gin (traegtbeizu);
@@ -13615,7 +13616,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_markantergelaendepunkt_gml ON ax_markantergelaendepunkt USING btree (gml_id,beginnt);
 		CREATE INDEX ax_markantergelaendepunkt_endet ON ax_markantergelaendepunkt USING btree (endet);
-		PERFORM AddGeometryColumn('ax_markantergelaendepunkt', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_markantergelaendepunkt', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_markantergelaendepunkt_wkb_geometry_idx ON ax_markantergelaendepunkt USING gist (wkb_geometry);
 		CREATE INDEX ax_markantergelaendepunkt_istabgeleitetaus ON ax_markantergelaendepunkt USING gin (istabgeleitetaus);
 		CREATE INDEX ax_markantergelaendepunkt_traegtbeizu ON ax_markantergelaendepunkt USING gin (traegtbeizu);
@@ -13689,7 +13690,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_sickerstrecke_gml ON ax_sickerstrecke USING btree (gml_id,beginnt);
 		CREATE INDEX ax_sickerstrecke_endet ON ax_sickerstrecke USING btree (endet);
-		PERFORM AddGeometryColumn('ax_sickerstrecke', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_sickerstrecke', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_sickerstrecke_wkb_geometry_idx ON ax_sickerstrecke USING gist (wkb_geometry);
 		CREATE INDEX ax_sickerstrecke_istabgeleitetaus ON ax_sickerstrecke USING gin (istabgeleitetaus);
 		CREATE INDEX ax_sickerstrecke_traegtbeizu ON ax_sickerstrecke USING gin (traegtbeizu);
@@ -13779,7 +13780,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_anderefestlegungnachstrassenrecht_gml ON ax_anderefestlegungnachstrassenrecht USING btree (gml_id,beginnt);
 		CREATE INDEX ax_anderefestlegungnachstrassenrecht_endet ON ax_anderefestlegungnachstrassenrecht USING btree (endet);
-		PERFORM AddGeometryColumn('ax_anderefestlegungnachstrassenrecht', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_anderefestlegungnachstrassenrecht', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_anderefestlegungnachstrassenrecht_wkb_geometry_idx ON ax_anderefestlegungnachstrassenrecht USING gist (wkb_geometry);
 		CREATE INDEX ax_anderefestlegungnachstrassenrecht_istabgeleitetaus ON ax_anderefestlegungnachstrassenrecht USING gin (istabgeleitetaus);
 		CREATE INDEX ax_anderefestlegungnachstrassenrecht_traegtbeizu ON ax_anderefestlegungnachstrassenrecht USING gin (traegtbeizu);
@@ -13847,7 +13848,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_gebiet_kreis_gml ON ax_gebiet_kreis USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gebiet_kreis_endet ON ax_gebiet_kreis USING btree (endet);
-		PERFORM AddGeometryColumn('ax_gebiet_kreis', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_gebiet_kreis', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_gebiet_kreis_wkb_geometry_idx ON ax_gebiet_kreis USING gist (wkb_geometry);
 		CREATE INDEX ax_gebiet_kreis_istabgeleitetaus ON ax_gebiet_kreis USING gin (istabgeleitetaus);
 		CREATE INDEX ax_gebiet_kreis_traegtbeizu ON ax_gebiet_kreis USING gin (traegtbeizu);
@@ -13890,7 +13891,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_gebiet_bundesland_gml ON ax_gebiet_bundesland USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gebiet_bundesland_endet ON ax_gebiet_bundesland USING btree (endet);
-		PERFORM AddGeometryColumn('ax_gebiet_bundesland', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_gebiet_bundesland', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_gebiet_bundesland_wkb_geometry_idx ON ax_gebiet_bundesland USING gist (wkb_geometry);
 		CREATE INDEX ax_gebiet_bundesland_istabgeleitetaus ON ax_gebiet_bundesland USING gin (istabgeleitetaus);
 		CREATE INDEX ax_gebiet_bundesland_traegtbeizu ON ax_gebiet_bundesland USING gin (traegtbeizu);
@@ -13932,7 +13933,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_gebiet_regierungsbezirk_gml ON ax_gebiet_regierungsbezirk USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gebiet_regierungsbezirk_endet ON ax_gebiet_regierungsbezirk USING btree (endet);
-		PERFORM AddGeometryColumn('ax_gebiet_regierungsbezirk', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_gebiet_regierungsbezirk', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_gebiet_regierungsbezirk_wkb_geometry_idx ON ax_gebiet_regierungsbezirk USING gist (wkb_geometry);
 		CREATE INDEX ax_gebiet_regierungsbezirk_istabgeleitetaus ON ax_gebiet_regierungsbezirk USING gin (istabgeleitetaus);
 		CREATE INDEX ax_gebiet_regierungsbezirk_traegtbeizu ON ax_gebiet_regierungsbezirk USING gin (traegtbeizu);
@@ -13974,7 +13975,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_gebiet_nationalstaat_gml ON ax_gebiet_nationalstaat USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gebiet_nationalstaat_endet ON ax_gebiet_nationalstaat USING btree (endet);
-		PERFORM AddGeometryColumn('ax_gebiet_nationalstaat', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_gebiet_nationalstaat', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_gebiet_nationalstaat_wkb_geometry_idx ON ax_gebiet_nationalstaat USING gist (wkb_geometry);
 		CREATE INDEX ax_gebiet_nationalstaat_istabgeleitetaus ON ax_gebiet_nationalstaat USING gin (istabgeleitetaus);
 		CREATE INDEX ax_gebiet_nationalstaat_traegtbeizu ON ax_gebiet_nationalstaat USING gin (traegtbeizu);
@@ -14019,7 +14020,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_gebiet_verwaltungsgemeinschaft_gml ON ax_gebiet_verwaltungsgemeinschaft USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gebiet_verwaltungsgemeinschaft_endet ON ax_gebiet_verwaltungsgemeinschaft USING btree (endet);
-		PERFORM AddGeometryColumn('ax_gebiet_verwaltungsgemeinschaft', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_gebiet_verwaltungsgemeinschaft', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_gebiet_verwaltungsgemeinschaft_wkb_geometry_idx ON ax_gebiet_verwaltungsgemeinschaft USING gist (wkb_geometry);
 		CREATE INDEX ax_gebiet_verwaltungsgemeinschaft_istabgeleitetaus ON ax_gebiet_verwaltungsgemeinschaft USING gin (istabgeleitetaus);
 		CREATE INDEX ax_gebiet_verwaltungsgemeinschaft_traegtbeizu ON ax_gebiet_verwaltungsgemeinschaft USING gin (traegtbeizu);
@@ -14091,7 +14092,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_gewaesserstationierungsachse_gml ON ax_gewaesserstationierungsachse USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gewaesserstationierungsachse_endet ON ax_gewaesserstationierungsachse USING btree (endet);
-		PERFORM AddGeometryColumn('ax_gewaesserstationierungsachse', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_gewaesserstationierungsachse', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_gewaesserstationierungsachse_wkb_geometry_idx ON ax_gewaesserstationierungsachse USING gist (wkb_geometry);
 		CREATE INDEX ax_gewaesserstationierungsachse_istabgeleitetaus ON ax_gewaesserstationierungsachse USING gin (istabgeleitetaus);
 		CREATE INDEX ax_gewaesserstationierungsachse_traegtbeizu ON ax_gewaesserstationierungsachse USING gin (traegtbeizu);
@@ -14158,7 +14159,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_gebietsgrenze_gml ON ax_gebietsgrenze USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gebietsgrenze_endet ON ax_gebietsgrenze USING btree (endet);
-		PERFORM AddGeometryColumn('ax_gebietsgrenze', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_gebietsgrenze', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_gebietsgrenze_wkb_geometry_idx ON ax_gebietsgrenze USING gist (wkb_geometry);
 		CREATE INDEX ax_gebietsgrenze_istabgeleitetaus ON ax_gebietsgrenze USING gin (istabgeleitetaus);
 		CREATE INDEX ax_gebietsgrenze_traegtbeizu ON ax_gebietsgrenze USING gin (traegtbeizu);
@@ -14201,7 +14202,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_gewaesserachse_gml ON ax_gewaesserachse USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gewaesserachse_endet ON ax_gewaesserachse USING btree (endet);
-		PERFORM AddGeometryColumn('ax_gewaesserachse', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_gewaesserachse', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_gewaesserachse_wkb_geometry_idx ON ax_gewaesserachse USING gist (wkb_geometry);
 		CREATE INDEX ax_gewaesserachse_istabgeleitetaus ON ax_gewaesserachse USING gin (istabgeleitetaus);
 		CREATE INDEX ax_gewaesserachse_traegtbeizu ON ax_gewaesserachse USING gin (traegtbeizu);
@@ -14252,7 +14253,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_strassenachse_gml ON ax_strassenachse USING btree (gml_id,beginnt);
 		CREATE INDEX ax_strassenachse_endet ON ax_strassenachse USING btree (endet);
-		PERFORM AddGeometryColumn('ax_strassenachse', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_strassenachse', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_strassenachse_wkb_geometry_idx ON ax_strassenachse USING gist (wkb_geometry);
 		CREATE INDEX ax_strassenachse_istabgeleitetaus ON ax_strassenachse USING gin (istabgeleitetaus);
 		CREATE INDEX ax_strassenachse_traegtbeizu ON ax_strassenachse USING gin (traegtbeizu);
@@ -14306,7 +14307,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_bahnstrecke_gml ON ax_bahnstrecke USING btree (gml_id,beginnt);
 		CREATE INDEX ax_bahnstrecke_endet ON ax_bahnstrecke USING btree (endet);
-		PERFORM AddGeometryColumn('ax_bahnstrecke', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_bahnstrecke', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_bahnstrecke_wkb_geometry_idx ON ax_bahnstrecke USING gist (wkb_geometry);
 		CREATE INDEX ax_bahnstrecke_istabgeleitetaus ON ax_bahnstrecke USING gin (istabgeleitetaus);
 		CREATE INDEX ax_bahnstrecke_traegtbeizu ON ax_bahnstrecke USING gin (traegtbeizu);
@@ -14358,7 +14359,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_fahrwegachse_gml ON ax_fahrwegachse USING btree (gml_id,beginnt);
 		CREATE INDEX ax_fahrwegachse_endet ON ax_fahrwegachse USING btree (endet);
-		PERFORM AddGeometryColumn('ax_fahrwegachse', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_fahrwegachse', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_fahrwegachse_wkb_geometry_idx ON ax_fahrwegachse USING gist (wkb_geometry);
 		CREATE INDEX ax_fahrwegachse_istabgeleitetaus ON ax_fahrwegachse USING gin (istabgeleitetaus);
 		CREATE INDEX ax_fahrwegachse_traegtbeizu ON ax_fahrwegachse USING gin (traegtbeizu);
@@ -14408,7 +14409,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_fahrbahnachse_gml ON ax_fahrbahnachse USING btree (gml_id,beginnt);
 		CREATE INDEX ax_fahrbahnachse_endet ON ax_fahrbahnachse USING btree (endet);
-		PERFORM AddGeometryColumn('ax_fahrbahnachse', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_fahrbahnachse', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_fahrbahnachse_wkb_geometry_idx ON ax_fahrbahnachse USING gist (wkb_geometry);
 		CREATE INDEX ax_fahrbahnachse_istabgeleitetaus ON ax_fahrbahnachse USING gin (istabgeleitetaus);
 		CREATE INDEX ax_fahrbahnachse_traegtbeizu ON ax_fahrbahnachse USING gin (traegtbeizu);
@@ -14477,7 +14478,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_siedlungsflaeche_gml ON ax_siedlungsflaeche USING btree (gml_id,beginnt);
 		CREATE INDEX ax_siedlungsflaeche_endet ON ax_siedlungsflaeche USING btree (endet);
-		PERFORM AddGeometryColumn('ax_siedlungsflaeche', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_siedlungsflaeche', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_siedlungsflaeche_wkb_geometry_idx ON ax_siedlungsflaeche USING gist (wkb_geometry);
 		CREATE INDEX ax_siedlungsflaeche_istabgeleitetaus ON ax_siedlungsflaeche USING gin (istabgeleitetaus);
 		CREATE INDEX ax_siedlungsflaeche_traegtbeizu ON ax_siedlungsflaeche USING gin (traegtbeizu);
@@ -14564,7 +14565,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ax_flaechezurzeitunbestimmbar_gml ON ax_flaechezurzeitunbestimmbar USING btree (gml_id,beginnt);
 		CREATE INDEX ax_flaechezurzeitunbestimmbar_endet ON ax_flaechezurzeitunbestimmbar USING btree (endet);
-		PERFORM AddGeometryColumn('ax_flaechezurzeitunbestimmbar', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ax_flaechezurzeitunbestimmbar', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ax_flaechezurzeitunbestimmbar_wkb_geometry_idx ON ax_flaechezurzeitunbestimmbar USING gist (wkb_geometry);
 		CREATE INDEX ax_flaechezurzeitunbestimmbar_istabgeleitetaus ON ax_flaechezurzeitunbestimmbar USING gin (istabgeleitetaus);
 		CREATE INDEX ax_flaechezurzeitunbestimmbar_traegtbeizu ON ax_flaechezurzeitunbestimmbar USING gin (traegtbeizu);
@@ -14625,7 +14626,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ta_compositesolidcomponent_3d_gml ON ta_compositesolidcomponent_3d USING btree (gml_id,beginnt);
 		CREATE INDEX ta_compositesolidcomponent_3d_endet ON ta_compositesolidcomponent_3d USING btree (endet);
-		PERFORM AddGeometryColumn('ta_compositesolidcomponent_3d', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ta_compositesolidcomponent_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ta_compositesolidcomponent_3d_wkb_geometry_idx ON ta_compositesolidcomponent_3d USING gist (wkb_geometry);
 		CREATE INDEX ta_compositesolidcomponent_3d_detailliert ON ta_compositesolidcomponent_3d USING btree (detailliert);
 		CREATE INDEX ta_compositesolidcomponent_3d_generalisiert ON ta_compositesolidcomponent_3d USING btree (generalisiert);
@@ -14662,7 +14663,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ta_surfacecomponent_3d_gml ON ta_surfacecomponent_3d USING btree (gml_id,beginnt);
 		CREATE INDEX ta_surfacecomponent_3d_endet ON ta_surfacecomponent_3d USING btree (endet);
-		PERFORM AddGeometryColumn('ta_surfacecomponent_3d', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ta_surfacecomponent_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ta_surfacecomponent_3d_wkb_geometry_idx ON ta_surfacecomponent_3d USING gist (wkb_geometry);
 		CREATE INDEX ta_surfacecomponent_3d_detailliert ON ta_surfacecomponent_3d USING btree (detailliert);
 		CREATE INDEX ta_surfacecomponent_3d_generalisiert ON ta_surfacecomponent_3d USING btree (generalisiert);
@@ -14699,7 +14700,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ta_curvecomponent_3d_gml ON ta_curvecomponent_3d USING btree (gml_id,beginnt);
 		CREATE INDEX ta_curvecomponent_3d_endet ON ta_curvecomponent_3d USING btree (endet);
-		PERFORM AddGeometryColumn('ta_curvecomponent_3d', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ta_curvecomponent_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ta_curvecomponent_3d_wkb_geometry_idx ON ta_curvecomponent_3d USING gist (wkb_geometry);
 		CREATE INDEX ta_curvecomponent_3d_detailliert ON ta_curvecomponent_3d USING btree (detailliert);
 		CREATE INDEX ta_curvecomponent_3d_generalisiert ON ta_curvecomponent_3d USING btree (generalisiert);
@@ -14736,7 +14737,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ta_pointcomponent_3d_gml ON ta_pointcomponent_3d USING btree (gml_id,beginnt);
 		CREATE INDEX ta_pointcomponent_3d_endet ON ta_pointcomponent_3d USING btree (endet);
-		PERFORM AddGeometryColumn('ta_pointcomponent_3d', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ta_pointcomponent_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ta_pointcomponent_3d_wkb_geometry_idx ON ta_pointcomponent_3d USING gist (wkb_geometry);
 		CREATE INDEX ta_pointcomponent_3d_detailliert ON ta_pointcomponent_3d USING btree (detailliert);
 		CREATE INDEX ta_pointcomponent_3d_generalisiert ON ta_pointcomponent_3d USING btree (generalisiert);
@@ -14773,7 +14774,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX au_trianguliertesoberflaechenobjekt_3d_gml ON au_trianguliertesoberflaechenobjekt_3d USING btree (gml_id,beginnt);
 		CREATE INDEX au_trianguliertesoberflaechenobjekt_3d_endet ON au_trianguliertesoberflaechenobjekt_3d USING btree (endet);
-		PERFORM AddGeometryColumn('au_trianguliertesoberflaechenobjekt_3d', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('au_trianguliertesoberflaechenobjekt_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX au_trianguliertesoberflaechenobjekt_3d_wkb_geometry_idx ON au_trianguliertesoberflaechenobjekt_3d USING gist (wkb_geometry);
 		CREATE INDEX au_trianguliertesoberflaechenobjekt_3d_detailliert ON au_trianguliertesoberflaechenobjekt_3d USING btree (detailliert);
 		CREATE INDEX au_trianguliertesoberflaechenobjekt_3d_generalisiert ON au_trianguliertesoberflaechenobjekt_3d USING btree (generalisiert);
@@ -14810,7 +14811,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX au_mehrfachflaechenobjekt_3d_gml ON au_mehrfachflaechenobjekt_3d USING btree (gml_id,beginnt);
 		CREATE INDEX au_mehrfachflaechenobjekt_3d_endet ON au_mehrfachflaechenobjekt_3d USING btree (endet);
-		PERFORM AddGeometryColumn('au_mehrfachflaechenobjekt_3d', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('au_mehrfachflaechenobjekt_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX au_mehrfachflaechenobjekt_3d_wkb_geometry_idx ON au_mehrfachflaechenobjekt_3d USING gist (wkb_geometry);
 		CREATE INDEX au_mehrfachflaechenobjekt_3d_detailliert ON au_mehrfachflaechenobjekt_3d USING btree (detailliert);
 		CREATE INDEX au_mehrfachflaechenobjekt_3d_generalisiert ON au_mehrfachflaechenobjekt_3d USING btree (generalisiert);
@@ -14847,7 +14848,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX au_mehrfachlinienobjekt_3d_gml ON au_mehrfachlinienobjekt_3d USING btree (gml_id,beginnt);
 		CREATE INDEX au_mehrfachlinienobjekt_3d_endet ON au_mehrfachlinienobjekt_3d USING btree (endet);
-		PERFORM AddGeometryColumn('au_mehrfachlinienobjekt_3d', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('au_mehrfachlinienobjekt_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX au_mehrfachlinienobjekt_3d_wkb_geometry_idx ON au_mehrfachlinienobjekt_3d USING gist (wkb_geometry);
 		CREATE INDEX au_mehrfachlinienobjekt_3d_detailliert ON au_mehrfachlinienobjekt_3d USING btree (detailliert);
 		CREATE INDEX au_mehrfachlinienobjekt_3d_generalisiert ON au_mehrfachlinienobjekt_3d USING btree (generalisiert);
@@ -14884,7 +14885,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX au_umringobjekt_3d_gml ON au_umringobjekt_3d USING btree (gml_id,beginnt);
 		CREATE INDEX au_umringobjekt_3d_endet ON au_umringobjekt_3d USING btree (endet);
-		PERFORM AddGeometryColumn('au_umringobjekt_3d', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('au_umringobjekt_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX au_umringobjekt_3d_wkb_geometry_idx ON au_umringobjekt_3d USING gist (wkb_geometry);
 		CREATE INDEX au_umringobjekt_3d_detailliert ON au_umringobjekt_3d USING btree (detailliert);
 		CREATE INDEX au_umringobjekt_3d_generalisiert ON au_umringobjekt_3d USING btree (generalisiert);
@@ -14928,7 +14929,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX ap_kpo_3d_gml ON ap_kpo_3d USING btree (gml_id,beginnt);
 		CREATE INDEX ap_kpo_3d_endet ON ap_kpo_3d USING btree (endet);
-		PERFORM AddGeometryColumn('ap_kpo_3d', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('ap_kpo_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX ap_kpo_3d_wkb_geometry_idx ON ap_kpo_3d USING gist (wkb_geometry);
 		CREATE INDEX ap_kpo_3d_dientzurdarstellungvon ON ap_kpo_3d USING gin (dientzurdarstellungvon);
 		CREATE INDEX ap_kpo_3d_detailliert ON ap_kpo_3d USING btree (detailliert);
@@ -14973,7 +14974,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX au_punkthaufenobjekt_3d_gml ON au_punkthaufenobjekt_3d USING btree (gml_id,beginnt);
 		CREATE INDEX au_punkthaufenobjekt_3d_endet ON au_punkthaufenobjekt_3d USING btree (endet);
-		PERFORM AddGeometryColumn('au_punkthaufenobjekt_3d', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('au_punkthaufenobjekt_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX au_punkthaufenobjekt_3d_wkb_geometry_idx ON au_punkthaufenobjekt_3d USING gist (wkb_geometry);
 		CREATE INDEX au_punkthaufenobjekt_3d_detailliert ON au_punkthaufenobjekt_3d USING btree (detailliert);
 		CREATE INDEX au_punkthaufenobjekt_3d_generalisiert ON au_punkthaufenobjekt_3d USING btree (generalisiert);
@@ -15010,7 +15011,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX au_koerperobjekt_3d_gml ON au_koerperobjekt_3d USING btree (gml_id,beginnt);
 		CREATE INDEX au_koerperobjekt_3d_endet ON au_koerperobjekt_3d USING btree (endet);
-		PERFORM AddGeometryColumn('au_koerperobjekt_3d', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('au_koerperobjekt_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX au_koerperobjekt_3d_wkb_geometry_idx ON au_koerperobjekt_3d USING gist (wkb_geometry);
 		CREATE INDEX au_koerperobjekt_3d_detailliert ON au_koerperobjekt_3d USING btree (detailliert);
 		CREATE INDEX au_koerperobjekt_3d_generalisiert ON au_koerperobjekt_3d USING btree (generalisiert);
@@ -15047,7 +15048,7 @@ BEGIN
 		
 		CREATE UNIQUE INDEX au_geometrieobjekt_3d_gml ON au_geometrieobjekt_3d USING btree (gml_id,beginnt);
 		CREATE INDEX au_geometrieobjekt_3d_endet ON au_geometrieobjekt_3d USING btree (endet);
-		PERFORM AddGeometryColumn('au_geometrieobjekt_3d', 'wkb_geometry', find_srid('','ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		PERFORM AddGeometryColumn('au_geometrieobjekt_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
 		CREATE INDEX au_geometrieobjekt_3d_wkb_geometry_idx ON au_geometrieobjekt_3d USING gist (wkb_geometry);
 		CREATE INDEX au_geometrieobjekt_3d_detailliert ON au_geometrieobjekt_3d USING btree (detailliert);
 		CREATE INDEX au_geometrieobjekt_3d_generalisiert ON au_geometrieobjekt_3d USING btree (generalisiert);
@@ -15064,6 +15065,8 @@ BEGIN
 		COMMENT ON COLUMN au_geometrieobjekt_3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
 		COMMENT ON COLUMN au_geometrieobjekt_3d.levelofdetail IS 'levelOfDetail codelist AA_LevelOfDetail 1';
 		COMMENT ON COLUMN au_geometrieobjekt_3d.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+
+		PERFORM alkis_dropobject('alkis_wertearten');
 		CREATE VIEW alkis_wertearten(k,v,d,bezeichnung,element) AS
 		  SELECT id::text AS k, value::text AS v,'' AS d,'anlass' AS bezeichnung,'ax_benutzer' AS element FROM aa_anlassart UNION
 		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'advstandardmodell' AS bezeichnung,'ax_benutzer' AS element FROM aa_advstandardmodell UNION
@@ -16045,17 +16048,17 @@ BEGIN
 	-- ALKIS-Präsentationstabellen
 	--
 	BEGIN
-		SELECT version INTO v FROM alkis_po_version;
+		SELECT version INTO ver FROM alkis_po_version;
 
 	EXCEPTION WHEN OTHERS THEN
-		v := 0;
+		ver := 0;
 		CREATE TABLE alkis_po_version(version INTEGER);
-		INSERT INTO alkis_po_version(version) VALUES (v);
+		INSERT INTO alkis_po_version(version) VALUES (ver);
 	END;
 
-	RAISE NOTICE 'ALKIS-PO-Schema-Version %', v;
+	RAISE NOTICE 'ALKIS-PO-Schema-Version %', ver;
 
-	IF v<1 THEN
+	IF ver<1 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 1';
 
 		PERFORM alkis_dropobject('alkis_konturen');

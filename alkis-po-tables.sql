@@ -16,6 +16,7 @@
 
 -- Abbruch bei Fehlern
 \set ON_ERROR_STOP
+SET search_path = :"alkis_schema", :"postgis_schema", public;
 
 SELECT 'Präsentationstabellen werden erzeugt.';
 

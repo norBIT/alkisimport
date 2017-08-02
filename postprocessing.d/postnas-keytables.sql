@@ -14,6 +14,8 @@
  *
  ****************************************************************************/
 
+SET search_path = :"alkis_schema", :"postgis_schema", public;
+
 -- TODO: Sichten mit Nutzungdaten (nutzung*)
 
 SELECT alkis_dropobject('v_geb_bauweise');

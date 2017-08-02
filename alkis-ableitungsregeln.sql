@@ -81,6 +81,7 @@ TH	Thüringen
 */
 
 SET client_encoding TO 'UTF8';
+SET search_path = :"alkis_schema", :"postgis_schema", public;
 
 \unset ON_ERROR_STOP
 SET application_name='ALKIS-Import - Ableitungsregeln';
@@ -624,7 +625,7 @@ CREATE TABLE alkis_joinlines(
 	modell varchar[],
 	adf integer[]
 );
-SELECT AddGeometryColumn('alkis_joinlines','line',(SELECT srid FROM geometry_columns WHERE f_table_name='po_lines' AND f_geometry_column='line'),'LINESTRING',2);
+SELECT AddGeometryColumn('alkis_joinlines','line',find_srid(current_schema()::text,'po_lines','line'),'LINESTRING',2);
 CREATE INDEX alkis_joinlines_line ON alkis_joinlines USING GIST (line);
 CREATE INDEX alkis_joinlines_visited ON alkis_joinlines(visited);
 

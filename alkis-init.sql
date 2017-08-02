@@ -14,6 +14,7 @@
 
 SET client_encoding = 'UTF8';
 SET default_with_oids = false;
+SET search_path = :"alkis_schema", :"postgis_schema", public;
 
 -- Abbruch bei Fehlern
 \set ON_ERROR_STOP

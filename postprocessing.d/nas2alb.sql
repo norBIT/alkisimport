@@ -19,6 +19,8 @@ SET application_name='ALKIS-Import - Liegenschaftsbuchübernahme';
 SET client_min_messages TO notice;
 \set ON_ERROR_STOP
 
+SET search_path = :"alkis_schema", :"postgis_schema", public;
+
 CREATE OR REPLACE FUNCTION alkis_createnutzung() RETURNS varchar AS $$
 DECLARE
 	r  RECORD;
