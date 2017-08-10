@@ -1,6 +1,6 @@
 <GMLFeatureClassList>
   <GMLFeatureClass>
-    <Name>AX_Benutzer</Name>
+    <Name>ax_benutzer</Name>
     <ElementPath>AX_Benutzer</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -155,7 +155,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_BenutzergruppeMitZugriffskontrolle</Name>
+    <Name>ax_benutzergruppemitzugriffskontrolle</Name>
     <ElementPath>AX_BenutzergruppeMitZugriffskontrolle</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -265,7 +265,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_BenutzergruppeNBA</Name>
+    <Name>ax_benutzergruppenba</Name>
     <ElementPath>AX_BenutzergruppeNBA</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -380,7 +380,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AP_Darstellung</Name>
+    <Name>ap_darstellung</Name>
     <ElementPath>AP_Darstellung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -465,7 +465,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AA_Projektsteuerung</Name>
+    <Name>aa_projektsteuerung</Name>
     <ElementPath>AA_Projektsteuerung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -545,7 +545,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AA_Meilenstein</Name>
+    <Name>aa_meilenstein</Name>
     <ElementPath>AA_Meilenstein</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -655,7 +655,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AA_Antrag</Name>
+    <Name>aa_antrag</Name>
     <ElementPath>AA_Antrag</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -750,7 +750,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AA_Aktivitaet</Name>
+    <Name>aa_aktivitaet</Name>
     <ElementPath>AA_Aktivitaet</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -825,7 +825,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AA_Vorgang</Name>
+    <Name>aa_vorgang</Name>
     <ElementPath>AA_Vorgang</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -915,7 +915,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Person</Name>
+    <Name>ax_person</Name>
     <ElementPath>AX_Person</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -1185,7 +1185,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Namensnummer</Name>
+    <Name>ax_namensnummer</Name>
     <ElementPath>AX_Namensnummer</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -1305,7 +1305,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Anschrift</Name>
+    <Name>ax_anschrift</Name>
     <ElementPath>AX_Anschrift</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -1550,7 +1550,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Verwaltung</Name>
+    <Name>ax_verwaltung</Name>
     <ElementPath>AX_Verwaltung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -1760,7 +1760,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Buchungsstelle</Name>
+    <Name>ax_buchungsstelle</Name>
     <ElementPath>AX_Buchungsstelle</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -1910,7 +1910,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Personengruppe</Name>
+    <Name>ax_personengruppe</Name>
     <ElementPath>AX_Personengruppe</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -1980,7 +1980,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Buchungsblatt</Name>
+    <Name>ax_buchungsblatt</Name>
     <ElementPath>AX_Buchungsblatt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -2070,7 +2070,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Vertretung</Name>
+    <Name>ax_vertretung</Name>
     <ElementPath>AX_Vertretung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -2165,7 +2165,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Skizze</Name>
+    <Name>ax_skizze</Name>
     <ElementPath>AX_Skizze</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -2240,7 +2240,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Schwere</Name>
+    <Name>ax_schwere</Name>
     <ElementPath>AX_Schwere</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -2370,7 +2370,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_HistorischesFlurstueckALB</Name>
+    <Name>ax_historischesflurstueckalb</Name>
     <ElementPath>AX_HistorischesFlurstueckALB</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -2535,7 +2535,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_HistorischesFlurstueckOhneRaumbezug</Name>
+    <Name>ax_historischesflurstueckohneraumbezug</Name>
     <ElementPath>AX_HistorischesFlurstueckOhneRaumbezug</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -2745,7 +2745,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_LagebezeichnungOhneHausnummer</Name>
+    <Name>ax_lagebezeichnungohnehausnummer</Name>
     <ElementPath>AX_LagebezeichnungOhneHausnummer</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -2855,7 +2855,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_LagebezeichnungMitHausnummer</Name>
+    <Name>ax_lagebezeichnungmithausnummer</Name>
     <ElementPath>AX_LagebezeichnungMitHausnummer</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -2980,7 +2980,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_LagebezeichnungMitPseudonummer</Name>
+    <Name>ax_lagebezeichnungmitpseudonummer</Name>
     <ElementPath>AX_LagebezeichnungMitPseudonummer</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -3090,7 +3090,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Reservierung</Name>
+    <Name>ax_reservierung</Name>
     <ElementPath>AX_Reservierung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -3225,7 +3225,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_PunktkennungUntergegangen</Name>
+    <Name>ax_punktkennunguntergegangen</Name>
     <ElementPath>AX_PunktkennungUntergegangen</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -3295,7 +3295,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_PunktkennungVergleichend</Name>
+    <Name>ax_punktkennungvergleichend</Name>
     <ElementPath>AX_PunktkennungVergleichend</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -3375,7 +3375,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_FortfuehrungsnachweisDeckblatt</Name>
+    <Name>ax_fortfuehrungsnachweisdeckblatt</Name>
     <ElementPath>AX_FortfuehrungsnachweisDeckblatt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -3585,7 +3585,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Fortfuehrungsfall</Name>
+    <Name>ax_fortfuehrungsfall</Name>
     <ElementPath>AX_Fortfuehrungsfall</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -3735,7 +3735,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gemeinde</Name>
+    <Name>ax_gemeinde</Name>
     <ElementPath>AX_Gemeinde</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -3845,7 +3845,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Buchungsblattbezirk</Name>
+    <Name>ax_buchungsblattbezirk</Name>
     <ElementPath>AX_Buchungsblattbezirk</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -3940,7 +3940,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_GemarkungsteilFlur</Name>
+    <Name>ax_gemarkungsteilflur</Name>
     <ElementPath>AX_GemarkungsteilFlur</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -4040,7 +4040,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_KreisRegion</Name>
+    <Name>ax_kreisregion</Name>
     <ElementPath>AX_KreisRegion</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -4140,7 +4140,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Bundesland</Name>
+    <Name>ax_bundesland</Name>
     <ElementPath>AX_Bundesland</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -4230,7 +4230,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Regierungsbezirk</Name>
+    <Name>ax_regierungsbezirk</Name>
     <ElementPath>AX_Regierungsbezirk</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -4315,7 +4315,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gemeindeteil</Name>
+    <Name>ax_gemeindeteil</Name>
     <ElementPath>AX_Gemeindeteil</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -4415,7 +4415,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_LagebezeichnungKatalogeintrag</Name>
+    <Name>ax_lagebezeichnungkatalogeintrag</Name>
     <ElementPath>AX_LagebezeichnungKatalogeintrag</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -4520,7 +4520,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gemarkung</Name>
+    <Name>ax_gemarkung</Name>
     <ElementPath>AX_Gemarkung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -4615,7 +4615,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Dienststelle</Name>
+    <Name>ax_dienststelle</Name>
     <ElementPath>AX_Dienststelle</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -4715,7 +4715,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Verband</Name>
+    <Name>ax_verband</Name>
     <ElementPath>AX_Verband</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -4820,7 +4820,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Nationalstaat</Name>
+    <Name>ax_nationalstaat</Name>
     <ElementPath>AX_Nationalstaat</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -4900,7 +4900,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_BesondererBauwerkspunkt</Name>
+    <Name>ax_besondererbauwerkspunkt</Name>
     <ElementPath>AX_BesondererBauwerkspunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -4985,7 +4985,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Netzknoten</Name>
+    <Name>ax_netzknoten</Name>
     <ElementPath>AX_Netzknoten</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -5170,7 +5170,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Referenzstationspunkt</Name>
+    <Name>ax_referenzstationspunkt</Name>
     <ElementPath>AX_Referenzstationspunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -5510,7 +5510,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Lagefestpunkt</Name>
+    <Name>ax_lagefestpunkt</Name>
     <ElementPath>AX_Lagefestpunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -5780,7 +5780,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Hoehenfestpunkt</Name>
+    <Name>ax_hoehenfestpunkt</Name>
     <ElementPath>AX_Hoehenfestpunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -6040,7 +6040,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Schwerefestpunkt</Name>
+    <Name>ax_schwerefestpunkt</Name>
     <ElementPath>AX_Schwerefestpunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -6280,7 +6280,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Grenzpunkt</Name>
+    <Name>ax_grenzpunkt</Name>
     <ElementPath>AX_Grenzpunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -6435,7 +6435,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Aufnahmepunkt</Name>
+    <Name>ax_aufnahmepunkt</Name>
     <ElementPath>AX_Aufnahmepunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -6560,7 +6560,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_SonstigerVermessungspunkt</Name>
+    <Name>ax_sonstigervermessungspunkt</Name>
     <ElementPath>AX_SonstigerVermessungspunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -6685,7 +6685,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Sicherungspunkt</Name>
+    <Name>ax_sicherungspunkt</Name>
     <ElementPath>AX_Sicherungspunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -6800,7 +6800,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_BesondererGebaeudepunkt</Name>
+    <Name>ax_besonderergebaeudepunkt</Name>
     <ElementPath>AX_BesondererGebaeudepunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -6890,7 +6890,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_WirtschaftlicheEinheit</Name>
+    <Name>ax_wirtschaftlicheeinheit</Name>
     <ElementPath>AX_WirtschaftlicheEinheit</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -6955,7 +6955,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Verwaltungsgemeinschaft</Name>
+    <Name>ax_verwaltungsgemeinschaft</Name>
     <ElementPath>AX_Verwaltungsgemeinschaft</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -7060,7 +7060,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_SchutzgebietNachNaturUmweltOderBodenschutzrecht</Name>
+    <Name>ax_schutzgebietnachnaturumweltoderbodenschutzrecht</Name>
     <ElementPath>AX_SchutzgebietNachNaturUmweltOderBodenschutzrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -7265,7 +7265,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_SchutzgebietNachWasserrecht</Name>
+    <Name>ax_schutzgebietnachwasserrecht</Name>
     <ElementPath>AX_SchutzgebietNachWasserrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -7475,7 +7475,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_BoeschungKliff</Name>
+    <Name>ax_boeschungkliff</Name>
     <ElementPath>AX_BoeschungKliff</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -7670,7 +7670,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_BesondererTopographischerPunkt</Name>
+    <Name>ax_besonderertopographischerpunkt</Name>
     <ElementPath>AX_BesondererTopographischerPunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -7755,7 +7755,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Kanal</Name>
+    <Name>ax_kanal</Name>
     <ElementPath>AX_Kanal</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -7850,7 +7850,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Wasserlauf</Name>
+    <Name>ax_wasserlauf</Name>
     <ElementPath>AX_Wasserlauf</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -7945,7 +7945,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Strasse</Name>
+    <Name>ax_strasse</Name>
     <ElementPath>AX_Strasse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -8045,7 +8045,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AP_FPO</Name>
+    <Name>ap_fpo</Name>
     <ElementPath>AP_FPO</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -8140,7 +8140,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AA_Antragsgebiet</Name>
+    <Name>aa_antragsgebiet</Name>
     <ElementPath>AA_Antragsgebiet</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -8215,7 +8215,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Polder</Name>
+    <Name>ax_polder</Name>
     <ElementPath>AX_Polder</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -8420,7 +8420,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_HistorischesFlurstueck</Name>
+    <Name>ax_historischesflurstueck</Name>
     <ElementPath>AX_HistorischesFlurstueck</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -8660,7 +8660,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Kondominium</Name>
+    <Name>ax_kondominium</Name>
     <ElementPath>AX_Kondominium</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -8735,7 +8735,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Baublock</Name>
+    <Name>ax_baublock</Name>
     <ElementPath>AX_Baublock</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -8820,7 +8820,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Aussparungsflaeche</Name>
+    <Name>ax_aussparungsflaeche</Name>
     <ElementPath>AX_Aussparungsflaeche</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -8900,7 +8900,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Soll</Name>
+    <Name>ax_soll</Name>
     <ElementPath>AX_Soll</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -9095,7 +9095,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Duene</Name>
+    <Name>ax_duene</Name>
     <ElementPath>AX_Duene</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -9290,7 +9290,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Transportanlage</Name>
+    <Name>ax_transportanlage</Name>
     <ElementPath>AX_Transportanlage</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -9495,7 +9495,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_WegPfadSteig</Name>
+    <Name>ax_wegpfadsteig</Name>
     <ElementPath>AX_WegPfadSteig</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -9725,7 +9725,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gleis</Name>
+    <Name>ax_gleis</Name>
     <ElementPath>AX_Gleis</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -9935,7 +9935,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Bahnverkehrsanlage</Name>
+    <Name>ax_bahnverkehrsanlage</Name>
     <ElementPath>AX_Bahnverkehrsanlage</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -10150,7 +10150,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Strassenverkehrsanlage</Name>
+    <Name>ax_strassenverkehrsanlage</Name>
     <ElementPath>AX_Strassenverkehrsanlage</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -10365,7 +10365,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_EinrichtungenFuerDenSchiffsverkehr</Name>
+    <Name>ax_einrichtungenfuerdenschiffsverkehr</Name>
     <ElementPath>AX_EinrichtungenFuerDenSchiffsverkehr</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -10575,7 +10575,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Flugverkehrsanlage</Name>
+    <Name>ax_flugverkehrsanlage</Name>
     <ElementPath>AX_Flugverkehrsanlage</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -10790,7 +10790,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Hafen</Name>
+    <Name>ax_hafen</Name>
     <ElementPath>AX_Hafen</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -10995,7 +10995,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Testgelaende</Name>
+    <Name>ax_testgelaende</Name>
     <ElementPath>AX_Testgelaende</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -11190,7 +11190,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Schleuse</Name>
+    <Name>ax_schleuse</Name>
     <ElementPath>AX_Schleuse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -11400,7 +11400,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Ortslage</Name>
+    <Name>ax_ortslage</Name>
     <ElementPath>AX_Ortslage</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -11600,7 +11600,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Grenzuebergang</Name>
+    <Name>ax_grenzuebergang</Name>
     <ElementPath>AX_Grenzuebergang</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -11795,7 +11795,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gewaessermerkmal</Name>
+    <Name>ax_gewaessermerkmal</Name>
     <ElementPath>AX_Gewaessermerkmal</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -12010,7 +12010,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_UntergeordnetesGewaesser</Name>
+    <Name>ax_untergeordnetesgewaesser</Name>
     <ElementPath>AX_UntergeordnetesGewaesser</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -12220,7 +12220,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Vegetationsmerkmal</Name>
+    <Name>ax_vegetationsmerkmal</Name>
     <ElementPath>AX_Vegetationsmerkmal</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -12440,7 +12440,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_MusterLandesmusterUndVergleichsstueck</Name>
+    <Name>ax_musterlandesmusterundvergleichsstueck</Name>
     <ElementPath>AX_MusterLandesmusterUndVergleichsstueck</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -12675,7 +12675,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Insel</Name>
+    <Name>ax_insel</Name>
     <ElementPath>AX_Insel</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -12755,7 +12755,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gewann</Name>
+    <Name>ax_gewann</Name>
     <ElementPath>AX_Gewann</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -12835,7 +12835,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_KleinraeumigerLandschaftsteil</Name>
+    <Name>ax_kleinraeumigerlandschaftsteil</Name>
     <ElementPath>AX_KleinraeumigerLandschaftsteil</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -12920,7 +12920,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Landschaft</Name>
+    <Name>ax_landschaft</Name>
     <ElementPath>AX_Landschaft</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -13005,7 +13005,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_FelsenFelsblockFelsnadel</Name>
+    <Name>ax_felsenfelsblockfelsnadel</Name>
     <ElementPath>AX_FelsenFelsblockFelsnadel</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -13210,7 +13210,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AP_LTO</Name>
+    <Name>ap_lto</Name>
     <ElementPath>AP_LTO</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -13335,7 +13335,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Leitung</Name>
+    <Name>ax_leitung</Name>
     <ElementPath>AX_Leitung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -13540,7 +13540,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Abschnitt</Name>
+    <Name>ax_abschnitt</Name>
     <ElementPath>AX_Abschnitt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -13735,7 +13735,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Ast</Name>
+    <Name>ax_ast</Name>
     <ElementPath>AX_Ast</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -13930,7 +13930,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AP_LPO</Name>
+    <Name>ap_lpo</Name>
     <ElementPath>AP_LPO</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -14025,7 +14025,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_SeilbahnSchwebebahn</Name>
+    <Name>ax_seilbahnschwebebahn</Name>
     <ElementPath>AX_SeilbahnSchwebebahn</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -14225,7 +14225,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gebaeudeausgestaltung</Name>
+    <Name>ax_gebaeudeausgestaltung</Name>
     <ElementPath>AX_Gebaeudeausgestaltung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -14310,7 +14310,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_TopographischeLinie</Name>
+    <Name>ax_topographischelinie</Name>
     <ElementPath>AX_TopographischeLinie</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -14395,7 +14395,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Geripplinie</Name>
+    <Name>ax_geripplinie</Name>
     <ElementPath>AX_Geripplinie</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -14530,7 +14530,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gewaesserbegrenzung</Name>
+    <Name>ax_gewaesserbegrenzung</Name>
     <ElementPath>AX_Gewaesserbegrenzung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -14670,7 +14670,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_StrukturiertErfassteGelaendepunkte</Name>
+    <Name>ax_strukturierterfasstegelaendepunkte</Name>
     <ElementPath>AX_StrukturiertErfassteGelaendepunkte</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -14810,7 +14810,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Einschnitt</Name>
+    <Name>ax_einschnitt</Name>
     <ElementPath>AX_Einschnitt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -14895,7 +14895,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Hoehenlinie</Name>
+    <Name>ax_hoehenlinie</Name>
     <ElementPath>AX_Hoehenlinie</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -15090,7 +15090,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_AbgeleiteteHoehenlinie</Name>
+    <Name>ax_abgeleitetehoehenlinie</Name>
     <ElementPath>AX_AbgeleiteteHoehenlinie</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -15190,7 +15190,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AP_PTO</Name>
+    <Name>ap_pto</Name>
     <ElementPath>AP_PTO</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -15320,7 +15320,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_HeilquelleGasquelle</Name>
+    <Name>ax_heilquellegasquelle</Name>
     <ElementPath>AX_HeilquelleGasquelle</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -15525,7 +15525,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Wasserspiegelhoehe</Name>
+    <Name>ax_wasserspiegelhoehe</Name>
     <ElementPath>AX_Wasserspiegelhoehe</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -15720,7 +15720,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Nullpunkt</Name>
+    <Name>ax_nullpunkt</Name>
     <ElementPath>AX_Nullpunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -15920,7 +15920,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_PunktortAU</Name>
+    <Name>ax_punktortau</Name>
     <ElementPath>AX_PunktortAU</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -16185,7 +16185,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_GeoreferenzierteGebaeudeadresse</Name>
+    <Name>ax_georeferenziertegebaeudeadresse</Name>
     <ElementPath>AX_GeoreferenzierteGebaeudeadresse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -16335,7 +16335,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_GrablochDerBodenschaetzung</Name>
+    <Name>ax_grablochderbodenschaetzung</Name>
     <ElementPath>AX_GrablochDerBodenschaetzung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -16570,7 +16570,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Wohnplatz</Name>
+    <Name>ax_wohnplatz</Name>
     <ElementPath>AX_Wohnplatz</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -16665,7 +16665,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_MarkanterGelaendepunkt</Name>
+    <Name>ax_markantergelaendepunkt</Name>
     <ElementPath>AX_MarkanterGelaendepunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -16795,7 +16795,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_BesondererHoehenpunkt</Name>
+    <Name>ax_besondererhoehenpunkt</Name>
     <ElementPath>AX_BesondererHoehenpunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -16925,7 +16925,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Hoehleneingang</Name>
+    <Name>ax_hoehleneingang</Name>
     <ElementPath>AX_Hoehleneingang</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -17125,7 +17125,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AP_PPO</Name>
+    <Name>ap_ppo</Name>
     <ElementPath>AP_PPO</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -17230,7 +17230,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Sickerstrecke</Name>
+    <Name>ax_sickerstrecke</Name>
     <ElementPath>AX_Sickerstrecke</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -17435,7 +17435,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Firstlinie</Name>
+    <Name>ax_firstlinie</Name>
     <ElementPath>AX_Firstlinie</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -17510,7 +17510,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_BesondereGebaeudelinie</Name>
+    <Name>ax_besonderegebaeudelinie</Name>
     <ElementPath>AX_BesondereGebaeudelinie</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -17590,7 +17590,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gelaendekante</Name>
+    <Name>ax_gelaendekante</Name>
     <ElementPath>AX_Gelaendekante</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -17730,7 +17730,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_SonstigesBauwerkOderSonstigeEinrichtung</Name>
+    <Name>ax_sonstigesbauwerkodersonstigeeinrichtung</Name>
     <ElementPath>AX_SonstigesBauwerkOderSonstigeEinrichtung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -18135,7 +18135,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_BauwerkOderAnlageFuerSportFreizeitUndErholung</Name>
+    <Name>ax_bauwerkoderanlagefuersportfreizeitunderholung</Name>
     <ElementPath>AX_BauwerkOderAnlageFuerSportFreizeitUndErholung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -18345,7 +18345,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_BauwerkOderAnlageFuerIndustrieUndGewerbe</Name>
+    <Name>ax_bauwerkoderanlagefuerindustrieundgewerbe</Name>
     <ElementPath>AX_BauwerkOderAnlageFuerIndustrieUndGewerbe</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -18560,7 +18560,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_EinrichtungInOeffentlichenBereichen</Name>
+    <Name>ax_einrichtunginoeffentlichenbereichen</Name>
     <ElementPath>AX_EinrichtungInOeffentlichenBereichen</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -18760,7 +18760,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_HistorischesBauwerkOderHistorischeEinrichtung</Name>
+    <Name>ax_historischesbauwerkoderhistorischeeinrichtung</Name>
     <ElementPath>AX_HistorischesBauwerkOderHistorischeEinrichtung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -18960,7 +18960,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Turm</Name>
+    <Name>ax_turm</Name>
     <ElementPath>AX_Turm</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -19175,7 +19175,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_VorratsbehaelterSpeicherbauwerk</Name>
+    <Name>ax_vorratsbehaelterspeicherbauwerk</Name>
     <ElementPath>AX_VorratsbehaelterSpeicherbauwerk</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -19390,7 +19390,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_BauwerkImGewaesserbereich</Name>
+    <Name>ax_bauwerkimgewaesserbereich</Name>
     <ElementPath>AX_BauwerkImGewaesserbereich</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -19600,7 +19600,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_BauwerkImVerkehrsbereich</Name>
+    <Name>ax_bauwerkimverkehrsbereich</Name>
     <ElementPath>AX_BauwerkImVerkehrsbereich</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -19820,7 +19820,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_SchifffahrtslinieFaehrverkehr</Name>
+    <Name>ax_schifffahrtsliniefaehrverkehr</Name>
     <ElementPath>AX_SchifffahrtslinieFaehrverkehr</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -20020,7 +20020,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gebaeude</Name>
+    <Name>ax_gebaeude</Name>
     <ElementPath>AX_Gebaeude</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -20335,7 +20335,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_AndereFestlegungNachStrassenrecht</Name>
+    <Name>ax_anderefestlegungnachstrassenrecht</Name>
     <ElementPath>AX_AndereFestlegungNachStrassenrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -20545,7 +20545,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_NaturUmweltOderBodenschutzrecht</Name>
+    <Name>ax_naturumweltoderbodenschutzrecht</Name>
     <ElementPath>AX_NaturUmweltOderBodenschutzrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -20765,7 +20765,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_KlassifizierungNachStrassenrecht</Name>
+    <Name>ax_klassifizierungnachstrassenrecht</Name>
     <ElementPath>AX_KlassifizierungNachStrassenrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -20975,7 +20975,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_SonstigesRecht</Name>
+    <Name>ax_sonstigesrecht</Name>
     <ElementPath>AX_SonstigesRecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -21190,7 +21190,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Denkmalschutzrecht</Name>
+    <Name>ax_denkmalschutzrecht</Name>
     <ElementPath>AX_Denkmalschutzrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -21405,7 +21405,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_DammWallDeich</Name>
+    <Name>ax_dammwalldeich</Name>
     <ElementPath>AX_DammWallDeich</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -21620,7 +21620,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_PunktortAG</Name>
+    <Name>ax_punktortag</Name>
     <ElementPath>AX_PunktortAG</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -21885,7 +21885,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Bauteil</Name>
+    <Name>ax_bauteil</Name>
     <ElementPath>AX_Bauteil</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -21990,7 +21990,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Tagesabschnitt</Name>
+    <Name>ax_tagesabschnitt</Name>
     <ElementPath>AX_Tagesabschnitt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -22070,7 +22070,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Bewertung</Name>
+    <Name>ax_bewertung</Name>
     <ElementPath>AX_Bewertung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -22265,7 +22265,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_AndereFestlegungNachWasserrecht</Name>
+    <Name>ax_anderefestlegungnachwasserrecht</Name>
     <ElementPath>AX_AndereFestlegungNachWasserrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -22475,7 +22475,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_KlassifizierungNachWasserrecht</Name>
+    <Name>ax_klassifizierungnachwasserrecht</Name>
     <ElementPath>AX_KlassifizierungNachWasserrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -22685,7 +22685,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Forstrecht</Name>
+    <Name>ax_forstrecht</Name>
     <ElementPath>AX_Forstrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -22900,7 +22900,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_BauRaumOderBodenordnungsrecht</Name>
+    <Name>ax_bauraumoderbodenordnungsrecht</Name>
     <ElementPath>AX_BauRaumOderBodenordnungsrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -23140,7 +23140,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Schutzzone</Name>
+    <Name>ax_schutzzone</Name>
     <ElementPath>AX_Schutzzone</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -23230,7 +23230,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Boeschungsflaeche</Name>
+    <Name>ax_boeschungsflaeche</Name>
     <ElementPath>AX_Boeschungsflaeche</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -23305,7 +23305,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Flurstueck</Name>
+    <Name>ax_flurstueck</Name>
     <ElementPath>AX_Flurstueck</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -23535,7 +23535,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gebiet_Kreis</Name>
+    <Name>ax_gebiet_kreis</Name>
     <ElementPath>AX_Gebiet_Kreis</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -23630,7 +23630,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gebiet_Bundesland</Name>
+    <Name>ax_gebiet_bundesland</Name>
     <ElementPath>AX_Gebiet_Bundesland</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -23715,7 +23715,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gebiet_Regierungsbezirk</Name>
+    <Name>ax_gebiet_regierungsbezirk</Name>
     <ElementPath>AX_Gebiet_Regierungsbezirk</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -23805,7 +23805,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gebiet_Nationalstaat</Name>
+    <Name>ax_gebiet_nationalstaat</Name>
     <ElementPath>AX_Gebiet_Nationalstaat</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -23890,7 +23890,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_KommunalesGebiet</Name>
+    <Name>ax_kommunalesgebiet</Name>
     <ElementPath>AX_KommunalesGebiet</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -24000,7 +24000,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gebiet_Verwaltungsgemeinschaft</Name>
+    <Name>ax_gebiet_verwaltungsgemeinschaft</Name>
     <ElementPath>AX_Gebiet_Verwaltungsgemeinschaft</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -24105,7 +24105,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Bodenschaetzung</Name>
+    <Name>ax_bodenschaetzung</Name>
     <ElementPath>AX_Bodenschaetzung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -24335,7 +24335,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gewaesserstationierungsachse</Name>
+    <Name>ax_gewaesserstationierungsachse</Name>
     <ElementPath>AX_Gewaesserstationierungsachse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -24555,7 +24555,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_BesondereFlurstuecksgrenze</Name>
+    <Name>ax_besondereflurstuecksgrenze</Name>
     <ElementPath>AX_BesondereFlurstuecksgrenze</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -24635,7 +24635,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gebietsgrenze</Name>
+    <Name>ax_gebietsgrenze</Name>
     <ElementPath>AX_Gebietsgrenze</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -24715,7 +24715,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gewaesserachse</Name>
+    <Name>ax_gewaesserachse</Name>
     <ElementPath>AX_Gewaesserachse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -24815,7 +24815,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Strassenachse</Name>
+    <Name>ax_strassenachse</Name>
     <ElementPath>AX_Strassenachse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -24935,7 +24935,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Bahnstrecke</Name>
+    <Name>ax_bahnstrecke</Name>
     <ElementPath>AX_Bahnstrecke</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -25050,7 +25050,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Fahrwegachse</Name>
+    <Name>ax_fahrwegachse</Name>
     <ElementPath>AX_Fahrwegachse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -25160,7 +25160,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Fahrbahnachse</Name>
+    <Name>ax_fahrbahnachse</Name>
     <ElementPath>AX_Fahrbahnachse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -25265,7 +25265,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_PunktortTA</Name>
+    <Name>ax_punktortta</Name>
     <ElementPath>AX_PunktortTA</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -25530,7 +25530,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_StehendesGewaesser</Name>
+    <Name>ax_stehendesgewaesser</Name>
     <ElementPath>AX_StehendesGewaesser</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -25785,7 +25785,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Meer</Name>
+    <Name>ax_meer</Name>
     <ElementPath>AX_Meer</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -26030,7 +26030,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Fliessgewaesser</Name>
+    <Name>ax_fliessgewaesser</Name>
     <ElementPath>AX_Fliessgewaesser</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -26270,7 +26270,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Hafenbecken</Name>
+    <Name>ax_hafenbecken</Name>
     <ElementPath>AX_Hafenbecken</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -26505,7 +26505,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Bergbaubetrieb</Name>
+    <Name>ax_bergbaubetrieb</Name>
     <ElementPath>AX_Bergbaubetrieb</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -26720,7 +26720,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Friedhof</Name>
+    <Name>ax_friedhof</Name>
     <ElementPath>AX_Friedhof</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -26930,7 +26930,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_FlaecheGemischterNutzung</Name>
+    <Name>ax_flaechegemischternutzung</Name>
     <ElementPath>AX_FlaecheGemischterNutzung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -27145,7 +27145,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Wohnbauflaeche</Name>
+    <Name>ax_wohnbauflaeche</Name>
     <ElementPath>AX_Wohnbauflaeche</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -27360,7 +27360,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_FlaecheBesondererFunktionalerPraegung</Name>
+    <Name>ax_flaechebesondererfunktionalerpraegung</Name>
     <ElementPath>AX_FlaecheBesondererFunktionalerPraegung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -27575,7 +27575,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_IndustrieUndGewerbeflaeche</Name>
+    <Name>ax_industrieundgewerbeflaeche</Name>
     <ElementPath>AX_IndustrieUndGewerbeflaeche</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -27805,7 +27805,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Siedlungsflaeche</Name>
+    <Name>ax_siedlungsflaeche</Name>
     <ElementPath>AX_Siedlungsflaeche</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -28010,7 +28010,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_TagebauGrubeSteinbruch</Name>
+    <Name>ax_tagebaugrubesteinbruch</Name>
     <ElementPath>AX_TagebauGrubeSteinbruch</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -28225,7 +28225,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_SportFreizeitUndErholungsflaeche</Name>
+    <Name>ax_sportfreizeitunderholungsflaeche</Name>
     <ElementPath>AX_SportFreizeitUndErholungsflaeche</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -28440,7 +28440,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Halde</Name>
+    <Name>ax_halde</Name>
     <ElementPath>AX_Halde</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -28650,7 +28650,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_FlaecheZurZeitUnbestimmbar</Name>
+    <Name>ax_flaechezurzeitunbestimmbar</Name>
     <ElementPath>AX_FlaecheZurZeitUnbestimmbar</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -28845,7 +28845,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Sumpf</Name>
+    <Name>ax_sumpf</Name>
     <ElementPath>AX_Sumpf</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -29045,7 +29045,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_UnlandVegetationsloseFlaeche</Name>
+    <Name>ax_unlandvegetationsloseflaeche</Name>
     <ElementPath>AX_UnlandVegetationsloseFlaeche</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -29255,7 +29255,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Gehoelz</Name>
+    <Name>ax_gehoelz</Name>
     <ElementPath>AX_Gehoelz</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -29465,7 +29465,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Wald</Name>
+    <Name>ax_wald</Name>
     <ElementPath>AX_Wald</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -29675,7 +29675,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Heide</Name>
+    <Name>ax_heide</Name>
     <ElementPath>AX_Heide</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -29875,7 +29875,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Moor</Name>
+    <Name>ax_moor</Name>
     <ElementPath>AX_Moor</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -30075,7 +30075,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Landwirtschaft</Name>
+    <Name>ax_landwirtschaft</Name>
     <ElementPath>AX_Landwirtschaft</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -30280,7 +30280,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Bahnverkehr</Name>
+    <Name>ax_bahnverkehr</Name>
     <ElementPath>AX_Bahnverkehr</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -30530,7 +30530,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Weg</Name>
+    <Name>ax_weg</Name>
     <ElementPath>AX_Weg</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -30765,7 +30765,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Schiffsverkehr</Name>
+    <Name>ax_schiffsverkehr</Name>
     <ElementPath>AX_Schiffsverkehr</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -31000,7 +31000,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Flugverkehr</Name>
+    <Name>ax_flugverkehr</Name>
     <ElementPath>AX_Flugverkehr</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -31250,7 +31250,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Platz</Name>
+    <Name>ax_platz</Name>
     <ElementPath>AX_Platz</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -31490,7 +31490,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AX_Strassenverkehr</Name>
+    <Name>ax_strassenverkehr</Name>
     <ElementPath>AX_Strassenverkehr</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -31730,7 +31730,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>TA_CompositeSolidComponent_3D</Name>
+    <Name>ta_compositesolidcomponent_3d</Name>
     <ElementPath>TA_CompositeSolidComponent_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -31805,7 +31805,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>TA_SurfaceComponent_3D</Name>
+    <Name>ta_surfacecomponent_3d</Name>
     <ElementPath>TA_SurfaceComponent_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -31880,7 +31880,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>TA_CurveComponent_3D</Name>
+    <Name>ta_curvecomponent_3d</Name>
     <ElementPath>TA_CurveComponent_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -31955,7 +31955,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>TA_PointComponent_3D</Name>
+    <Name>ta_pointcomponent_3d</Name>
     <ElementPath>TA_PointComponent_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -32030,7 +32030,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AU_TrianguliertesOberflaechenObjekt_3D</Name>
+    <Name>au_trianguliertesoberflaechenobjekt_3d</Name>
     <ElementPath>AU_TrianguliertesOberflaechenObjekt_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -32105,7 +32105,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AU_MehrfachFlaechenObjekt_3D</Name>
+    <Name>au_mehrfachflaechenobjekt_3d</Name>
     <ElementPath>AU_MehrfachFlaechenObjekt_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -32180,7 +32180,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AU_MehrfachLinienObjekt_3D</Name>
+    <Name>au_mehrfachlinienobjekt_3d</Name>
     <ElementPath>AU_MehrfachLinienObjekt_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -32255,7 +32255,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AU_UmringObjekt_3D</Name>
+    <Name>au_umringobjekt_3d</Name>
     <ElementPath>AU_UmringObjekt_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -32330,7 +32330,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AP_KPO_3D</Name>
+    <Name>ap_kpo_3d</Name>
     <ElementPath>AP_KPO_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -32440,7 +32440,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AU_PunkthaufenObjekt_3D</Name>
+    <Name>au_punkthaufenobjekt_3d</Name>
     <ElementPath>AU_PunkthaufenObjekt_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -32515,7 +32515,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AU_KoerperObjekt_3D</Name>
+    <Name>au_koerperobjekt_3d</Name>
     <ElementPath>AU_KoerperObjekt_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
@@ -32590,7 +32590,7 @@
     </PropertyDefn>
   </GMLFeatureClass>
   <GMLFeatureClass>
-    <Name>AU_GeometrieObjekt_3D</Name>
+    <Name>au_geometrieobjekt_3d</Name>
     <ElementPath>AU_GeometrieObjekt_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
