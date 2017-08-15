@@ -4,7 +4,7 @@
     <ElementPath>AX_Benutzer</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -159,7 +159,7 @@
     <ElementPath>AX_BenutzergruppeMitZugriffskontrolle</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -269,7 +269,7 @@
     <ElementPath>AX_BenutzergruppeNBA</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -384,7 +384,7 @@
     <ElementPath>AP_Darstellung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -469,7 +469,7 @@
     <ElementPath>AA_Projektsteuerung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -549,7 +549,7 @@
     <ElementPath>AA_Meilenstein</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -659,7 +659,7 @@
     <ElementPath>AA_Antrag</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -754,7 +754,7 @@
     <ElementPath>AA_Aktivitaet</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -829,7 +829,7 @@
     <ElementPath>AA_Vorgang</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -919,7 +919,7 @@
     <ElementPath>AX_Person</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -1189,7 +1189,7 @@
     <ElementPath>AX_Namensnummer</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -1309,7 +1309,7 @@
     <ElementPath>AX_Anschrift</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -1554,7 +1554,7 @@
     <ElementPath>AX_Verwaltung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -1764,7 +1764,7 @@
     <ElementPath>AX_Buchungsstelle</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -1914,7 +1914,7 @@
     <ElementPath>AX_Personengruppe</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -1984,7 +1984,7 @@
     <ElementPath>AX_Buchungsblatt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -2074,7 +2074,7 @@
     <ElementPath>AX_Vertretung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -2169,7 +2169,7 @@
     <ElementPath>AX_Skizze</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -2244,7 +2244,7 @@
     <ElementPath>AX_Schwere</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -2374,12 +2374,12 @@
     <ElementPath>AX_HistorischesFlurstueckALB</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <GeomPropertyDefn>
       <Name>objektkoordinaten</Name>
-      <GeometryElementPath>objektkoordinaten</GeometryElementPath>
+      <ElementPath>objektkoordinaten</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -2539,12 +2539,12 @@
     <ElementPath>AX_HistorischesFlurstueckOhneRaumbezug</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <GeomPropertyDefn>
       <Name>objektkoordinaten</Name>
-      <GeometryElementPath>objektkoordinaten</GeometryElementPath>
+      <ElementPath>objektkoordinaten</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -2749,7 +2749,7 @@
     <ElementPath>AX_LagebezeichnungOhneHausnummer</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -2859,7 +2859,7 @@
     <ElementPath>AX_LagebezeichnungMitHausnummer</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -2984,7 +2984,7 @@
     <ElementPath>AX_LagebezeichnungMitPseudonummer</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -3094,7 +3094,7 @@
     <ElementPath>AX_Reservierung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -3229,7 +3229,7 @@
     <ElementPath>AX_PunktkennungUntergegangen</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -3299,7 +3299,7 @@
     <ElementPath>AX_PunktkennungVergleichend</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -3379,7 +3379,7 @@
     <ElementPath>AX_FortfuehrungsnachweisDeckblatt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -3589,7 +3589,7 @@
     <ElementPath>AX_Fortfuehrungsfall</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -3739,7 +3739,7 @@
     <ElementPath>AX_Gemeinde</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -3849,7 +3849,7 @@
     <ElementPath>AX_Buchungsblattbezirk</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -3944,7 +3944,7 @@
     <ElementPath>AX_GemarkungsteilFlur</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -4044,7 +4044,7 @@
     <ElementPath>AX_KreisRegion</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -4144,7 +4144,7 @@
     <ElementPath>AX_Bundesland</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -4234,7 +4234,7 @@
     <ElementPath>AX_Regierungsbezirk</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -4319,7 +4319,7 @@
     <ElementPath>AX_Gemeindeteil</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -4419,7 +4419,7 @@
     <ElementPath>AX_LagebezeichnungKatalogeintrag</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -4524,7 +4524,7 @@
     <ElementPath>AX_Gemarkung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -4619,7 +4619,7 @@
     <ElementPath>AX_Dienststelle</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -4719,7 +4719,7 @@
     <ElementPath>AX_Verband</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -4824,7 +4824,7 @@
     <ElementPath>AX_Nationalstaat</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -4904,7 +4904,7 @@
     <ElementPath>AX_BesondererBauwerkspunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -4989,7 +4989,7 @@
     <ElementPath>AX_Netzknoten</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -5174,7 +5174,7 @@
     <ElementPath>AX_Referenzstationspunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -5514,7 +5514,7 @@
     <ElementPath>AX_Lagefestpunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -5784,7 +5784,7 @@
     <ElementPath>AX_Hoehenfestpunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -6044,7 +6044,7 @@
     <ElementPath>AX_Schwerefestpunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -6284,7 +6284,7 @@
     <ElementPath>AX_Grenzpunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -6439,7 +6439,7 @@
     <ElementPath>AX_Aufnahmepunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -6564,7 +6564,7 @@
     <ElementPath>AX_SonstigerVermessungspunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -6689,7 +6689,7 @@
     <ElementPath>AX_Sicherungspunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -6804,7 +6804,7 @@
     <ElementPath>AX_BesondererGebaeudepunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -6894,7 +6894,7 @@
     <ElementPath>AX_WirtschaftlicheEinheit</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -6959,7 +6959,7 @@
     <ElementPath>AX_Verwaltungsgemeinschaft</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -7064,7 +7064,7 @@
     <ElementPath>AX_SchutzgebietNachNaturUmweltOderBodenschutzrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -7269,7 +7269,7 @@
     <ElementPath>AX_SchutzgebietNachWasserrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -7479,7 +7479,7 @@
     <ElementPath>AX_BoeschungKliff</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -7674,7 +7674,7 @@
     <ElementPath>AX_BesondererTopographischerPunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -7759,7 +7759,7 @@
     <ElementPath>AX_Kanal</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -7854,7 +7854,7 @@
     <ElementPath>AX_Wasserlauf</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -7949,7 +7949,7 @@
     <ElementPath>AX_Strasse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -8049,7 +8049,7 @@
     <ElementPath>AP_FPO</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -8144,7 +8144,7 @@
     <ElementPath>AA_Antragsgebiet</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -8219,7 +8219,7 @@
     <ElementPath>AX_Polder</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -8424,12 +8424,12 @@
     <ElementPath>AX_HistorischesFlurstueck</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <GeomPropertyDefn>
       <Name>objektkoordinaten</Name>
-      <GeometryElementPath>objektkoordinaten</GeometryElementPath>
+      <ElementPath>objektkoordinaten</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -8664,7 +8664,7 @@
     <ElementPath>AX_Kondominium</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -8739,7 +8739,7 @@
     <ElementPath>AX_Baublock</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -8824,7 +8824,7 @@
     <ElementPath>AX_Aussparungsflaeche</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -8904,7 +8904,7 @@
     <ElementPath>AX_Soll</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -9099,7 +9099,7 @@
     <ElementPath>AX_Duene</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -9294,7 +9294,7 @@
     <ElementPath>AX_Transportanlage</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -9499,7 +9499,7 @@
     <ElementPath>AX_WegPfadSteig</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -9729,7 +9729,7 @@
     <ElementPath>AX_Gleis</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -9939,7 +9939,7 @@
     <ElementPath>AX_Bahnverkehrsanlage</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -10154,7 +10154,7 @@
     <ElementPath>AX_Strassenverkehrsanlage</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -10369,7 +10369,7 @@
     <ElementPath>AX_EinrichtungenFuerDenSchiffsverkehr</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -10579,7 +10579,7 @@
     <ElementPath>AX_Flugverkehrsanlage</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -10794,7 +10794,7 @@
     <ElementPath>AX_Hafen</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -10999,7 +10999,7 @@
     <ElementPath>AX_Testgelaende</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -11194,7 +11194,7 @@
     <ElementPath>AX_Schleuse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -11404,7 +11404,7 @@
     <ElementPath>AX_Ortslage</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -11604,7 +11604,7 @@
     <ElementPath>AX_Grenzuebergang</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -11799,7 +11799,7 @@
     <ElementPath>AX_Gewaessermerkmal</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -12014,7 +12014,7 @@
     <ElementPath>AX_UntergeordnetesGewaesser</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -12224,7 +12224,7 @@
     <ElementPath>AX_Vegetationsmerkmal</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -12444,7 +12444,7 @@
     <ElementPath>AX_MusterLandesmusterUndVergleichsstueck</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -12679,7 +12679,7 @@
     <ElementPath>AX_Insel</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -12759,7 +12759,7 @@
     <ElementPath>AX_Gewann</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -12839,7 +12839,7 @@
     <ElementPath>AX_KleinraeumigerLandschaftsteil</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -12924,7 +12924,7 @@
     <ElementPath>AX_Landschaft</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -13009,7 +13009,7 @@
     <ElementPath>AX_FelsenFelsblockFelsnadel</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -13214,7 +13214,7 @@
     <ElementPath>AP_LTO</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -13339,7 +13339,7 @@
     <ElementPath>AX_Leitung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -13544,7 +13544,7 @@
     <ElementPath>AX_Abschnitt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -13739,7 +13739,7 @@
     <ElementPath>AX_Ast</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -13934,7 +13934,7 @@
     <ElementPath>AP_LPO</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -14029,7 +14029,7 @@
     <ElementPath>AX_SeilbahnSchwebebahn</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -14229,7 +14229,7 @@
     <ElementPath>AX_Gebaeudeausgestaltung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -14314,7 +14314,7 @@
     <ElementPath>AX_TopographischeLinie</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -14399,7 +14399,7 @@
     <ElementPath>AX_Geripplinie</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -14534,7 +14534,7 @@
     <ElementPath>AX_Gewaesserbegrenzung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -14674,7 +14674,7 @@
     <ElementPath>AX_StrukturiertErfassteGelaendepunkte</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -14814,7 +14814,7 @@
     <ElementPath>AX_Einschnitt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -14899,7 +14899,7 @@
     <ElementPath>AX_Hoehenlinie</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -15094,7 +15094,7 @@
     <ElementPath>AX_AbgeleiteteHoehenlinie</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -15194,7 +15194,7 @@
     <ElementPath>AP_PTO</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -15324,7 +15324,7 @@
     <ElementPath>AX_HeilquelleGasquelle</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -15529,7 +15529,7 @@
     <ElementPath>AX_Wasserspiegelhoehe</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -15724,7 +15724,7 @@
     <ElementPath>AX_Nullpunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -15924,7 +15924,7 @@
     <ElementPath>AX_PunktortAU</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -16189,7 +16189,7 @@
     <ElementPath>AX_GeoreferenzierteGebaeudeadresse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -16339,7 +16339,7 @@
     <ElementPath>AX_GrablochDerBodenschaetzung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -16574,7 +16574,7 @@
     <ElementPath>AX_Wohnplatz</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -16669,7 +16669,7 @@
     <ElementPath>AX_MarkanterGelaendepunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -16799,7 +16799,7 @@
     <ElementPath>AX_BesondererHoehenpunkt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -16929,7 +16929,7 @@
     <ElementPath>AX_Hoehleneingang</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -17129,7 +17129,7 @@
     <ElementPath>AP_PPO</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>4</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -17234,7 +17234,7 @@
     <ElementPath>AX_Sickerstrecke</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -17439,7 +17439,7 @@
     <ElementPath>AX_Firstlinie</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -17514,7 +17514,7 @@
     <ElementPath>AX_BesondereGebaeudelinie</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -17594,7 +17594,7 @@
     <ElementPath>AX_Gelaendekante</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -17734,7 +17734,7 @@
     <ElementPath>AX_SonstigesBauwerkOderSonstigeEinrichtung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -18139,7 +18139,7 @@
     <ElementPath>AX_BauwerkOderAnlageFuerSportFreizeitUndErholung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -18349,7 +18349,7 @@
     <ElementPath>AX_BauwerkOderAnlageFuerIndustrieUndGewerbe</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -18564,7 +18564,7 @@
     <ElementPath>AX_EinrichtungInOeffentlichenBereichen</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -18764,7 +18764,7 @@
     <ElementPath>AX_HistorischesBauwerkOderHistorischeEinrichtung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -18964,7 +18964,7 @@
     <ElementPath>AX_Turm</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -19179,7 +19179,7 @@
     <ElementPath>AX_VorratsbehaelterSpeicherbauwerk</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -19394,7 +19394,7 @@
     <ElementPath>AX_BauwerkImGewaesserbereich</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -19604,7 +19604,7 @@
     <ElementPath>AX_BauwerkImVerkehrsbereich</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -19824,7 +19824,7 @@
     <ElementPath>AX_SchifffahrtslinieFaehrverkehr</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -20024,7 +20024,7 @@
     <ElementPath>AX_Gebaeude</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -20339,7 +20339,7 @@
     <ElementPath>AX_AndereFestlegungNachStrassenrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -20549,7 +20549,7 @@
     <ElementPath>AX_NaturUmweltOderBodenschutzrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -20769,7 +20769,7 @@
     <ElementPath>AX_KlassifizierungNachStrassenrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -20979,7 +20979,7 @@
     <ElementPath>AX_SonstigesRecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -21194,7 +21194,7 @@
     <ElementPath>AX_Denkmalschutzrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -21409,7 +21409,7 @@
     <ElementPath>AX_DammWallDeich</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -21624,7 +21624,7 @@
     <ElementPath>AX_PunktortAG</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -21889,7 +21889,7 @@
     <ElementPath>AX_Bauteil</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -21994,7 +21994,7 @@
     <ElementPath>AX_Tagesabschnitt</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -22074,7 +22074,7 @@
     <ElementPath>AX_Bewertung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -22269,7 +22269,7 @@
     <ElementPath>AX_AndereFestlegungNachWasserrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -22479,7 +22479,7 @@
     <ElementPath>AX_KlassifizierungNachWasserrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -22689,7 +22689,7 @@
     <ElementPath>AX_Forstrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -22904,7 +22904,7 @@
     <ElementPath>AX_BauRaumOderBodenordnungsrecht</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -23144,7 +23144,7 @@
     <ElementPath>AX_Schutzzone</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -23234,7 +23234,7 @@
     <ElementPath>AX_Boeschungsflaeche</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -23309,12 +23309,12 @@
     <ElementPath>AX_Flurstueck</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <GeomPropertyDefn>
       <Name>objektkoordinaten</Name>
-      <GeometryElementPath>objektkoordinaten</GeometryElementPath>
+      <ElementPath>objektkoordinaten</ElementPath>
       <GeometryType>100</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -23539,7 +23539,7 @@
     <ElementPath>AX_Gebiet_Kreis</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -23634,7 +23634,7 @@
     <ElementPath>AX_Gebiet_Bundesland</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -23719,7 +23719,7 @@
     <ElementPath>AX_Gebiet_Regierungsbezirk</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -23809,7 +23809,7 @@
     <ElementPath>AX_Gebiet_Nationalstaat</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -23894,7 +23894,7 @@
     <ElementPath>AX_KommunalesGebiet</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -24004,7 +24004,7 @@
     <ElementPath>AX_Gebiet_Verwaltungsgemeinschaft</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -24109,7 +24109,7 @@
     <ElementPath>AX_Bodenschaetzung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -24339,7 +24339,7 @@
     <ElementPath>AX_Gewaesserstationierungsachse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -24559,7 +24559,7 @@
     <ElementPath>AX_BesondereFlurstuecksgrenze</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -24639,7 +24639,7 @@
     <ElementPath>AX_Gebietsgrenze</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -24719,7 +24719,7 @@
     <ElementPath>AX_Gewaesserachse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -24819,7 +24819,7 @@
     <ElementPath>AX_Strassenachse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -24939,7 +24939,7 @@
     <ElementPath>AX_Bahnstrecke</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -25054,7 +25054,7 @@
     <ElementPath>AX_Fahrwegachse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -25164,7 +25164,7 @@
     <ElementPath>AX_Fahrbahnachse</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -25269,7 +25269,7 @@
     <ElementPath>AX_PunktortTA</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -25534,7 +25534,7 @@
     <ElementPath>AX_StehendesGewaesser</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -25789,7 +25789,7 @@
     <ElementPath>AX_Meer</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -26034,7 +26034,7 @@
     <ElementPath>AX_Fliessgewaesser</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -26274,7 +26274,7 @@
     <ElementPath>AX_Hafenbecken</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -26509,7 +26509,7 @@
     <ElementPath>AX_Bergbaubetrieb</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -26724,7 +26724,7 @@
     <ElementPath>AX_Friedhof</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -26934,7 +26934,7 @@
     <ElementPath>AX_FlaecheGemischterNutzung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -27149,7 +27149,7 @@
     <ElementPath>AX_Wohnbauflaeche</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -27364,7 +27364,7 @@
     <ElementPath>AX_FlaecheBesondererFunktionalerPraegung</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -27579,7 +27579,7 @@
     <ElementPath>AX_IndustrieUndGewerbeflaeche</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -27809,7 +27809,7 @@
     <ElementPath>AX_Siedlungsflaeche</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -28014,7 +28014,7 @@
     <ElementPath>AX_TagebauGrubeSteinbruch</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -28229,7 +28229,7 @@
     <ElementPath>AX_SportFreizeitUndErholungsflaeche</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -28444,7 +28444,7 @@
     <ElementPath>AX_Halde</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -28654,7 +28654,7 @@
     <ElementPath>AX_FlaecheZurZeitUnbestimmbar</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -28849,7 +28849,7 @@
     <ElementPath>AX_Sumpf</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -29049,7 +29049,7 @@
     <ElementPath>AX_UnlandVegetationsloseFlaeche</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -29259,7 +29259,7 @@
     <ElementPath>AX_Gehoelz</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -29469,7 +29469,7 @@
     <ElementPath>AX_Wald</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -29679,7 +29679,7 @@
     <ElementPath>AX_Heide</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -29879,7 +29879,7 @@
     <ElementPath>AX_Moor</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -30079,7 +30079,7 @@
     <ElementPath>AX_Landwirtschaft</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -30284,7 +30284,7 @@
     <ElementPath>AX_Bahnverkehr</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -30534,7 +30534,7 @@
     <ElementPath>AX_Weg</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -30769,7 +30769,7 @@
     <ElementPath>AX_Schiffsverkehr</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -31004,7 +31004,7 @@
     <ElementPath>AX_Flugverkehr</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -31254,7 +31254,7 @@
     <ElementPath>AX_Platz</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -31494,7 +31494,7 @@
     <ElementPath>AX_Strassenverkehr</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -31734,7 +31734,7 @@
     <ElementPath>TA_CompositeSolidComponent_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>6</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -31809,7 +31809,7 @@
     <ElementPath>TA_SurfaceComponent_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>3</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -31884,7 +31884,7 @@
     <ElementPath>TA_CurveComponent_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -31959,7 +31959,7 @@
     <ElementPath>TA_PointComponent_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -32034,7 +32034,7 @@
     <ElementPath>AU_TrianguliertesOberflaechenObjekt_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>6</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -32109,7 +32109,7 @@
     <ElementPath>AU_MehrfachFlaechenObjekt_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -32184,7 +32184,7 @@
     <ElementPath>AU_MehrfachLinienObjekt_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -32259,7 +32259,7 @@
     <ElementPath>AU_UmringObjekt_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -32334,7 +32334,7 @@
     <ElementPath>AP_KPO_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -32444,7 +32444,7 @@
     <ElementPath>AU_PunkthaufenObjekt_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>4</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -32519,7 +32519,7 @@
     <ElementPath>AU_KoerperObjekt_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>6</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
@@ -32594,7 +32594,7 @@
     <ElementPath>AU_GeometrieObjekt_3D</ElementPath>
     <GeomPropertyDefn>
       <Name>wkb_geometry</Name>
-      <GeometryElementPath>position</GeometryElementPath>
+      <ElementPath>position</ElementPath>
       <GeometryType>0</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
