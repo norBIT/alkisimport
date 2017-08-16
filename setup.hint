@@ -2,4 +2,4 @@ sdesc: "norGIS ALKIS Import (fullschema branch)"
 ldesc: "norGIS ALKIS Import (fullschema branch)"
 maintainer: JuergenFischer
 category: Desktop
-requires: pyqt4 psql sip gdal-dev-nas
+requires: pyqt4 psql sip gdal-dev

@@ -5,7 +5,7 @@
  * Author:   Jürgen E. Fischer <jef@norbit.de>
  *
  ******************************************************************************
- * Copyright (c) 2012-2014, Jürgen E. Fischer <jef@norbit.de>
+ * Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  ****************************************************************************/
 
 SET client_encoding = 'UTF8';
-SET search_path = :"alkis_schema", :"postgis_schema", public;
+SET search_path = :"postgis_schema", public;
 
 -- Abbruch bei Fehlern
 \set ON_ERROR_STOP

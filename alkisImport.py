@@ -620,6 +620,17 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             return None
 
         self.db.exec_("SET STANDARD_CONFORMING_STRINGS TO ON")
+
+        qry = self.db.exec_(u"SELECT 1 FROM pg_namespace WHERE nspname='{}'".format(self.schema.replace("'", "''")))
+        if not qry:
+            self.log(u"Konnte Schema nicht überprüfen! [{}]".format(qry.lastError().text()))
+            return None
+
+        if not qry.next():
+            if not self.db.exec_(u"CREATE SCHEMA \"{}\"".format(self.schema.replace('"', '""'))):
+                self.log(u"Konnte Schema nicht erstellen!")
+                return None
+
         self.db.exec_(u"SET search_path = \"{}\", \"{}\", public".format(self.schema, self.pgschema))
 
         return conn

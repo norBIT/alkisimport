@@ -5,7 +5,7 @@
  * Author:   Jürgen E. Fischer <jef@norbit.de>
  *
  ****************************************************************************
- * Copyright (c) 2012-2014, Jürgen E. Fischer <jef@norbit.de>
+ * Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -13,6 +13,28 @@
  *   (at your option) any later version.
  *
  ****************************************************************************/
+
+CREATE FUNCTION pg_temp.alkis_set_schema(t TEXT) RETURNS varchar AS $$
+DECLARE
+	i integer;
+BEGIN
+	SELECT count(*) INTO i FROM pg_namespace WHERE nspname=t;
+	IF i = 0 THEN
+		EXECUTE 'CREATE SCHEMA '|| quote_ident(t);
+		RAISE NOTICE 'Schema % angelegt.', t;
+	END IF;
+
+	PERFORM set_config('search_path', quote_ident(t) || ', ' || current_setting('search_path'), false);
+
+	IF t <> current_schema() THEN
+		RAISE EXCEPTION 'Nicht in Schema % gewechselt.', t;
+	END IF;
+
+	RETURN 'Aktuelles Schema ' || t || '.';
+END
+$$ LANGUAGE plpgsql;
+
+SELECT pg_temp.alkis_set_schema(:'alkis_schema');
 
 -- Table/View/Sequence löschen, wenn vorhanden
 CREATE OR REPLACE FUNCTION alkis_dropobject(t TEXT) RETURNS varchar AS $$
@@ -98,7 +120,6 @@ DECLARE
 	c RECORD;
 	r VARCHAR;
 BEGIN
-	r := alkis_string_append(r, 'Aktives Schema: ' || current_schema());
 	-- drop tables & views
 	FOR c IN SELECT table_type,table_name FROM information_schema.tables
 		   WHERE table_schema=current_schema()
@@ -476,8 +497,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 \unset ON_ERROR_STOP
-
--- 8.3 hatte noch keine CTE => Funktionen mit WITH RECURSIVE werden nicht definiert.
 
 --
 -- Datenbankmigration
@@ -16446,9 +16465,9 @@ Erholung von Reisenden.'),
 END;
 $$ LANGUAGE plpgsql;
 
-DROP AGGREGATE IF EXISTS array_accum(anyarray);
+DROP AGGREGATE IF EXISTS alkis_accum(anyarray);
 
-CREATE AGGREGATE array_accum (anyarray) (
+CREATE AGGREGATE alkis_accum (anyarray) (
 	sfunc = array_cat,
 	stype = anyarray,
 	initcond = '{}'

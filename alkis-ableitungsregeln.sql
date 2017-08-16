@@ -635,8 +635,8 @@ INSERT INTO ax_besondereflurstuecksgrenze2(ogc_fid,gml_id,modell,artderflurstuec
 	SELECT
 		min(ogc_fid),
 		min(gml_id),
-		ARRAY(SELECT DISTINCT unnest(array_accum(advstandardmodell||sonstigesmodell)) AS modell ORDER BY modell) AS modell,
-		ARRAY(SELECT DISTINCT unnest(array_accum(artderflurstuecksgrenze)) AS artderflurstuecksgrenze ORDER BY artderflurstuecksgrenze) AS artderflurstuecksgrenze,
+		ARRAY(SELECT DISTINCT unnest(alkis_accum(advstandardmodell||sonstigesmodell)) AS modell ORDER BY modell) AS modell,
+		ARRAY(SELECT DISTINCT unnest(alkis_accum(artderflurstuecksgrenze)) AS artderflurstuecksgrenze ORDER BY artderflurstuecksgrenze) AS artderflurstuecksgrenze,
 		wkb_geometry
 	FROM ax_besondereflurstuecksgrenze
 	WHERE endet IS NULL

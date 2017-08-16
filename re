@@ -14,8 +14,8 @@
 ^OGR: OGROpen\(.*\) succeeded as NAS\.\s*$
 ^OGR: OGROpen\(PG:.*\) succeeded as PostgreSQL\.\s*$
 ^GDAL: In GDALDestroy - unloading GDAL shared library\.\s*$
-^psql:.*: (NOTICE|HINWEIS):  (function|Funktion) alkis_(drop\(\)|dropobject\(text\)|delete\(\)|mviews\(\)|update_schema\(\)) (does not exist, skipping|existiert nicht, wird \S+bersprungen)$
-^psql:.*: (NOTICE|HINWEIS):  (function|Funktion|Aggregatfunktion) array_accum\(anyarray\) (does not exist, skipping|existiert nicht, wird \S+bersprungen)
+^psql:.*: (NOTICE|HINWEIS):  (function|Funktion) alkis_(drop\(\)|dropobject\(text\)|delete\(\)|mviews\(\)|update_schema\(\)|set_schema\(text\)) (does not exist, skipping|existiert nicht, wird \S+bersprungen)$
+^psql:.*: (NOTICE|HINWEIS):  (function|Funktion|Aggregatfunktion|aggregate) alkis_accum\(anyarray\) (does not exist, skipping|existiert nicht, wird \S+bersprungen)
 ^psql:.*: (NOTICE|HINWEIS):  Dropping (table|view|sequence) 
 ^psql:.*: (NOTICE|HINWEIS):  gserialized_gist_joinsel: jointype 4 not supported\s*$
 ^psql:.*: (NOTICE|HINWEIS):  (geometry|LWGEOM)_gist_joinsel called with incorrect join type\s*$
@@ -40,7 +40,7 @@ psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*
 ^psql:alkis-compat.sql:.*: FEHLER:  Aggregatfunktion ([^.]\.)?array_agg\(any(element|array)\) existiert nicht
 ^psql:alkis-update.sql:.*: NOTICE:  ALTER TABLE \/ ADD PRIMARY KEY will create implicit index "alkis_(flaechen|linien|schriften)_pkey" for table "alkis_(flaechen|linien|schriften)"
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*gel\S+scht\..*$
-^\s+(addgeometrycolumn|alkis_clean|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|version|postgis_version|\?column\?)\s*$
+^\s+(addgeometrycolumn|alkis_clean|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|version|postgis_version|\?column\?|alkis_set_schema)\s*$
 ^-+\s*$
 ^\s+[^.]+\..*\.(wkb_geometry|dummy|objektkoordinaten) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$
 ^\s+[^.]+\.ax_punktortau\.wkb_geometry SRID:\d+ TYPE:POINT DIMS:3\+?\s*$
