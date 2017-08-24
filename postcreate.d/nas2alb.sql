@@ -43,7 +43,7 @@ BEGIN
 EXCEPTION WHEN OTHERS THEN
         RETURN NULL;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION alkis_flsnrk(f ax_flurstueck) RETURNS varchar AS $$
 BEGIN
@@ -57,7 +57,7 @@ BEGIN
 			to_char(alkis_toint(f.zaehler),'fm00000') || '/' || to_char(coalesce(mod(alkis_toint(f.nenner),1000)::int,0),'fm000')
 		END;
 END;
-$$ LANGUAGE plpgsql IMMUTABLE;
+$$ LANGUAGE plpgsql IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION alkis_flsnr(f ax_flurstueck) RETURNS varchar AS $$
 BEGIN
@@ -71,7 +71,7 @@ BEGIN
 		'-' || to_char(coalesce(f.flurnummer,0),'fm000') ||
 		'-' || alkis_flsnrk(f);
 END;
-$$ LANGUAGE plpgsql IMMUTABLE;
+$$ LANGUAGE plpgsql IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION alkis_flskoord(f ax_flurstueck) RETURNS varchar AS $$
 DECLARE
@@ -522,53 +522,3 @@ CREATE VIEW v_haeuser AS
   FROM ax_lagebezeichnungmithausnummer h
   JOIN ap_pto p ON p.art='HNR' AND h.gml_id=ANY(p.dientzurdarstellungvon) AND p.endet IS NULL
   WHERE h.endet IS NULL;
-
-CREATE OR REPLACE FUNCTION alkis_intersects(g0 GEOMETRY, g1 GEOMETRY, error TEXT) RETURNS BOOLEAN AS $$
-DECLARE
-	res BOOLEAN;
-BEGIN
-	SELECT st_intersects(g0,g1) INTO res;
-	RETURN res;
-EXCEPTION WHEN OTHERS THEN
-	RAISE NOTICE 'st_intersects-Ausnahme bei %', error;
-	RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION alkis_intersection(g0 GEOMETRY, g1 GEOMETRY, error TEXT) RETURNS GEOMETRY AS $$
-DECLARE
-	res GEOMETRY;
-BEGIN
-	SELECT st_intersection(g0,g1) INTO res;
-	RETURN res;
-EXCEPTION WHEN OTHERS THEN
-	RAISE NOTICE 'st_intersection-Ausnahme bei: %', error;
-	RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION alkis_fixgeometry(t TEXT) RETURNS VARCHAR AS $$
-DECLARE
-	n INTEGER;
-BEGIN
-	BEGIN
-		EXECUTE 'UPDATE '||t||' SET wkb_geometry=st_makevalid(wkb_geometry) WHERE NOT st_isvalid(wkb_geometry)';
-		GET DIAGNOSTICS n = ROW_COUNT;
-		IF n > 0 THEN
-			RAISE NOTICE '% Geometrien in % korrigiert.', n, t;
-		END IF;
-
-		RETURN '% geprüft (% ungültige Geometrien).', t, n;
-	EXCEPTION WHEN OTHERS THEN
-		BEGIN
-			EXECUTE 'SELECT count(*) FROM '||t||' WHERE NOT st_isvalid(wkb_geometry)' INTO n;
-			IF n > 0 THEN
-				RAISE EXCEPTION '% defekte Geometrien in % gefunden - Ausnahme bei Korrektur.', n, t;
-			END IF;
-		EXCEPTION WHEN OTHERS THEN
-			RAISE EXCEPTION 'Ausnahme bei Bestimmung defekter Geometrien in %.', t;
-		END;
-	END;
-END;
-$$ LANGUAGE plpgsql;
-

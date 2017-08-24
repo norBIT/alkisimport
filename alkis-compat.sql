@@ -263,7 +263,7 @@ BEGIN
 
 	RETURN st_translate( p0, k*vx, k*vy );
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE FUNCTION alkis_offsetcurve(g0 geometry,offs float8,params text) RETURNS geometry AS $$
 DECLARE
@@ -362,7 +362,7 @@ BEGIN
 		RETURN st_makeline(r);
 	END IF;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql IMMUTABLE;
 
 SET search_path = :"postgis_schema", :"alkis_schema", public;
 
@@ -420,4 +420,4 @@ BEGIN
   END;
   RETURN res;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql IMMUTABLE;

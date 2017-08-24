@@ -184,7 +184,7 @@ BEGIN
 
 	RETURN st_multi(g);
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql IMMUTABLE;
 
 SELECT alkis_dropobject('alkis_politischegrenzen');
 CREATE TABLE alkis_politischegrenzen(i INTEGER, sn VARCHAR, adfs INTEGER[]);
@@ -368,7 +368,7 @@ BEGIN
 
 	RETURN g0;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql IMMUTABLE;
 
 -- Präsentationsobjekte?
 

@@ -5,7 +5,7 @@
  * Author:   Jürgen E. Fischer <jef@norbit.de>
  *
  ******************************************************************************
- * Copyright (c) 2012-2014, Jürgen E. Fischer <jef@norbit.de>
+ * Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,342 +20,6 @@ SET client_min_messages TO notice;
 \set ON_ERROR_STOP
 
 SET search_path = :"alkis_schema", :"postgis_schema", public;
-
-CREATE OR REPLACE FUNCTION alkis_createnutzung() RETURNS varchar AS $$
-DECLARE
-	r  RECORD;
-	nv VARCHAR;
-	kv VARCHAR;
-	d  VARCHAR;
-	f  VARCHAR;
-	fk VARCHAR;
-	t  VARCHAR;
-	n  VARCHAR;
-	i  INTEGER;
-	invalid INTEGER;
-BEGIN
-	nv := E'CREATE VIEW ax_tatsaechlichenutzung AS\n  ';
-	kv := E'CREATE VIEW ax_tatsaechlichenutzungsschluessel AS\n  ';
-	d := '';
-
-	i := 0;
-	FOR r IN
-	        SELECT
-			name,
-			kennung
-	        FROM alkis_elemente
-	        WHERE 'ax_tatsaechlichenutzung' = ANY (abgeleitet_aus)
-	LOOP
-		-- SELECT alkis_fixgeometry(r.name);
-
-		f := CASE r.name
-		     WHEN 'ax_halde'					THEN 'lagergut'
-		     WHEN 'ax_bergbaubetrieb'				THEN 'abbaugut'
-		     WHEN 'ax_heide'					THEN 'NULL'
-		     WHEN 'ax_moor'					THEN 'NULL'
-		     WHEN 'ax_sumpf'					THEN 'NULL'
-		     WHEN 'ax_wohnbauflaeche'				THEN 'artderbebauung'
-		     WHEN 'ax_industrieundgewerbeflaeche'		THEN 'funktion'
-		     WHEN 'ax_tagebaugrubesteinbruch'			THEN 'abbaugut'
-		     WHEN 'ax_flaechegemischternutzung'			THEN 'funktion'
-		     WHEN 'ax_flaechebesondererfunktionalerpraegung'	THEN 'funktion'
-		     WHEN 'ax_sportfreizeitunderholungsflaeche'		THEN 'funktion'
-		     WHEN 'ax_friedhof'					THEN 'funktion'
-		     WHEN 'ax_strassenverkehr'				THEN 'funktion'
-		     WHEN 'ax_weg'					THEN 'funktion'
-		     WHEN 'ax_platz'					THEN 'funktion'
-		     WHEN 'ax_bahnverkehr'				THEN 'funktion'
-		     WHEN 'ax_flugverkehr'				THEN 'funktion'
-		     WHEN 'ax_schiffsverkehr'				THEN 'funktion'
-		     WHEN 'ax_gehoelz'					THEN 'funktion'
-		     WHEN 'ax_unlandvegetationsloseflaeche'		THEN 'funktion'
-		     WHEN 'ax_fliessgewaesser'				THEN 'funktion'
-		     WHEN 'ax_hafenbecken'				THEN 'funktion'
-		     WHEN 'ax_stehendesgewaesser'			THEN 'funktion'
-		     WHEN 'ax_meer'					THEN 'funktion'
-		     WHEN 'ax_landwirtschaft'				THEN 'vegetationsmerkmal'
-		     WHEN 'ax_wald'					THEN 'vegetationsmerkmal'
-		     ELSE NULL
-		     END;
-		IF f IS NULL THEN
-			RAISE EXCEPTION 'Unerwartete Nutzungstabelle %', r.name;
-		END IF;
-
-		fk := CASE r.name
-		     WHEN 'ax_halde'					THEN ', '
-		     WHEN 'ax_bergbaubetrieb'				THEN ' von '
-		     WHEN 'ax_heide'					THEN ''
-		     WHEN 'ax_moor'					THEN ''
-		     WHEN 'ax_sumpf'					THEN ''
-		     WHEN 'ax_wohnbauflaeche'				THEN ' mit Art der Bebauung '
-		     WHEN 'ax_industrieundgewerbeflaeche'		THEN ', '
-		     WHEN 'ax_tagebaugrubesteinbruch'			THEN ' von '
-		     WHEN 'ax_flaechegemischternutzung'			THEN ', '
-		     WHEN 'ax_flaechebesondererfunktionalerpraegung'	THEN ', '
-		     WHEN 'ax_sportfreizeitunderholungsflaeche'		THEN ', '
-		     WHEN 'ax_friedhof'					THEN ', '
-		     WHEN 'ax_strassenverkehr'				THEN ', '
-		     WHEN 'ax_weg'					THEN ', '
-		     WHEN 'ax_platz'					THEN ', '
-		     WHEN 'ax_bahnverkehr'				THEN ', '
-		     WHEN 'ax_flugverkehr'				THEN ', '
-		     WHEN 'ax_schiffsverkehr'				THEN ', '
-		     WHEN 'ax_gehoelz'					THEN ', '
-		     WHEN 'ax_unlandvegetationsloseflaeche'		THEN ', '
-		     WHEN 'ax_fliessgewaesser'				THEN ', '
-		     WHEN 'ax_hafenbecken'				THEN ', '
-		     WHEN 'ax_stehendesgewaesser'			THEN ', '
-		     WHEN 'ax_meer'					THEN ', '
-		     WHEN 'ax_landwirtschaft'				THEN ', '
-		     WHEN 'ax_wald'					THEN ', '
-		     ELSE NULL
-		     END;
-		IF fk IS NULL THEN
-			RAISE EXCEPTION 'Unerwartete Nutzungstabelle %', r.name;
-		END IF;
-
-		n := CASE r.name
-		     WHEN 'ax_halde'					THEN 'Halde'
-		     WHEN 'ax_bergbaubetrieb'				THEN 'Bergbaubetrieb'
-		     WHEN 'ax_heide'					THEN 'Heide'
-		     WHEN 'ax_moor'					THEN 'Moor'
-		     WHEN 'ax_sumpf'					THEN 'Sumpf'
-		     WHEN 'ax_wohnbauflaeche'				THEN 'Wohnbaufläche'
-		     WHEN 'ax_industrieundgewerbeflaeche'		THEN 'Industrie- und Gewerbefläche'
-		     WHEN 'ax_tagebaugrubesteinbruch'			THEN 'Tagebau, Grube, Steinbruch'
-		     WHEN 'ax_flaechegemischternutzung'			THEN 'Fläche gemischter Nutzung'
-		     WHEN 'ax_flaechebesondererfunktionalerpraegung'	THEN 'Fläche besonderer funktionaler Prägung'
-		     WHEN 'ax_sportfreizeitunderholungsflaeche'		THEN 'Sport-, Freizeit- und Erholungsfläche'
-		     WHEN 'ax_friedhof'					THEN 'Friedhof'
-		     WHEN 'ax_strassenverkehr'				THEN 'Straßenverkehr'
-		     WHEN 'ax_weg'					THEN 'Weg'
-		     WHEN 'ax_platz'					THEN 'Platz'
-		     WHEN 'ax_bahnverkehr'				THEN 'Bahnverkehr'
-		     WHEN 'ax_flugverkehr'				THEN 'Flugverkehr'
-		     WHEN 'ax_schiffsverkehr'				THEN 'Schiffsverkehr'
-		     WHEN 'ax_gehoelz'					THEN 'Gehölz'
-		     WHEN 'ax_unlandvegetationsloseflaeche'		THEN 'Unland, vegetationslose Fläche'
-		     WHEN 'ax_fliessgewaesser'				THEN 'Fließgewässer'
-		     WHEN 'ax_hafenbecken'				THEN 'Hafenbecken'
-		     WHEN 'ax_stehendesgewaesser'			THEN 'Stehendes Gewässer'
-		     WHEN 'ax_meer'					THEN 'Meer'
-		     WHEN 'ax_landwirtschaft'				THEN 'Landwirtschaft'
-		     WHEN 'ax_wald'					THEN 'Wald'
-		     ELSE NULL
-		     END;
-
-		IF n IS NULL THEN
-			RAISE EXCEPTION 'Unerwartete Nutzungstabelle %', r.name;
-		END IF;
-
-		t := CASE
-		     WHEN r.name='ax_strassenverkehr' THEN 'ax_funktion_strasse'
-                     ELSE 'ax_' || f || '_' || replace(r.name, 'ax_', '')
-                     END;
-
-		nv := nv
-		   || d
-		   || 'SELECT '
-		   || 'ogc_fid*32+' || i ||' AS ogc_fid,'
-		   || '''' || r.name || '''::text AS name,'
-		   || 'gml_id,'
-		   || alkis_toint(r.kennung) || ' AS kennung,'
-		   || f || '::text AS funktion,'
-		   || ''''||r.kennung|| '''||coalesce('':''||'||f||','''')::text AS nutzung,'
-		   || 'wkb_geometry'
-		   || ' FROM ' || r.name
-		   || ' WHERE endet IS NULL'
-		   ;
-
-		kv := kv
-		   || d
-		   || 'SELECT '''||r.kennung||''' AS nutzung,'''||n||''' AS name'
-		   ;
-
-		IF f<>'NULL' THEN
-			kv := kv
-			   || ' UNION SELECT ''' || r.kennung || ':''||wert AS nutzung,'''
-			   || coalesce(n,'') || coalesce(fk,'') || '''|| beschreibung AS name'
-			   || ' FROM ' || t
-			   ;
-		END IF;
-
-		d := E' UNION\n  ';
-		i := i + 1;
-	END LOOP;
-
-	PERFORM alkis_dropobject('ax_tatsaechlichenutzung');
-	EXECUTE nv;
-
-	PERFORM alkis_dropobject('ax_tatsaechlichenutzungsschluessel');
-	EXECUTE kv;
-
-	RETURN 'ax_tatsaechlichenutzung und ax_tatsaechlichenutzungsschluessel erzeugt.';
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION alkis_createklassifizierung() RETURNS varchar AS $$
-DECLARE
-	r  RECORD;
-	nv VARCHAR;
-	kv VARCHAR;
-	d  VARCHAR;
-	f  VARCHAR;
-	p  VARCHAR;
-	i  INTEGER;
-	invalid INTEGER;
-BEGIN
-	nv := E'CREATE VIEW ax_klassifizierung AS\n  ';
-	kv := E'CREATE VIEW ax_klassifizierungsschluessel AS\n  ';
-	d := '';
-
-	i := 0;
-	FOR r IN
-	        SELECT
-			name,
-			kennung
-	        FROM alkis_elemente
-	        WHERE name IN ('ax_bodenschaetzung','ax_bewertung','ax_klassifizierungnachwasserrecht','ax_klassifizierungnachstrassenrecht')
-	LOOP
-		-- SELECT alkis_fixgeometry(r.name);
-
-	        f := CASE r.name
-		     WHEN 'ax_bodenschaetzung' THEN 'b'
-		     WHEN 'ax_bewertung' THEN 'B'
-		     WHEN 'ax_klassifizierungnachwasserrecht' THEN 'W'
-		     WHEN 'ax_klassifizierungnachstrassenrecht' THEN 'S'
-		     ELSE NULL
-		     END;
-		IF f IS NULL THEN
-			RAISE EXCEPTION 'Unerwartete Tabelle %', r.name;
-		END IF;
-
-		p := CASE r.name
-		     WHEN 'ax_bodenschaetzung' THEN 'kulturart'
-		     WHEN 'ax_bewertung' THEN 'klassifizierung'
-		     ELSE 'artderfestlegung'
-		     END;
-
-		nv := nv
-		   || d
-		   || 'SELECT '
-		   || 'ogc_fid*4+' || i || ' AS ogc_fid,'
-		   || '''' || r.name    || '''::text AS name,'
-		   || 'gml_id,'
-		   || alkis_toint(r.kennung) || ' AS kennung,'
-		   || p || ' AS artderfestlegung,'
-		   || CASE WHEN r.name='ax_bodenschaetzung'
-		      THEN 'bodenzahlodergruenlandgrundzahl AS bodenzahl,ackerzahlodergruenlandzahl AS ackerzahl,'
-		      ELSE 'NULL::varchar AS bodenzahl,NULL::varchar AS ackerzahl,'
-		      END
-		   || ''''||f||':''||'||p||' AS klassifizierung,'
-		   || 'wkb_geometry'
-		   || ' FROM ' || r.name
-		   || ' WHERE endet IS NULL'
-		   ;
-
-		kv := kv
-		   || d
-		   || 'SELECT '
-		   || '''' || f || ':''||wert AS klassifizierung,beschreibung AS name'
-		   || '  FROM ax_' || p || '_' || replace(r.name, 'ax_', '')
-		   ;
-
-		d := E' UNION\n  ';
-		i := i + 1;
-	END LOOP;
-
-	PERFORM alkis_dropobject('ax_klassifizierung');
-	EXECUTE nv;
-
-	PERFORM alkis_dropobject('ax_klassifizierungsschluessel');
-	EXECUTE kv;
-
-	RETURN 'ax_klassifizierung und ax_klassifizierungsschluessel erzeugt.';
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION alkis_createausfuehrendestellen() RETURNS varchar AS $$
-DECLARE
-	r VARCHAR[];
-	v VARCHAR;
-	d VARCHAR;
-	f VARCHAR;
-	p VARCHAR;
-	i INTEGER;
-	n VARCHAR;
-	invalid INTEGER;
-BEGIN
-	PERFORM alkis_dropobject('ax_ausfuehrendestellen');
-
-	PERFORM alkis_dropobject('v_schutzgebietnachwasserrecht');
-	CREATE TABLE v_schutzgebietnachwasserrecht AS
-		SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
-		FROM ax_schutzgebietnachwasserrecht s
-		JOIN ax_schutzzone z ON ARRAY[s.gml_id] <@ z.istteilvon AND z.endet IS NULL
-		WHERE false;
-
-	PERFORM alkis_dropobject('v_schutzgebietnachnaturumweltoderbodenschutzrecht');
-	CREATE TABLE v_schutzgebietnachnaturumweltoderbodenschutzrecht AS
-		SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
-		FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht s
-		JOIN ax_schutzzone z ON ARRAY[s.gml_id] <@ z.istteilvon AND z.endet IS NULL
-		WHERE false;
-
-	r := ARRAY[
-			'v_schutzgebietnachwasserrecht',
-			'v_schutzgebietnachnaturumweltoderbodenschutzrecht',
-			'ax_naturumweltoderbodenschutzrecht',
-			'ax_forstrecht',
-			'ax_bauraumoderbodenordnungsrecht',
-			'ax_klassifizierungnachstrassenrecht',
-			'ax_denkmalschutzrecht',
-			'ax_anderefestlegungnachwasserrecht',
-			-- 'ax_anderefestlegungnachstrassenrecht',
-			'ax_sonstigesrecht',
-			'ax_klassifizierungnachwasserrecht'
-		];
-
-	v := E'CREATE VIEW ax_ausfuehrendestellen AS\n  ';
-	d := '';
-
-	FOR i IN array_lower(r,1)..array_upper(r,1)
-	LOOP
-		n := r[i];
-
-		-- SELECT alkis_fixgeometry(n);
-
-		v := v
-		  || d
-		  || 'SELECT '
-		  || 'ogc_fid*16+' || i || ' AS ogc_fid,'
-		  || '''' || n || '''::text AS name,'
-		  || 'gml_id,'
-		  || 'to_char(alkis_toint(land),''fm00'') || stelle AS ausfuehrendestelle,'
-		  || 'wkb_geometry'
-		  || ' FROM ' || n
-		  || ' WHERE endet IS NULL'
-		  ;
-
-		d := E' UNION\n  ';
-	END LOOP;
-
-	EXECUTE v;
-	RETURN 'ax_ausfuehrendestellen erzeugt.';
-END;
-$$ LANGUAGE plpgsql;
-
--- SELECT 'Prüfe Flurstücksgeometrien...';
--- SELECT alkis_fixgeometry('ax_flurstueck');
-
-SELECT 'Erzeuge Sicht für Klassifizierungen...';
-SELECT alkis_createklassifizierung();
-
-SELECT 'Erzeuge Sicht für tatsächliche Nutzungen...';
-SELECT alkis_createnutzung();
-
-SELECT 'Erzeuge Sicht für ausführende Stellen...';
-SELECT alkis_createausfuehrendestellen();
 
 --
 -- ALKIS:
@@ -380,6 +44,356 @@ SELECT alkis_createausfuehrendestellen();
 -- ax_namensnummer & ax_person & ax_anschrift	=> EIGNER
 
 -- ax_flurstueck => flurst
+
+SELECT alkis_dropobject('alkis_intersects');
+CREATE FUNCTION alkis_intersects(g0 GEOMETRY, g1 GEOMETRY, error TEXT) RETURNS BOOLEAN AS $$
+DECLARE
+	res BOOLEAN;
+BEGIN
+	SELECT st_intersects(g0,g1) INTO res;
+	RETURN res;
+EXCEPTION WHEN OTHERS THEN
+	RAISE NOTICE 'st_intersects-Ausnahme bei %: %', error, SQLERRM;
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+SELECT alkis_dropobject('alkis_relate');
+CREATE FUNCTION alkis_relate(g0 GEOMETRY, g1 GEOMETRY, m TEXT, error TEXT) RETURNS BOOLEAN AS $$
+DECLARE
+	res BOOLEAN;
+BEGIN
+	SELECT st_relate(g0,g1, m) INTO res;
+	RETURN res;
+EXCEPTION WHEN OTHERS THEN
+	RAISE NOTICE 'st_relate-Ausnahme bei %: %', error, SQLERRM;
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+SELECT alkis_dropobject('alkis_intersection');
+CREATE FUNCTION alkis_intersection(g0 GEOMETRY, g1 GEOMETRY, error TEXT) RETURNS GEOMETRY AS $$
+DECLARE
+	res GEOMETRY;
+BEGIN
+	SELECT st_intersection(g0,g1) INTO res;
+	RETURN res;
+EXCEPTION WHEN OTHERS THEN
+	RAISE NOTICE 'st_intersection-Ausnahme bei: %: %', error, SQLERRM;
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+SELECT alkis_dropobject('alkis_fixgeometry');
+CREATE FUNCTION alkis_fixgeometry(t TEXT) RETURNS VARCHAR AS $$
+DECLARE
+	n INTEGER;
+	m TEXT;
+BEGIN
+	BEGIN
+		EXECUTE 'SELECT count(*) FROM ' || t || ' WHERE NOT st_isvalid(wkb_geometry)' INTO n;
+		IF n = 0 THEN
+			RETURN NULL;
+		END IF;
+
+		BEGIN
+			EXECUTE 'CREATE TABLE ' || t || '_defekt AS SELECT gml_id,beginnt,wkb_geometry FROM ' || t || ' WHERE NOT st_isvalid(wkb_geometry)';
+		EXCEPTION WHEN OTHERS THEN
+			EXECUTE 'INSERT INTO ' || t || '_defekt(gml_id,beginnt,wkb_geometry) SELECT gml_id,beginnt,wkb_geometry FROM ' || t || ' WHERE NOT st_isvalid(wkb_geometry)';
+		END;
+
+		EXECUTE 'UPDATE ' || t || ' SET wkb_geometry=st_makevalid(wkb_geometry) WHERE NOT st_isvalid(wkb_geometry)';
+		GET DIAGNOSTICS n = ROW_COUNT;
+		IF n > 0 THEN
+			RAISE NOTICE '% Geometrien in % korrigiert.', n, t;
+		END IF;
+
+		RETURN t || ' geprüft (' || n || ' ungültige Geometrien in ' || t || '_defekt gesichert und korrigiert).';
+	EXCEPTION WHEN OTHERS THEN
+		m := SQLERRM;
+
+		BEGIN
+			EXECUTE 'SELECT count(*) FROM ' || t || ' WHERE NOT st_isvalid(wkb_geometry)' INTO n;
+			IF n > 0 THEN
+				RAISE EXCEPTION '% defekte Geometrien in % gefunden - Ausnahme bei Korrektur: %', n, t, m;
+			END IF;
+		EXCEPTION WHEN OTHERS THEN
+			RAISE EXCEPTION 'Ausnahme bei Bestimmung defekter Geometrien in %: %', t, SQLERRM;
+		END;
+
+		RETURN 'Ausnahme bei Korrektur: '||SQLERRM;
+	END;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT alkis_dropobject('alkis_nutzungen');
+CREATE TABLE alkis_nutzungen(
+	element VARCHAR PRIMARY KEY,
+	funktionsfeld VARCHAR,
+	relationstext VARCHAR,
+	elementtext VARCHAR,
+	enumeration VARCHAR
+);
+
+INSERT INTO alkis_nutzungen(element, funktionsfeld, relationstext, elementtext, enumeration) VALUES
+	('ax_bahnverkehr',				'funktion',		', ',				'Bahnverkehr',					'ax_funktion_bahnverkehr'),
+	('ax_bergbaubetrieb',				'abbaugut',		' von ',			'Bergbaubetrieb',				'ax_abbaugut_bergbaubetrieb'),
+	('ax_flaechebesondererfunktionalerpraegung',	'funktion',		', ',				'Fläche besonderer funktionaler Prägung',	'ax_funktion_flaechebesondererfunktionalerpraegung'),
+	('ax_flaechegemischternutzung',			'funktion',		', ',				'Fläche gemischter Nutzung',			'ax_funktion_flaechegemischternutzung'),
+	('ax_fliessgewaesser',				'funktion',		', ',				'Fließgewässer',				'ax_funktion_fliessgewaesser'),
+	('ax_flugverkehr', 				'funktion',		', ', 				'Flugverkehr',					'ax_funktion_flugverkehr'),
+	('ax_friedhof',					'funktion',		', ',				'Friedhof',					'ax_funktion_friedhof'),
+	('ax_gehoelz',					'funktion',		', ',				'Gehölz',					'ax_funktion_gehoelz'),
+	('ax_hafenbecken',				'funktion',		', ',				'Hafenbecken',					'ax_funktion_hafenbecken'),
+	('ax_halde',					'lagergut',		', ',				'Halde',					'ax_lagergut_halde'),
+	('ax_heide',					'NULL',			'',				'Heide',					NULL),
+	('ax_industrieundgewerbeflaeche',		'funktion',		', ', 				'Industrie- und Gewerbefläche',			'ax_funktion_industrieundgewerbeflaeche'),
+	('ax_landwirtschaft', 				'vegetationsmerkmal',	', ',				'Landwirtschaft',				'ax_vegetationsmerkmal_landwirtschaft'),
+	('ax_meer',					'funktion',		', ',				'Meer',						'ax_funktion_meer'),
+	('ax_moor',					'NULL',			'',				'Moor',						NULL),
+	('ax_platz',					'funktion',		', ',				'Platz',					'ax_funktion_platz'),
+	('ax_schiffsverkehr',				'funktion',		', ',				'Schiffsverkehr',				'ax_funktion_schiffsverkehr'),
+	('ax_sportfreizeitunderholungsflaeche',		'funktion',		', ',				'Sport-, Freizeit- und Erholungsfläche',	'ax_funktion_sportfreizeitunderholungsflaeche'),
+	('ax_stehendesgewaesser',			'funktion',		', ',				'Stehendes Gewässer',				'ax_funktion_stehendesgewaesser'),
+	('ax_strassenverkehr',				'funktion',		', ',				'Straßenverkehr',				'ax_funktion_strasse'),
+	('ax_sumpf',					'NULL',			'',				'Sumpf',					NULL),
+	('ax_tagebaugrubesteinbruch',			'abbaugut',		' von ',			'Tagebau, Grube, Steinbruch',			'ax_abbaugut_tagebaugrubesteinbruch'),
+	('ax_unlandvegetationsloseflaeche',		'funktion',		', ',				'Unland, vegetationslose Fläche',		'ax_funktion_unlandvegetationsloseflaeche'),
+	('ax_wald',					'vegetationsmerkmal',	', ',				'Wald',						'ax_vegetationsmerkmal_wald'),
+	('ax_weg',					'funktion',		', ',				'Weg',						'ax_funktion_weg'),
+	('ax_wohnbauflaeche',				'artderbebauung',	' mit Art der Bebauung ',	'Wohnbaufläche',				'ax_artderbebauung_wohnbauflaeche');
+
+SELECT alkis_dropobject('alkis_createnutzung');
+CREATE OR REPLACE FUNCTION alkis_createnutzung() RETURNS varchar AS $$
+DECLARE
+	r  RECORD;
+	nv VARCHAR;
+	kv VARCHAR;
+	d  VARCHAR;
+	i  INTEGER;
+	res VARCHAR;
+	invalid INTEGER;
+BEGIN
+	nv := E'CREATE VIEW ax_tatsaechlichenutzung AS\n  ';
+	kv := E'CREATE VIEW ax_tatsaechlichenutzungsschluessel AS\n  ';
+	d := '';
+
+	i := 0;
+	FOR r IN
+		SELECT
+			name,
+			kennung,
+			funktionsfeld,
+			relationstext,
+			elementtext,
+			enumeration
+		FROM alkis_elemente
+		JOIN alkis_nutzungen ON alkis_elemente.name=alkis_nutzungen.element
+		WHERE 'ax_tatsaechlichenutzung' = ANY (abgeleitet_aus)
+	LOOP
+		res := alkis_string_append(res, alkis_fixgeometry(r.name));
+
+		nv := nv
+		   || d
+		   || 'SELECT '
+		   || 'ogc_fid*32+' || i ||' AS ogc_fid,'
+		   || '''' || r.name || '''::text AS name,'
+		   || 'gml_id,'
+		   || alkis_toint(r.kennung) || ' AS kennung,'
+		   || r.funktionsfeld  || '::text AS funktion,'
+		   || '''' || r.kennung || '''||coalesce('':''||' || r.funktionsfeld || ','''')::text AS nutzung,'
+		   || 'wkb_geometry'
+		   || ' FROM ' || r.name
+		   || ' WHERE endet IS NULL AND hatdirektunten IS NULL'
+		   ;
+
+		kv := kv
+		   || d
+		   || 'SELECT ''' || r.kennung || ''' AS nutzung,''' || r.elementtext ||''' AS name'
+		   ;
+
+		IF r.funktionsfeld<>'NULL' THEN
+			kv := kv
+			   || ' UNION SELECT ''' || r.kennung || ':''|| wert AS nutzung,'''
+			   || coalesce(r.elementtext,'') || coalesce(r.relationstext,'') || '''|| beschreibung AS name'
+			   || ' FROM ' || r.enumeration
+			   ;
+		END IF;
+
+		d := E' UNION\n  ';
+		i := i + 1;
+	END LOOP;
+
+	PERFORM alkis_dropobject('ax_tatsaechlichenutzung');
+	EXECUTE nv;
+
+	PERFORM alkis_dropobject('ax_tatsaechlichenutzungsschluessel');
+	EXECUTE kv;
+
+	RETURN alkis_string_append(res, 'ax_tatsaechlichenutzung und ax_tatsaechlichenutzungsschluessel erzeugt.');
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT alkis_dropobject('alkis_klassifizierungen');
+CREATE TABLE alkis_klassifizierungen(
+	element VARCHAR PRIMARY KEY,
+	funktionsfeld VARCHAR,
+	prefix VARCHAR,
+	ackerzahl VARCHAR,
+	bodenzahl VARCHAR,
+	enumeration VARCHAR
+);
+
+INSERT INTO alkis_klassifizierungen(element, prefix, funktionsfeld, bodenzahl, ackerzahl, enumeration) VALUES
+	('ax_bodenschaetzung',			'b', 'kulturart',		'bodenzahlodergruenlandgrundzahl',	'ackerzahlodergruenlandzahl',	'ax_kulturart_bodenschaetzung'),
+	('ax_bewertung',			'B', 'klassifizierung',		'NULL::varchar',			'NULL::varchar',		'ax_klassifizierung_bewertung'),
+	('ax_klassifizierungnachwasserrecht',	'W', 'artderfestlegung',	'NULL::varchar',			'NULL::varchar',		'ax_artderfestlegung_klassifizierungnachwasserrecht'),
+	('ax_klassifizierungnachstrassenrecht',	'S', 'artderfestlegung',	'NULL::varchar',			'NULL::varchar',		'ax_artderfestlegung_klassifizierungnachstrassenrecht');
+
+SELECT alkis_dropobject('alkis_createklassifizierung');
+CREATE FUNCTION alkis_createklassifizierung() RETURNS varchar AS $$
+DECLARE
+	r  RECORD;
+	nv VARCHAR;
+	kv VARCHAR;
+	d  VARCHAR;
+	i  INTEGER;
+	res VARCHAR;
+	invalid INTEGER;
+BEGIN
+	nv := E'CREATE VIEW ax_klassifizierung AS\n  ';
+	kv := E'CREATE VIEW ax_klassifizierungsschluessel AS\n  ';
+	d := '';
+
+	i := 0;
+	FOR r IN
+		SELECT
+			name,
+			kennung,
+			funktionsfeld,
+			prefix,
+			bodenzahl,
+			ackerzahl,
+			enumeration
+		FROM alkis_elemente
+		JOIN alkis_klassifizierungen ON alkis_elemente.name=alkis_klassifizierungen.element
+	LOOP
+		res := alkis_string_append(res, alkis_fixgeometry(r.name));
+
+		nv := nv
+		   || d
+		   || 'SELECT '
+		   || 'ogc_fid*4+' || i || ' AS ogc_fid,'
+		   || '''' || r.name    || '''::text AS name,'
+		   || 'gml_id,'
+		   || alkis_toint(r.kennung) || ' AS kennung,'
+		   || r.funktionsfeld || ' AS artderfestlegung,'
+		   || r.bodenzahl || ' AS bodenzahl,'
+		   || r.ackerzahl || ' AS ackerzahl,'
+		   || '''' || r.prefix || ':''||' || r.funktionsfeld || ' AS klassifizierung,'
+		   || 'wkb_geometry'
+		   || ' FROM ' || r.name
+		   || ' WHERE endet IS NULL'
+		   ;
+
+		IF r.enumeration IS NOT NULL THEN
+			kv := kv
+			   || d
+			   || 'SELECT '
+			   || '''' || r.prefix || ':''|| wert AS klassifizierung, beschreibung AS name'
+			   || '  FROM ' || r.enumeration
+			   ;
+		END IF;
+
+		d := E' UNION\n  ';
+		i := i + 1;
+	END LOOP;
+
+	PERFORM alkis_dropobject('ax_klassifizierung');
+	EXECUTE nv;
+
+	PERFORM alkis_dropobject('ax_klassifizierungsschluessel');
+	EXECUTE kv;
+
+	RETURN alkis_string_append(res, 'ax_klassifizierung und ax_klassifizierungsschluessel erzeugt.');
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT alkis_dropobject('alkis_createausfuehrendestellen');
+CREATE FUNCTION alkis_createausfuehrendestellen() RETURNS varchar AS $$
+DECLARE
+	c RECORD;
+	r VARCHAR[];
+	v VARCHAR;
+	d VARCHAR;
+	f VARCHAR;
+	p VARCHAR;
+	i INTEGER;
+	res VARCHAR;
+	invalid INTEGER;
+BEGIN
+	PERFORM alkis_dropobject('ax_ausfuehrendestellen');
+
+	PERFORM alkis_dropobject('v_schutzgebietnachwasserrecht');
+	CREATE TABLE v_schutzgebietnachwasserrecht AS
+		SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet, hatdirektunten
+		FROM ax_schutzgebietnachwasserrecht s
+		JOIN ax_schutzzone z ON ARRAY[s.gml_id] <@ z.istteilvon AND z.endet IS NULL
+		WHERE false;
+	CREATE INDEX v_schutzgebietnachwasserrecht_wkb_geometry_idx ON v_schutzgebietnachwasserrecht USING gist(wkb_geometry);
+
+	PERFORM alkis_dropobject('v_schutzgebietnachnaturumweltoderbodenschutzrecht');
+	CREATE TABLE v_schutzgebietnachnaturumweltoderbodenschutzrecht AS
+		SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet, hatdirektunten
+		FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht s
+		JOIN ax_schutzzone z ON ARRAY[s.gml_id] <@ z.istteilvon AND z.endet IS NULL
+		WHERE false;
+	CREATE INDEX v_schutzgebietnachnuobr_wkb_geometry_idx ON v_schutzgebietnachnaturumweltoderbodenschutzrecht USING gist(wkb_geometry);
+
+	v := E'CREATE VIEW ax_ausfuehrendestellen AS\n  ';
+	d := '';
+
+	i := 1;
+	FOR c IN SELECT table_name FROM information_schema.tables WHERE table_schema=current_schema() AND table_name IN (
+			'v_schutzgebietnachwasserrecht',
+			'v_schutzgebietnachnaturumweltoderbodenschutzrecht',
+			'ax_naturumweltoderbodenschutzrecht',
+			'ax_forstrecht',
+			'ax_bauraumoderbodenordnungsrecht',
+			'ax_klassifizierungnachstrassenrecht',
+			'ax_denkmalschutzrecht',
+			'ax_anderefestlegungnachwasserrecht',
+			'ax_anderefestlegungnachstrassenrecht',
+			'ax_sonstigesrecht',
+			'ax_klassifizierungnachwasserrecht'
+		)
+	LOOP
+		res := alkis_string_append(res, alkis_fixgeometry(c.table_name));
+
+		v := v
+		  || d
+		  || 'SELECT '
+		  || 'ogc_fid*16+' || i || ' AS ogc_fid,'
+		  || '''' || c.table_name || '''::text AS name,'
+		  || 'gml_id,'
+		  || 'to_char(alkis_toint(land),''fm00'') || stelle AS ausfuehrendestelle,'
+		  || 'wkb_geometry'
+		  || ' FROM ' || c.table_name
+		  || ' WHERE endet IS NULL AND hatdirektunten IS NULL'
+		  ;
+
+		d := E' UNION\n  ';
+		i := i + 1;
+	END LOOP;
+
+	EXECUTE v;
+
+	RETURN alkis_string_append(res, 'ax_ausfuehrendestellen erzeugt.');
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT 'Prüfe Flurstücksgeometrien...';
+SELECT alkis_fixgeometry('ax_flurstueck');
 
 DELETE FROM flurst;
 INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl,af,flurknr,baublock,flskoord,fora,fina,h1shl,h2shl,hinwshl,strshl,gemshl,hausnr,lagebez,k_anlverm,anl_verm,blbnr,n_flst,ff_entst,ff_stand,ff_datum)
@@ -700,13 +714,12 @@ DROP SEQUENCE a;
 CREATE TEMP SEQUENCE a;
 UPDATE v_schutzgebietnachwasserrecht SET ogc_fid=nextval('a');
 
+SELECT 'Erzeuge Sicht für Klassifizierungen...';
+SELECT alkis_createklassifizierung();
+
 DELETE FROM kls_shl;
 INSERT INTO kls_shl(klf,klf_text)
   SELECT klassifizierung,name FROM ax_klassifizierungsschluessel;
-
-DELETE FROM nutz_shl;
-INSERT INTO nutz_shl(nutzshl,nutzung)
-  SELECT nutzung,name FROM ax_tatsaechlichenutzungsschluessel;
 
 SELECT 'Bestimme Flurstücksklassifizierungen...';
 
@@ -721,15 +734,14 @@ INSERT INTO klas_3x(flsnr,pk,klf,wertz1,wertz2,gemfl,fl,ff_entst,ff_stand)
     k.klassifizierung AS klf,
     k.bodenzahl,
     k.ackerzahl,
-    sum(st_area(alkis_intersection(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||k.name||':'||k.gml_id))) AS gemfl,
-    (sum(st_area(alkis_intersection(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||k.name||':'||k.gml_id)))*flurst.amtlflsfl/flurst.gemflsfl)::int AS fl,
+     sum(st_area(alkis_intersection(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||k.name||':'||k.gml_id))) AS gemfl,
+    (sum(st_area(alkis_intersection(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||k.name||':'||k.gml_id)))*amtlicheflaeche/st_area(f.wkb_geometry))::int AS fl,
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
-  JOIN flurst ON alkis_flsnr(f)=flsnr
-  JOIN ax_klassifizierung k ON f.wkb_geometry && k.wkb_geometry AND alkis_intersects(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||k.name||':'||k.gml_id)
-  WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||k.name||':'||k.gml_id))::int>0
-  GROUP BY alkis_flsnr(f), flurst.flsnr, flurst.amtlflsfl, flurst.gemflsfl, k.klassifizierung, k.bodenzahl, k.ackerzahl;
+  JOIN ax_klassifizierung k ON f.wkb_geometry && k.wkb_geometry AND alkis_relate(f.wkb_geometry,k.wkb_geometry,'2********','ax_flurstueck:'||f.gml_id||'<=>'||k.name||':'||k.gml_id)
+  WHERE f.endet IS NULL
+  GROUP BY alkis_flsnr(f), f.amtlicheflaeche, f.wkb_geometry, k.klassifizierung, k.bodenzahl, k.ackerzahl;
 
 SELECT 'Bestimme Flurstücksnutzungen...';
 
@@ -742,15 +754,19 @@ INSERT INTO nutz_21(flsnr,pk,nutzsl,gemfl,fl,ff_entst,ff_stand)
     alkis_flsnr(f) AS flsnr,
     to_hex(nextval('nutz_shl_pk_seq'::regclass)) AS pk,
     n.nutzung AS nutzsl,
-    sum(st_area(alkis_intersection(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id))) AS gemfl,
-    (sum(st_area(alkis_intersection(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id)))*flurst.amtlflsfl/flurst.gemflsfl)::int AS fl,
+     sum(st_area(alkis_intersection(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id))) AS gemfl,
+    (sum(st_area(alkis_intersection(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id))*amtlicheflaeche/st_area(f.wkb_geometry)))::int AS fl,
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
-  JOIN flurst ON alkis_flsnr(f)=flsnr
-  JOIN ax_tatsaechlichenutzung n ON f.wkb_geometry && n.wkb_geometry AND alkis_intersects(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id)
-  WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id))::int>0
-  GROUP BY alkis_flsnr(f), flurst.flsnr, flurst.amtlflsfl, flurst.gemflsfl, n.nutzung;
+  JOIN ax_tatsaechlichenutzung n
+      ON f.wkb_geometry && n.wkb_geometry
+      AND alkis_relate(f.wkb_geometry,n.wkb_geometry,'2********','ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id)
+  WHERE f.endet IS NULL
+  GROUP BY alkis_flsnr(f), f.wkb_geometry, n.nutzung;
+
+SELECT 'Erzeuge Sicht für ausführende Stellen...';
+SELECT alkis_createausfuehrendestellen();
 
 SELECT 'Bestimme ausführende Stellen für Flurstücke...';
 
@@ -768,29 +784,35 @@ INSERT INTO ausfst(flsnr,pk,ausf_st,verfnr,verfshl,ff_entst,ff_stand)
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
-  JOIN ax_ausfuehrendestellen s ON f.wkb_geometry && s.wkb_geometry AND alkis_intersects(f.wkb_geometry,s.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||s.name||':'||s.gml_id)
-  WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,s.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||s.name||':'||s.gml_id))::int>0
+  JOIN ax_ausfuehrendestellen s
+    ON f.wkb_geometry && s.wkb_geometry
+    AND alkis_relate(f.wkb_geometry,s.wkb_geometry,'2********','ax_flurstueck:'||f.gml_id||'<=>'||s.name||':'||s.gml_id)
+  WHERE f.endet IS NULL
   GROUP BY alkis_flsnr(f), s.ausfuehrendestelle;
 
 DELETE FROM afst_shl;
 INSERT INTO afst_shl(ausf_st,afst_txt)
   SELECT
-    to_char(alkis_toint(d.land),'fm00') || d.stelle,
+    schluesselgesamt,
     MIN(bezeichnung)
   FROM ax_dienststelle d
-  WHERE EXISTS (SELECT * FROM ausfst WHERE ausf_st=to_char(alkis_toint(d.land),'fm00') || d.stelle)
-  GROUP BY to_char(alkis_toint(d.land),'fm00') || d.stelle;
+  JOIN ausfst ON ausf_st=schluesselgesamt
+  GROUP BY schluesselgesamt;
 
 SELECT 'Belege Baulastenblattnummer...';
 
 SELECT alkis_dropobject('bblnr_temp');
 CREATE TEMPORARY TABLE bblnr_temp AS
-	SELECT
-		alkis_flsnr(f) AS flsnr,
-		b.bezeichnung
-	FROM ax_flurstueck f
-	JOIN ax_bauraumoderbodenordnungsrecht b ON b.endet IS NULL AND b.artderfestlegung=2610 AND f.wkb_geometry && b.wkb_geometry AND alkis_intersects(f.wkb_geometry,b.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_bauraumoderbodenordnungsrecht:'||b.gml_id)
-	WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,b.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>ax_bauraumoderbodenordnungsrecht:'||b.gml_id))::int>0;
+  SELECT
+    alkis_flsnr(f) AS flsnr,
+    b.bezeichnung
+  FROM ax_flurstueck f
+  JOIN ax_bauraumoderbodenordnungsrecht b
+    ON b.endet IS NULL
+    AND b.artderfestlegung=2610
+    AND f.wkb_geometry && b.wkb_geometry
+    AND alkis_relate(f.wkb_geometry,b.wkb_geometry,'2********','ax_flurstueck:'||f.gml_id||'<=>ax_bauraumoderbodenordnungsrecht:'||b.gml_id)
+  WHERE f.endet IS NULL;
 
 CREATE INDEX bblnr_temp_flsnr ON bblnr_temp(flsnr);
 
