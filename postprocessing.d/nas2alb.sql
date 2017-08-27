@@ -392,7 +392,10 @@ INSERT INTO klas_3x(flsnr,pk,klf,wertz1,wertz2,gemfl,fl,ff_entst,ff_stand)
     0 AS ff_stand
   FROM ax_flurstueck f
   JOIN flurst ON alkis_flsnr(f)=flsnr
-  JOIN ax_klassifizierung k ON f.wkb_geometry && k.wkb_geometry AND alkis_intersects(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||k.name||':'||k.gml_id)
+  JOIN ax_klassifizierung k
+	ON f.wkb_geometry && k.wkb_geometry
+	AND alkis_intersects(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||k.name||':'||k.gml_id)
+--	AND NOT EXISTS (SELECT * FROM alkis_beziehungen WHERE beziehung_von=k.gml_id AND beziehungsart='hatDirektUnten')
   WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,k.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||k.name||':'||k.gml_id))::int>0
   GROUP BY alkis_flsnr(f), flurst.flsnr, flurst.amtlflsfl, flurst.gemflsfl, k.klassifizierung, k.bodenzahl, k.ackerzahl;
 
@@ -413,7 +416,10 @@ INSERT INTO nutz_21(flsnr,pk,nutzsl,gemfl,fl,ff_entst,ff_stand)
     0 AS ff_stand
   FROM ax_flurstueck f
   JOIN flurst ON alkis_flsnr(f)=flsnr
-  JOIN ax_tatsaechlichenutzung n ON f.wkb_geometry && n.wkb_geometry AND alkis_intersects(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id)
+  JOIN ax_tatsaechlichenutzung n
+	ON f.wkb_geometry && n.wkb_geometry
+	AND alkis_intersects(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id)
+	AND NOT EXISTS (SELECT * FROM alkis_beziehungen WHERE beziehung_von=n.gml_id AND beziehungsart='hatDirektUnten')
   WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id))::int>0
   GROUP BY alkis_flsnr(f), flurst.flsnr, flurst.amtlflsfl, flurst.gemflsfl, n.nutzung;
 

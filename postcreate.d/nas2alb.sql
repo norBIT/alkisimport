@@ -149,6 +149,7 @@ CREATE TABLE flurst (
 	primary key (flsnr)
 ) WITH OIDS;
 
+SELECT alkis_dropobject('ax_flurstueck_flsnr');
 CREATE INDEX ax_flurstueck_flsnr ON ax_flurstueck USING btree (alkis_flsnr(ax_flurstueck));
 
 CREATE INDEX flurst_idx0 ON flurst(oid);
