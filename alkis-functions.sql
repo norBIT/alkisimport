@@ -815,10 +815,31 @@ BEGIN
 	IF v<12 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 12';
 
-		ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD oberflaechenmaterial integer;
-		ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD material integer[];
-		ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD bezeichnung varchar;
-		ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD zustand integer;
+		BEGIN
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD oberflaechenmaterial integer;
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD material integer[];
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD bezeichnung varchar;
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD zustand integer;
+
+		EXCEPTION WHEN OTHERS THEN
+			CREATE TABLE ks_einrichtunginoeffentlichenbereichen (
+				ogc_fid                 serial NOT NULL,
+				gml_id                  character(16) NOT NULL,
+				beginnt                 character(20),
+				endet                   character(20),
+				advstandardmodell       varchar[],
+				sonstigesmodell         varchar[],
+				anlass                  varchar[],
+				art                     varchar,
+				oberflaechenmaterial    integer,
+				material                integer[],
+				bezeichnung             varchar,
+				zustand                 integer,
+				PRIMARY KEY (ogc_fid)
+			);
+
+			PERFORM AddGeometryColumn('ks_einrichtunginoeffentlichenbereichen','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+		END;
 
 		CREATE INDEX ks_einrichtunginoeffentlichenbereichen_geom_idx ON ks_einrichtunginoeffentlichenbereichen USING gist (wkb_geometry);
 
@@ -866,17 +887,40 @@ BEGIN
 
 		CREATE INDEX ks_einrichtungimstrassenverkehr_geom_idx ON ks_einrichtungimstrassenverkehr USING gist (wkb_geometry);
 
-		ALTER TABLE ks_verkehrszeichen ADD gefahrzeichen integer[];
-		ALTER TABLE ks_verkehrszeichen ADD vorschriftzeichen integer[];
-		ALTER TABLE ks_verkehrszeichen ADD richtzeichen integer[];
+		BEGIN
+			ALTER TABLE ks_verkehrszeichen ADD gefahrzeichen integer[];
+			ALTER TABLE ks_verkehrszeichen ADD vorschriftzeichen integer[];
+			ALTER TABLE ks_verkehrszeichen ADD richtzeichen integer[];
 
-		ALTER TABLE ks_verkehrszeichen RENAME verkehrseinrichtung TO verkehrseinrichtung_;
-		ALTER TABLE ks_verkehrszeichen ADD verkehrseinrichtung integer[];
-		UPDATE ks_verkehrszeichen SET verkehrseinrichtung=ARRAY[verkehrseinrichtung_];
-		ALTER TABLE ks_verkehrszeichen DROP verkehrseinrichtung_;
+			ALTER TABLE ks_verkehrszeichen RENAME verkehrseinrichtung TO verkehrseinrichtung_;
+			ALTER TABLE ks_verkehrszeichen ADD verkehrseinrichtung integer[];
+			UPDATE ks_verkehrszeichen SET verkehrseinrichtung=ARRAY[verkehrseinrichtung_];
+			ALTER TABLE ks_verkehrszeichen DROP verkehrseinrichtung_;
 
-		ALTER TABLE ks_verkehrszeichen ADD zusatzzeichen integer[];
-		ALTER TABLE ks_verkehrszeichen ADD bezeichnung varchar;
+			ALTER TABLE ks_verkehrszeichen ADD zusatzzeichen integer[];
+			ALTER TABLE ks_verkehrszeichen ADD bezeichnung varchar;
+		EXCEPTION WHEN OTHERS THEN
+			CREATE TABLE ks_verkehrszeichen (
+				ogc_fid                 serial NOT NULL,
+				gml_id                  character(16) NOT NULL,
+				beginnt                 character(20),
+				endet                   character(20),
+				advstandardmodell       varchar[],
+				sonstigesmodell         varchar[],
+				anlass                  varchar[],
+				gefahrzeichen           integer[],
+				vorschriftzeichen       integer[],
+				richtzeichen            integer[],
+				verkehrseinrichtung     integer[],
+				zusatzzeichen           integer[],
+				bezeichnung             varchar,
+				PRIMARY KEY (ogc_fid)
+			);
+
+			PERFORM AddGeometryColumn('ks_verkehrszeichen','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'POINT',2);
+
+			CREATE INDEX ks_verkehrszeichen_geom_idx ON ks_verkehrszeichen USING gist (wkb_geometry);
+		END;
 
 		r := alkis_string_append(r, alkis_rename_table('ks_einrichtungimbahnverkehr'));
 
