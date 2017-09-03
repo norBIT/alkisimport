@@ -1,18 +1,18 @@
-/******************************************************************************
- *
- * Project:  norGIS ALKIS Import
- * Purpose:  ALB-Daten in norBIT WLDGE-Strukturen aus ALKIS-Daten füllen
- * Author:   Jürgen E. Fischer <jef@norbit.de>
- *
- ******************************************************************************
- * Copyright (c) 2012-2014, Jürgen E. Fischer <jef@norbit.de>
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 2 of the License, or
- *   (at your option) any later version.
- *
- ****************************************************************************/
+/***************************************************************************
+ *                                                                         *
+ * Project:  norGIS ALKIS Import                                           *
+ * Purpose:  ALB-Daten in norBIT WLDGE-Strukturen aus ALKIS-Daten füllen   *
+ * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
+ *                                                                         *
+ ***************************************************************************
+ * Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>              *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
 
 \unset ON_ERROR_STOP
 SET application_name='ALKIS-Import - Liegenschaftsbuchübernahme';
@@ -407,7 +407,7 @@ CREATE SEQUENCE nutz_shl_pk_seq;
 DELETE FROM nutz_21;
 INSERT INTO nutz_21(flsnr,pk,nutzsl,gemfl,fl,ff_entst,ff_stand)
   SELECT
-    alkis_flsnr(f) AS flsnr,
+    flsnr,
     to_hex(nextval('nutz_shl_pk_seq'::regclass)) AS pk,
     n.nutzung AS nutzsl,
     sum(st_area(alkis_intersection(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id))) AS gemfl,
@@ -421,7 +421,7 @@ INSERT INTO nutz_21(flsnr,pk,nutzsl,gemfl,fl,ff_entst,ff_stand)
 	AND alkis_intersects(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id)
 	AND NOT EXISTS (SELECT * FROM alkis_beziehungen WHERE beziehung_von=n.gml_id AND beziehungsart='hatDirektUnten')
   WHERE f.endet IS NULL AND st_area(alkis_intersection(f.wkb_geometry,n.wkb_geometry,'ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id))::int>0
-  GROUP BY alkis_flsnr(f), flurst.flsnr, flurst.amtlflsfl, flurst.gemflsfl, n.nutzung;
+  GROUP BY flurst.flsnr, flurst.amtlflsfl, flurst.gemflsfl, n.nutzung;
 
 SELECT 'Bestimme ausführende Stellen für Flurstücke...';
 
@@ -446,11 +446,11 @@ INSERT INTO ausfst(flsnr,pk,ausf_st,verfnr,verfshl,ff_entst,ff_stand)
 DELETE FROM afst_shl;
 INSERT INTO afst_shl(ausf_st,afst_txt)
   SELECT
-    to_char(alkis_toint(d.land),'fm00') || d.stelle,
+    schluesselgesamt,
     MIN(bezeichnung)
   FROM ax_dienststelle d
-  WHERE EXISTS (SELECT * FROM ausfst WHERE ausf_st=to_char(alkis_toint(d.land),'fm00') || d.stelle)
-  GROUP BY to_char(alkis_toint(d.land),'fm00') || d.stelle;
+  JOIN ausfst ON ausf_st=schluesselgesamt
+  GROUP BY schluesselgesamt;
 
 SELECT 'Belege Baulastenblattnummer...';
 

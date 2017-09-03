@@ -1,18 +1,18 @@
-/****************************************************************************
- *
- * Project:  norGIS ALKIS Import
- * Purpose:  SQL-Funktionen für ALKIS
- * Author:   Jürgen E. Fischer <jef@norbit.de>
- *
- ****************************************************************************
- * Copyright (c) 2012-2014, Jürgen E. Fischer <jef@norbit.de>
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 2 of the License, or
- *   (at your option) any later version.
- *
- ****************************************************************************/
+/***************************************************************************
+ *                                                                         *
+ * Project:  norGIS ALKIS Import                                           *
+ * Purpose:  SQL-Funktionen für ALKIS                                      *
+ * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
+ *                                                                         *
+ ***************************************************************************
+ * Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>              *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
 
 -- Table/View/Sequence löschen, wenn vorhanden
 CREATE OR REPLACE FUNCTION alkis_dropobject(t TEXT) RETURNS varchar AS $$
@@ -474,20 +474,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-\unset ON_ERROR_STOP
-
--- 8.3 hatte noch keine CTE => Funktionen mit WITH RECURSIVE werden nicht definiert.
-
 --
 -- Datenbankmigration
 --
-
-SELECT alkis_dropobject('alkis_update_schema');
-CREATE OR REPLACE FUNCTION alkis_update_schema() RETURNS varchar AS $$
-BEGIN
-	RETURN 'Keine Datenbankmigration bei PostgreSQL 8.3';
-END;
-$$ LANGUAGE plpgsql;
 
 SELECT alkis_dropobject('alkis_rename_table');
 CREATE OR REPLACE FUNCTION alkis_rename_table(t TEXT) RETURNS varchar AS $$
@@ -1183,13 +1172,6 @@ $$ LANGUAGE plpgsql;
 
 SELECT alkis_dropobject('alkis_set_comments');
 CREATE OR REPLACE FUNCTION alkis_set_comments() RETURNS void AS $$
-BEGIN
-	-- 8.3 hatte noch keine CTE
-	RAISE NOTICE 'Keine Datenbankkommentare bei PostgreSQL 8.3';
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION alkis_set_comments() RETURNS void AS $$
 DECLARE
 	c RECORD;
 BEGIN
@@ -1197,7 +1179,7 @@ BEGIN
 		SELECT table_name,definition,replace(table_type,'BASE TABLE','TABLE') AS table_type
 		FROM alkis_elemente
 		JOIN information_schema.tables ON lower(name)=table_name
-		WHERE table_type IN ('BASE TABLE','VIEW') AND NOT definition IS NULL
+		WHERE table_schema='public' AND table_type IN ('BASE TABLE','VIEW') AND NOT definition IS NULL
 	LOOP
 		EXECUTE 'COMMENT ON '||c.table_type||' "'||c.table_name||'" IS '''||replace(c.definition,'''','''''')||'''';
 	END LOOP;
@@ -1206,6 +1188,7 @@ BEGIN
 		SELECT table_name,column_name
 		FROM alkis_elemente
 		JOIN information_schema.columns ON lower(name)=table_name AND 'gml_id'=column_name
+		WHERE table_schema='public'
 	LOOP
 		EXECUTE 'COMMENT ON COLUMN '||c.table_name||'.gml_id IS ''Identifikator, global eindeutig''';
 	END LOOP;
@@ -1229,7 +1212,7 @@ BEGIN
 		SELECT col.table_name,col.column_name,a.definition,a.datentyp,a.kardinalitaet,a.kennung
 		FROM element t
 		JOIN typ a ON t.base=a.element
-		JOIN information_schema.columns col ON lower(t.name)=col.table_name AND lower(a.bezeichnung)=col.column_name
+		JOIN information_schema.columns col ON col.table_schema='public' AND lower(t.name)=col.table_name AND lower(a.bezeichnung)=col.column_name
 		WHERE NOT a.definition IS NULL
 	LOOP
 		EXECUTE 'COMMENT ON COLUMN "'||c.table_name||'"."'||c.column_name||'" IS '''||c.kennung||'['||c.datentyp||CASE WHEN c.kardinalitaet='1' THEN '' ELSE ' '||c.kardinalitaet END||'] '||replace(c.definition,'''','''''')||'''';
@@ -1238,7 +1221,7 @@ BEGIN
 	FOR c IN
 		SELECT table_name,column_name,zielobjektart,kardinalitaet,anmerkung
 		FROM alkis_relationsart
-		JOIN information_schema.columns ON lower(element)=table_name AND lower(bezeichnung)=column_name
+		JOIN information_schema.columns ON table_schema='public' AND lower(element)=table_name AND lower(bezeichnung)=column_name
 		WHERE NOT anmerkung IS NULL
 	LOOP
 		EXECUTE 'COMMENT ON COLUMN "'||c.table_name||'"."'||c.column_name||'" IS ''Beziehung zu '||c.zielobjektart||' ('||c.kardinalitaet||'): '||replace(c.anmerkung,'''','''''')||'''';
@@ -1246,7 +1229,7 @@ BEGIN
 
 	FOR c IN
 		SELECT table_name,column_name,bezeichnung,element,kardinalitaet FROM alkis_relationsart
-		JOIN information_schema.columns ON lower(zielobjektart)=table_name AND lower(inv__relation)=column_name
+		JOIN information_schema.columns ON table_schema='public' AND lower(zielobjektart)=table_name AND lower(inv__relation)=column_name
 	LOOP
 		EXECUTE 'COMMENT ON COLUMN "'||c.table_name||'"."'||c.column_name||'" IS ''Inverse Beziehung zu '||c.element||'.'||c.bezeichnung||'.''';
 	END LOOP;
@@ -1260,5 +1243,3 @@ CREATE AGGREGATE array_accum (anyarray) (
 	stype = anyarray,
 	initcond = '{}'
 );
-
-\set ON_ERROR_STOP
