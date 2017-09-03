@@ -15,7 +15,7 @@
 ^OGR: OGROpen\(PG:.*\) succeeded as PostgreSQL\.\s*$
 ^GDAL: In GDALDestroy - unloading GDAL shared library\.\s*$
 ^psql:.*: (NOTICE|HINWEIS):  (function|Funktion) alkis_(drop\(\)|dropobject\(text\)|delete\(\)|mviews\(\)|update_schema\(\)) (does not exist, skipping|existiert nicht, wird \S+bersprungen)$
-^psql:.*: (NOTICE|HINWEIS):  (function|Funktion|Aggregatfunktion) array_accum\(anyarray\) (does not exist, skipping|existiert nicht, wird \S+bersprungen)
+^psql:.*: (NOTICE|HINWEIS):  (function|aggregate|Funktion|Aggregatfunktion) array_accum\(anyarray\) (does not exist, skipping|existiert nicht, wird \S+bersprungen)
 ^psql:.*: (NOTICE|HINWEIS):  Dropping (table|view|sequence) 
 ^psql:.*: (NOTICE|HINWEIS):  gserialized_gist_joinsel: jointype 4 not supported\s*$
 ^psql:.*: (NOTICE|HINWEIS):  (geometry|LWGEOM)_gist_joinsel called with incorrect join type\s*$
@@ -42,7 +42,8 @@ psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*gel\S+scht\..*$
 ^\s+(addgeometrycolumn|alkis_clean|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|version|postgis_version|\?column\?)\s*$
 ^-+\s*$
-^\s+public\..*\.(wkb_geometry|dummy) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$
+^\s+[^.]+\..*\.(wkb_geometry|dummy) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$
+^\s+pg_temp[^.]+\.po_joinlines\.line SRID:\d+ TYPE:LINESTRING DIMS:2\+?\s*$
 ^\s+public\.ax_punktortau\.wkb_geometry SRID:\d+ TYPE:POINT DIMS:3\+?\s*$
 ^\s+public\.po_points\.point SRID:\d+ TYPE:MULTIPOINT DIMS:2\+?\s*$
 ^\s+public\.po_lines\.line SRID:\d+ TYPE:MULTILINESTRING DIMS:2\+?\s*$

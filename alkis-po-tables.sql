@@ -1,11 +1,11 @@
-/******************************************************************************
- *
- * Project:  norGIS ALKIS Import
- * Purpose:  Erzeugung der Präsentationstabellen
- * Author:   Jürgen E. Fischer jef@norbit.de
- *
+/***************************************************************************
+ *                                                                         *
+ * Project:  norGIS ALKIS Import                                           *
+ * Purpose:  Erzeugung der Präsentationstabellen                           *
+ * Author:   Jürgen E. Fischer jef@norbit.de                               *
+ *                                                                         *
  ***************************************************************************
- * Copyright (c) 2013-2014 Juergen E. Fischer (jef@norbit.de)              *
+ * Copyright (c) 2013-2017 Juergen E. Fischer (jef@norbit.de)              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
