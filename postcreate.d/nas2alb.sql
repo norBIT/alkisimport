@@ -1,18 +1,18 @@
-/******************************************************************************
- *
- * Project:  norGIS ALKIS Import
- * Purpose:  ALB-Daten in norBIT WLDGE-Strukturen aus ALKIS-Daten füllen
- * Author:   Jürgen E. Fischer <jef@norbit.de>
- *
- ******************************************************************************
- * Copyright (c) 2012-2014, Jürgen E. Fischer <jef@norbit.de>
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 2 of the License, or
- *   (at your option) any later version.
- *
- ****************************************************************************/
+/***************************************************************************
+ *                                                                         *
+ * Project:  norGIS ALKIS Import                                           *
+ * Purpose:  ALB-Daten in norBIT WLDGE-Strukturen aus ALKIS-Daten füllen   *
+ * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
+ *                                                                         *
+ ***************************************************************************
+ * Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>              *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
 
 \unset ON_ERROR_STOP
 SET application_name='ALKIS-Import - Liegenschaftsbuchübernahme';
@@ -513,12 +513,19 @@ CREATE VIEW v_eigentuemer AS
 
 CREATE VIEW v_haeuser AS
   SELECT
-        p.ogc_fid * 268435456::bigint + h.ogc_fid AS ogc_fid,
-        p.wkb_geometry,
-        st_x(p.wkb_geometry) AS x_coord,
-        st_y(p.wkb_geometry) AS y_coord,
-        to_char(alkis_toint(h.land),'fm00')||h.regierungsbezirk||to_char(alkis_toint(h.kreis),'fm00')||to_char(alkis_toint(h.gemeinde),'fm000')||'    '||trim(h.lage) AS strshl,
-        hausnummer AS ha_nr
-  FROM ax_lagebezeichnungmithausnummer h
-  JOIN ap_pto p ON p.art='HNR' AND h.gml_id=ANY(p.dientzurdarstellungvon) AND p.endet IS NULL
-  WHERE h.endet IS NULL;
+    ogc_fid,
+    point AS wkb_geometry,
+    st_x(point) AS x_coord,
+    st_y(point) AS y_coord,
+    strshl,
+    ha_nr
+  FROM (
+    SELECT
+      g.ogc_fid * 268435456::bigint + o.ogc_fid AS ogc_fid,
+      st_centroid(g.wkb_geometry) AS point,
+      to_char(alkis_toint(o.land),'fm00')||o.regierungsbezirk||to_char(alkis_toint(o.kreis),'fm00')||to_char(alkis_toint(o.gemeinde),'fm000')||'    '||trim(o.lage) AS strshl,
+      hausnummer AS ha_nr
+    FROM ax_lagebezeichnungmithausnummer o
+    JOIN ax_gebaeude g ON ARRAY[o.gml_id] <@ g.zeigtauf AND g.endet IS NULL
+    WHERE o.endet IS NULL
+  ) AS foo;

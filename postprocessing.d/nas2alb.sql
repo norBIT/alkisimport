@@ -1,18 +1,18 @@
-/******************************************************************************
- *
- * Project:  norGIS ALKIS Import
- * Purpose:  ALB-Daten in norBIT WLDGE-Strukturen aus ALKIS-Daten füllen
- * Author:   Jürgen E. Fischer <jef@norbit.de>
- *
- ******************************************************************************
- * Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 2 of the License, or
- *   (at your option) any later version.
- *
- ****************************************************************************/
+/***************************************************************************
+ *                                                                         *
+ * Project:  norGIS ALKIS Import                                           *
+ * Purpose:  ALB-Daten in norBIT WLDGE-Strukturen aus ALKIS-Daten füllen   *
+ * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
+ *                                                                         *
+ ***************************************************************************
+ * Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>              *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
 
 \unset ON_ERROR_STOP
 SET application_name='ALKIS-Import - Liegenschaftsbuchübernahme';
@@ -220,7 +220,7 @@ BEGIN
 			   ;
 		END IF;
 
-		d := E' UNION\n  ';
+		d := E' UNION ALL\n  ';
 		i := i + 1;
 	END LOOP;
 
@@ -382,7 +382,7 @@ BEGIN
 		  || ' WHERE endet IS NULL AND hatdirektunten IS NULL'
 		  ;
 
-		d := E' UNION\n  ';
+		d := E' UNION ALL\n  ';
 		i := i + 1;
 	END LOOP;
 
@@ -739,7 +739,9 @@ INSERT INTO klas_3x(flsnr,pk,klf,wertz1,wertz2,gemfl,fl,ff_entst,ff_stand)
     0 AS ff_entst,
     0 AS ff_stand
   FROM ax_flurstueck f
-  JOIN ax_klassifizierung k ON f.wkb_geometry && k.wkb_geometry AND alkis_relate(f.wkb_geometry,k.wkb_geometry,'2********','ax_flurstueck:'||f.gml_id||'<=>'||k.name||':'||k.gml_id)
+  JOIN ax_klassifizierung k
+      ON f.wkb_geometry && k.wkb_geometry
+      AND alkis_relate(f.wkb_geometry,k.wkb_geometry,'2********','ax_flurstueck:'||f.gml_id||'<=>'||k.name||':'||k.gml_id)
   WHERE f.endet IS NULL
   GROUP BY alkis_flsnr(f), f.amtlicheflaeche, f.wkb_geometry, k.klassifizierung, k.bodenzahl, k.ackerzahl;
 

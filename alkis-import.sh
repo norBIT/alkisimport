@@ -1,11 +1,11 @@
 #!/bin/bash
-################################################################################
+############################################################################
 #
 # Project:  norGIS ALKIS Import
 # Purpose:  Shellscript zum ALKIS-Import
 # Author:   Jürgen E. Fischer <jef@norbit.de>
 #
-################################################################################
+############################################################################
 # Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>
 #
 #   This program is free software; you can redistribute it and/or modify
@@ -13,7 +13,7 @@
 #   the Free Software Foundation; either version 2 of the License, or
 #   (at your option) any later version.
 #
-################################################################################
+############################################################################
 
 
 set -e
