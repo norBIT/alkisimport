@@ -695,25 +695,6 @@ SELECT "Buchdaten","Anzahl" FROM (
   SELECT 5, 'Flurstücke ohne Eigentümerart', count(*) FROM flurst WHERE NOT EXISTS (SELECT * FROM eignerart WHERE eignerart.flsnr=flurst.flsnr)
 ) AS stat ORDER BY o;
 
-DELETE FROM v_schutzgebietnachwasserrecht;
-INSERT INTO v_schutzgebietnachwasserrecht
-    SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
-    FROM ax_schutzgebietnachwasserrecht s
-    JOIN ax_schutzzone z ON ARRAY[s.gml_id] <@ z.istteilvon AND z.endet IS NULL
-    WHERE s.endet IS NULL;
-CREATE TEMP SEQUENCE a;
-UPDATE v_schutzgebietnachwasserrecht SET ogc_fid=nextval('a');
-
-DELETE FROM v_schutzgebietnachnaturumweltoderbodenschutzrecht;
-INSERT INTO v_schutzgebietnachnaturumweltoderbodenschutzrecht
-    SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
-    FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht s
-    JOIN ax_schutzzone z ON ARRAY[s.gml_id] <@ z.istteilvon AND z.endet IS NULL
-    WHERE s.endet IS NULL;
-DROP SEQUENCE a;
-CREATE TEMP SEQUENCE a;
-UPDATE v_schutzgebietnachwasserrecht SET ogc_fid=nextval('a');
-
 SELECT 'Erzeuge Sicht für Klassifizierungen...';
 SELECT alkis_createklassifizierung();
 
@@ -769,6 +750,25 @@ INSERT INTO nutz_21(flsnr,pk,nutzsl,gemfl,fl,ff_entst,ff_stand)
 
 SELECT 'Erzeuge Sicht für ausführende Stellen...';
 SELECT alkis_createausfuehrendestellen();
+
+DELETE FROM v_schutzgebietnachwasserrecht;
+INSERT INTO v_schutzgebietnachwasserrecht
+    SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
+    FROM ax_schutzgebietnachwasserrecht s
+    JOIN ax_schutzzone z ON ARRAY[s.gml_id] <@ z.istteilvon AND z.endet IS NULL
+    WHERE s.endet IS NULL;
+CREATE TEMP SEQUENCE a;
+UPDATE v_schutzgebietnachwasserrecht SET ogc_fid=nextval('a');
+
+DELETE FROM v_schutzgebietnachnaturumweltoderbodenschutzrecht;
+INSERT INTO v_schutzgebietnachnaturumweltoderbodenschutzrecht
+    SELECT z.ogc_fid,z.gml_id,'ax_schutzzone'::varchar AS name,s.land,s.stelle,z.wkb_geometry,NULL::text AS endet
+    FROM ax_schutzgebietnachnaturumweltoderbodenschutzrecht s
+    JOIN ax_schutzzone z ON ARRAY[s.gml_id] <@ z.istteilvon AND z.endet IS NULL
+    WHERE s.endet IS NULL;
+DROP SEQUENCE a;
+CREATE TEMP SEQUENCE a;
+UPDATE v_schutzgebietnachwasserrecht SET ogc_fid=nextval('a');
 
 SELECT 'Bestimme ausführende Stellen für Flurstücke...';
 

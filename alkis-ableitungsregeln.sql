@@ -518,6 +518,7 @@ UPDATE ap_ppo SET signaturnummer=NULL WHERE signaturnummer='';
 UPDATE ap_lpo SET signaturnummer=NULL WHERE signaturnummer='';
 UPDATE ap_pto SET signaturnummer=NULL WHERE signaturnummer='';
 UPDATE ap_lto SET signaturnummer=NULL WHERE signaturnummer='';
+UPDATE ap_pto SET art='Strasse' WHERE art='Straße';  -- Straße wird z.B. in TH verwendet
 
 -- Leere Geschosszahlen korrigieren (sonst to_char(0,'RN') => '###############')
 UPDATE ax_gebaeude SET anzahlderoberirdischengeschosse=NULL WHERE anzahlderoberirdischengeschosse=0;
@@ -672,7 +673,8 @@ SELECT
 	CASE WHEN o.abweichenderrechtszustand='true' THEN 2005 ELSE 2004 END AS signaturnummer,
 	coalesce(l.advstandardmodell||l.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_flurstueck o
-JOIN ap_lpo l ON ARRAY[o.gml_id] <@ l.dientzurdarstellungvon AND l.endet IS NULL -- AND l.art='Pfeil' -- art in RP nicht immer gesetzt
+JOIN ap_lpo l ON ARRAY[o.gml_id] <@ l.dientzurdarstellungvon AND l.endet IS NULL
+  -- AND l.art='Pfeil' -- art in RP nicht immer gesetzt
 WHERE o.endet IS NULL;
 
 -- Überhaken
@@ -956,7 +958,7 @@ SELECT
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_lagebezeichnungohnehausnummer o
-JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art IN ('Strasse','Weg','Straße') AND t.endet IS NULL  -- Straße wird in TH verwendet
+JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art IN ('Strasse','Weg') AND t.endet IS NULL
 WHERE o.endet IS NULL;
 
 -- Platz/Bahnverkehr
@@ -1017,7 +1019,7 @@ SELECT
 	horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 FROM ax_lagebezeichnungohnehausnummer o
-JOIN ap_lto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art IN ('Strasse','Weg','Straße') AND t.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000' -- Straße wird in TH verwendet
+JOIN ap_lto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art IN ('Strasse','Weg') AND t.endet IS NULL AND coalesce(t.signaturnummer,'')<>'6000'
 WHERE o.endet IS NULL;
 
 -- Platz/Bahnverkehr, Text auf Linien

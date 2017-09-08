@@ -135,6 +135,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.lePWD.setText(s.value("pwd", ""))
         self.leSCHEMA.setText(s.value("schema", "public"))
         self.lePGSCHEMA.setText(s.value("pgschema", "public"))
+        self.lePARENTSCHEMA.setText(s.value("parentschema", ""))
         self.leGT.setText(s.value("gt", "20000"))
         self.leGT.setValidator(QIntValidator(-1, 99999999))
 
@@ -597,6 +598,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             "-v", "alkis_epsg={}".format(self.epsg),
             "-v", "alkis_schema={}".format(self.schema),
             "-v", "postgis_schema={}".format(self.pgschema),
+            "-v", "parent_schema={}".format(self.parentschema),
             "-v", "alkis_fnbruch={}".format("true" if self.fnbruch else "false"),
             "-v", "alkis_pgverdraengen={}".format("true" if self.pgverdraengen else "false"),
             "-q", "-f", fn, conn])
@@ -665,8 +667,10 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         s.setValue("pwd", self.lePWD.text())
         s.setValue("schema", self.leSCHEMA.text())
         s.setValue("pgschema", self.lePGSCHEMA.text())
+        s.setValue("parentschema", self.lePARENTSCHEMA.text())
         self.schema = self.leSCHEMA.text()
         self.pgschema = self.lePGSCHEMA.text()
+        self.parentschema = self.lePARENTSCHEMA.text()
         s.setValue("gt", self.leGT.text())
         s.setValue("files", files)
 
@@ -894,23 +898,36 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.log(u"Kompatibilitätsfunktionen importiert.")
 
                 if self.cbxCreate.isChecked():
-                    if not self.rund(conn, "precreate"):
-                        break
+                    if self.parentschema != "":
+                        if not self.rund(conn, "precreate"):
+                            break
 
-                    self.status(u"Datenbestand wird angelegt...")
-                    if not self.runSQLScript(conn, "alkis-init.sql"):
-                        self.log(u"Anlegen des Datenbestands schlug fehl.")
-                        break
-                    self.log(u"Datenbestand angelegt.")
+                        self.status(u"Datenbestand wird angelegt...")
+                        if not self.runSQLScript(conn, "alkis-init.sql"):
+                            self.log(u"Anlegen des Datenbestands schlug fehl.")
+                            break
+                        self.log(u"Datenbestand angelegt.")
 
-                    self.status(u"Präsentationstabellen werden erzeugt...")
-                    if not self.runSQLScript(conn, "alkis-po-tables.sql"):
-                        self.log(u"Anlegen der Präsentationstabellen schlug fehl.")
-                        break
-                    self.log(u"Präsentationstabellen angelegt.")
+                        self.status(u"Präsentationstabellen werden erzeugt...")
+                        if not self.runSQLScript(conn, "alkis-po-tables.sql"):
+                            self.log(u"Anlegen der Präsentationstabellen schlug fehl.")
+                            break
+                        self.log(u"Präsentationstabellen angelegt.")
 
-                    if not self.rund(conn, "postcreate"):
-                        break
+                        if not self.rund(conn, "postcreate"):
+                            break
+                    else:
+                        if not self.rund(conn, "preinherit"):
+                            break
+
+                        self.status(u"Datenmodell wird vererbt...")
+                        if not self.runSQLScript(conn, "alkis-inherit.sql"):
+                            self.log(u"Vererben des Datenmodell schlug fehl.")
+                            break
+                        self.log(u"Datenmodell vererbt.")
+
+                        if not self.rund(conn, "postinherit"):
+                            break
 
                     self.cbxCreate.setChecked(False)
                 else:

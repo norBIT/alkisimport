@@ -110,7 +110,7 @@ $$ LANGUAGE plpgsql;
 
 SELECT alkis_dropobject('alkis_string_append');
 CREATE OR REPLACE FUNCTION alkis_string_append(varchar, varchar) RETURNS varchar AS $$
-        SELECT CASE WHEN $1='' OR $1 LIKE E'%\n' THEN $1 ELSE coalesce($1||E'\n','') END || coalesce($2, '');
+	SELECT CASE WHEN $1='' OR $1 LIKE E'%\n' THEN $1 ELSE coalesce($1||E'\n','') END || coalesce($2, '');
 $$ LANGUAGE 'sql' IMMUTABLE;
 
 -- Alle ALKIS-Tabellen löschen
@@ -165,6 +165,49 @@ BEGIN
 	END LOOP;
 
 	RETURN r;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Alle ALKIS-Tabellen erben
+SELECT alkis_dropobject('alkis_inherit');
+CREATE FUNCTION alkis_inherit(parent varchar) RETURNS varchar AS $$
+DECLARE
+	tab RECORD;
+	ind RECORD;
+	r VARCHAR;
+	nt INTEGER;
+	ni INTEGER;
+BEGIN
+	nt := 0;
+	ni := 0;
+
+	-- inherit tables
+	FOR tab IN
+		SELECT c.oid, c.relname
+		FROM pg_catalog.pg_class c
+		JOIN pg_namespace n ON n.oid=c.relnamespace AND n.nspname=parent
+		WHERE pg_get_userbyid(c.relowner)=current_user AND c.relkind='r'
+	LOOP
+		nt := nt + 1;
+		RAISE NOTICE 'Tabelle % abgeleitet.', tab.relname;
+		BEGIN
+			EXECUTE 'CREATE TABLE ' || quote_ident(tab.relname) || '() INHERITS (' || quote_ident(parent) || '.' || quote_ident(tab.relname) || ')';
+		EXCEPTION WHEN OTHERS THEN
+		END;
+
+		FOR ind IN
+			SELECT c.relname, replace(pg_get_indexdef(i.indexrelid), 'ON '||quote_ident(parent)||'.', 'ON ') AS sql
+			FROM pg_index i
+			JOIN pg_class c ON c.oid=i.indexrelid
+			WHERE i.indrelid=tab.oid
+		LOOP
+			RAISE NOTICE ' Index % erzeugt.', ind.relname;
+			ni := ni + 1;
+			EXECUTE ind.sql;
+		END LOOP;
+	END LOOP;
+
+	RETURN nt || ' Tabellen mit ' || ni || ' Indizes abgeleitet.';
 END;
 $$ LANGUAGE plpgsql;
 

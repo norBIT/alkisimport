@@ -41,6 +41,7 @@ export FNBRUCH=true
 export PGVERDRAENGEN=false
 export SCHEMA=public
 export PGSCHEMA=public
+export PARENTSCHEMA=
 
 B=${0%/*}   # BASEDIR
 if [ "$0" = "$B" ]; then
@@ -205,7 +206,14 @@ do
 		DRIVER=PostgreSQL
 		sql() {
 			pushd "$B" >/dev/null
-			psql -P pager=off -v alkis_pgverdraengen=$PGVERDRAENGEN -v alkis_fnbruch=$FNBRUCH -v alkis_epsg=$EPSG -v alkis_schema=$SCHEMA -v postgis_schema=$PGSCHEMA -q -f "$1" "$DB"
+			psql -P pager=off \
+				-v alkis_pgverdraengen=$PGVERDRAENGEN \
+				-v alkis_fnbruch=$FNBRUCH \
+				-v alkis_epsg=$EPSG \
+				-v alkis_schema=$SCHEMA \
+				-v postgis_schema=$PGSCHEMA \
+				-v parent_schema=$PARENTSCHEMA \
+				-q -f "$1" "$DB"
 			popd >/dev/null
 		}
 		runsql() {
@@ -346,9 +354,30 @@ EOF
 		continue
 		;;
 
+	"inherit "*)
+		PARENTSCHEMA=${src#inherit }
+		if [ -z "$DB" ]; then
+			echo "$P: Keine Datenbankverbindungsdaten angegeben" >&2
+			exit 1
+		fi
+
+		echo "INHERIT $(bdate)"
+		pushd "$B" >/dev/null
+		rund preinherit
+		sql alkis-inherit.sql
+		rund postinherit
+		popd >/dev/null
+
+		continue
+		;;
+
 	create)
 		if [ -z "$DB" ]; then
 			echo "$P: Keine Datenbankverbindungsdaten angegeben" >&2
+			exit 1
+		fi
+		if [ -n "$PARENTSCHEMA" ]; then
+			echo "$P: Parentschema gesetzt!?" >&2
 			exit 1
 		fi
 
@@ -383,6 +412,10 @@ EOF
 	update)
 		if [ -z "$DB" ]; then
 			echo "$P: Keine Datenbankverbindungsdaten angegeben" >&2
+			exit 1
+		fi
+		if [ -n "$PARENTSCHEMA" ]; then
+			echo "$P: Parentschema gesetzt!?" >&2
 			exit 1
 		fi
 
@@ -626,6 +659,11 @@ fi
 
 if [ "$src" != "exit" -a "$src" != "error" ]; then
 	pushd "$B" >/dev/null
+	if (( preprocessed == 0 )); then
+		sql alkis-signaturen.sql
+		preprocessed=1
+		rund preprocessing
+	fi
 	sql alkis-ableitungsregeln.sql
 	rund postprocessing
 	popd >/dev/null
