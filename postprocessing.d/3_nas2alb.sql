@@ -19,7 +19,9 @@ SET application_name='ALKIS-Import - Liegenschaftsbuchübernahme';
 SET client_min_messages TO notice;
 \set ON_ERROR_STOP
 
-SET search_path = :"alkis_schema", :"postgis_schema", public;
+\i nas2alb-functions.sql
+
+SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 --
 -- ALKIS:
@@ -84,8 +86,8 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
-SELECT alkis_dropobject('alkis_fixgeometry');
-CREATE FUNCTION alkis_fixgeometry(t TEXT) RETURNS VARCHAR AS $$
+SELECT alkis_dropobject('alkis_fixareas');
+CREATE FUNCTION pg_temp.alkis_fixareas(t TEXT) RETURNS VARCHAR AS $$
 DECLARE
 	n INTEGER;
 	m TEXT;
@@ -97,12 +99,12 @@ BEGIN
 		END IF;
 
 		BEGIN
-			EXECUTE 'CREATE TABLE ' || t || '_defekt AS SELECT gml_id,beginnt,wkb_geometry FROM ' || t || ' WHERE NOT st_isvalid(wkb_geometry)';
+			EXECUTE 'CREATE TABLE ' || t || '_defekt AS SELECT gml_id,beginnt,wkb_geometry FROM ' || t || ' WHERE NOT st_isvalid(wkb_geometry) OR geometrytype(wkb_geometry)=''GEOMETRYCOLLECTION''';
 		EXCEPTION WHEN OTHERS THEN
-			EXECUTE 'INSERT INTO ' || t || '_defekt(gml_id,beginnt,wkb_geometry) SELECT gml_id,beginnt,wkb_geometry FROM ' || t || ' WHERE NOT st_isvalid(wkb_geometry)';
+			EXECUTE 'INSERT INTO ' || t || '_defekt(gml_id,beginnt,wkb_geometry) SELECT gml_id,beginnt,wkb_geometry FROM ' || t || ' WHERE NOT st_isvalid(wkb_geometry) OR geometrytype(wkb_geometry)=''GEOMETRYCOLLECTION''';
 		END;
 
-		EXECUTE 'UPDATE ' || t || ' SET wkb_geometry=st_makevalid(wkb_geometry) WHERE NOT st_isvalid(wkb_geometry)';
+		EXECUTE 'UPDATE ' || t || ' SET wkb_geometry=st_collectionextract(st_makevalid(wkb_geometry),3) WHERE NOT st_isvalid(wkb_geometry) OR geometrytype(wkb_geometry)=''GEOMETRYCOLLECTION''';
 		GET DIAGNOSTICS n = ROW_COUNT;
 		IF n > 0 THEN
 			RAISE NOTICE '% Geometrien in % korrigiert.', n, t;
@@ -113,7 +115,7 @@ BEGIN
 		m := SQLERRM;
 
 		BEGIN
-			EXECUTE 'SELECT count(*) FROM ' || t || ' WHERE NOT st_isvalid(wkb_geometry)' INTO n;
+			EXECUTE 'SELECT count(*) FROM ' || t || ' WHERE NOT st_isvalid(wkb_geometry) OR geometrytype(wkb_geometry)=''GEOMETRYCOLLECTION''' INTO n;
 			IF n > 0 THEN
 				RAISE EXCEPTION '% defekte Geometrien in % gefunden - Ausnahme bei Korrektur: %', n, t, m;
 			END IF;
@@ -164,7 +166,7 @@ INSERT INTO alkis_nutzungen(element, funktionsfeld, relationstext, elementtext, 
 	('ax_wohnbauflaeche',				'artderbebauung',	' mit Art der Bebauung ',	'Wohnbaufläche',				'ax_artderbebauung_wohnbauflaeche');
 
 SELECT alkis_dropobject('alkis_createnutzung');
-CREATE OR REPLACE FUNCTION alkis_createnutzung() RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION pg_temp.alkis_createnutzung() RETURNS varchar AS $$
 DECLARE
 	r  RECORD;
 	nv VARCHAR;
@@ -187,11 +189,11 @@ BEGIN
 			relationstext,
 			elementtext,
 			enumeration
-		FROM alkis_elemente
-		JOIN alkis_nutzungen ON alkis_elemente.name=alkis_nutzungen.element
+		FROM alkis_elemente e
+		JOIN alkis_nutzungen n ON e.name=n.element
 		WHERE 'ax_tatsaechlichenutzung' = ANY (abgeleitet_aus)
 	LOOP
-		res := alkis_string_append(res, alkis_fixgeometry(r.name));
+		res := alkis_string_append(res, pg_temp.alkis_fixareas(r.name));
 
 		nv := nv
 		   || d
@@ -251,7 +253,7 @@ INSERT INTO alkis_klassifizierungen(element, prefix, funktionsfeld, bodenzahl, a
 	('ax_klassifizierungnachstrassenrecht',	'S', 'artderfestlegung',	'NULL::varchar',			'NULL::varchar',		'ax_artderfestlegung_klassifizierungnachstrassenrecht');
 
 SELECT alkis_dropobject('alkis_createklassifizierung');
-CREATE FUNCTION alkis_createklassifizierung() RETURNS varchar AS $$
+CREATE FUNCTION pg_temp.alkis_createklassifizierung() RETURNS varchar AS $$
 DECLARE
 	r  RECORD;
 	nv VARCHAR;
@@ -275,10 +277,10 @@ BEGIN
 			bodenzahl,
 			ackerzahl,
 			enumeration
-		FROM alkis_elemente
-		JOIN alkis_klassifizierungen ON alkis_elemente.name=alkis_klassifizierungen.element
+		FROM alkis_elemente e
+		JOIN alkis_klassifizierungen ON e.name=alkis_klassifizierungen.element
 	LOOP
-		res := alkis_string_append(res, alkis_fixgeometry(r.name));
+		res := alkis_string_append(res, pg_temp.alkis_fixareas(r.name));
 
 		nv := nv
 		   || d
@@ -320,7 +322,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 SELECT alkis_dropobject('alkis_createausfuehrendestellen');
-CREATE FUNCTION alkis_createausfuehrendestellen() RETURNS varchar AS $$
+CREATE FUNCTION pg_temp.alkis_createausfuehrendestellen() RETURNS varchar AS $$
 DECLARE
 	c RECORD;
 	r VARCHAR[];
@@ -368,7 +370,7 @@ BEGIN
 			'ax_klassifizierungnachwasserrecht'
 		)
 	LOOP
-		res := alkis_string_append(res, alkis_fixgeometry(c.table_name));
+		res := alkis_string_append(res, pg_temp.alkis_fixareas(c.table_name));
 
 		v := v
 		  || d
@@ -393,7 +395,9 @@ END;
 $$ LANGUAGE plpgsql;
 
 SELECT 'Prüfe Flurstücksgeometrien...';
-SELECT alkis_fixgeometry('ax_flurstueck');
+SELECT pg_temp.alkis_fixareas('ax_flurstueck');
+
+SELECT 'Übertrage Flurstücke...';
 
 DELETE FROM flurst;
 INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl,af,flurknr,baublock,flskoord,fora,fina,h1shl,h2shl,hinwshl,strshl,gemshl,hausnr,lagebez,k_anlverm,anl_verm,blbnr,n_flst,ff_entst,ff_stand,ff_datum)
@@ -443,6 +447,8 @@ INSERT INTO flurst(flsnr,flsnrk,gemashl,flr,entst,fortf,flsfl,amtlflsfl,gemflsfl
 	  AND a.ogc_fid<>b.ogc_fid
 	)
      ;
+
+SELECT 'Erzeuge Straßenzuordnungen...';
 
 DELETE FROM str_shl;
 INSERT INTO str_shl(strshl,strname,gemshl)
@@ -556,6 +562,8 @@ INSERT INTO bem_best(bestdnr,pk,lnr,text,ff_entst,ff_stand)
 	JOIN ax_buchungsblatt bb ON bb.gml_id=bs.istbestandteilvon AND bb.endet IS NULL
 	WHERE bs.beschreibungdessondereigentums IS NOT NULL AND bs.endet IS NULL;
 
+SELECT 'Übernehme Bestände...';
+
 DELETE FROM bestand;
 INSERT INTO bestand(bestdnr,gbbz,gbblnr,anteil,auftlnr,bestfl,ff_entst,ff_stand,pz)
 	SELECT
@@ -580,6 +588,8 @@ INSERT INTO bestand(bestdnr,gbbz,gbblnr,anteil,auftlnr,bestfl,ff_entst,ff_stand,
 	          AND bb2.ogc_fid<>bb.ogc_fid
 	  )
 	;
+
+SELECT 'Übernehme Eigentümer...';
 
 SELECT alkis_dropobject('eigner_pk_seq');
 CREATE SEQUENCE eigner_pk_seq;
@@ -696,7 +706,7 @@ SELECT "Buchdaten","Anzahl" FROM (
 ) AS stat ORDER BY o;
 
 SELECT 'Erzeuge Sicht für Klassifizierungen...';
-SELECT alkis_createklassifizierung();
+SELECT pg_temp.alkis_createklassifizierung();
 
 DELETE FROM kls_shl;
 INSERT INTO kls_shl(klf,klf_text)
@@ -726,6 +736,13 @@ INSERT INTO klas_3x(flsnr,pk,klf,wertz1,wertz2,gemfl,fl,ff_entst,ff_stand)
   WHERE f.endet IS NULL
   GROUP BY alkis_flsnr(f), f.amtlicheflaeche, f.wkb_geometry, k.klassifizierung, k.bodenzahl, k.ackerzahl;
 
+SELECT 'Erzeuge Sicht für Nutzungen...';
+SELECT pg_temp.alkis_createnutzung();
+
+DELETE FROM nutz_shl;
+INSERT INTO nutz_shl(nutzshl,nutzung)
+  SELECT nutzung,name FROM ax_tatsaechlichenutzungsschluessel;
+
 SELECT 'Bestimme Flurstücksnutzungen...';
 
 SELECT alkis_dropobject('nutz_shl_pk_seq');
@@ -749,7 +766,7 @@ INSERT INTO nutz_21(flsnr,pk,nutzsl,gemfl,fl,ff_entst,ff_stand)
   GROUP BY alkis_flsnr(f), f.wkb_geometry, n.nutzung;
 
 SELECT 'Erzeuge Sicht für ausführende Stellen...';
-SELECT alkis_createausfuehrendestellen();
+SELECT pg_temp.alkis_createausfuehrendestellen();
 
 DELETE FROM v_schutzgebietnachwasserrecht;
 INSERT INTO v_schutzgebietnachwasserrecht

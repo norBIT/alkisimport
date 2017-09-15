@@ -29,6 +29,7 @@ CREATE TABLE "delete" (
 
 CREATE INDEX delete_fid ON "delete"(featureid);
 
+COMMENT ON TABLE delete IS 'BASE: Lösch- und Fortführungsdatensätze';
 COMMENT ON COLUMN delete.context      IS 'Operation ''delete'', ''replace'' oder ''update''.';
 COMMENT ON COLUMN delete.safetoignore IS 'Attribut safeToIgnore von wfsext:Replace';
 COMMENT ON COLUMN delete.replacedBy   IS 'gml_id des Objekts, das featureid ersetzt';
@@ -169,7 +170,7 @@ CREATE INDEX alkis_beziehungen_von_idx ON alkis_beziehungen USING btree (beziehu
 CREATE INDEX alkis_beziehungen_zu_idx  ON alkis_beziehungen USING btree (beziehung_zu);
 CREATE INDEX alkis_beziehungen_art_idx ON alkis_beziehungen USING btree (beziehungsart);
 
-COMMENT ON TABLE  alkis_beziehungen               IS 'zentrale Multi-Verbindungstabelle';
+COMMENT ON TABLE alkis_beziehungen IS 'BASE: Objektbeziehungen';
 COMMENT ON COLUMN alkis_beziehungen.beziehung_von IS 'Join auf Feld gml_id verschiedener Tabellen';
 COMMENT ON COLUMN alkis_beziehungen.beziehung_zu  IS 'Join auf Feld gml_id verschiedener Tabellen';
 COMMENT ON COLUMN alkis_beziehungen.beziehungsart IS 'Typ der Beziehung zwischen der von- und zu-Tabelle';

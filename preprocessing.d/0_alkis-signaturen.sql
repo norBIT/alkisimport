@@ -21,6 +21,8 @@
 \set ON_ERROR_STOP
 SET search_path = :"alkis_schema", :"postgis_schema", public;
 
+SELECT 'Lade Signaturen...';
+
 DELETE FROM alkis_flaechen;
 DELETE FROM alkis_linie;
 DELETE FROM alkis_linien;

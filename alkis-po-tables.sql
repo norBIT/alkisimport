@@ -22,7 +22,7 @@ SELECT 'Präsentationstabellen werden erzeugt.';
 
 SELECT alkis_dropobject('alkis_po_version');
 CREATE TABLE alkis_po_version(version integer);
-INSERT INTO alkis_po_version(version) VALUES (1);
+INSERT INTO alkis_po_version(version) VALUES (2);
 
 --
 -- Präsentationstabellen
@@ -40,6 +40,7 @@ CREATE TABLE po_points(
 	modell varchar[] CHECK (array_length(modell,1)>0),
 	drehwinkel_grad double precision
 );
+COMMENT ON TABLE po_points IS 'BASE: Punktobjekte';
 
 SELECT AddGeometryColumn('po_points','point', :alkis_epsg, 'MULTIPOINT', 2);
 
@@ -53,6 +54,7 @@ CREATE TABLE po_lines(
 	signaturnummer varchar,
 	modell varchar[] CHECK (array_length(modell,1)>0)
 );
+COMMENT ON TABLE po_points IS 'BASE: Linienobjekte';
 
 SELECT AddGeometryColumn('po_lines','line', :alkis_epsg, 'MULTILINESTRING', 2);
 
@@ -68,6 +70,7 @@ CREATE TABLE po_polygons(
 	sn_randlinie varchar,
 	modell varchar[] CHECK (array_length(modell,1)>0)
 );
+COMMENT ON TABLE po_points IS 'BASE: Flächenobjekte';
 
 SELECT AddGeometryColumn('po_polygons','polygon', :alkis_epsg, 'MULTIPOLYGON', 2);
 
@@ -88,6 +91,7 @@ CREATE TABLE po_labels(
 	vertikaleausrichtung varchar,
 	modell varchar[] CHECK (array_length(modell,1)>0)
 );
+COMMENT ON TABLE po_points IS 'BASE: Beschriftungsobjekte';
 
 SELECT AddGeometryColumn('po_labels','point', :alkis_epsg, 'POINT', 2);
 SELECT AddGeometryColumn('po_labels','line', :alkis_epsg, 'LINESTRING', 2);

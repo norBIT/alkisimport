@@ -18,7 +18,7 @@ CREATE FUNCTION pg_temp.alkis_set_schema(t TEXT) RETURNS varchar AS $$
 DECLARE
 	i integer;
 BEGIN
-	SELECT count(*) INTO i FROM pg_namespace WHERE nspname=t;
+	SELECT count(*) INTO i FROM pg_catalog.pg_namespace WHERE nspname=t;
 	IF i = 0 THEN
 		EXECUTE 'CREATE SCHEMA '|| quote_ident(t);
 		RAISE NOTICE 'Schema % angelegt.', t;
@@ -34,10 +34,11 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+SET search_path = :"parent_schema", :"postgis_schema", public;
 SELECT pg_temp.alkis_set_schema(:'alkis_schema');
 
 -- Table/View/Sequence löschen, wenn vorhanden
-CREATE OR REPLACE FUNCTION alkis_dropobject(t TEXT) RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_dropobject(t TEXT) RETURNS varchar AS $$
 DECLARE
 	c RECORD;
 	s varchar;
@@ -48,9 +49,9 @@ DECLARE
 BEGIN
 	-- drop objects
 	FOR c IN SELECT relkind,relname
-		FROM pg_class
-		JOIN pg_namespace ON pg_class.relnamespace=pg_namespace.oid
-		WHERE pg_namespace.nspname=current_schema() AND pg_class.relname=t
+		FROM pg_catalog.pg_class
+		JOIN pg_catalog.pg_namespace ON pg_class.relnamespace=pg_namespace.oid
+		WHERE pg_catalog.pg_namespace.nspname=current_schema() AND pg_class.relname=t
 		ORDER BY relkind
 	LOOP
 		IF c.relkind = 'v' THEN
@@ -67,15 +68,15 @@ BEGIN
 		END IF;
 	END LOOP;
 
-	FOR c IN SELECT indexname FROM pg_indexes WHERE schemaname=current_schema() AND indexname=t
+	FOR c IN SELECT indexname FROM pg_catalog.pg_indexes WHERE schemaname=current_schema() AND indexname=t
 	LOOP
 		r := alkis_string_append(r, 'Index ' || c.indexname || ' gelöscht.');
 		EXECUTE 'DROP INDEX ' || c.indexname;
 	END LOOP;
 
 	FOR c IN SELECT proname,proargtypes
-		FROM pg_proc
-		JOIN pg_namespace ON pg_proc.pronamespace=pg_namespace.oid
+		FROM pg_catalog.pg_proc
+		JOIN pg_catalog.pg_namespace ON pg_proc.pronamespace=pg_namespace.oid
 		WHERE pg_namespace.nspname=current_schema() AND pg_proc.proname=t
 	LOOP
 		r := alkis_string_append(r, 'Funktion ' || c.proname || ' gelöscht.');
@@ -84,7 +85,7 @@ BEGIN
 		d := '';
 
 		FOR i IN array_lower(c.proargtypes,1)..array_upper(c.proargtypes,1) LOOP
-			SELECT typname INTO tn FROM pg_type WHERE oid=c.proargtypes[i];
+			SELECT typname INTO tn FROM pg_catalog.pg_type WHERE oid=c.proargtypes[i];
 			s := s || d || tn;
 			d := ',';
 		END LOOP;
@@ -95,9 +96,9 @@ BEGIN
 	END LOOP;
 
 	FOR c IN SELECT relname,conname
-		FROM pg_constraint
-		JOIN pg_class ON pg_constraint.conrelid=pg_constraint.oid
-		JOIN pg_namespace ON pg_constraint.connamespace=pg_namespace.oid
+		FROM pg_catalog.pg_constraint
+		JOIN pg_catalog.pg_class ON pg_constraint.conrelid=pg_constraint.oid
+		JOIN pg_catalog.pg_namespace ON pg_constraint.connamespace=pg_namespace.oid
 		WHERE pg_namespace.nspname=current_schema() AND pg_constraint.conname=t
 	LOOP
 		r := alkis_string_append(r, 'Constraint ' || c.conname || ' von ' || c.relname || ' gelöscht.');
@@ -108,14 +109,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT alkis_dropobject('alkis_string_append');
-CREATE OR REPLACE FUNCTION alkis_string_append(varchar, varchar) RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_string_append(varchar, varchar) RETURNS varchar AS $$
 	SELECT CASE WHEN $1='' OR $1 LIKE E'%\n' THEN $1 ELSE coalesce($1||E'\n','') END || coalesce($2, '');
 $$ LANGUAGE 'sql' IMMUTABLE;
 
 -- Alle ALKIS-Tabellen löschen
-SELECT alkis_dropobject('alkis_drop');
-CREATE FUNCTION alkis_drop() RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_drop() RETURNS varchar AS $$
 DECLARE
 	c RECORD;
 	r VARCHAR;
@@ -148,8 +147,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Alle ALKIS-Tabellen leeren
-SELECT alkis_dropobject('alkis_clean');
-CREATE FUNCTION alkis_clean() RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_clean() RETURNS varchar AS $$
 DECLARE
 	c RECORD;
 	r VARCHAR;
@@ -169,50 +167,57 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Alle ALKIS-Tabellen erben
-SELECT alkis_dropobject('alkis_inherit');
-CREATE FUNCTION alkis_inherit(parent varchar) RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_inherit(parent varchar) RETURNS varchar AS $$
 DECLARE
 	tab RECORD;
 	ind RECORD;
 	r VARCHAR;
 	nt INTEGER;
 	ni INTEGER;
+	nv INTEGER;
 BEGIN
 	nt := 0;
 	ni := 0;
+	nv := 0;
 
 	-- inherit tables
 	FOR tab IN
-		SELECT c.oid, c.relname
+		SELECT c.oid, c.relname, obj_description(c.oid) AS description
 		FROM pg_catalog.pg_class c
-		JOIN pg_namespace n ON n.oid=c.relnamespace AND n.nspname=parent
+		JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace AND n.nspname=parent
 		WHERE pg_get_userbyid(c.relowner)=current_user AND c.relkind='r'
+		  AND NOT EXISTS (
+			SELECT *
+			FROM pg_catalog.pg_class c1
+			JOIN pg_catalog.pg_namespace n1 ON n1.oid=c1.relnamespace AND n1.nspname=current_schema
+			WHERE c1.relname=c.relname
+		  )
 	LOOP
-		nt := nt + 1;
-		RAISE NOTICE 'Tabelle % abgeleitet.', tab.relname;
-		BEGIN
+		IF tab.description LIKE 'FeatureType:%' OR tab.description LIKE 'BASE:%' THEN
+			nt := nt + 1;
 			EXECUTE 'CREATE TABLE ' || quote_ident(tab.relname) || '() INHERITS (' || quote_ident(parent) || '.' || quote_ident(tab.relname) || ')';
-		EXCEPTION WHEN OTHERS THEN
-		END;
+			RAISE NOTICE 'Tabelle % abgeleitet.', tab.relname;
 
-		FOR ind IN
-			SELECT c.relname, replace(pg_get_indexdef(i.indexrelid), 'ON '||quote_ident(parent)||'.', 'ON ') AS sql
-			FROM pg_index i
-			JOIN pg_class c ON c.oid=i.indexrelid
-			WHERE i.indrelid=tab.oid
-		LOOP
-			RAISE NOTICE ' Index % erzeugt.', ind.relname;
-			ni := ni + 1;
-			EXECUTE ind.sql;
-		END LOOP;
+			FOR ind IN
+				SELECT c.relname, replace(pg_get_indexdef(i.indexrelid), 'ON '||quote_ident(parent)||'.', 'ON ') AS sql
+				FROM pg_catalog.pg_index i
+				JOIN pg_catalog.pg_class c ON c.oid=i.indexrelid
+				WHERE i.indrelid=tab.oid
+			LOOP
+				ni := ni + 1;
+				EXECUTE ind.sql;
+			END LOOP;
+		ELSE
+			nv := nv + 1;
+			EXECUTE 'CREATE VIEW ' || quote_ident(tab.relname) || ' AS SELECT * FROM ' || quote_ident(parent) || '.' || quote_ident(tab.relname);
+		END IF;
 	END LOOP;
 
-	RETURN nt || ' Tabellen mit ' || ni || ' Indizes abgeleitet.';
+	RETURN nt || ' Tabellen mit ' || ni || ' Indizes abgeleitet und ' || nv || ' Sichten erzeugt.';
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT alkis_dropobject('alkis_create_bsrs');
-CREATE FUNCTION alkis_create_bsrs(id INTEGER) RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_create_bsrs(id INTEGER) RETURNS varchar AS $$
 DECLARE
 	n INTEGER;
 BEGIN
@@ -269,8 +274,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Alle ALKIS-Tabellen leeren
-SELECT alkis_dropobject('alkis_delete');
-CREATE FUNCTION alkis_delete() RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_delete() RETURNS varchar AS $$
 DECLARE
 	c RECORD;
 	r varchar;
@@ -292,8 +296,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Übersicht erzeugen, die alle alkis_beziehungen mit den Typen der beteiligen ALKIS-Objekte versieht
-SELECT alkis_dropobject('alkis_mviews');
-CREATE FUNCTION alkis_mviews() RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_mviews() RETURNS varchar AS $$
 DECLARE
 	sql TEXT;
 	delim TEXT;
@@ -326,7 +329,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Wenn die Datenbank MIT Historie angelegt wurde, kann nach dem Laden hiermit aufgeräumt werden.
-CREATE OR REPLACE FUNCTION alkis_delete_all_endet() RETURNS void AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_delete_all_endet() RETURNS void AS $$
 DECLARE
 	c RECORD;
 BEGIN
@@ -343,13 +346,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION alkis_exception() RETURNS void AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_exception() RETURNS void AS $$
 BEGIN
 	RAISE EXCEPTION 'raising deliberate exception';
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION alkis_hist_check() RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_hist_check() RETURNS varchar AS $$
 DECLARE
 	c RECORD;
 	n INTEGER;
@@ -380,8 +383,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT alkis_dropobject('alkis_bufferline');
-CREATE FUNCTION alkis_bufferline(g geometry,offs float8) RETURNS geometry AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_bufferline(g geometry,offs float8) RETURNS geometry AS $$
 BEGIN
 	BEGIN
 		RETURN st_buffer(g,offs,'endcap=flat');
@@ -419,8 +421,7 @@ $$ LANGUAGE plpgsql;
 -- Datenbankmigration
 --
 
-SELECT alkis_dropobject('alkis_rename_table');
-CREATE OR REPLACE FUNCTION alkis_rename_table(t TEXT) RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_rename_table(t TEXT) RETURNS varchar AS $$
 BEGIN
 	PERFORM alkis_dropobject(t || '_');
 
@@ -435,8 +436,7 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT alkis_dropobject('alkis_update_schema');
-CREATE OR REPLACE FUNCTION alkis_update_schema() RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_update_schema() RETURNS varchar AS $$
 DECLARE
 	c RECORD;
 	s INTEGER;
@@ -16307,8 +16307,38 @@ Erholung von Reisenden.'),
 			updated_at timestamp without time zone NOT NULL DEFAULT now(),
 			user_name character varying NOT NULL
 		);
+	END IF;
 
-		UPDATE alkis_version SET version=15;
+	IF ver<16 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 16';
+
+		COMMENT ON TABLE delete IS 'BASE: Lösch- und Fortführungsdatensätze';
+		COMMENT ON TABLE alkis_beziehungen IS 'BASE: Objektbeziehungen';
+
+		COMMENT ON TABLE ks_einrichtunginoeffentlichenbereichen IS 'BASE: ks_einrichtunginoeffentlichenbereichen';
+		COMMENT ON TABLE ks_bauwerkanlagenfuerverundentsorgung IS 'BASE: ks_bauwerkanlagenfuerverundentsorgung';
+		COMMENT ON TABLE ks_sonstigesbauwerk IS 'BASE: ks_sonstigesbauwerk';
+		COMMENT ON TABLE ks_einrichtungimstrassenverkehr IS 'BASE: ks_einrichtungimstrassenverkehr';
+		COMMENT ON TABLE ks_verkehrszeichen IS 'BASE: ks_verkehrszeichen';
+		COMMENT ON TABLE ks_einrichtungimbahnverkehr IS 'BASE: ks_einrichtungimbahnverkehr';
+		COMMENT ON TABLE ks_bauwerkimgewaesserbereich IS 'BASE: ks_bauwerkimgewaesserbereich';
+		COMMENT ON TABLE ks_vegetationsmerkmal IS 'BASE: ks_vegetationsmerkmal';
+		COMMENT ON TABLE ks_bauraumoderbodenordnungsrecht IS 'BASE: ks_bauraumoderbodenordnungsrecht';
+		COMMENT ON TABLE ks_kommunalerbesitz IS 'BASE: ks_kommunalerbesitz';
+
+		CREATE INDEX ap_pto_art ON ap_pto USING btree (art);
+		CREATE INDEX ap_lto_art ON ap_lto USING btree (art);
+		CREATE INDEX ap_darstellung_art ON ap_darstellung USING btree (art);
+
+		CREATE INDEX ap_lpo_sn ON ap_lpo USING btree (signaturnummer);
+		CREATE INDEX ap_ppo_sn ON ap_ppo USING btree (signaturnummer);
+		CREATE INDEX ap_pto_sn ON ap_pto USING btree (signaturnummer);
+		CREATE INDEX ap_lto_sn ON ap_lto USING btree (signaturnummer);
+		CREATE INDEX ap_darstellung_sn ON ap_darstellung USING btree (signaturnummer);
+
+		CREATE INDEX ax_dienststelle_sg ON ax_dienststelle(schluesselgesamt);
+
+		UPDATE alkis_version SET version=16;
 
 		r := alkis_string_append(r, 'ALKIS-Schema migriert');
 	END IF;
@@ -16416,8 +16446,17 @@ Erholung von Reisenden.'),
 				ALTER TABLE po_labels DROP darstellungsprioritaet;
 			END IF;
 		END LOOP;
+	END IF;
 
-		UPDATE alkis_po_version SET version=1;
+	IF ver<2 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 2';
+
+		COMMENT ON TABLE po_points IS 'BASE: Punktobjekte';
+		COMMENT ON TABLE po_lines IS 'BASE: Linienobjekte';
+		COMMENT ON TABLE po_polygons IS 'BASE: Flächenobjekte';
+		COMMENT ON TABLE po_labels IS 'BASE: Beschriftungsobjekte';
+
+		UPDATE alkis_po_version SET version=2;
 
 		r := coalesce(r||E'\n','') || 'ALKIS-PO-Schema migriert';
 	END IF;
@@ -16426,9 +16465,9 @@ Erholung von Reisenden.'),
 END;
 $$ LANGUAGE plpgsql;
 
-DROP AGGREGATE IF EXISTS alkis_accum(anyarray);
+DROP AGGREGATE IF EXISTS :"parent_schema".alkis_accum(anyarray);
 
-CREATE AGGREGATE alkis_accum (anyarray) (
+CREATE AGGREGATE :"parent_schema".alkis_accum (anyarray) (
 	sfunc = array_cat,
 	stype = anyarray,
 	initcond = '{}'

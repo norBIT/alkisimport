@@ -23,7 +23,7 @@ SET search_path = :"alkis_schema", :"postgis_schema", public;
 
 SELECT alkis_dropobject('alb_version');
 CREATE TABLE alb_version(version integer);
-INSERT INTO alb_version(version) VALUES (2);
+INSERT INTO alb_version(version) VALUES (3);
 
 -- Sichten löschen, die von alkis_toint abhängen
 SELECT alkis_dropobject('ax_tatsaechlichenutzung');
@@ -68,6 +68,7 @@ CREATE TABLE flurst (
 	ff_datum character(8),
 	primary key (flsnr)
 ) WITH OIDS;
+COMMENT ON TABLE flurst IS 'BASE: Flurstücke';
 
 SELECT alkis_dropobject('ax_flurstueck_flsnr');
 CREATE INDEX ax_flurstueck_flsnr ON ax_flurstueck USING btree (alkis_flsnr(ax_flurstueck));
@@ -88,6 +89,7 @@ CREATE TABLE str_shl (
 	strname varchar(200),
 	gemshl character(32)
 );
+COMMENT ON TABLE str_shl IS 'BASE: Straßenschlüssel';
 
 CREATE INDEX str_shl_idx0 ON str_shl(strshl);
 CREATE INDEX str_shl_idx1 ON str_shl(gemshl);
@@ -102,6 +104,7 @@ CREATE TABLE strassen (
 	ff_stand integer,
 	primary key (pk)
 );
+COMMENT ON TABLE strassen IS 'BASE: Straßenzuordnungen';
 
 CREATE INDEX strassen_idx1 ON strassen(flsnr);
 CREATE INDEX strassen_idx2 ON strassen(strshl);
@@ -114,6 +117,8 @@ CREATE TABLE gem_shl (
 	gemname character(100),
 	primary key (gemshl)
 );
+COMMENT ON TABLE gem_shl IS 'BASE: Gemeindeschlüssel';
+
 
 CREATE INDEX gem_shl_idx0 ON gem_shl(gemshl);
 
@@ -125,6 +130,7 @@ CREATE TABLE gema_shl (
 	ag_shl character(4),
 	primary key (gemashl)
 );
+COMMENT ON TABLE gema_shl IS 'BASE: Gemarkungsschlüssel';
 
 CREATE INDEX gema_shl_gemshl ON gema_shl(gemshl);
 CREATE INDEX gema_shl_ag_shl ON gema_shl(ag_shl);
@@ -143,6 +149,7 @@ CREATE TABLE eignerart (
 	lkfs character(4),
 	primary key (flsnr, bestdnr, bvnr)
 );
+COMMENT ON TABLE eignerart IS 'BASE: Eigentümerarten';
 
 CREATE INDEX eignerart_idx1 ON eignerart(b);
 CREATE INDEX eignerart_idx2 ON eignerart(flsnr);
@@ -162,6 +169,7 @@ CREATE TABLE bem_best (
 	ff_stand integer,
 	primary key (pk)
 );
+COMMENT ON TABLE bem_best IS 'BASE: Bestandsbemerkung';
 
 CREATE INDEX bem_best_idx1 ON bem_best(bestdnr);
 
@@ -179,6 +187,8 @@ CREATE TABLE bestand (
 	pz character(1),
 	PRIMARY KEY (bestdnr)
 );
+COMMENT ON TABLE bestand IS 'BASE: Bestände';
+
 CREATE INDEX bestand_bestdnr ON bestand(bestdnr);
 CREATE INDEX bestand_ff_entst ON bestand(ff_entst);
 CREATE INDEX bestand_ff_stand ON bestand(ff_stand);
@@ -220,6 +230,8 @@ CREATE TABLE eigner (
 
 	primary key (pk)
 );
+COMMENT ON TABLE eigner IS 'BASE: Eigentümer';
+
 CREATE INDEX eigner_idx1 ON eigner(bestdnr);
 CREATE INDEX eigner_idx2 ON eigner(name);
 CREATE INDEX eigner_ff_entst ON eigner(ff_entst);
@@ -235,6 +247,8 @@ CREATE TABLE eign_shl (
     eignerart character(60),
     primary key (b)
 );
+COMMENT ON TABLE eign_shl IS 'BASE: Eigentumsarten';
+
 CREATE INDEX eign_shl_idx0 ON eign_shl(b);
 
 SELECT alkis_dropobject('hinw_shl');
@@ -243,6 +257,7 @@ CREATE TABLE hinw_shl (
 	hinw_txt character(50),
 	PRIMARY KEY (shl)
 );
+COMMENT ON TABLE hinw_shl IS 'BASE: Hinweise';
 
 SELECT alkis_dropobject('sonderbaurecht');
 CREATE TABLE sonderbaurecht (
@@ -254,6 +269,7 @@ CREATE TABLE sonderbaurecht (
 	ff_stand integer,
 	PRIMARY KEY (pk)
 );
+COMMENT ON TABLE sonderbaurecht IS 'BASE: Sonderbaurecht';
 
 CREATE INDEX sonderbaurecht_idx1 ON sonderbaurecht(bestdnr);
 
@@ -273,6 +289,8 @@ CREATE TABLE klas_3x (
 	ff_stand integer,
 	primary key (pk)
 );
+COMMENT ON TABLE klas_3x IS 'BASE: Klassifizierungen';
+
 CREATE INDEX klas_3x_idx1 ON klas_3x(flsnr);
 CREATE INDEX klas_3x_idx2 ON klas_3x(klf);
 
@@ -283,6 +301,7 @@ CREATE TABLE kls_shl (
 	klf_text character(200),
 	primary key (klf)
 );
+COMMENT ON TABLE kls_shl IS 'BASE: Klassifiziersschlüssel';
 
 SELECT alkis_dropobject('bem_fls');
 CREATE TABLE bem_fls (
@@ -293,6 +312,8 @@ CREATE TABLE bem_fls (
 	ff_stand INTEGER,
 	primary key (flsnr, lnr)
 );
+COMMENT ON TABLE bem_fls IS 'BASE: Flurstücksbemerkungen';
+
 CREATE INDEX bem_fls_idx1 ON bem_fls(flsnr);
 
 SELECT alkis_dropobject('erbbaurecht');
@@ -305,6 +326,8 @@ CREATE TABLE erbbaurecht(
 	ff_stand integer,
 	PRIMARY KEY (pk)
 );
+COMMENT ON TABLE erbbaurecht IS 'BASE: Erbbaurecht';
+
 CREATE INDEX erbbaurecht_idx1 ON erbbaurecht(bestdnr);
 
 SELECT alkis_dropobject('nutz_21');
@@ -318,6 +341,8 @@ CREATE TABLE nutz_21 (
 	ff_stand INTEGER,
 	primary key (pk)
 );
+COMMENT ON TABLE nutz_21 IS 'BASE: Nutzungen';
+
 CREATE INDEX nutz_21_idx1 ON nutz_21(flsnr);
 CREATE INDEX nutz_21_idx2 ON nutz_21(nutzsl);
 
@@ -327,6 +352,8 @@ CREATE TABLE nutz_shl (
 	nutzung character(200),
 	primary key (nutzshl)
 );
+COMMENT ON TABLE nutz_shl IS 'BASE: Nutzungsschlüssel';
+
 CREATE INDEX nutz_shl_idx0 ON nutz_shl(nutzshl);
 
 SELECT alkis_dropobject('verf_shl');
@@ -335,6 +362,8 @@ CREATE TABLE verf_shl (
 	verf_txt character(50),
 	PRIMARY KEY (verfshl)
 );
+COMMENT ON TABLE verf_shl IS 'BASE: Verfahrensschlüssel';
+
 CREATE INDEX verf_shl_idx0 ON verf_shl(verfshl);
 
 SELECT alkis_dropobject('vor_flst');
@@ -346,6 +375,8 @@ CREATE TABLE vor_flst(
 	ff_stand integer,
 	PRIMARY KEY (pk)
 );
+COMMENT ON TABLE vor_flst IS 'BASE: Vorgängerflurstücke';
+
 CREATE INDEX vor_flst_idx1 ON vor_flst(flsnr);
 CREATE INDEX vor_flst_idx2 ON vor_flst(v_flsnr);
 
@@ -355,6 +386,8 @@ CREATE TABLE best_lkfs (
 	lkfs character(4) NOT NULL,
 	PRIMARY KEY (bestdnr,lkfs)
 );
+COMMENT ON TABLE best_lkfs IS 'BASE: Bestandsführende Stelle';
+
 CREATE INDEX best_lkfs_idx0 ON best_lkfs(bestdnr);
 
 SELECT alkis_dropobject('flurst_lkfs');
@@ -363,6 +396,8 @@ CREATE TABLE flurst_lkfs (
 	lkfs character(4) NOT NULL,
 	PRIMARY KEY (flsnr,lkfs)
 );
+COMMENT ON TABLE flurst_lkfs IS 'BASE: Flurstücksführende Stelle';
+
 CREATE INDEX flurst_lkfs_idx0 ON flurst_lkfs(flsnr);
 
 SELECT alkis_dropobject('fortf');
@@ -378,6 +413,7 @@ CREATE TABLE fortf (
 	datei character(250),
 	PRIMARY KEY (ffnr)
 );
+COMMENT ON TABLE fortf IS 'BASE: Fortführungen';
 
 SELECT alkis_dropobject('fina');
 CREATE TABLE fina(
@@ -385,6 +421,8 @@ CREATE TABLE fina(
 	fina_name character(200),
 	PRIMARY KEY (fina_nr)
 );
+COMMENT ON TABLE fina IS 'BASE: Finanzämter';
+
 CREATE INDEX fina_idx0 ON fina(fina_nr);
 
 SELECT alkis_dropobject('fs');
@@ -393,6 +431,7 @@ CREATE TABLE fs(
 	fs_obj varchar,
 	alb_key varchar
 );
+COMMENT ON TABLE fs IS 'BASE: Flurstücksverknüpfungen';
 
 CREATE INDEX fs_obj ON fs(fs_obj);
 CREATE INDEX fs_alb ON fs(alb_key);
@@ -408,6 +447,7 @@ CREATE TABLE ausfst (
 	ff_stand integer,
 	primary key (pk)
 );
+COMMENT ON TABLE ausfst IS 'BASE: Ausführende Stellen';
 CREATE INDEX ausfst_idx1 ON ausfst(flsnr);
 CREATE INDEX ausfst_idx2 ON ausfst(ausf_st);
 
@@ -417,6 +457,7 @@ CREATE TABLE afst_shl (
 	afst_txt character(200),
 	PRIMARY KEY (ausf_st)
 );
+COMMENT ON TABLE afst_shl IS 'BASE: Schlüssel ausführender Stellen';
 
 CREATE INDEX afst_shl_idx0 ON afst_shl(ausf_st);
 

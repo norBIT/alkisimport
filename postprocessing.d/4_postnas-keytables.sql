@@ -14,7 +14,7 @@
  *                                                                         *
  ***************************************************************************/
 
-SET search_path = :"alkis_schema", :"postgis_schema", public;
+SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 \set ON_ERROR_STOP
 
 -- TODO: Sichten mit Nutzungdaten (nutzung*)
