@@ -411,3 +411,8 @@ BEGIN
   RETURN res;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION st_points(geometry) RETURNS geometry AS $$
+   SELECT st_collect(p) FROM (SELECT st_pointn($1, generate_series(1, st_npoints($1))) AS p) AS p;
+$$ LANGUAGE 'sql' IMMUTABLE;
+
