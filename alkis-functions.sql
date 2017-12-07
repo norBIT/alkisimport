@@ -1053,6 +1053,10 @@ BEGIN
 		r := alkis_string_append(r, 'ALKIS-Schema migriert');
 	END IF;
 
+	IF v>14 THEN
+		RAISE EXCEPTION 'ALKIS-Schemaversion % nicht unterstützt (bis 14).', v;
+	END IF;
+
 	--
 	-- ALKIS-Präsentationstabellen
 	--
@@ -1160,6 +1164,10 @@ BEGIN
 		UPDATE alkis_po_version SET version=1;
 
 		r := coalesce(r||E'\n','') || 'ALKIS-PO-Schema migriert';
+	END IF;
+
+	IF v>1 THEN
+		RAISE EXCEPTION 'ALKIS-PO-Schema % nicht unterstützt (bis 1).', v;
 	END IF;
 
 	RETURN r;
