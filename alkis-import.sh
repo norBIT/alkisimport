@@ -42,15 +42,14 @@ export CRS="-a_srs EPSG:$EPSG"
 export FNBRUCH=true
 export PGVERDRAENGEN=false
 export SCHEMA=public
+export PARENTSCHEMA=
 export PGSCHEMA=public
-export PARENTSCHEMA=$PGSCHEMA
-export PG_USE_COPY=YES
 
 B=${0%/*}   # BASEDIR
 if [ "$0" = "$B" ]; then
 	B=.
 fi
-P=${0##*/}  # PROGNAME
+export P=${0##*/}  # PROGNAME
 
 export NAS_GFS_TEMPLATE=$B/alkis-schema.gfs
 export NAS_NO_RELATION_LAYER=YES
@@ -108,7 +107,7 @@ rund() {
 	if [ -d "$dir.d" ]; then
 		for i in $(ls -1d ${dir}.d/* | sort); do
 			if [ -d "$i" ]; then
-				ls -1 $i/*.sql | sort | parallel --jobs=$JOBS sql
+				ls -1 $i/*.sql | sort | parallel --ungroup --jobs=$JOBS sql
 			elif [ -r "$i" ]; then
 				sql $i
 			fi
@@ -128,28 +127,36 @@ import() {
 
 	case $src in
 	*.zip)
-		dst="$TEMP/$(basename "$src" .zip).xml"
+		dst="$tmpdir/$(basename "$src" .zip).xml"
 		echo "DECOMPRESS $(bdate): $src"
-		zcat "$src" >"$dst"
+		if ! zcat "$src" >"$dst"; then
+			rm -v "$dst"
+			echo "$P: $src konnte nicht extrahiert werden." >&2
+			return 1
+		fi
 		rm=1
 		;;
 
 	*.xml.gz)
 		if ! [ -r "$src" ]; then
 			echo "$P: $src nicht gefunden oder nicht lesbar." >&2
-			exit 1
+			return 1
 		fi
 
-		dst="$TEMP/$(basename "$src" .gz)"
+		dst="$tmpdir/$(basename "$src" .gz)"
 		echo "DECOMPRESS $(bdate): $src"
-		zcat "$src" >"$dst"
+		if ! zcat "$src" >"$dst"; then
+			rm -v "$dst"
+			echo "$P: $src konnte nicht extrahiert werden." >&2
+			return 1
+		fi
 		rm=1
 		;;
 
 	*.xml)
 		if ! [ -r "$src" ]; then
 			echo "$P: $src nicht gefunden oder nicht lesbar." >&2
-			exit 1
+			return 1
 		fi
 
 		dst="$src"
@@ -157,7 +164,7 @@ import() {
 		;;
 	*)
 		echo "UNKNOWN FILE $src"
-		exit 1
+		return 1
 		;;
 	esac
 
@@ -165,7 +172,7 @@ import() {
 
 	if ! [ -r "$dst" ]; then
 		echo "$src => $dst"
-		exit 1
+		return 1
 	fi
 
 	trap "echo '$P: Fehler bei $src' >&2; src=error" EXIT
@@ -174,27 +181,31 @@ import() {
 
 	echo "IMPORT $(bdate): $dst $(memunits $s)"
 
-	sf_opt=
 	if [ -n "$sfre" ] && eval [[ "$src" =~ "$sfre" ]]; then
-		sf_opt=-skipfailures
+		opt="$opt -skipfailures"
 	fi
+	opt="$opt -ds_transaction --config PG_USE_COPY YES -nlt CONVERT_TO_LINEAR"
 
-	echo RUNNING: ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst" | sed -Ee 's/password=\S+/password=*removed*/'
+	echo RUNNING: ogr2ogr -f $DRIVER $opt -update -append "$DST" $CRS "$dst" | sed -Ee 's/password=\S+/password=*removed*/'
 	ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst"
+	local r=$?
 	t1=$(bdate +%s)
 
 	progress $dst $s $t0 $t1
 
 	[ $rm == 1 ] && rm -v "$dst"
 	trap "" EXIT
+
+	return $r
 }
 export -f import
 
 process() {
+	local r=0
 	if [ -f "$job" ]; then
 		if [ -z "$DST" ]; then
 			echo "$P: Keine Datenbankverbindungsdaten angegeben" >&2
-			exit 1
+			return 1
 		fi
 
 		if (( preprocessed == 0 )); then
@@ -206,9 +217,11 @@ process() {
 
 		export job
 		export progress
-		parallel --jobs=$JOBS import <$job
+		parallel --ungroup --jobs=$JOBS import <$job
+		r=$?
 		rm $job
 	fi
+	return $r
 }
 
 progress() {
@@ -253,7 +266,7 @@ remaining_size=$remaining_size
 last_time=$t1
 EOF
 
-	rm $lock
+	rm -f $lock
 }
 export -f progress
 
@@ -266,11 +279,12 @@ final() {
 	if (( total_elapsed > 0 )); then
 		echo "FINAL: $(memunits $total_size) in $(timeunits $start_time $last_time) ($(memunits $(( total_size / total_elapsed )))/s)"
 	fi
-	rm -f $progress $lock
+	rm -rf $tmpdir
 }
 
 export LC_CTYPE=de_DE.UTF-8
 export TEMP=${TEMP:-/tmp}
+export TMPDIR=$TEMP
 
 if [ "$#" -ne 1 ]; then
 	echo "usage: $P file" >&2
@@ -301,23 +315,12 @@ export B
 export DRIVER
 export DST
 export JOBS=-1
-export GDAL2_OPTS
 export opt
 
 opt=
 log=
 preprocessed=0
 sfre=
-
-case "$GDAL_VERSION" in
-"GDAL 2."*)
-	GDAL2_OPTS=" -nlt CONVERT_TO_LINEAR -ds_transaction"
-	opt="$opt$GDAL2_OPTS"
-	;;
-*)
-	GDAL2_OPTS=""
-	;;
-esac
 
 S=0
 while read src
@@ -336,7 +339,7 @@ do
 		;;
 
 	*.xml.gz)
-		s=$(gzip -ql "$src" | tr -s " " | cut -d" " -f3)
+		s=$(zcat "$src" | wc -c)
 		;;
 
 	*.xml)
@@ -352,27 +355,28 @@ do
 	(( S += s ))
 done <$F
 
-if (( S > 0 )); then
-	echo "$P: Unkomprimierte Gesamtgröße: $(memunits $S)"
-fi
-
-
 export job=
-export lock=$(mktemp -t nasXXXXXX.lock)
-export progress=$(mktemp -t nasXXXXXX.progress)
+export tmpdir=$(mktemp -d)
+export lock=$tmpdir/nas.lock
+export progress=$tmpdir/nas.progress
+export jobi=0
 
 cat <<EOF >$progress
 total_size=$S
 remaining_size=$S
 EOF
 
-rm $lock
+rm -f $lock
 while read src
 do
 	case $src in
 	*.zip|*.xml.gz|*.xml)
 		if [ -z "$job" ]; then
-			export job=$(mktemp -t nasXXXXXX.lst)
+			if (( S > 0 )); then
+				echo "$P: Unkomprimierte Gesamtgröße: $(memunits $S)"
+			fi
+
+			export job=$tmpdir/$(( ++jobi )).lst
 		fi
 		echo $src >>$job
 		continue
@@ -403,10 +407,16 @@ do
 				-v alkis_schema=$SCHEMA \
 				-v postgis_schema=$PGSCHEMA \
 				-v parent_schema=${PARENTSCHEMA:-$SCHEMA} \
-				-q -f "$file" "$DB"
+				-v ON_ERROR_STOP=1 \
+				-v ECHO=errors \
+				--quiet \
+				-f "$file" \
+				"$DB"
+			local r=$?
 			local t1=$(bdate +%s)
-			echo "SQL DONE: $file $(bdate) in $(timeunits $t0 $t1)"
+			echo "SQL DONE[$r]: $file $(bdate) in $(timeunits $t0 $t1)"
 			popd >/dev/null
+			return $r
 		}
 		export -f sql
 		runsql() {
@@ -419,16 +429,29 @@ do
 		restore() {
 			if ! [ -r "$1.cpgdmp" ]; then
 				echo "$P: $1.cpgdmp nicht gefunden oder nicht lesbar." >&2
-				exit 1
+				return 1
 			fi
 			pg_restore -Fc -c "$1.cpgdmp" | psql "$DB"
 		}
 		export DB
 		log() {
-			n=$(psql -t -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='$SCHEMA' AND table_name='alkis_importlog'" "$DB")
+			n=$(psql -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname='${SCHEMA//\'/\'\'}'" "$DB")
 			n=${n//[	 ]/}
 			if [ $n -eq 0 ]; then
-				psql -q -c "CREATE TABLE $SCHEMA.alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" "$DB"
+				psql -q -c "CREATE SCHEMA \"${SCHEMA//\"/\"\"}\"" "$DB"
+			fi
+
+			n=$(psql -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname='${SCHEMA//\'/\'\'}'" "$DB")
+			n=${n//[	 ]/}
+			if [ $n -eq 0 ]; then
+				echo "Schema $SCHEMA nicht erzeugt" >&2
+				exit 1
+			fi
+
+			n=$(psql -t -c "SELECT count(*) FROM pg_catalog.pg_tables WHERE schemaname='${SCHEMA//\'/\'\'}' AND tablename='alkis_importlog'" "$DB")
+			n=${n//[	 ]/}
+			if [ $n -eq 0 ]; then
+				psql -q -c "CREATE TABLE \"${SCHEMA//\"/\"\"}\".alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" "$DB"
 			fi
 
 			tee $1 |
@@ -438,7 +461,7 @@ do
 				while read m; do
 					echo "$m" >&5
 					m=${m//\'/\'\'}
-					echo "INSERT INTO $SCHEMA.alkis_importlog(msg) VALUES (E'${m//\'/\'\'}');"
+					echo "INSERT INTO \"${SCHEMA//\"/\"\"}\".alkis_importlog(msg) VALUES (E'${m//\'/\'\'}');"
 				done
 				echo "\\q"
 			) |
@@ -453,14 +476,17 @@ do
 		user=${DB%%/*}
 		DRIVER=OCI
 		sql() {
+			local r
 			pushd "$B/oci" >/dev/null
 			if [ -f "$1" ]; then
 				sqlplus "$DB" @$1 $EPSG
+				r=$?
 			else
 				echo "$1 not found"
-				exit 1
+				return 1
 			fi
 			popd >/dev/null
+			return $?
 		}
 		export -f sql
 		runsql() {
@@ -478,7 +504,7 @@ EOF
 		restore() {
 			if ! [ -r "$1.dmp" ]; then
 				echo "$P: $1.dmp nicht gefunden oder nicht lesbar." >&2
-				exit 1
+				return 1
 			fi
 
 			imp "$DB" file=$1.dmp log=$1-import.log fromuser=$user touser=$user
@@ -488,12 +514,13 @@ EOF
 
 	"pgschema "*)
 		PGSCHEMA=${src#pgschema }
+		DST="${DST/ active_schema=*/} active_schema=$SCHEMA','$PGSCHEMA"
 		continue
 		;;
 
 	"schema "*)
 		SCHEMA=${src#schema }
-		DST="${DST% active_schema=*} active_schema=$SCHEMA"
+		DST="${DST/ active_schema=*/} active_schema=$SCHEMA','$PGSCHEMA"
 		continue
 		;;
 
@@ -578,7 +605,7 @@ EOF
 			exit 1
 		fi
 		if [ -n "$PARENTSCHEMA" ]; then
-			echo "$P: Parentschema gesetzt!?" >&2
+			echo "$P: Elterschema $PARENTSCHEMA gesetzt!?" >&2
 			exit 1
 		fi
 
@@ -586,8 +613,6 @@ EOF
 		pushd "$B" >/dev/null
 		rund precreate
 		sql alkis-init.sql
-		sql alkis-compat.sql
-		sql alkis-po-tables.sql
 		rund postcreate
 		popd >/dev/null
 
@@ -616,13 +641,12 @@ EOF
 			exit 1
 		fi
 		if [ -n "$PARENTSCHEMA" ]; then
-			echo "$P: Parentschema gesetzt!?" >&2
+			echo "$P: Elterschema $PARENTSCHEMA gesetzt!?" >&2
 			exit 1
 		fi
 
 		echo "UPDATE $(bdate)"
 		pushd "$B" >/dev/null
-		sql alkis-compat.sql
 		rund preupdate
 		sql alkis-update.sql
 		rund postupdate
@@ -660,7 +684,6 @@ EOF
 		if [ "$DRIVER" = OCI ]; then
 			opt="$opt -relaxedFieldNameMatch"
 		fi
-		opt="$opt$GDAL2_OPTS"
 		continue
 		;;
 

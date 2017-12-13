@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Flugverkehr (42015)
 --
 
-SELECT 'Flugverkehr wird bearbeitet.';
+SELECT 'Flugverkehr wird verarbeitet.';
 
 -- Flugverkehr, Fläche
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

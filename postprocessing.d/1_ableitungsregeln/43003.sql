@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Gehölz (43003)
 --
 
-SELECT 'Gehölze werden bearbeitet.';
+SELECT 'Gehölze werden verarbeitet.';
 
 -- Gehölz, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

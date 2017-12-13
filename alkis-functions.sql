@@ -18,11 +18,12 @@ CREATE FUNCTION pg_temp.alkis_set_schema(t TEXT) RETURNS varchar AS $$
 DECLARE
 	i integer;
 BEGIN
-	SELECT count(*) INTO i FROM pg_catalog.pg_namespace WHERE nspname=t;
-	IF i = 0 THEN
-		EXECUTE 'CREATE SCHEMA '|| quote_ident(t);
+	BEGIN
+		EXECUTE 'CREATE SCHEMA ' || quote_ident(t);
 		RAISE NOTICE 'Schema % angelegt.', t;
-	END IF;
+	EXCEPTION WHEN duplicate_schema OR unique_violation THEN
+		-- skip
+	END;
 
 	PERFORM set_config('search_path', quote_ident(t) || ', ' || current_setting('search_path'), false);
 
@@ -16457,6 +16458,24 @@ Erholung von Reisenden.'),
 		COMMENT ON TABLE po_labels IS 'BASE: Beschriftungsobjekte';
 
 		UPDATE alkis_po_version SET version=2;
+	END IF;
+
+	IF ver<3 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 3';
+
+		ALTER TABLE po_points DROP CONSTRAINT po_points_pkey;
+		ALTER TABLE po_points ADD CONSTRAINT po_points_pkey PRIMARY KEY(ogc_fid) DEFERRABLE INITIALLY DEFERRED;
+
+		ALTER TABLE po_lines DROP CONSTRAINT po_lines_pkey;
+		ALTER TABLE po_lines ADD CONSTRAINT po_lines_pkey PRIMARY KEY(ogc_fid) DEFERRABLE INITIALLY DEFERRED;
+
+		ALTER TABLE po_polygons DROP CONSTRAINT po_polygons_pkey;
+		ALTER TABLE po_polygons ADD CONSTRAINT po_polygons_pkey PRIMARY KEY(ogc_fid) DEFERRABLE INITIALLY DEFERRED;
+
+		ALTER TABLE po_labels DROP CONSTRAINT po_labels_pkey;
+		ALTER TABLE po_labels ADD CONSTRAINT po_labels_pkey PRIMARY KEY(ogc_fid) DEFERRABLE INITIALLY DEFERRED;
+
+		UPDATE alkis_po_version SET version=3;
 
 		r := coalesce(r||E'\n','') || 'ALKIS-PO-Schema migriert';
 	END IF;

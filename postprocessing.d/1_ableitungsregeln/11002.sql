@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Besondere Flurstücksgrenzen (11002)
 --
 
-SELECT 'Besondere Flurstücksgrenzen werden bearbeitet.';
+SELECT 'Besondere Flurstücksgrenzen werden verarbeitet.';
 
 SELECT alkis_dropobject('alkis_politischegrenzen');
 CREATE TEMPORARY TABLE alkis_politischegrenzen(i INTEGER, sn VARCHAR, adfs INTEGER[]);
@@ -157,7 +157,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT 'Besondere Flurstücksgrenzen werden verarbeitet.';
+SELECT 'Strittige Flurstücksgrenzen werden verarbeitet.';
 
 -- Strittige Grenze
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)

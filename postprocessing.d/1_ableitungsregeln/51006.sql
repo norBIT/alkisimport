@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Bauwerk oder Anlage für Sport, Freizeit und Erholung (51006)
 --
 
-SELECT 'Bauwerke oder Anlagen für Sport, Freizeit und Erholung werden bearbeitet.';
+SELECT 'Bauwerke oder Anlagen für Sport, Freizeit und Erholung werden verarbeitet.';
 
 -- Bauwerk oder Anlage für Sport, Freizeit und Erholung, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

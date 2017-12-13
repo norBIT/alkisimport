@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Heide (43004)
 --
 
-SELECT 'Heide wird bearbeitet.';
+SELECT 'Heide wird verarbeitet.';
 
 -- Heide, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

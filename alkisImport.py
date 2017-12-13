@@ -598,26 +598,29 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         return self.runProcess([
             self.psql,
             "-v", "alkis_epsg={}".format(self.epsg),
-            "-v", "alkis_schema={}".format(self.schema),
-            "-v", "postgis_schema={}".format(self.pgschema),
-            "-v", "parent_schema={}".format(self.parentschema if self.parentschema else self.schema),
+            "-v", u"alkis_schema={}".format(self.schema),
+            "-v", u"postgis_schema={}".format(self.pgschema),
+            "-v", u"parent_schema={}".format(self.parentschema if self.parentschema else self.schema),
             "-v", "alkis_fnbruch={}".format("true" if self.fnbruch else "false"),
             "-v", "alkis_pgverdraengen={}".format("true" if self.pgverdraengen else "false"),
-            "-q", "-f", fn, conn])
+	    "-v", "ON_ERROR_STOP=1",
+            "-v", "ECHO=errors",
+            "--quiet",
+            "-f", fn, conn])
 
     def run(self):
         self.importALKIS()
 
     def connectDb(self):
         if self.leSERVICE.text() != '':
-            conn = "service={} ".format(self.leSERVICE.text())
+            conn = u"service={} ".format(self.leSERVICE.text())
         else:
             if self.leHOST.text() != '':
                 conn = "host={} port={} ".format(self.leHOST.text(), self.lePORT.text())
             else:
                 conn = ""
 
-        conn += "dbname={} user='{}' password='{}'".format(self.leDBNAME.text(), self.leUID.text(), self.lePWD.text())
+        conn += u"dbname={} user='{}' password='{}'".format(self.leDBNAME.text(), self.leUID.text(), self.lePWD.text())
 
         self.db = QSqlDatabase.addDatabase("QPSQL")
         self.db.setConnectOptions(conn)
@@ -897,13 +900,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.pbProgress.setRange(0, 10000)
                 self.pbProgress.setValue(0)
 
-                self.status(u"Kompatibilitätsfunktionen werden importiert...")
-                if not self.runSQLScript(conn, "alkis-compat.sql"):
-                    self.log(u"Import der Kompatibilitätsfunktionen schlug fehl.")
-                    break
-
-                self.log(u"Kompatibilitätsfunktionen importiert.")
-
                 if self.cbxCreate.isChecked():
                     if self.parentschema != "":
                         if not self.rund(conn, "precreate"):
@@ -914,12 +910,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                             self.log(u"Anlegen des Datenbestands schlug fehl.")
                             break
                         self.log(u"Datenbestand angelegt.")
-
-                        self.status(u"Präsentationstabellen werden erzeugt...")
-                        if not self.runSQLScript(conn, "alkis-po-tables.sql"):
-                            self.log(u"Anlegen der Präsentationstabellen schlug fehl.")
-                            break
-                        self.log(u"Präsentationstabellen angelegt.")
 
                         if not self.rund(conn, "postcreate"):
                             break
@@ -1045,7 +1035,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         "-update",
                         "-append",
                         "-progress",
-                        u"PG:{} active_schema={}".format(conn,self.schema),
+                        u"PG:{} active_schema={}','{}".format(conn,self.schema,self.pgschema),
                     ]
 
                     if int(self.leGT.text() or '0') >= 1:

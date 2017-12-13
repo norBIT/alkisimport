@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Moor (43005)
 --
 
-SELECT 'Moor wird bearbeitet.';
+SELECT 'Moor wird verarbeitet.';
 
 -- Moor, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Seilbahn, Schwebebahn (53005)
 --
 
-SELECT 'Seil- und Schwebebahnen werden bearbeitet.';
+SELECT 'Seil- und Schwebebahnen werden verarbeitet.';
 
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 SELECT

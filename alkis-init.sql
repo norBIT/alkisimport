@@ -1,10 +1,18 @@
-/******************************************************************************
- *
- * Projekt:  norGIS ALKIS Import
- * Zweck:    Initialisierung des ALKIS-Schema
- * Author:   Jürgen E. Fischer <jef@norbit.de>
- *
- ******************************************************************************/
+/***************************************************************************
+ *                                                                         *
+ * Projekt:  norGIS ALKIS Import                                           *
+ * Zweck:    Initialisierung des ALKIS-Schema                              *
+ * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
+ *                                                                         *
+ ***************************************************************************
+ * Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>              *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
 
 -- Damit die Includes (\i) funktionieren muß psql im Verzeichnis ausgeführt
 -- werden in dem das Skript liegt. Z.B. per
@@ -15,9 +23,6 @@
 SET client_encoding = 'UTF8';
 SET default_with_oids = false;
 SET search_path = :"alkis_schema", public;
-
--- Abbruch bei Fehlern
-\set ON_ERROR_STOP
 
 -- Stored Procedures laden
 \i alkis-functions.sql
@@ -36,3 +41,6 @@ SELECT alkis_create_bsrs(:alkis_epsg);
 \i alkis-schema.sql
 \i alkis-wertearten.sql
 -- \i alkis-wertearten-nrw.sql
+
+\i alkis-compat.sql
+\i alkis-po-tables.sql

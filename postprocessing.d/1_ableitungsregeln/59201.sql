@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Einrichtung im Straßenverkehr (59201; NRW)
 --
 
-SELECT 'Einrichtung im Straßenverkehr (NRW) werden bearbeitet.';
+SELECT 'Einrichtung im Straßenverkehr (NRW) werden verarbeitet.';
 
 -- Punkte
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

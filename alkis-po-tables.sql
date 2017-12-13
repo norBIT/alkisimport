@@ -14,8 +14,6 @@
  *                                                                         *
  ***************************************************************************/
 
--- Abbruch bei Fehlern
-\set ON_ERROR_STOP
 SET search_path = :"alkis_schema", :"postgis_schema", public;
 
 SELECT 'Präsentationstabellen werden erzeugt.';
@@ -31,7 +29,7 @@ INSERT INTO alkis_po_version(version) VALUES (2);
 -- Punkte
 SELECT alkis_dropobject('po_points');
 CREATE TABLE po_points(
-	ogc_fid serial PRIMARY KEY,
+	ogc_fid serial PRIMARY KEY DEFERRABLE INITIALLY DEFERRED,
 	gml_id character(16) NOT NULL,
 	thema varchar NOT NULL,
 	layer varchar NOT NULL,
@@ -47,7 +45,7 @@ SELECT AddGeometryColumn('po_points','point', :alkis_epsg, 'MULTIPOINT', 2);
 -- Linien
 SELECT alkis_dropobject('po_lines');
 CREATE TABLE po_lines(
-	ogc_fid serial PRIMARY KEY,
+	ogc_fid serial PRIMARY KEY DEFERRABLE INITIALLY DEFERRED,
 	gml_id character(16) NOT NULL,
 	thema varchar NOT NULL,
 	layer varchar NOT NULL,
@@ -61,7 +59,7 @@ SELECT AddGeometryColumn('po_lines','line', :alkis_epsg, 'MULTILINESTRING', 2);
 -- Polygone
 SELECT alkis_dropobject('po_polygons');
 CREATE TABLE po_polygons(
-	ogc_fid serial PRIMARY KEY,
+	ogc_fid serial PRIMARY KEY DEFERRABLE INITIALLY DEFERRED,
 	gml_id character(16) NOT NULL,
 	thema varchar NOT NULL,
 	layer varchar NOT NULL,
@@ -77,7 +75,7 @@ SELECT AddGeometryColumn('po_polygons','polygon', :alkis_epsg, 'MULTIPOLYGON', 2
 --- Beschriftungen
 SELECT alkis_dropobject('po_labels');
 CREATE TABLE po_labels(
-	ogc_fid serial PRIMARY KEY,
+	ogc_fid serial PRIMARY KEY DEFERRABLE INITIALLY DEFERRED,
 	gml_id character(16) NOT NULL,
 	thema varchar NOT NULL,
 	layer varchar NOT NULL,

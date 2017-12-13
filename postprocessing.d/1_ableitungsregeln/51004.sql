@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Transportanlage (51004)
 --
 
-SELECT 'Transportanlagen werden bearbeitet.';
+SELECT 'Transportanlagen werden verarbeitet.';
 
 -- Transportanlage, Linie
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

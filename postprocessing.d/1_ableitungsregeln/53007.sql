@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Flugverkehrsanlage (53007)
 --
 
-SELECT 'Flugverkehrsanlagen werden bearbeitet.';
+SELECT 'Flugverkehrsanlagen werden verarbeitet.';
 
 -- Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

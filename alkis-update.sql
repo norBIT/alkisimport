@@ -17,8 +17,7 @@
 SET client_encoding = 'UTF8';
 SET search_path = :"postgis_schema", public;
 
--- Abbruch bei Fehlern
-\set ON_ERROR_STOP
+\i alkis-compat.sql
 
 -- Stored Procedures laden
 \i alkis-functions.sql

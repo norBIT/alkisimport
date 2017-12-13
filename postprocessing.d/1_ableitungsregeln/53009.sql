@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Bauwerk im Gewässerbereich (53009)
 --
 
-SELECT 'Bauwerke im Gewässerbereich werden bearbeitet.';
+SELECT 'Bauwerke im Gewässerbereich werden verarbeitet.';
 
 -- Linien
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

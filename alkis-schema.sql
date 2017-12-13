@@ -1,7 +1,10 @@
 -- Version vom 27.07.2017 21:41
 -- gewählte Pakete: 'AFIS-ALKIS-ATKIS Anwendungsschema', 'AAA Basisschema', 'AAA_Basisklassen', 'AAA_GemeinsameGeometrie', 'AAA_Nutzerprofile', 'AAA_Operationen', 'AAA_Praesentationsobjekte', 'AAA_Praesentationsobjekte 3D', 'AAA_Projektsteuerung', 'AAA_Punktmengenobjekte', 'AAA_Spatial Schema', 'AAA_Spatial Schema 3D', 'AAA_Unabhaengige Geometrie', 'AAA_Unabhaengige Geometrie 3D', 'Codelisten', 'AFIS-ALKIS-ATKIS Fachschema', 'Bauwerke, Einrichtungen und sonstige Angaben', 'Bauwerke und Einrichtungen in Siedlungsflächen', 'Bauwerke, Anlagen und Einrichtungen für den Verkehr', 'Besondere Angaben zum Gewässer', 'Besondere Angaben zum Verkehr', 'Besondere Anlagen auf Siedlungsflächen', 'Besondere Eigenschaften von Gewässern', 'Besondere Vegetationsmerkmale', 'Eigentümer', 'Personen- und Bestandsdaten', 'Flurstücke, Lage, Punkte', 'Angaben zu Festpunkten der Landesvermessung', 'Angaben zum Flurstück', 'Angaben zum Netzpunkt', 'Angaben zum Punktort', 'Angaben zur Historie', 'Angaben zur Lage', 'Angaben zur Reservierung', 'Fortführungsnachweis', 'Gebäude', 'Angaben zum Gebäude', 'Gesetzliche Festlegungen, Gebietseinheiten, Kataloge', 'Administrative Gebietseinheiten', 'Bodenschätzung, Bewertung', 'Geographische Gebietseinheiten', 'Kataloge', 'Öffentlich-rechtliche und sonstige Festlegungen', 'Migration', 'Migrationsobjekte', 'Nutzerprofile', 'Angaben zu Nutzerprofilen', 'Relief', 'Primäres DGM', 'Reliefformen', 'Sekundäres DGM', 'Tatsächliche Nutzung', 'Gewässer', 'Siedlung', 'Vegetation', 'Verkehr', 'NAS-Operationen', 'AFIS-ALKIS-ATKIS-Ausgabekatalog', 'AFIS-ALKIS-ATKIS-Ausgaben', 'AFIS-Einzelpunktnachweise', 'AFIS-Punktlisten', 'ALKIS-Ausgaben', 'Komplexe Datentypen für Ausgaben', 'ALKIS-Auswertungen', 'Angaben im Kopf der Ausgaben', 'Externe Datentypen', 'Flurstücksangaben', 'Fortführungsfälle', 'Gebäudeangaben', 'Personen- und Bestandsangaben', 'Punktangaben', 'Reservierungen'
 -- gewählte Filter: FILTER_INFO
-SET search_path = :"alkis_schema", public;
+
+BEGIN;
+
+SET search_path = :"alkis_schema", :"postgis_schema", public;
 
 CREATE TABLE aa_advstandardmodell (
   wert character varying,
@@ -21400,7 +21403,7 @@ CREATE TABLE ks_einrichtunginoeffentlichenbereichen (
 	zustand			integer,
 	PRIMARY KEY (ogc_fid)
 );
-COMMENT ON ks_einrichtunginoeffentlichenbereichen IS 'BASE: ks_einrichtunginoeffentlichenbereichen';
+COMMENT ON TABLE ks_einrichtunginoeffentlichenbereichen IS 'BASE: ks_einrichtunginoeffentlichenbereichen';
 
 SELECT AddGeometryColumn('ks_einrichtunginoeffentlichenbereichen','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
@@ -21569,3 +21572,5 @@ CREATE TABLE ks_kommunalerbesitz (
 SELECT AddGeometryColumn('ks_kommunalerbesitz','wkb_geometry',:alkis_epsg,'GEOMETRY',2);
 
 CREATE INDEX ks_kommunalerbesitz_geom_idx ON ks_kommunalerbesitz USING gist (wkb_geometry);
+
+END;

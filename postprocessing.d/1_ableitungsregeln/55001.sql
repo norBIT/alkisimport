@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Turm (55001)
 --
 
-SELECT 'Türme werden bearbeitet.';
+SELECT 'Türme werden verarbeitet.';
 
 -- Turm, Flächen
 -- TODO: Punkte?

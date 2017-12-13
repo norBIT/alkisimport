@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Schiffsverkehr (42016)
 --
 
-SELECT 'Schiffsverkehr wird bearbeitet.';
+SELECT 'Schiffsverkehr wird verarbeitet.';
 
 -- Schiffsverkehr, Fläche
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Meer (44007)
 --
 
-SELECT 'Meere werden bearbeitet.';
+SELECT 'Meere werden verarbeitet.';
 
 -- Meer, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

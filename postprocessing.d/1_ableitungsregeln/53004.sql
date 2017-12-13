@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Bahnverkehrsanlage (53004)
 --
 
-SELECT 'Bahnverkehrsanlagen werden bearbeitet.';
+SELECT 'Bahnverkehrsanlagen werden verarbeitet.';
 
 -- Bauwerksfunktion, Anschrieb
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)

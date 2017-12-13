@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Stehendes Gewässer (44006)
 --
 
-SELECT 'Stehende Gewässer werden bearbeitet.';
+SELECT 'Stehende Gewässer werden verarbeitet.';
 
 -- Stehendes Gewässer, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

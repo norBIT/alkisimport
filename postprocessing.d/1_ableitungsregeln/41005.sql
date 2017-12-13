@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Tagebau (41005)
 --
 
-SELECT 'Tagebaue werden bearbeitet.';
+SELECT 'Tagebaue werden verarbeitet.';
 
 -- Tagebau, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

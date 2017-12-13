@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Weg, Pfad, Steig (53003)
 --
 
-SELECT 'Wege, Pfade und Steige werden bearbeitet.';
+SELECT 'Wege, Pfade und Steige werden verarbeitet.';
 
 -- Linien
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)

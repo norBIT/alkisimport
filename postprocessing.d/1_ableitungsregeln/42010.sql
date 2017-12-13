@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Bahnverkehr (42010)
 --
 
-SELECT 'Bahnverkehr wird bearbeitet.';
+SELECT 'Bahnverkehr wird verarbeitet.';
 
 -- Bahnverkehr, Fläche
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

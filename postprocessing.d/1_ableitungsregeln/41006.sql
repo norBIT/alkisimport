@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Fläche gemischter Nutzung (41006)
 --
 
-SELECT 'Flächen gemischter Nutzung werden bearbeitet.';
+SELECT 'Flächen gemischter Nutzung werden verarbeitet.';
 
 -- Fläche gemischter Nutzung
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Unland/vegetationslose Fläche (43007)
 --
 
-SELECT 'Unland/vegetationslose Flächen werden bearbeitet.';
+SELECT 'Unland/vegetationslose Flächen werden verarbeitet.';
 
 -- Unland, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

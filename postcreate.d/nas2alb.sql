@@ -99,7 +99,7 @@ CREATE TABLE strassen (
 	flsnr character(21),
 	pk character(8) NOT NULL,
 	strshl character(32),
-	hausnr character(8),
+	hausnr varchar,
 	ff_entst integer,
 	ff_stand integer,
 	primary key (pk)

@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Friedhof (41009)
 --
 
-SELECT 'Friedhöfe werden bearbeitet.';
+SELECT 'Friedhöfe werden verarbeitet.';
 
 -- Fläche, Friedhof
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

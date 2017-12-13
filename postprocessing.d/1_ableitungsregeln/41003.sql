@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Halde (41003)
 --
 
-SELECT 'Halden werden bearbeitet.';
+SELECT 'Halden werden verarbeitet.';
 
 -- Halde, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

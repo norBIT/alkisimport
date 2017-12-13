@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Hafenbecken (44005)
 --
 
-SELECT 'Hafenbecken werden bearbeitet.';
+SELECT 'Hafenbecken werden verarbeitet.';
 
 -- Hafenbecken, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

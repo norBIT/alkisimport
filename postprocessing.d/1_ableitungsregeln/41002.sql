@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Industrie- und Gewerbefläche (41002)
 --
 
-SELECT 'Industrie- und Gewerbeflächen werden bearbeitet.';
+SELECT 'Industrie- und Gewerbeflächen werden verarbeitet.';
 
 -- Industrie- und Gewerbefläche, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

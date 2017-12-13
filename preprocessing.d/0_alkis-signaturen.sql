@@ -18,7 +18,6 @@
 -- Automatisch erzeugt mit alkis-parse-sigs.pl
 -- Änderungen werden überschrieben
 --
-\set ON_ERROR_STOP
 SET search_path = :"alkis_schema", :"postgis_schema", public;
 
 SELECT 'Lade Signaturen...';

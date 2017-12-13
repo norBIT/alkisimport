@@ -14,7 +14,6 @@
  *                                                                         *
  ***************************************************************************/
 
-\set ON_ERROR_STOP
 BEGIN;
 SELECT alkis_dropobject('alkis_methode');
 SELECT alkis_dropobject('alkis_attributart');

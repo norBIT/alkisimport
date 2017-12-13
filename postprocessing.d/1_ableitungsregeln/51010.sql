@@ -6,7 +6,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- TODO: 1500 Bahnschranke?
 --
 
-SELECT 'Einrichtungen in öffentlichen Bereichen werden bearbeitet.';
+SELECT 'Einrichtungen in öffentlichen Bereichen werden verarbeitet.';
 
 -- Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

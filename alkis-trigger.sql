@@ -10,9 +10,6 @@ SET client_encoding = 'UTF8';
 SET default_with_oids = false;
 SET search_path = :"alkis_schema", public;
 
--- Abbruch bei Fehlern
-\set ON_ERROR_STOP
-
 --- Tabelle "delete" für Lösch- und Fortführungsdatensätze
 CREATE TABLE "delete" (
        ogc_fid         serial NOT NULL,

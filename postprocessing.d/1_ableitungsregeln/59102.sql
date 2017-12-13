@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Einrichtungen im öffentlichen Bereichen (59102; NRW)
 --
 
-SELECT 'Einrichtungen im öffentlichen Bereichen (NRW) werden bearbeitet.';
+SELECT 'Einrichtungen im öffentlichen Bereichen (NRW) werden verarbeitet.';
 
 -- Punkte
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

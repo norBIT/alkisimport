@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Bauwerk, Anlagen für Ver- und Entsorgen (59103; NRW)
 --
 
-SELECT 'Bauwerke und Anlagen für Ver- und Entsorgen (NRW) werden bearbeitet.';
+SELECT 'Bauwerke und Anlagen für Ver- und Entsorgen (NRW) werden verarbeitet.';
 
 -- Punkte
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

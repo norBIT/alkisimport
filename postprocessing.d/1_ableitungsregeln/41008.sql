@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Sport-, Freizeit- und Erholungsfläche (41008)
 --
 
-SELECT 'Sport-, Freizeit- und Erholungsflächen werden bearbeitet.';
+SELECT 'Sport-, Freizeit- und Erholungsflächen werden verarbeitet.';
 
 -- Sport-, Freizeit- und Erholungsfläche
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

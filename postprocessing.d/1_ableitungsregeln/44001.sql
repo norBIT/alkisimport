@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Fließgewässer (44001)
 --
 
-SELECT 'Fließgewässer werden bearbeitet.';
+SELECT 'Fließgewässer werden verarbeitet.';
 
 -- Fließgewässer, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

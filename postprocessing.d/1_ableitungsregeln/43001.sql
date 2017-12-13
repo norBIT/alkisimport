@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Landwirtschaft (43001)
 --
 
-SELECT 'Landwirtschaft wird bearbeitet.';
+SELECT 'Landwirtschaft wird verarbeitet.';
 
 -- Landwirtschaft, Fläche
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

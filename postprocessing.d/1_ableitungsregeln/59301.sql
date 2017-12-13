@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Vegetationsmerkmal (59301; NRW)
 --
 
-SELECT 'Vegetationsmerkmale (NRW) werden bearbeitet.';
+SELECT 'Vegetationsmerkmale (NRW) werden verarbeitet.';
 
 -- Punkte
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

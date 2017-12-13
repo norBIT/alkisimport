@@ -379,3 +379,13 @@ UPDATE ap_pto SET art='Strasse' WHERE art='Straße';  -- Straße wird z.B. in TH
 -- Leere Geschosszahlen korrigieren (sonst to_char(0,'RN') => '###############')
 UPDATE ax_gebaeude SET anzahlderoberirdischengeschosse=NULL WHERE anzahlderoberirdischengeschosse=0;
 UPDATE ax_gebaeude SET anzahlderunterirdischengeschosse=NULL WHERE anzahlderunterirdischengeschosse=0;
+
+ANALYZE ax_flurstueck;
+ANALYZE ax_gebaeude;
+ANALYZE ax_turm;
+
+ANALYZE ap_ppo;
+ANALYZE ap_lpo;
+ANALYZE ap_pto;
+ANALYZE ap_lto;
+ANALYZE ap_darstellung;

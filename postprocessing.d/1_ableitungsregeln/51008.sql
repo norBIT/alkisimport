@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Heilquelle (51008)
 --
 
-SELECT 'Heilquellen werden bearbeitet.';
+SELECT 'Heilquellen werden verarbeitet.';
 
 -- Symbole
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

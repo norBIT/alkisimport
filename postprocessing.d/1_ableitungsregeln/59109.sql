@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Sonstiges Bauwerk (59109; NRW)
 --
 
-SELECT 'Sonstige Bauwerke (NRW) werden bearbeitet.';
+SELECT 'Sonstige Bauwerke (NRW) werden verarbeitet.';
 
 -- Punkte
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

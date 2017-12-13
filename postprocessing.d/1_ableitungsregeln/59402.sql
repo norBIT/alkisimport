@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Kommunaler Besitz (59402; NRW)
 --
 
-SELECT 'Kommunaler Besitz (NRW) wird bearbeitet.';
+SELECT 'Kommunaler Besitz (NRW) wird verarbeitet.';
 
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 SELECT

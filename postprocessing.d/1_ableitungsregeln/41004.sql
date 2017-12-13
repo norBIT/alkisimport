@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Bergbaubetrieb (41004)
 --
 
-SELECT 'Bergbaubetriebe werden bearbeitet.';
+SELECT 'Bergbaubetriebe werden verarbeitet.';
 
 -- Bergbaubetrieb, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Sonstiges Bauwerk oder sonstige Einrichtung (51009)
 --
 
-SELECT 'Sonstige Bauwerke oder Einrichtungen werden bearbeitet.';
+SELECT 'Sonstige Bauwerke oder Einrichtungen werden verarbeitet.';
 
 -- Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

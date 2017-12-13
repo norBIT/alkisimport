@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Historisches Bauwerk oder historische Einrichtung (51007)
 --
 
-SELECT 'Historische Bauwerke oder Einrichtungen werden bearbeitet.';
+SELECT 'Historische Bauwerke oder Einrichtungen werden verarbeitet.';
 
 -- Historisches Bauwerk oder historische Einrichtung, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

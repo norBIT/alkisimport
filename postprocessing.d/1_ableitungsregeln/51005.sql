@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Leitung (51005)
 --
 
-SELECT 'Leitungen werden bearbeitet.';
+SELECT 'Leitungen werden verarbeitet.';
 
 -- Leitungsverlauf
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)

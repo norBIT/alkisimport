@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Gleis (55006)
 --
 
-SELECT 'Gleise werden bearbeitet.';
+SELECT 'Gleise werden verarbeitet.';
 
 -- Drehscheibe, Fläche
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

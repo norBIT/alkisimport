@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Platz (42009)
 --
 
-SELECT 'Plätze werden bearbeitet.';
+SELECT 'Plätze werden verarbeitet.';
 
 -- Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

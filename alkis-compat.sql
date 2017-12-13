@@ -14,6 +14,9 @@
  *                                                                         *
  ***************************************************************************/
 
+\unset ON_ERROR_STOP
+\unset ECHO
+
 SET search_path = public;
 
 CREATE FUNCTION unnest(anyarray) RETURNS SETOF anyelement AS $$
@@ -421,3 +424,6 @@ BEGIN
   RETURN res;
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
+
+\set ON_ERROR_STOP
+\set ECHO errors

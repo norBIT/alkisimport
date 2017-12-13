@@ -82,6 +82,8 @@ BEGIN
 		COMMENT ON TABLE str_shl IS 'BASE: Straßenschlüssel';
 		COMMENT ON TABLE kls_shl IS 'BASE: Klassifiziersschlüssel';
 
+		ALTER TABLE strassen ALTER hausnr TYPE varchar;
+
 		UPDATE alb_version SET version=3;
 
 		r := coalesce(r||E'\n','') || 'ALB-Schema migriert';

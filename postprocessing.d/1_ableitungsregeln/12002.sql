@@ -23,20 +23,24 @@ FROM ax_lagebezeichnungmithausnummer o
 JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art='Ort'
 WHERE coalesce(schriftinhalt,'')<>'' AND o.endet IS NULL;
 
+ANALYZE ax_lagebezeichnungmithausnummer;
+ANALYZE ax_lagebezeichnungohnehausnummer;
+
 -- mit Hausnummer (bezieht sich auf Gebäude, Turm oder Flurstück)
-SELECT ' Gebäudehausnummern.';
+SELECT ' Gebäudehausnummern werden verarbeitet.';
 
 CREATE TEMPORARY TABLE po_zeigtauf_hausnummer(
-	zeigtauf character(16) PRIMARY KEY,
+	zeigtauf character(16),
 	wkb_geometry GEOMETRY,
 	prefix varchar
 );
+CREATE INDEX po_zeigtauf_hausnummer_zeigtauf ON po_zeigtauf_hausnummer(zeigtauf);
 
 INSERT INTO po_zeigtauf_hausnummer
 	SELECT
 		zeigtauf, wkb_geometry, prefix
 	FROM (
-		SELECT DISTINCT
+		SELECT
 			unnest(zeigtauf) AS zeigtauf, wkb_geometry, '' AS prefix
 		FROM ax_turm z
 		JOIN ax_lagebezeichnungmithausnummer lmh ON ARRAY[lmh.gml_id] <@ z.zeigtAuf AND lmh.endet IS NULL
@@ -49,7 +53,7 @@ INSERT INTO po_zeigtauf_hausnummer
 	SELECT
 		zeigtauf, wkb_geometry, prefix
 	FROM (
-		SELECT DISTINCT
+		SELECT
 			unnest(zeigtauf) AS zeigtauf, wkb_geometry, '' AS prefix
 		FROM ax_gebaeude z
 		JOIN ax_lagebezeichnungmithausnummer lmh ON ARRAY[lmh.gml_id] <@ z.zeigtAuf AND lmh.endet IS NULL

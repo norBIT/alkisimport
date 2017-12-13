@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Sumpf (43006)
 --
 
-SELECT 'Sumpf wird bearbeitet.';
+SELECT 'Sumpf wird verarbeitet.';
 
 -- Sumpf, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Grenzpunkte (11003)
 --
 
-SELECT 'Grenzpunkte werden bearbeitet.';
+SELECT 'Grenzpunkte werden verarbeitet.';
 
 CREATE TEMPORARY TABLE po_punktortta_istteilvon(gml_id character(16), istteilvon character(16));
 INSERT INTO po_punktortta_istteilvon(gml_id, istteilvon)

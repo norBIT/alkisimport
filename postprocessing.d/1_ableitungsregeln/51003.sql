@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Vorratsbehälter, Speicherbauwerk (51003)
 --
 
-SELECT 'Vorratsbehälter, Speicherbauwerke werden bearbeitet.';
+SELECT 'Vorratsbehälter, Speicherbauwerke werden verarbeitet.';
 
 -- Vorratsbehälter, Speicherbauwerk, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Bauwerk im Gewässerbereich (59207; NRW)
 --
 
-SELECT 'Bauwerke im Gewässerbereich (NRW) werden bearbeitet.';
+SELECT 'Bauwerke im Gewässerbereich (NRW) werden verarbeitet.';
 
 -- Punkte
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

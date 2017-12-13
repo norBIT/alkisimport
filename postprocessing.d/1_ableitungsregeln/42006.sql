@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Weg (42006)
 --
 
-SELECT 'Wege werden bearbeitet.';
+SELECT 'Wege werden verarbeitet.';
 
 -- Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

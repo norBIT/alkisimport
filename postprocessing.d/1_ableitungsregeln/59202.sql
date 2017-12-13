@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Verkehrszeichen (59202; NRW)
 --
 
-SELECT 'Verkehrszeichen (NRW) werden bearbeitet.';
+SELECT 'Verkehrszeichen (NRW) werden verarbeitet.';
 
 -- Punkte
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

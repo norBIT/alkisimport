@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Fläche besonderer funktionaler Prägung (41007)
 --
 
-SELECT 'Flächen besonderer funktionaler Prägung werden bearbeitet.';
+SELECT 'Flächen besonderer funktionaler Prägung werden verarbeitet.';
 
 -- Fläche besonderer funktionaler Prägung
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

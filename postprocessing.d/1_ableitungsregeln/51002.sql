@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Bauwerk oder Anlage für Industrie und Gewerbe (51002)
 --
 
-SELECT 'Bauwerke oder Anlagen für Industrie und Gewerbe werden bearbeitet.';
+SELECT 'Bauwerke oder Anlagen für Industrie und Gewerbe werden verarbeitet.';
 
 -- Bauwerk- oder Anlage für Industrie und Gewerbe, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

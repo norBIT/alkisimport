@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Einrichtungen für den Schiffsverkehr (53008)
 --
 
-SELECT 'Einrichtungen für den Schiffsverkehr werden bearbeitet.';
+SELECT 'Einrichtungen für den Schiffsverkehr werden verarbeitet.';
 
 -- Symbole
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

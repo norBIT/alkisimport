@@ -6,7 +6,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- TODO: Ausrichtung Symbol am Steg 1820?
 --
 
-SELECT 'Bauwerke in Verkehrsbereich werden bearbeitet.';
+SELECT 'Bauwerke in Verkehrsbereich werden verarbeitet.';
 
 -- Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
