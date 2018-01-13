@@ -1,11 +1,11 @@
 /***************************************************************************
- *
- * Project:  norGIS ALKIS Import
- * Purpose:  PostGIS-Vorwärtskompatibilitätsfunktionen
- * Author:   Jürgen E. Fischer <jef@norbit.de>
- *
+ *                                                                         *
+ * Project:  norGIS ALKIS Import                                           *
+ * Purpose:  PostGIS-Vorwärtskompatibilitätsfunktionen                     *
+ * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
+ *                                                                         *
  ***************************************************************************
- * Copyright (c) 2012-2014, Jürgen E. Fischer <jef@norbit.de>              *
+ * Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -14,13 +14,16 @@
  *                                                                         *
  ***************************************************************************/
 
+\unset ON_ERROR_STOP
+\unset ECHO
+
 SET search_path = public;
 
 CREATE FUNCTION unnest(anyarray) RETURNS SETOF anyelement AS $$
   SELECT $1[i] FROM generate_series(array_lower($1,1), array_upper($1,1)) i;
 $$ LANGUAGE 'sql' IMMUTABLE;
 
-SET search_path = :"postgis_schema", :"alkis_schema", public;
+SET search_path = :"postgis_schema", :"parent_schema", public;
 
 CREATE FUNCTION st_snaptogrid(geometry,float8,float8) RETURNS geometry AS $$
   SELECT snaptogrid($1,$2,$3);
@@ -231,7 +234,7 @@ CREATE AGGREGATE st_union (
 	finalfunc = unite_garray
 );
 
-SET search_path = :"alkis_schema", :"postgis_schema", public;
+SET search_path = :"parent_schema", :"postgis_schema", public;
 
 CREATE FUNCTION alkis_intersect_lines( p0 geometry, p1 geometry, p2 geometry, p3 geometry ) RETURNS geometry AS $$
 DECLARE
@@ -263,7 +266,7 @@ BEGIN
 
 	RETURN st_translate( p0, k*vx, k*vy );
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE FUNCTION alkis_offsetcurve(g0 geometry,offs float8,params text) RETURNS geometry AS $$
 DECLARE
@@ -362,9 +365,9 @@ BEGIN
 		RETURN st_makeline(r);
 	END IF;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql IMMUTABLE;
 
-SET search_path = :"postgis_schema", :"alkis_schema", public;
+SET search_path = :"postgis_schema", :"parent_schema", public;
 
 CREATE FUNCTION st_offsetcurve(geometry,float8,text) RETURNS geometry AS $$
   SELECT alkis_offsetcurve($1,$2,$3);
@@ -420,4 +423,7 @@ BEGIN
   END;
   RETURN res;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+\set ON_ERROR_STOP
+\set ECHO errors

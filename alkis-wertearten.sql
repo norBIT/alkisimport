@@ -1,20 +1,19 @@
-/******************************************************************************
- *
- * Project:  norGIS ALKIS Import
- * Purpose:  Aus der GeoInfoDok geparste Kataloge
- * Author:   Jürgen E. Fischer <jef@norbit.de>
- *
- ******************************************************************************
- * Copyright (c) 2012-2014, Jürgen E. Fischer <jef@norbit.de>
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 2 of the License, or
- *   (at your option) any later version.
- *
- ****************************************************************************/
+/***************************************************************************
+ *                                                                         *
+ * Project:  norGIS ALKIS Import                                           *
+ * Purpose:  Aus der GeoInfoDok geparste Kataloge                          *
+ * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
+ *                                                                         *
+ ***************************************************************************
+ * Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>              *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
 
-\set ON_ERROR_STOP
 BEGIN;
 SELECT alkis_dropobject('alkis_methode');
 SELECT alkis_dropobject('alkis_attributart');

@@ -1,24 +1,26 @@
-/******************************************************************************
- *
- * Project:  norGIS ALKIS Import
- * Purpose:  Aus dem ALKIS-Signaturkatalog geparste Darstellungsinformationen
- * Author:   Jürgen E. Fischer <jef@norbit.de>
- *
- ******************************************************************************
- * Copyright (c) 2012-2014, Jürgen E. Fischer <jef@norbit.de>
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 2 of the License, or
- *   (at your option) any later version.
- *
- ****************************************************************************/
+/***************************************************************************
+ *                                                                         *
+ * Project:  norGIS ALKIS Import                                           *
+ * Purpose:  Aus dem ALKIS-Signaturkatalog geparste Darstellungs-          *
+ *           informationen                                                 *
+ * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
+ *                                                                         *
+ ***************************************************************************
+ * Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>              *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
 
 -- Automatisch erzeugt mit alkis-parse-sigs.pl
 -- Änderungen werden überschrieben
 --
-\set ON_ERROR_STOP
 SET search_path = :"alkis_schema", :"postgis_schema", public;
+
+SELECT 'Lade Signaturen...';
 
 DELETE FROM alkis_flaechen;
 DELETE FROM alkis_linie;

@@ -1,28 +1,29 @@
-/****************************************************************************
- *
- * Project:  norGIS ALKIS Import
- * Purpose:  SQL-Funktionen für ALKIS
- * Author:   Jürgen E. Fischer <jef@norbit.de>
- *
- ****************************************************************************
- * Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 2 of the License, or
- *   (at your option) any later version.
- *
- ****************************************************************************/
+/***************************************************************************
+ *                                                                         *
+ * Project:  norGIS ALKIS Import                                           *
+ * Purpose:  SQL-Funktionen für ALKIS                                      *
+ * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
+ *                                                                         *
+ ***************************************************************************
+ * Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>              *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
 
 CREATE FUNCTION pg_temp.alkis_set_schema(t TEXT) RETURNS varchar AS $$
 DECLARE
 	i integer;
 BEGIN
-	SELECT count(*) INTO i FROM pg_namespace WHERE nspname=t;
-	IF i = 0 THEN
-		EXECUTE 'CREATE SCHEMA '|| quote_ident(t);
+	BEGIN
+		EXECUTE 'CREATE SCHEMA ' || quote_ident(t);
 		RAISE NOTICE 'Schema % angelegt.', t;
-	END IF;
+	EXCEPTION WHEN duplicate_schema OR unique_violation THEN
+		-- skip
+	END;
 
 	PERFORM set_config('search_path', quote_ident(t) || ', ' || current_setting('search_path'), false);
 
@@ -34,10 +35,11 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+SET search_path = :"parent_schema", :"postgis_schema", public;
 SELECT pg_temp.alkis_set_schema(:'alkis_schema');
 
 -- Table/View/Sequence löschen, wenn vorhanden
-CREATE OR REPLACE FUNCTION alkis_dropobject(t TEXT) RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_dropobject(t TEXT) RETURNS varchar AS $$
 DECLARE
 	c RECORD;
 	s varchar;
@@ -48,9 +50,9 @@ DECLARE
 BEGIN
 	-- drop objects
 	FOR c IN SELECT relkind,relname
-		FROM pg_class
-		JOIN pg_namespace ON pg_class.relnamespace=pg_namespace.oid
-		WHERE pg_namespace.nspname=current_schema() AND pg_class.relname=t
+		FROM pg_catalog.pg_class
+		JOIN pg_catalog.pg_namespace ON pg_class.relnamespace=pg_namespace.oid
+		WHERE pg_catalog.pg_namespace.nspname=current_schema() AND pg_class.relname=t
 		ORDER BY relkind
 	LOOP
 		IF c.relkind = 'v' THEN
@@ -67,15 +69,15 @@ BEGIN
 		END IF;
 	END LOOP;
 
-	FOR c IN SELECT indexname FROM pg_indexes WHERE schemaname=current_schema() AND indexname=t
+	FOR c IN SELECT indexname FROM pg_catalog.pg_indexes WHERE schemaname=current_schema() AND indexname=t
 	LOOP
 		r := alkis_string_append(r, 'Index ' || c.indexname || ' gelöscht.');
 		EXECUTE 'DROP INDEX ' || c.indexname;
 	END LOOP;
 
 	FOR c IN SELECT proname,proargtypes
-		FROM pg_proc
-		JOIN pg_namespace ON pg_proc.pronamespace=pg_namespace.oid
+		FROM pg_catalog.pg_proc
+		JOIN pg_catalog.pg_namespace ON pg_proc.pronamespace=pg_namespace.oid
 		WHERE pg_namespace.nspname=current_schema() AND pg_proc.proname=t
 	LOOP
 		r := alkis_string_append(r, 'Funktion ' || c.proname || ' gelöscht.');
@@ -84,7 +86,7 @@ BEGIN
 		d := '';
 
 		FOR i IN array_lower(c.proargtypes,1)..array_upper(c.proargtypes,1) LOOP
-			SELECT typname INTO tn FROM pg_type WHERE oid=c.proargtypes[i];
+			SELECT typname INTO tn FROM pg_catalog.pg_type WHERE oid=c.proargtypes[i];
 			s := s || d || tn;
 			d := ',';
 		END LOOP;
@@ -95,9 +97,9 @@ BEGIN
 	END LOOP;
 
 	FOR c IN SELECT relname,conname
-		FROM pg_constraint
-		JOIN pg_class ON pg_constraint.conrelid=pg_constraint.oid
-		JOIN pg_namespace ON pg_constraint.connamespace=pg_namespace.oid
+		FROM pg_catalog.pg_constraint
+		JOIN pg_catalog.pg_class ON pg_constraint.conrelid=pg_constraint.oid
+		JOIN pg_catalog.pg_namespace ON pg_constraint.connamespace=pg_namespace.oid
 		WHERE pg_namespace.nspname=current_schema() AND pg_constraint.conname=t
 	LOOP
 		r := alkis_string_append(r, 'Constraint ' || c.conname || ' von ' || c.relname || ' gelöscht.');
@@ -108,14 +110,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT alkis_dropobject('alkis_string_append');
-CREATE OR REPLACE FUNCTION alkis_string_append(varchar, varchar) RETURNS varchar AS $$
-        SELECT CASE WHEN $1='' OR $1 LIKE E'%\n' THEN $1 ELSE coalesce($1||E'\n','') END || coalesce($2, '');
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_string_append(varchar, varchar) RETURNS varchar AS $$
+	SELECT CASE WHEN $1='' OR $1 LIKE E'%\n' THEN $1 ELSE coalesce($1||E'\n','') END || coalesce($2, '');
 $$ LANGUAGE 'sql' IMMUTABLE;
 
 -- Alle ALKIS-Tabellen löschen
-SELECT alkis_dropobject('alkis_drop');
-CREATE FUNCTION alkis_drop() RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_drop() RETURNS varchar AS $$
 DECLARE
 	c RECORD;
 	r VARCHAR;
@@ -148,8 +148,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Alle ALKIS-Tabellen leeren
-SELECT alkis_dropobject('alkis_clean');
-CREATE FUNCTION alkis_clean() RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_clean() RETURNS varchar AS $$
 DECLARE
 	c RECORD;
 	r VARCHAR;
@@ -168,8 +167,58 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT alkis_dropobject('alkis_create_bsrs');
-CREATE FUNCTION alkis_create_bsrs(id INTEGER) RETURNS varchar AS $$
+-- Alle ALKIS-Tabellen erben
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_inherit(parent varchar) RETURNS varchar AS $$
+DECLARE
+	tab RECORD;
+	ind RECORD;
+	r VARCHAR;
+	nt INTEGER;
+	ni INTEGER;
+	nv INTEGER;
+BEGIN
+	nt := 0;
+	ni := 0;
+	nv := 0;
+
+	-- inherit tables
+	FOR tab IN
+		SELECT c.oid, c.relname, obj_description(c.oid) AS description
+		FROM pg_catalog.pg_class c
+		JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace AND n.nspname=parent
+		WHERE pg_get_userbyid(c.relowner)=current_user AND c.relkind='r'
+		  AND NOT EXISTS (
+			SELECT *
+			FROM pg_catalog.pg_class c1
+			JOIN pg_catalog.pg_namespace n1 ON n1.oid=c1.relnamespace AND n1.nspname=current_schema
+			WHERE c1.relname=c.relname
+		  )
+	LOOP
+		IF tab.description LIKE 'FeatureType:%' OR tab.description LIKE 'BASE:%' THEN
+			nt := nt + 1;
+			EXECUTE 'CREATE TABLE ' || quote_ident(tab.relname) || '() INHERITS (' || quote_ident(parent) || '.' || quote_ident(tab.relname) || ')';
+			RAISE NOTICE 'Tabelle % abgeleitet.', tab.relname;
+
+			FOR ind IN
+				SELECT c.relname, replace(pg_get_indexdef(i.indexrelid), 'ON '||quote_ident(parent)||'.', 'ON ') AS sql
+				FROM pg_catalog.pg_index i
+				JOIN pg_catalog.pg_class c ON c.oid=i.indexrelid
+				WHERE i.indrelid=tab.oid
+			LOOP
+				ni := ni + 1;
+				EXECUTE ind.sql;
+			END LOOP;
+		ELSE
+			nv := nv + 1;
+			EXECUTE 'CREATE VIEW ' || quote_ident(tab.relname) || ' AS SELECT * FROM ' || quote_ident(parent) || '.' || quote_ident(tab.relname);
+		END IF;
+	END LOOP;
+
+	RETURN nt || ' Tabellen mit ' || ni || ' Indizes abgeleitet und ' || nv || ' Sichten erzeugt.';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_create_bsrs(id INTEGER) RETURNS varchar AS $$
 DECLARE
 	n INTEGER;
 BEGIN
@@ -226,8 +275,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Alle ALKIS-Tabellen leeren
-SELECT alkis_dropobject('alkis_delete');
-CREATE FUNCTION alkis_delete() RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_delete() RETURNS varchar AS $$
 DECLARE
 	c RECORD;
 	r varchar;
@@ -249,8 +297,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Übersicht erzeugen, die alle alkis_beziehungen mit den Typen der beteiligen ALKIS-Objekte versieht
-SELECT alkis_dropobject('alkis_mviews');
-CREATE FUNCTION alkis_mviews() RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_mviews() RETURNS varchar AS $$
 DECLARE
 	sql TEXT;
 	delim TEXT;
@@ -283,7 +330,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Wenn die Datenbank MIT Historie angelegt wurde, kann nach dem Laden hiermit aufgeräumt werden.
-CREATE OR REPLACE FUNCTION alkis_delete_all_endet() RETURNS void AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_delete_all_endet() RETURNS void AS $$
 DECLARE
 	c RECORD;
 BEGIN
@@ -300,13 +347,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION alkis_exception() RETURNS void AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_exception() RETURNS void AS $$
 BEGIN
 	RAISE EXCEPTION 'raising deliberate exception';
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION alkis_hist_check() RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_hist_check() RETURNS varchar AS $$
 DECLARE
 	c RECORD;
 	n INTEGER;
@@ -337,8 +384,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT alkis_dropobject('alkis_bufferline');
-CREATE FUNCTION alkis_bufferline(g geometry,offs float8) RETURNS geometry AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_bufferline(g geometry,offs float8) RETURNS geometry AS $$
 BEGIN
 	BEGIN
 		RETURN st_buffer(g,offs,'endcap=flat');
@@ -372,14 +418,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-\unset ON_ERROR_STOP
-
 --
 -- Datenbankmigration
 --
 
-SELECT alkis_dropobject('alkis_rename_table');
-CREATE OR REPLACE FUNCTION alkis_rename_table(t TEXT) RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_rename_table(t TEXT) RETURNS varchar AS $$
 BEGIN
 	PERFORM alkis_dropobject(t || '_');
 
@@ -394,8 +437,7 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT alkis_dropobject('alkis_update_schema');
-CREATE OR REPLACE FUNCTION alkis_update_schema() RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION :"parent_schema".alkis_update_schema() RETURNS varchar AS $$
 DECLARE
 	c RECORD;
 	s INTEGER;
@@ -705,10 +747,31 @@ BEGIN
 	IF ver<12 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 12';
 
-		ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD oberflaechenmaterial integer;
-		ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD material integer[];
-		ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD bezeichnung varchar;
-		ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD zustand integer;
+		BEGIN
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD oberflaechenmaterial integer;
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD material integer[];
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD bezeichnung varchar;
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD zustand integer;
+
+		EXCEPTION WHEN OTHERS THEN
+			CREATE TABLE ks_einrichtunginoeffentlichenbereichen (
+				ogc_fid                 serial NOT NULL,
+				gml_id                  character(16) NOT NULL,
+				beginnt                 character(20),
+				endet                   character(20),
+				advstandardmodell       varchar[],
+				sonstigesmodell         varchar[],
+				anlass                  varchar[],
+				art                     varchar,
+				oberflaechenmaterial    integer,
+				material                integer[],
+				bezeichnung             varchar,
+				zustand                 integer,
+				PRIMARY KEY (ogc_fid)
+			);
+
+			PERFORM AddGeometryColumn('ks_einrichtunginoeffentlichenbereichen','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+		END;
 
 		CREATE INDEX ks_einrichtunginoeffentlichenbereichen_geom_idx ON ks_einrichtunginoeffentlichenbereichen USING gist (wkb_geometry);
 
@@ -756,17 +819,40 @@ BEGIN
 
 		CREATE INDEX ks_einrichtungimstrassenverkehr_geom_idx ON ks_einrichtungimstrassenverkehr USING gist (wkb_geometry);
 
-		ALTER TABLE ks_verkehrszeichen ADD gefahrzeichen integer[];
-		ALTER TABLE ks_verkehrszeichen ADD vorschriftzeichen integer[];
-		ALTER TABLE ks_verkehrszeichen ADD richtzeichen integer[];
+		BEGIN
+			ALTER TABLE ks_verkehrszeichen ADD gefahrzeichen integer[];
+			ALTER TABLE ks_verkehrszeichen ADD vorschriftzeichen integer[];
+			ALTER TABLE ks_verkehrszeichen ADD richtzeichen integer[];
 
-		ALTER TABLE ks_verkehrszeichen RENAME verkehrseinrichtung TO verkehrseinrichtung_;
-		ALTER TABLE ks_verkehrszeichen ADD verkehrseinrichtung integer[];
-		UPDATE ks_verkehrszeichen SET verkehrseinrichtung=ARRAY[verkehrseinrichtung_];
-		ALTER TABLE ks_verkehrszeichen DROP verkehrseinrichtung_;
+			ALTER TABLE ks_verkehrszeichen RENAME verkehrseinrichtung TO verkehrseinrichtung_;
+			ALTER TABLE ks_verkehrszeichen ADD verkehrseinrichtung integer[];
+			UPDATE ks_verkehrszeichen SET verkehrseinrichtung=ARRAY[verkehrseinrichtung_];
+			ALTER TABLE ks_verkehrszeichen DROP verkehrseinrichtung_;
 
-		ALTER TABLE ks_verkehrszeichen ADD zusatzzeichen integer[];
-		ALTER TABLE ks_verkehrszeichen ADD bezeichnung varchar;
+			ALTER TABLE ks_verkehrszeichen ADD zusatzzeichen integer[];
+			ALTER TABLE ks_verkehrszeichen ADD bezeichnung varchar;
+		EXCEPTION WHEN OTHERS THEN
+			CREATE TABLE ks_verkehrszeichen (
+				ogc_fid                 serial NOT NULL,
+				gml_id                  character(16) NOT NULL,
+				beginnt                 character(20),
+				endet                   character(20),
+				advstandardmodell       varchar[],
+				sonstigesmodell         varchar[],
+				anlass                  varchar[],
+				gefahrzeichen           integer[],
+				vorschriftzeichen       integer[],
+				richtzeichen            integer[],
+				verkehrseinrichtung     integer[],
+				zusatzzeichen           integer[],
+				bezeichnung             varchar,
+				PRIMARY KEY (ogc_fid)
+			);
+
+			PERFORM AddGeometryColumn('ks_verkehrszeichen','wkb_geometry',find_srid('','ax_flurstueck','wkb_geometry'),'POINT',2);
+
+			CREATE INDEX ks_verkehrszeichen_geom_idx ON ks_verkehrszeichen USING gist (wkb_geometry);
+		END;
 
 		r := alkis_string_append(r, alkis_rename_table('ks_einrichtungimbahnverkehr'));
 
@@ -16222,8 +16308,38 @@ Erholung von Reisenden.'),
 			updated_at timestamp without time zone NOT NULL DEFAULT now(),
 			user_name character varying NOT NULL
 		);
+	END IF;
 
-		UPDATE alkis_version SET version=15;
+	IF ver<16 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 16';
+
+		COMMENT ON TABLE delete IS 'BASE: Lösch- und Fortführungsdatensätze';
+		COMMENT ON TABLE alkis_beziehungen IS 'BASE: Objektbeziehungen';
+
+		COMMENT ON TABLE ks_einrichtunginoeffentlichenbereichen IS 'BASE: ks_einrichtunginoeffentlichenbereichen';
+		COMMENT ON TABLE ks_bauwerkanlagenfuerverundentsorgung IS 'BASE: ks_bauwerkanlagenfuerverundentsorgung';
+		COMMENT ON TABLE ks_sonstigesbauwerk IS 'BASE: ks_sonstigesbauwerk';
+		COMMENT ON TABLE ks_einrichtungimstrassenverkehr IS 'BASE: ks_einrichtungimstrassenverkehr';
+		COMMENT ON TABLE ks_verkehrszeichen IS 'BASE: ks_verkehrszeichen';
+		COMMENT ON TABLE ks_einrichtungimbahnverkehr IS 'BASE: ks_einrichtungimbahnverkehr';
+		COMMENT ON TABLE ks_bauwerkimgewaesserbereich IS 'BASE: ks_bauwerkimgewaesserbereich';
+		COMMENT ON TABLE ks_vegetationsmerkmal IS 'BASE: ks_vegetationsmerkmal';
+		COMMENT ON TABLE ks_bauraumoderbodenordnungsrecht IS 'BASE: ks_bauraumoderbodenordnungsrecht';
+		COMMENT ON TABLE ks_kommunalerbesitz IS 'BASE: ks_kommunalerbesitz';
+
+		CREATE INDEX ap_pto_art ON ap_pto USING btree (art);
+		CREATE INDEX ap_lto_art ON ap_lto USING btree (art);
+		CREATE INDEX ap_darstellung_art ON ap_darstellung USING btree (art);
+
+		CREATE INDEX ap_lpo_sn ON ap_lpo USING btree (signaturnummer);
+		CREATE INDEX ap_ppo_sn ON ap_ppo USING btree (signaturnummer);
+		CREATE INDEX ap_pto_sn ON ap_pto USING btree (signaturnummer);
+		CREATE INDEX ap_lto_sn ON ap_lto USING btree (signaturnummer);
+		CREATE INDEX ap_darstellung_sn ON ap_darstellung USING btree (signaturnummer);
+
+		CREATE INDEX ax_dienststelle_sg ON ax_dienststelle(schluesselgesamt);
+
+		UPDATE alkis_version SET version=16;
 
 		r := alkis_string_append(r, 'ALKIS-Schema migriert');
 	END IF;
@@ -16331,8 +16447,35 @@ Erholung von Reisenden.'),
 				ALTER TABLE po_labels DROP darstellungsprioritaet;
 			END IF;
 		END LOOP;
+	END IF;
 
-		UPDATE alkis_po_version SET version=1;
+	IF ver<2 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 2';
+
+		COMMENT ON TABLE po_points IS 'BASE: Punktobjekte';
+		COMMENT ON TABLE po_lines IS 'BASE: Linienobjekte';
+		COMMENT ON TABLE po_polygons IS 'BASE: Flächenobjekte';
+		COMMENT ON TABLE po_labels IS 'BASE: Beschriftungsobjekte';
+
+		UPDATE alkis_po_version SET version=2;
+	END IF;
+
+	IF ver<3 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 3';
+
+		ALTER TABLE po_points DROP CONSTRAINT po_points_pkey;
+		ALTER TABLE po_points ADD CONSTRAINT po_points_pkey PRIMARY KEY(ogc_fid) DEFERRABLE INITIALLY DEFERRED;
+
+		ALTER TABLE po_lines DROP CONSTRAINT po_lines_pkey;
+		ALTER TABLE po_lines ADD CONSTRAINT po_lines_pkey PRIMARY KEY(ogc_fid) DEFERRABLE INITIALLY DEFERRED;
+
+		ALTER TABLE po_polygons DROP CONSTRAINT po_polygons_pkey;
+		ALTER TABLE po_polygons ADD CONSTRAINT po_polygons_pkey PRIMARY KEY(ogc_fid) DEFERRABLE INITIALLY DEFERRED;
+
+		ALTER TABLE po_labels DROP CONSTRAINT po_labels_pkey;
+		ALTER TABLE po_labels ADD CONSTRAINT po_labels_pkey PRIMARY KEY(ogc_fid) DEFERRABLE INITIALLY DEFERRED;
+
+		UPDATE alkis_po_version SET version=3;
 
 		r := coalesce(r||E'\n','') || 'ALKIS-PO-Schema migriert';
 	END IF;
@@ -16341,12 +16484,10 @@ Erholung von Reisenden.'),
 END;
 $$ LANGUAGE plpgsql;
 
-DROP AGGREGATE IF EXISTS alkis_accum(anyarray);
+DROP AGGREGATE IF EXISTS :"parent_schema".alkis_accum(anyarray);
 
-CREATE AGGREGATE alkis_accum (anyarray) (
+CREATE AGGREGATE :"parent_schema".alkis_accum (anyarray) (
 	sfunc = array_cat,
 	stype = anyarray,
 	initcond = '{}'
 );
-
-\set ON_ERROR_STOP

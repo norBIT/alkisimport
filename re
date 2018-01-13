@@ -14,16 +14,14 @@
 ^OGR: OGROpen\(.*\) succeeded as NAS\.\s*$
 ^OGR: OGROpen\(PG:.*\) succeeded as PostgreSQL\.\s*$
 ^GDAL: In GDALDestroy - unloading GDAL shared library\.\s*$
-^psql:.*: (NOTICE|HINWEIS):  (function|Funktion) alkis_(drop\(\)|dropobject\(text\)|delete\(\)|mviews\(\)|update_schema\(\)|set_schema\(text\)) (does not exist, skipping|existiert nicht, wird \S+bersprungen)$
-^psql:.*: (NOTICE|HINWEIS):  (function|Funktion|Aggregatfunktion|aggregate) alkis_accum\(anyarray\) (does not exist, skipping|existiert nicht, wird \S+bersprungen)
+^psql:.*: (NOTICE|HINWEIS):  (function|aggregate|Funktion|Aggregatfunktion) ([^.]+\.)?alkis_accum\(anyarray\) (does not exist, skipping|existiert nicht, wird \S+bersprungen)
+^psql:.*: (NOTICE|HINWEIS):  (function|Funktion) ([^.]+\.)?alkis_(drop\(\)|dropobject\(text\)|delete\(\)|mviews\(\)|update_schema\(\)|set_schema\(text\)) (does not exist, skipping|existiert nicht, wird \S+bersprungen)$
 ^psql:.*: (NOTICE|HINWEIS):  Dropping (table|view|sequence) 
 ^psql:.*: (NOTICE|HINWEIS):  gserialized_gist_joinsel: jointype 4 not supported\s*$
 ^psql:.*: (NOTICE|HINWEIS):  (geometry|LWGEOM)_gist_joinsel called with incorrect join type\s*$
 ^CONTEXT:  PL\/pgSQL-Funktion (alkis|alb)_.* Zeile \d+ bei RAISE
 ^CONTEXT:  SQL statement in PL\/PgSQL function "alkis_(update_schema|set_comments)" near line \d+\s*$
 ^CONTEXT:  SQL statement "ALTER TABLE alkis_(flaechen|linien|schriften) ADD PRIMARY KEY \(katalog,signaturnummer\)"
-psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*$
-^(LINE 1|QUERY):\s+WITH RECURSIVE element\(name,base\) AS 
 ^\s+\^\s*$
 ^.*: (NOTICE|HINWEIS):  CREATE TABLE
 ^NOTICE:  CREATE TABLE
@@ -38,11 +36,13 @@ psql:alkis-functions.sql:.*: ERROR:  syntax error at or near "WITH RECURSIVE"\s*
 ^psql:alkis-compat.sql:.*: FEHLER:  Berechtigung nur f\S+r Eigent\S+mer der Funktion st_dump\s*$
 ^psql:alkis-compat.sql:.*: ERROR:  aggregate ([^.]+\.)?array_agg\(any(element|array)\) does not exist
 ^psql:alkis-compat.sql:.*: FEHLER:  Aggregatfunktion ([^.]\.)?array_agg\(any(element|array)\) existiert nicht
+^psql:alkis-compat.sql:.*: ERROR:  cannot drop function array_agg\(anyelement\) because it is required by the database system
+^psql:alkis-compat.sql:.*: FEHLER:  kann .* nicht löschen, wird vom Datenbanksystem benötigt
 ^psql:alkis-update.sql:.*: NOTICE:  ALTER TABLE \/ ADD PRIMARY KEY will create implicit index "alkis_(flaechen|linien|schriften)_pkey" for table "alkis_(flaechen|linien|schriften)"
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*gel\S+scht\..*$
-^\s+(addgeometrycolumn|alkis_clean|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|version|postgis_version|\?column\?|alkis_set_schema)\s*$
+^\s+(addgeometrycolumn|alkis_clean|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|alkis_fixareas|alkis_inherit|version|postgis_version|\?column\?|alkis_set_schema)\s*$
 ^-+\s*$
-^\s+[^.]+\..*\.(wkb_geometry|dummy|objektkoordinaten) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$
+^\s+[^.]+\..*\.(wkb_geometry|dummy|objektkoordinaten|line) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$
 ^\s+[^.]+\.ax_punktortau\.wkb_geometry SRID:\d+ TYPE:POINT DIMS:3\+?\s*$
 ^\s+[^.]+\.po_points\.point SRID:\d+ TYPE:MULTIPOINT DIMS:2\+?\s*$
 ^\s+[^.]+\.po_lines\.line SRID:\d+ TYPE:MULTILINESTRING DIMS:2\+?\s*$

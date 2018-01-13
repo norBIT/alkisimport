@@ -1,11 +1,11 @@
-/******************************************************************************
- *
- * Project:  norGIS ALKIS Import
- * Purpose:  Erzeugung der Präsentationstabellen
- * Author:   Jürgen E. Fischer jef@norbit.de
- *
+/***************************************************************************
+ *                                                                         *
+ * Project:  norGIS ALKIS Import                                           *
+ * Purpose:  Erzeugung der Präsentationstabellen                           *
+ * Author:   Jürgen E. Fischer jef@norbit.de                               *
+ *                                                                         *
  ***************************************************************************
- * Copyright (c) 2013-2014 Juergen E. Fischer (jef@norbit.de)              *
+ * Copyright (c) 2013-2017 Juergen E. Fischer (jef@norbit.de)              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -14,15 +14,13 @@
  *                                                                         *
  ***************************************************************************/
 
--- Abbruch bei Fehlern
-\set ON_ERROR_STOP
 SET search_path = :"alkis_schema", :"postgis_schema", public;
 
 SELECT 'Präsentationstabellen werden erzeugt.';
 
 SELECT alkis_dropobject('alkis_po_version');
 CREATE TABLE alkis_po_version(version integer);
-INSERT INTO alkis_po_version(version) VALUES (1);
+INSERT INTO alkis_po_version(version) VALUES (2);
 
 --
 -- Präsentationstabellen
@@ -31,7 +29,7 @@ INSERT INTO alkis_po_version(version) VALUES (1);
 -- Punkte
 SELECT alkis_dropobject('po_points');
 CREATE TABLE po_points(
-	ogc_fid serial PRIMARY KEY,
+	ogc_fid serial PRIMARY KEY DEFERRABLE INITIALLY DEFERRED,
 	gml_id character(16) NOT NULL,
 	thema varchar NOT NULL,
 	layer varchar NOT NULL,
@@ -40,26 +38,28 @@ CREATE TABLE po_points(
 	modell varchar[] CHECK (array_length(modell,1)>0),
 	drehwinkel_grad double precision
 );
+COMMENT ON TABLE po_points IS 'BASE: Punktobjekte';
 
 SELECT AddGeometryColumn('po_points','point', :alkis_epsg, 'MULTIPOINT', 2);
 
 -- Linien
 SELECT alkis_dropobject('po_lines');
 CREATE TABLE po_lines(
-	ogc_fid serial PRIMARY KEY,
+	ogc_fid serial PRIMARY KEY DEFERRABLE INITIALLY DEFERRED,
 	gml_id character(16) NOT NULL,
 	thema varchar NOT NULL,
 	layer varchar NOT NULL,
 	signaturnummer varchar,
 	modell varchar[] CHECK (array_length(modell,1)>0)
 );
+COMMENT ON TABLE po_points IS 'BASE: Linienobjekte';
 
 SELECT AddGeometryColumn('po_lines','line', :alkis_epsg, 'MULTILINESTRING', 2);
 
 -- Polygone
 SELECT alkis_dropobject('po_polygons');
 CREATE TABLE po_polygons(
-	ogc_fid serial PRIMARY KEY,
+	ogc_fid serial PRIMARY KEY DEFERRABLE INITIALLY DEFERRED,
 	gml_id character(16) NOT NULL,
 	thema varchar NOT NULL,
 	layer varchar NOT NULL,
@@ -68,13 +68,14 @@ CREATE TABLE po_polygons(
 	sn_randlinie varchar,
 	modell varchar[] CHECK (array_length(modell,1)>0)
 );
+COMMENT ON TABLE po_points IS 'BASE: Flächenobjekte';
 
 SELECT AddGeometryColumn('po_polygons','polygon', :alkis_epsg, 'MULTIPOLYGON', 2);
 
 --- Beschriftungen
 SELECT alkis_dropobject('po_labels');
 CREATE TABLE po_labels(
-	ogc_fid serial PRIMARY KEY,
+	ogc_fid serial PRIMARY KEY DEFERRABLE INITIALLY DEFERRED,
 	gml_id character(16) NOT NULL,
 	thema varchar NOT NULL,
 	layer varchar NOT NULL,
@@ -88,6 +89,7 @@ CREATE TABLE po_labels(
 	vertikaleausrichtung varchar,
 	modell varchar[] CHECK (array_length(modell,1)>0)
 );
+COMMENT ON TABLE po_points IS 'BASE: Beschriftungsobjekte';
 
 SELECT AddGeometryColumn('po_labels','point', :alkis_epsg, 'POINT', 2);
 SELECT AddGeometryColumn('po_labels','line', :alkis_epsg, 'LINESTRING', 2);
