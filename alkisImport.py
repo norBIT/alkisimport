@@ -646,10 +646,34 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             if conn is None:
                 break
 
-            self.log("Import-Version: $Format:%h$")
-
             self.db.exec_("SET application_name='ALKIS-Import - Frontend'")
             self.db.exec_("SET client_min_messages TO notice")
+
+            qry = self.db.exec_("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='alkis_importlog'")
+            if not qry or not qry.next():
+                self.log(u"Konnte Existenz von Protokolltabelle nicht überprüfen.")
+                break
+
+            if int(qry.value(0)) == 0:
+                qry = self.db.exec_("CREATE TABLE alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)")
+                if not qry:
+                    self.log(u"Konnte Protokolltabelle nicht anlegen [{}]".format(qry.lastError().text()))
+                    break
+            elif self.cbxClearProtocol.isChecked():
+                qry = self.db.exec_("TRUNCATE alkis_importlog")
+                if not qry:
+                    self.log(u"Konnte Protokolltabelle nicht leeren [{}]".format(qry.lastError().text()))
+                    break
+                self.cbxClearProtocol.setChecked(False)
+                self.log(u"Protokolltabelle gelöscht.")
+
+            self.logqry = QSqlQuery(self.db)
+            if not self.logqry.prepare("INSERT INTO alkis_importlog(msg) VALUES (?)"):
+                self.log(u"Konnte Protokollierungsanweisung nicht vorbereiten [{}]".format(qry.lastError().text()))
+                self.logqry = None
+                break
+
+            self.log("Import-Version: $Format:%h$")
 
             qry = self.db.exec_("SELECT version()")
 
@@ -675,23 +699,13 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
             self.log("PostGIS-Version: {}".format(qry.value(0)))
 
-            qry = self.db.exec_("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='alkis_importlog'")
+            qry = self.db.exec_("SELECT inet_client_addr()" )
             if not qry or not qry.next():
-                self.log(u"Konnte Existenz von Protokolltabelle nicht überprüfen.")
+                self.log(u"Konnte Client-Adresse nicht bestimmen!")
                 break
 
-            if int(qry.value(0)) == 0:
-                qry = self.db.exec_("CREATE TABLE alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)")
-                if not qry:
-                    self.log(u"Konnte Protokolltabelle nicht anlegen [{}]".format(qry.lastError().text()))
-                    break
-            elif self.cbxClearProtocol.isChecked():
-                qry = self.db.exec_("TRUNCATE alkis_importlog")
-                if not qry:
-                    self.log(u"Konnte Protokolltabelle nicht leeren [{}]".format(qry.lastError().text()))
-                    break
-                self.cbxClearProtocol.setChecked(False)
-                self.log(u"Protokolltabelle gelöscht.")
+            self.log("Import von: {}".format(qry.value(0)))
+
 
             qry = self.db.exec_("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='ax_flurstueck'")
             if not qry or not qry.next():
@@ -709,12 +723,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     break
 
                 self.epsg = int(qry.value(0))
-
-            self.logqry = QSqlQuery(self.db)
-            if not self.logqry.prepare("INSERT INTO alkis_importlog(msg) VALUES (?)"):
-                self.log(u"Konnte Protokollierungsanweisung nicht vorbereiten [{}]".format(qry.lastError().text()))
-                self.logqry = None
-                break
 
             self.ogr2ogr = which("ogr2ogr")
             if not self.ogr2ogr:
