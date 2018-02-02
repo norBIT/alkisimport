@@ -30,7 +30,7 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
-		CASE geometrytype(wkb_geometry) WHEN 'MULTILINESTRING' THEN (st_dump(wkb_geometry)).geom ELSE wkb_geometry END AS line,
+		(st_dump(st_multi(st_collectionextract(wkb_geometry, 2)))).geom AS line,
 		generate_series( 0, trunc(st_length(wkb_geometry)*1000.0)::int,
 			CASE
 			WHEN bahnkategorie IN (2100,2200,2300,2400,2600) THEN 16000

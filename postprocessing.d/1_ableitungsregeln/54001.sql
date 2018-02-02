@@ -63,42 +63,50 @@ FROM (
 			SELECT
 				gml_id,
 				bewuchs,
-				CASE
-				WHEN bewuchs IN (1100,1230,1260) THEN 0
-				WHEN bewuchs IN (1101,1102) THEN 300
-				WHEN bewuchs=1103 THEN unnest(ARRAY[300,600])
-				WHEN bewuchs IN (1210,1220) THEN 186
-				WHEN bewuchs=1230 THEN unnest(ARRAY[1000,2000])
-				END AS einzug,
-				CASE
-				WHEN bewuchs IN (1100,1101,1102,1210,1220,1260) THEN 600
-				WHEN bewuchs=1103 THEN unnest(ARRAY[1200,1200])
-				WHEN bewuchs=1210 THEN 1000
-				WHEN bewuchs=1230 THEN unnest(ARRAY[2000,2000])
-				END AS abstand,
-				CASE
-				WHEN bewuchs IN (1100,1210,1220,1260) THEN wkb_geometry
-				WHEN bewuchs=1101 THEN st_reverse(alkis_safe_offsetcurve(wkb_geometry,-0.11,''::text))
-				WHEN bewuchs=1102 THEN alkis_safe_offsetcurve(wkb_geometry,0.11,''::text)
-				WHEN bewuchs=1103 THEN
-					unnest(ARRAY[
-						st_reverse(alkis_safe_offsetcurve(wkb_geometry,-0.11,''::text)),
-						alkis_safe_offsetcurve(wkb_geometry,0.11,'')
-					])
-				WHEN bewuchs=1230 THEN
-					unnest(ARRAY[
-						wkb_geometry,
-						wkb_geometry
-					])
-				END AS line,
-				CASE
-				WHEN bewuchs IN (1100,1101,1102,1103) THEN 3601
-				WHEN bewuchs=1210 THEN 3458
-				WHEN bewuchs=1220 THEN 3460
-				WHEN bewuchs=1230 THEN unnest(ARRAY[3458,3460])
-				WHEN bewuchs=1260 THEN 3601
-				WHEN bewuchs=1700 THEN 3607
-				END AS signaturnummer,
+				unnest(
+					CASE
+					WHEN bewuchs IN (1100,1230,1260) THEN ARRAY[0]
+					WHEN bewuchs IN (1101,1102) THEN ARRAY[300]
+					WHEN bewuchs=1103 THEN ARRAY[300,600]
+					WHEN bewuchs IN (1210,1220) THEN ARRAY[186]
+					WHEN bewuchs=1230 THEN ARRAY[1000,2000]
+					END
+				) AS einzug,
+				unnest(
+					CASE
+					WHEN bewuchs IN (1100,1101,1102,1210,1220,1260) THEN ARRAY[600]
+					WHEN bewuchs=1103 THEN ARRAY[1200,1200]
+					WHEN bewuchs=1210 THEN ARRAY[1000]
+					WHEN bewuchs=1230 THEN ARRAY[2000,2000]
+					END
+				) AS abstand,
+				unnest(
+					CASE
+					WHEN bewuchs IN (1100,1210,1220,1260) THEN ARRAY[wkb_geometry]
+					WHEN bewuchs=1101 THEN ARRAY[st_reverse(alkis_safe_offsetcurve(wkb_geometry,-0.11,''::text))]
+					WHEN bewuchs=1102 THEN ARRAY[alkis_safe_offsetcurve(wkb_geometry,0.11,''::text)]
+					WHEN bewuchs=1103 THEN
+						ARRAY[
+							st_reverse(alkis_safe_offsetcurve(wkb_geometry,-0.11,''::text)),
+							alkis_safe_offsetcurve(wkb_geometry,0.11,'')
+						]
+					WHEN bewuchs=1230 THEN
+						ARRAY[
+							wkb_geometry,
+							wkb_geometry
+						]
+					END
+				) AS line,
+				unnest(
+					CASE
+					WHEN bewuchs IN (1100,1101,1102,1103) THEN ARRAY[3601]
+					WHEN bewuchs=1210 THEN ARRAY[3458]
+					WHEN bewuchs=1220 THEN ARRAY[3460]
+					WHEN bewuchs=1230 THEN ARRAY[3458,3460]
+					WHEN bewuchs=1260 THEN ARRAY[3601]
+					WHEN bewuchs=1700 THEN ARRAY[3607]
+					END
+				) AS signaturnummer,
 				advstandardmodell||sonstigesmodell AS modell
 			FROM ax_vegetationsmerkmal o
 			WHERE o.endet IS NULL
