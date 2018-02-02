@@ -124,7 +124,7 @@ BEGIN
 	FOR c IN SELECT table_type,table_name FROM information_schema.tables
 		   WHERE table_schema=current_schema()
 		     AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_','au_','ta_')
-			   OR table_name IN ('alkis_beziehungen','delete','alkis_version','nas_filter_capabilities','operation') )
+			   OR table_name IN ('alkis_beziehungen','alkis_wertearten','delete','alkis_version','nas_filter_capabilities','operation') )
 		   ORDER BY table_type DESC LOOP
 		IF c.table_type = 'VIEW' THEN
 			r := alkis_string_append(r, 'Sicht ' || c.table_name || ' gelöscht.');
@@ -16344,6 +16344,10 @@ Erholung von Reisenden.'),
 		r := alkis_string_append(r, 'ALKIS-Schema migriert');
 	END IF;
 
+	IF ver>16 THEN
+		RAISE EXCEPTION 'ALKIS-Schema % nicht unterstützt (bis 16).', ver;
+	END IF;
+
 	--
 	-- ALKIS-Präsentationstabellen
 	--
@@ -16478,6 +16482,10 @@ Erholung von Reisenden.'),
 		UPDATE alkis_po_version SET version=3;
 
 		r := coalesce(r||E'\n','') || 'ALKIS-PO-Schema migriert';
+	END IF;
+
+	IF ver>3 THEN
+		RAISE EXCEPTION 'ALKIS-PO-Schema % nicht unterstützt (bis 3).', ver;
 	END IF;
 
 	RETURN r;
