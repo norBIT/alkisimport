@@ -19,6 +19,7 @@
 ^psql:.*: (NOTICE|HINWEIS):  Dropping (table|view|sequence) 
 ^psql:.*: (NOTICE|HINWEIS):  gserialized_gist_joinsel: jointype 4 not supported\s*$
 ^psql:.*: (NOTICE|HINWEIS):  (geometry|LWGEOM)_gist_joinsel called with incorrect join type\s*$
+^psql:.*: (NOTICE|HINWEIS):  no non-null\/empty features, unable to compute statistics$
 ^CONTEXT:  PL\/pgSQL-Funktion (alkis|alb)_.* Zeile \d+ bei RAISE
 ^CONTEXT:  SQL statement in PL\/PgSQL function "alkis_(update_schema|set_comments)" near line \d+\s*$
 ^CONTEXT:  SQL statement "ALTER TABLE alkis_(flaechen|linien|schriften) ADD PRIMARY KEY \(katalog,signaturnummer\)"

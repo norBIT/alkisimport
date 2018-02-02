@@ -108,8 +108,14 @@ rund() {
 		for i in $(ls -1d ${dir}.d/* | sort); do
 			if [ -d "$i" ]; then
 				ls -1 $i/*.sql | sort | parallel --ungroup --jobs=$JOBS sql
-			elif [ -r "$i" ]; then
+			elif [ -f "$i" -a -r "$i" ]; then
 				sql $i
+			else
+				continue
+			fi
+			r=$?
+			if [ "$r" -ne 0 ]; then
+				return $r
 			fi
 		done
 	fi
@@ -138,7 +144,7 @@ import() {
 		;;
 
 	*.xml.gz)
-		if ! [ -r "$src" ]; then
+		if ! [ -f "$src" -a -r "$src" ]; then
 			echo "$P: $src nicht gefunden oder nicht lesbar." >&2
 			return 1
 		fi
@@ -154,7 +160,7 @@ import() {
 		;;
 
 	*.xml)
-		if ! [ -r "$src" ]; then
+		if ! [ -f "$src" -a -r "$src" ]; then
 			echo "$P: $src nicht gefunden oder nicht lesbar." >&2
 			return 1
 		fi
@@ -170,7 +176,7 @@ import() {
 
 	[ -f "${dst%.xml}.gfs" ] && rm -v "${dst%.xml}.gfs"
 
-	if ! [ -r "$dst" ]; then
+	if ! [ -f "$dst" -a -r "$dst" ]; then
 		echo "$src => $dst"
 		return 1
 	fi
@@ -212,7 +218,11 @@ process() {
 			pushd "$B" >/dev/null
 			preprocessed=1
 			rund preprocessing
+			r=$?
 			popd >/dev/null
+			if [ "$r" -ne 0 ]; then
+				return $r
+			fi
 		fi
 
 		export job
@@ -295,7 +305,7 @@ F=$1
 if [ -z "$F" ]; then
 	echo "usage: $P file"
 	exit 1
-elif ! [ -r "$F" ]; then
+elif ! [ -f "$F" -a -r "$F" ]; then
 	echo "$P: $F nicht gefunden oder nicht lesbar." >&2
 	exit 1
 fi
@@ -325,7 +335,7 @@ sfre=
 S=0
 while read src
 do
-	if ! [ -r "$src" ]; then
+	if ! [ -f "$src" -a -r "$src" ]; then
 		continue
 	fi
 
@@ -370,6 +380,11 @@ rm -f $lock
 while read src
 do
 	case $src in
+	""|"#"*)
+		# Leerzeilen und Kommentare ignorieren
+		continue
+		;;
+
 	*.zip|*.xml.gz|*.xml)
 		if [ -z "$job" ]; then
 			if (( S > 0 )); then
@@ -386,11 +401,6 @@ do
 	process
 
 	case $src in
-	""|"#"*)
-		# Leerzeilen und Kommentare ignorieren
-		continue
-		;;
-
 	PG:*)
 		DST=$src
 		DB=${src#PG:}
@@ -427,7 +437,7 @@ do
 			pg_dump -Fc -f "$1.cpgdmp" "$DB"
 		}
 		restore() {
-			if ! [ -r "$1.cpgdmp" ]; then
+			if ! [ -f "$1.cpgdmp" -a -r "$1.cpgdmp" ]; then
 				echo "$P: $1.cpgdmp nicht gefunden oder nicht lesbar." >&2
 				return 1
 			fi
@@ -502,7 +512,7 @@ EOF
 			exp "$DB" file=$1.dmp log=$1-export.log owner=$user statistics=none
 		}
 		restore() {
-			if ! [ -r "$1.dmp" ]; then
+			if ! [ -f "$1.dmp" -a -r "$1.dmp" ]; then
 				echo "$P: $1.dmp nicht gefunden oder nicht lesbar." >&2
 				return 1
 			fi
@@ -769,11 +779,23 @@ final
 
 if [ "$src" != "exit" -a "$src" != "error" ]; then
 	pushd "$B" >/dev/null
+
 	if (( preprocessed == 0 )); then
-		preprocessed=1
-		rund preprocessing
+		if rund preprocessing; then
+			preprocessed=1
+		else
+			echo "FEHLER BEIM PREPROCESSING"
+			src=error
+		fi
 	fi
-	rund postprocessing
+
+	if (( preprocessed != 0 )); then
+		if ! rund postprocessing; then
+			echo "FEHLER BEIM POSTPROCESSING"
+			src=error
+		fi
+	fi
+
 	popd >/dev/null
 fi
 
@@ -781,4 +803,8 @@ echo "END $(bdate)"
 
 if [ -n "$log" ]; then
 	echo "LOG: $log"
+fi
+
+if [ "$src" == "error" ]; then
+	exit 1
 fi
