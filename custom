@@ -4,3 +4,5 @@
 <131467> +proj=tmerc +lat_0=0 +lon_0=9 +k=1 +x_0=500000 +y_0=0 +datum=potsdam +units=m +no_defs  <>
 # DHDN / 3-degree Gauss-Kruger zone 4
 <131468> +proj=tmerc +lat_0=0 +lon_0=12 +k=1 +x_0=500000 +y_0=0 +datum=potsdam +units=m +no_defs  <>
+# Soldner-Berlin
+<3068> +proj=cass +lat_0=52.41864827777778 +lon_0=13.62720366666667 +x_0=40000 +y_0=10000 +k=1.000000 +ellps=bessel +units=m +nadgrids=ntv2berlin20130508.GSB +wktext  <>

@@ -6,7 +6,7 @@
  * Author:   Jürgen E. Fischer jef@norbit.de                               *
  *                                                                         *
  ***************************************************************************
- * Copyright (c) 2013-2017 Juergen E. Fischer (jef@norbit.de)              *
+ * Copyright (c) 2013-2018 Juergen E. Fischer (jef@norbit.de)              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -4584,15 +4584,59 @@ FROM (
 		o.gml_id,
 		wkb_geometry AS line,
 		CASE
-		WHEN bauwerksfunktion=1630                               THEN 2507
-		WHEN bauwerksfunktion=1740                               THEN 2507 -- 25073580
-		WHEN bauwerksfunktion=1790                               THEN 2519
-		WHEN bauwerksfunktion=1791                               THEN 2002
+		WHEN bauwerksfunktion=1630 THEN 2507
+		WHEN bauwerksfunktion=1740 THEN 2002 -- + 3580 PNR 2030
+		WHEN bauwerksfunktion=1790 THEN 2519
+		WHEN bauwerksfunktion=1791 THEN 2002
 		END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_sonstigesbauwerkodersonstigeeinrichtung o
 	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
 ) AS o WHERE NOT signaturnummer IS NULL;
+
+-- Zaun
+INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+SELECT
+	gml_id,
+	'Gebäude' AS thema,
+	'ax_sonstigesbauwerkodersonstigeeinrichtung' AS layer,
+	st_multi(
+		st_collect(
+			st_makeline(
+				point,
+				st_translate(
+					point,
+					0.3*sin(drehwinkel),
+					0.3*cos(drehwinkel)
+				)
+			)
+		)
+	) AS line,
+	2002 AS signaturnummer,
+	modell
+FROM (
+	SELECT
+		gml_id,
+		st_lineinterpolatepoint(line,o.offset/len) AS point,
+		st_azimuth(
+			st_lineinterpolatepoint(line, o.offset/len*0.999),
+			st_lineinterpolatepoint(line, o.offset/len)
+		)+0.5*pi()*CASE WHEN o.offset%2=0 THEN 1 ELSE -1 END AS drehwinkel,
+		modell
+	FROM (
+		SELECT
+			o.gml_id,
+			wkb_geometry AS line,
+			st_length(wkb_geometry) AS len,
+			generate_series(1,trunc(st_length(wkb_geometry))::int) AS offset,
+			advstandardmodell||sonstigesmodell AS modell
+		FROM ax_sonstigesbauwerkodersonstigeeinrichtung o
+		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+		  AND endet IS NULL
+		  AND bauwerksfunktion=1740
+        ) AS o
+) AS o
+GROUP BY gml_id,modell;
 
 -- Symbole
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
@@ -5191,9 +5235,9 @@ FROM (
 		o.gml_id,
 		wkb_geometry AS line,
 		CASE
-		WHEN o.art IN (1103,1105,1106,1107,1110,1111) THEN 2535
-		WHEN o.art=1108                               THEN 2537
-		WHEN o.art=1109                               THEN 2539
+		WHEN o.art IS NULL OR o.art IN (1103,1105,1106,1107,1110,1111) THEN 2535
+		WHEN o.art=1108                                                THEN 2537
+		WHEN o.art=1109                                                THEN 2539
 		END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_wegpfadsteig o
@@ -5214,8 +5258,8 @@ FROM (
 		o.gml_id,
 		st_multi(wkb_geometry) AS polygon,
 		CASE
-		WHEN o.art IN (1103,1105,1106,1107,1110,1111) THEN 1542
-		WHEN o.art=1108                               THEN 1543
+		WHEN o.art IS NULL OR o.art IN (1103,1105,1106,1107,1110,1111) THEN 1542
+		WHEN o.art=1108                                                THEN 1543
 		END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_wegpfadsteig o

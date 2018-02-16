@@ -6,7 +6,7 @@
     alkisImport.py
     ---------------------
     Date                 : Sep 2012
-    Copyright            : (C) 2012-2017 by Jürgen Fischer
+    Copyright            : (C) 2012-2018 by Jürgen Fischer
     Email                : jef at norbit dot de
 ***************************************************************************
 *                                                                         *
@@ -155,6 +155,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.cbEPSG.addItem("DHDN GK2 (BW)", "31466")
         self.cbEPSG.addItem("DHDN GK3 (BW)", "31467")
         self.cbEPSG.addItem("DHDN GK4 (BY)", "31468")
+        self.cbEPSG.addItem("Soldner-Berlin (vortransformiert)", "3068")
+        self.cbEPSG.addItem("Soldner-Berlin (transformieren)", "13068")
         self.cbEPSG.setCurrentIndex(self.cbEPSG.findData(s.value("epsg", "25832")))
 
         self.pbAdd.clicked.connect(self.selFiles)
@@ -973,6 +975,13 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         args.extend([
                             "-s_srs", "+init=custom:1{}".format(self.epsg),
                             "-t_srs", "EPSG:{}".format(self.epsg)
+                        ])
+                        os.putenv("PROJ_LIB", ".")
+
+                    elif self.epsg == 13068:
+                        args.extend([
+                            "-s_srs", "EPSG:25833",
+                            "-t_srs", "+init=custom:3068",
                         ])
                         os.putenv("PROJ_LIB", ".")
 

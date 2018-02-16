@@ -6,7 +6,7 @@
 # Author:   Jürgen E. Fischer <jef@norbit.de>
 #
 ############################################################################
-# Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>
+# Copyright (c) 2012-2018, Jürgen E. Fischer <jef@norbit.de>
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@ export OGR_SKIP=GML,SEGY
 
 # Headerkennungen die NAS-Daten identifizieren
 export NAS_INDICATOR="NAS-Operationen.xsd;NAS-Operationen_optional.xsd;AAA-Fachschema.xsd;ASDKOM-NAS-Operationen_1_1_NRW.xsd;aaa.xsd;aaa-suite"
+
+export PGCLIENTENCODING=UTF8
 
 export EPSG=25832
 export CRS="-a_srs EPSG:$EPSG"
@@ -97,6 +99,11 @@ B=${0%/*}   # BASEDIR
 if [ "$0" = "$B" ]; then
 	B=.
 fi
+case "$MACHTYPE" in
+*-cygwin)
+	B=$(cygpath -m "$B")
+	;;
+esac
 P=${0##*/}  # PROGNAME
 
 export LC_CTYPE=de_DE.UTF-8
@@ -152,19 +159,27 @@ do
 
 	case "$src" in
 	*.xml.zip)
-		s=$(unzip -qql "$src" "$(basename "$src" .xml.zip).xml"|sed -e "s/^ *//" -e "s/ .*$//")
+		if ! s=$(zcat "$src" | wc -c); then
+			s=0
+		fi
 		;;
 
 	*.zip)
-		s=$(unzip -qql "$src" "$(basename "$src" .zip).xml"|sed -e "s/^ *//" -e "s/ .*$//")
+		if ! s=$(zcat "$src" | wc -c); then
+			s=0
+		fi
 		;;
 
 	*.xml.gz)
-		s=$(gzip -ql "$src" | tr -s " " | cut -d" " -f3)
+		if ! s=$(gzip -ql "$src" | tr -s " " | cut -d" " -f3); then
+			s=0
+		fi
 		;;
 
 	*.xml)
-		s=$(stat -c %s "$src")
+		if s=$(stat -c %s "$src"); then
+			s=0
+		fi
 		;;
 
 	*)
@@ -174,7 +189,7 @@ do
 	esac
 
 	(( S1 += s ))
-done <$F
+done <"$F"
 
 if (( S1 > 0 )); then
 	echo "$P: Unkomprimierte Gesamtgröße: $(memunits $S1)"
@@ -307,8 +322,11 @@ EOF
 		EPSG=${src#epsg }
 
 		case "$EPSG" in
-		13146[678])
+		13146[678]|3068)
 			export PROJ_LIB=$B CRS="-a_srs +init=custom:$EPSG"
+			;;
+		13068)
+			export PROJ_LIB=$B CRS="-s_srs EPSG:25833 -t_srs +init=custom:3068"
 			;;
 		3146[678])
 			export PROJ_LIB=$B CRS="-s_srs +init=custom:1$EPSG -t_srs EPSG:$EPSG"
@@ -560,13 +578,22 @@ EOF
 		sf_opt=-skipfailures
 	fi
 
-	echo RUNNING: ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst" | sed -Ee 's/password=\S+/password=*removed*/'
+	case "$MACHTYPE" in
+	*-cygwin)
+		dst1=$(cygpath -m "$dst")
+		;;
+	*)
+		dst1=$dst
+		;;
+	esac
+
+	echo RUNNING: ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst1" | sed -re 's/password=\S+/password=*removed*/'
 	t0=$(bdate +%s)
 	if [ -z "$T0" ]; then T0=$t0; fi
 	if [ -n "$GDB" ]; then
-		gdb --args ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst" </dev/tty >/dev/tty 2>&1
+		gdb --args ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst1" </dev/tty >/dev/tty 2>&1
 	else
-		ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst"
+		ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst1"
 	fi
 	t1=$(bdate +%s)
 
@@ -592,7 +619,7 @@ EOF
 
 	[ $rm == 1 ] && rm -v "$dst"
 	trap "" EXIT
-done <$F
+done <"$F"
 
 if (( T0 < t1 )); then
 	echo "FINAL: $(memunits $S) in $(timeunits $T0 $t1) ($(memunits $(( S / elapsed )))/s)"

@@ -5,7 +5,7 @@
  * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
  *                                                                         *
  ***************************************************************************
- * Copyright (c) 2012-2017, Jürgen E. Fischer <jef@norbit.de>              *
+ * Copyright (c) 2012-2018, Jürgen E. Fischer <jef@norbit.de>              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -337,7 +337,10 @@ BEGIN
 		END IF;
 
 		IF NEW.endet IS NULL THEN
-			IF NEW.safetoignore='false' THEN
+			-- Abbrechen, wenn Austausch nicht ignoriert werden
+			-- darf, aber nicht wenn ein Objekt (sinnloserweise?)
+			-- gegen selbst getauscht werden soll.
+			IF NEW.safetoignore='false' AND NEW.featureid<>NEW.replacedby THEN
 				RAISE EXCEPTION '%: Beginn des Ersatzobjekts % nicht gefunden.', NEW.featureid, NEW.replacedby;
 				-- RAISE NOTICE '%: Beginn des ersetzenden Objekts % nicht gefunden.', NEW.featureid, NEW.replacedby;
 			END IF;
