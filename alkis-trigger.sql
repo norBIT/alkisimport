@@ -111,7 +111,10 @@ BEGIN
 		END IF;
 
 		IF NEW.endet IS NULL THEN
-			IF NEW.safetoignore='false' THEN
+			-- Abbrechen, wenn Austausch nicht ignoriert werden
+			-- darf, aber nicht wenn ein Objekt (sinnloserweise?)
+			-- gegen selbst getauscht werden soll.
+			IF NEW.safetoignore='false' AND NEW.featureid<>NEW.replacedby THEN
 				RAISE EXCEPTION '%: Beginn des Ersatzobjekts % nicht gefunden.', NEW.featureid, NEW.replacedby;
 				-- RAISE NOTICE '%: Beginn des ersetzenden Objekts % nicht gefunden.', NEW.featureid, NEW.replacedby;
 			END IF;

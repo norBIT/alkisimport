@@ -21,9 +21,9 @@ FROM (
 		o.gml_id,
 		wkb_geometry AS line,
 		CASE
-		WHEN o.art IN (1103,1105,1106,1107,1110,1111) THEN 2535
-		WHEN o.art=1108                               THEN 2537
-		WHEN o.art=1109                               THEN 2539
+		WHEN o.art IS NULL OR o.art IN (1103,1105,1106,1107,1110,1111) THEN 2535
+		WHEN o.art=1108                                                THEN 2537
+		WHEN o.art=1109                                                THEN 2539
 		END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_wegpfadsteig o
@@ -44,8 +44,8 @@ FROM (
 		o.gml_id,
 		st_multi(wkb_geometry) AS polygon,
 		CASE
-		WHEN o.art IN (1103,1105,1106,1107,1110,1111) THEN 1542
-		WHEN o.art=1108                               THEN 1543
+		WHEN o.art IS NULL OR o.art IN (1103,1105,1106,1107,1110,1111) THEN 1542
+		WHEN o.art=1108                                                THEN 1543
 		END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_wegpfadsteig o
