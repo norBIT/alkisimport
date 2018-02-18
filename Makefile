@@ -21,7 +21,8 @@ INSTFILES=\
 	postcreate.d/nas2alb.sql \
 	postupdate.d/nas2alb.sql \
 	postprocessing.d/nas2alb.sql \
-	postprocessing.d/postnas-keytables.sql
+	postprocessing.d/postnas-keytables.sql \
+	ntv2berlin20130508.GSB
 
 all:
 
