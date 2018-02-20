@@ -300,6 +300,8 @@ EOF
 			exit 1
 			;;
 		esac
+
+		continue
 		;;
 
 	"pgverdraengen "*)
@@ -316,6 +318,8 @@ EOF
 			exit 1
 			;;
 		esac
+
+		continue
 		;;
 
 	"epsg "*)
@@ -627,6 +631,13 @@ fi
 
 if [ "$src" != "exit" -a "$src" != "error" ]; then
 	pushd "$B" >/dev/null
+
+	if (( preprocessed == 0 )); then
+		sql alkis-signaturen.sql
+		preprocessed=1
+		rund preprocessing
+	fi
+
 	sql alkis-ableitungsregeln.sql
 	rund postprocessing
 	popd >/dev/null
