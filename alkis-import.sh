@@ -177,7 +177,7 @@ do
 		;;
 
 	*.xml)
-		if s=$(stat -c %s "$src"); then
+		if ! s=$(stat -c %s "$src"); then
 			s=0
 		fi
 		;;
@@ -188,7 +188,7 @@ do
 		;;
 	esac
 
-	(( S1 += s ))
+	(( S1 += s )) || true
 done <"$F"
 
 if (( S1 > 0 )); then
@@ -573,7 +573,7 @@ EOF
 #		continue
 #	fi
 
-	(( S += s ))
+	(( S += s )) || true
 
 	echo "IMPORT $(bdate): $dst $(memunits $s)"
 
