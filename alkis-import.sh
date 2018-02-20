@@ -375,7 +375,7 @@ do
 		;;
 
 	*.xml)
-		if s=$(stat -c %s "$src"); then
+		if ! s=$(stat -c %s "$src"); then
 			s=0
 		fi
 		;;
@@ -386,7 +386,7 @@ do
 		;;
 	esac
 
-	(( S += s ))
+	(( S += s )) || true
 done <"$F"
 
 export job=
