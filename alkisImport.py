@@ -541,7 +541,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
     def runSQLScript(self, conn, fn, parallel=False):
         return self.runProcess([
             self.psql,
-            "-v", "alkis_epsg={}".format(self.epsg),
+            "-v", "alkis_epsg={}".format(3068 if self.epsg==13068 else self.epsg),
             "-v", "alkis_fnbruch={}".format("true" if self.fnbruch else "false"),
             "-v", "alkis_pgverdraengen={}".format("true" if self.pgverdraengen else "false"),
             "-q", "-f", fn, conn])
