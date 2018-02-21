@@ -165,6 +165,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.cbEPSG.addItem("DHDN GK2 (BW)", "31466")
         self.cbEPSG.addItem("DHDN GK3 (BW)", "31467")
         self.cbEPSG.addItem("DHDN GK4 (BY)", "31468")
+        self.cbEPSG.addItem("Soldner-Berlin (vortransformiert)", "3068")
+        self.cbEPSG.addItem("Soldner-Berlin (transformieren)", "13068")
         self.cbEPSG.setCurrentIndex(self.cbEPSG.findData(s.value("epsg", "25832")))
 
         self.pbAdd.clicked.connect(self.selFiles)
@@ -597,7 +599,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
     def runSQLScript(self, conn, fn, parallel=False):
         return self.runProcess([
             self.psql,
-            "-v", "alkis_epsg={}".format(self.epsg),
+            "-v", "alkis_epsg={}".format(3068 if self.epsg==13068 else self.epsg),
             "-v", u"alkis_schema={}".format(self.schema),
             "-v", u"postgis_schema={}".format(self.pgschema),
             "-v", u"parent_schema={}".format(self.parentschema if self.parentschema else self.schema),
@@ -901,7 +903,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.pbProgress.setValue(0)
 
                 if self.cbxCreate.isChecked():
-                    if self.parentschema != "":
+                    if self.parentschema == "" or self.parentschema==self.schema:
                         if not self.rund(conn, "precreate"):
                             break
 
@@ -1049,6 +1051,13 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         args.extend([
                             "-s_srs", "+init=custom:1{}".format(self.epsg),
                             "-t_srs", "EPSG:{}".format(self.epsg)
+                        ])
+                        os.putenv("PROJ_LIB", ".")
+
+                    elif self.epsg == 13068:
+                        args.extend([
+                            "-s_srs", "EPSG:25833",
+                            "-t_srs", "+init=custom:3068",
                         ])
                         os.putenv("PROJ_LIB", ".")
 
