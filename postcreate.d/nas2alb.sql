@@ -84,12 +84,7 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 CREATE OR REPLACE FUNCTION alkis_flsnr(f ax_flurstueck) RETURNS varchar AS $$
 BEGIN
 	RETURN
-		CASE
-		WHEN f.gml_id LIKE 'DESL%' THEN
-			'000' || to_char(alkis_toint(mod(alkis_toint(f.gemarkungsnummer)/10,1000)::int),'fm000')
-		ELSE
-			to_char(alkis_toint(f.land),'fm00') || to_char(alkis_toint(f.gemarkungsnummer),'fm0000')
-		END ||
+		to_char(alkis_toint(f.land),'fm00') || to_char(alkis_toint(f.gemarkungsnummer),'fm0000')
 		'-' || to_char(coalesce(f.flurnummer,0),'fm000') ||
 		'-' || alkis_flsnrk(f);
 END;
