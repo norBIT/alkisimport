@@ -650,7 +650,7 @@ FROM (
 			coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',1),o.zaehler::text)) AS lenn,
 			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2),o.nenner::text)) AS lenz,
-			coalesce(d.signaturnummer,t.signaturnummer,'2001') AS signaturnummer,
+			coalesce(d.signaturnummer,'2001') AS signaturnummer,
 			coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell,
 			coalesce(t.drehwinkel,0) AS drehwinkel
 		FROM ax_flurstueck o
@@ -1059,22 +1059,6 @@ FROM ax_lagebezeichnungohnehausnummer o
 JOIN ap_lto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art IN ('Fliessgewaesser','StehendesGewaesser') AND t.endet IS NULL
 WHERE o.endet IS NULL;
 
--- Sonstige Beschriftungen ohne art (kommen z.B. in DEHE vor)
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
-SELECT
-	o.gml_id,
-	'Lagebezeichnungen' AS thema,
-	'ax_lagebezeichnungohnehausnummer' AS layer,
-	t.wkb_geometry AS point,
-	schriftinhalt AS text,
-	t.signaturnummer AS signaturnummer,
-	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_lagebezeichnungohnehausnummer o
-JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art IS NULL AND schriftinhalt IS NOT NULL AND t.signaturnummer IS NOT NULL
-WHERE o.endet IS NULL;
-
-
 --
 -- Lagebezeichnung mit Hausnummer (12002)
 --
@@ -1166,21 +1150,6 @@ FROM (
 	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL AND d.art='HNR'
 	WHERE o.endet IS NULL
 ) AS foo;
-
--- Sonstige Hausnummern ohne art (kommen z.B. in DEHE vor)
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
-SELECT
-	o.gml_id,
-	'Gebäude' AS thema,
-	'ax_lagebezeichnungmithausnummer' AS layer,
-	tx.wkb_geometry AS point,
-	coalesce(tx.schriftinhalt,o.hausnummer) AS text,
-	coalesce(tx.signaturnummer,'4070') AS signaturnummer,
-	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-	coalesce(tx.advstandardmodell||tx.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_lagebezeichnungmithausnummer o
-JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon AND tx.endet IS NULL AND tx.art IS NULL
-WHERE o.endet IS NULL;
 
 --
 -- Lagebezeichnung mit Pseudonummer (12003)
