@@ -209,18 +209,3 @@ SELECT
 FROM ax_lagebezeichnungohnehausnummer o
 JOIN ap_lto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art IN ('Fliessgewaesser','StehendesGewaesser') AND t.endet IS NULL
 WHERE o.endet IS NULL;
-
--- Sonstige Beschriftungen ohne art (kommen z.B. in DEHE vor)
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
-SELECT
-	o.gml_id,
-	'Lagebezeichnungen' AS thema,
-	'ax_lagebezeichnungohnehausnummer' AS layer,
-	t.wkb_geometry AS point,
-	schriftinhalt AS text,
-	t.signaturnummer AS signaturnummer,
-	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_lagebezeichnungohnehausnummer o
-JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art IS NULL AND schriftinhalt IS NOT NULL AND t.signaturnummer IS NOT NULL
-WHERE o.endet IS NULL;

@@ -100,18 +100,3 @@ FROM (
 	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL AND d.art='HNR'
 	WHERE o.endet IS NULL
 ) AS foo;
-
--- Sonstige Hausnummern ohne art (kommen z.B. in DEHE vor)
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
-SELECT
-	o.gml_id,
-	'Gebäude' AS thema,
-	'ax_lagebezeichnungmithausnummer' AS layer,
-	tx.wkb_geometry AS point,
-	coalesce(tx.schriftinhalt,o.hausnummer) AS text,
-	coalesce(tx.signaturnummer,'4070') AS signaturnummer,
-	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-	coalesce(tx.advstandardmodell||tx.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_lagebezeichnungmithausnummer o
-JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon AND tx.endet IS NULL AND tx.art IS NULL
-WHERE o.endet IS NULL;

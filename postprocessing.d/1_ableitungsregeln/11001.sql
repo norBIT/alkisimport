@@ -128,7 +128,7 @@ FROM (
 			coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',1),o.zaehler::text)) AS lenn,
 			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2),o.nenner::text)) AS lenz,
-			coalesce(d.signaturnummer,t.signaturnummer,'2001') AS signaturnummer,
+			coalesce(d.signaturnummer,'2001') AS signaturnummer,
 			coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell,
 			coalesce(t.drehwinkel,0) AS drehwinkel
 		FROM ax_flurstueck o
