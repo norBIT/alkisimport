@@ -84,7 +84,7 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 CREATE OR REPLACE FUNCTION alkis_flsnr(f ax_flurstueck) RETURNS varchar AS $$
 BEGIN
 	RETURN
-		to_char(alkis_toint(f.land),'fm00') || to_char(alkis_toint(f.gemarkungsnummer),'fm0000')
+		to_char(alkis_toint(f.land),'fm00') || to_char(alkis_toint(f.gemarkungsnummer),'fm0000') ||
 		'-' || to_char(coalesce(f.flurnummer,0),'fm000') ||
 		'-' || alkis_flsnrk(f);
 END;
