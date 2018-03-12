@@ -1085,10 +1085,11 @@ WHERE coalesce(schriftinhalt,'')<>'' AND o.endet IS NULL;
 SELECT 'Gebäudehausnummern...';
 
 CREATE TEMPORARY TABLE po_zeigtauf_hausnummer(
-	zeigtauf character(16) PRIMARY KEY,
+	zeigtauf character(16),
 	wkb_geometry GEOMETRY,
 	prefix varchar
 );
+CREATE INDEX po_zeigtauf_hausnummer_zeigtauf ON po_zeigtauf_hausnummer(zeigtauf);
 
 INSERT INTO po_zeigtauf_hausnummer
 	SELECT
@@ -1103,7 +1104,7 @@ INSERT INTO po_zeigtauf_hausnummer
 	SELECT
 		zeigtauf, wkb_geometry, prefix
 	FROM (
-		SELECT DISTINCT
+		SELECT
 			unnest(zeigtauf) AS zeigtauf, wkb_geometry, '' AS prefix
 		FROM ax_gebaeude z
 		JOIN ax_lagebezeichnungmithausnummer lmh ON ARRAY[lmh.gml_id] <@ z.zeigtAuf AND lmh.endet IS NULL
