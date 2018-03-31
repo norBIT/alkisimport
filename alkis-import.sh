@@ -208,12 +208,12 @@ import() {
 		;;
 	esac
 
-	echo RUNNING: ogr2ogr -f $DRIVER $opt -update -append "$DST" $CRS "$dst1" | sed -Ee 's/password=\S+/password=*removed*/'
+	echo "RUNNING: ogr2ogr -f $DRIVER $opt -update -append \"$DST\" $CRS \"$dst1\"" | sed -Ee 's/password=\S+/password=*removed*/'
 	ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst1"
 	local r=$?
 	t1=$(bdate +%s)
 
-	progress $dst $s $t0 $t1
+	progress "$dst" $s $t0 $t1
 
 	[ $rm == 1 ] && rm -v "$dst"
 	trap "" EXIT
@@ -335,6 +335,15 @@ echo "START $(bdate)"
 
 GDAL_VERSION=$(unset CPL_DEBUG; ogr2ogr --version)
 echo $GDAL_VERSION
+
+major=${GDAL_VERSION#GDAL }
+major=${major%%.*}
+minor=${GDAL_VERSION#GDAL $major.}
+minor=${minor%%.*}
+if [ $major -lt 2 ] || [ $major -eq 2 -a $minor -lt 3 ]; then
+	echo "$P: erfordert GDAL >=2.3" >&2
+	exit 1
+fi
 
 export CPL_DEBUG
 export B

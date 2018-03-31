@@ -41,7 +41,7 @@ FROM (
 			gml_id,
 			einzug,
 			abstand,
-			CASE geometrytype(line) WHEN 'MULTILINESTRING' THEN (st_dump(line)).geom ELSE line END AS line,
+			(st_dump(st_multi(st_collectionextract(line, 2)))).geom AS line,
 			signaturnummer,
 			modell
 		FROM (

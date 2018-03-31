@@ -678,7 +678,7 @@ BEGIN
 			ALTER TABLE ax_tagesabschnitt RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_tagesabschnitt','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_tagesabschnitt SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_tagesabschnitt DROP wkb_geometry_;
+			ALTER TABLE ax_tagesabschnitt DROP wkb_geometry_ CASCADE;
 
 			CREATE INDEX ax_tagesabschnitt_geom_idx ON ax_tagesabschnitt USING gist(wkb_geometry);
 		END;
@@ -695,7 +695,7 @@ BEGIN
 			ALTER TABLE ax_topographischelinie RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_topographischelinie','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_topographischelinie SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_topographischelinie DROP wkb_geometry_;
+			ALTER TABLE ax_topographischelinie DROP wkb_geometry_ CASCADE;
 
 			CREATE INDEX ax_topographischelinie_geom_idx ON ax_topographischelinie USING gist(wkb_geometry);
 		END;
@@ -1041,7 +1041,7 @@ BEGIN
 			ALTER TABLE aa_antragsgebiet RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('aa_antragsgebiet','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE aa_antragsgebiet SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE aa_antragsgebiet DROP wkb_geometry_;
+			ALTER TABLE aa_antragsgebiet DROP wkb_geometry_ CASCADE;
 			CREATE INDEX aa_antragsgebiet_wkb_geometry_idx ON aa_antragsgebiet USING gist(wkb_geometry);
 		END;
 		ALTER TABLE aa_antragsgebiet ADD anlass character varying[];
@@ -1154,7 +1154,7 @@ BEGIN
 			ALTER TABLE ap_lto RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ap_lto','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ap_lto SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ap_lto DROP wkb_geometry_;
+			ALTER TABLE ap_lto DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ap_lto_wkb_geometry_idx ON ap_lto USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ap_lto ADD hatdirektunten character(16)[];
@@ -1194,7 +1194,7 @@ BEGIN
 			ALTER TABLE ap_pto RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ap_pto','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ap_pto SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ap_pto DROP wkb_geometry_;
+			ALTER TABLE ap_pto DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ap_pto_wkb_geometry_idx ON ap_pto USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ap_pto ADD hatdirektunten character(16)[];
@@ -1419,7 +1419,7 @@ BEGIN
 		ALTER TABLE ax_bauraumoderbodenordnungsrecht ALTER artderfestlegung SET NOT NULL;
 		ALTER TABLE ax_bauraumoderbodenordnungsrecht ALTER beginnt SET NOT NULL;
 		-- ax_bauraumoderbodenordnungsrecht.datumanordnung => datumanordnung: character varying => date
-		ALTER TABLE ax_bauraumoderbodenordnungsrecht ALTER datumanordnung TYPE date USING to_date(datumanordnung, 'YYYY-dd-mm');
+		ALTER TABLE ax_bauraumoderbodenordnungsrecht ALTER datumanordnung TYPE date USING to_date(datumanordnung, 'YYYY-mm-dd');
 		ALTER TABLE ax_bauraumoderbodenordnungsrecht ADD datumabgabe date;
 		ALTER TABLE ax_bauraumoderbodenordnungsrecht ADD datumbesitzeinweisung date;
 		ALTER TABLE ax_bauraumoderbodenordnungsrecht ADD datumrechtskraeftig date;
@@ -1682,7 +1682,7 @@ BEGIN
 			ALTER TABLE ax_besondereflurstuecksgrenze RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_besondereflurstuecksgrenze','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_besondereflurstuecksgrenze SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_besondereflurstuecksgrenze DROP wkb_geometry_;
+			ALTER TABLE ax_besondereflurstuecksgrenze DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_besondereflurstuecksgrenze_wkb_geometry_idx ON ax_besondereflurstuecksgrenze USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_besondereflurstuecksgrenze ADD hatdirektunten character(16)[];
@@ -1748,7 +1748,7 @@ BEGIN
 			ALTER TABLE ax_besondererhoehenpunkt RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_besondererhoehenpunkt','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_besondererhoehenpunkt SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_besondererhoehenpunkt DROP wkb_geometry_;
+			ALTER TABLE ax_besondererhoehenpunkt DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_besondererhoehenpunkt_wkb_geometry_idx ON ax_besondererhoehenpunkt USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_besondererhoehenpunkt ADD ax_dqerfassungsmethodebesondererhoehenpunkt integer;
@@ -2246,7 +2246,7 @@ BEGIN
 			ALTER TABLE ax_firstlinie RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_firstlinie','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_firstlinie SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_firstlinie DROP wkb_geometry_;
+			ALTER TABLE ax_firstlinie DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_firstlinie_wkb_geometry_idx ON ax_firstlinie USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_firstlinie ADD hatdirektunten character(16)[];
@@ -2484,17 +2484,22 @@ BEGIN
 		-- ax_flurstueck.stelle => zustaendigestelle_stelle: character varying => character varying[]
 		ALTER TABLE ax_flurstueck ALTER zustaendigestelle_stelle TYPE character varying[] USING CASE WHEN zustaendigestelle_stelle IS NULL THEN NULL ELSE ARRAY[zustaendigestelle_stelle] END;
 		-- ax_flurstueck.zaehler => zaehler: integer => character varying
+		PERFORM alkis_dropobject('v_eigentuemer');
+		PERFORM alkis_dropobject('v_haeuser');
+		PERFORM alkis_dropobject('ax_flurstueck_flsnr');
+		PERFORM alkis_dropobject('alkis_flsnrk');
+		PERFORM alkis_dropobject('alkis_flsnr');
 		ALTER TABLE ax_flurstueck ALTER zaehler TYPE character varying USING zaehler::varchar;
 		ALTER TABLE ax_flurstueck ALTER zaehler SET NOT NULL;
 		-- ax_flurstueck.zeitpunktderentstehung => zeitpunktderentstehung: character varying => date
-		ALTER TABLE ax_flurstueck ALTER zeitpunktderentstehung TYPE date USING to_date(zeitpunktderentstehung, 'YYYY-dd-mm');
+		ALTER TABLE ax_flurstueck ALTER zeitpunktderentstehung TYPE date USING to_date(zeitpunktderentstehung, 'YYYY-mm-dd');
 		ALTER TABLE ax_flurstueck ADD angabenzumabschnittstelle character varying[];
 		ALTER TABLE ax_flurstueck ADD gemeindezugehoerigkeit_gemeindeteil character varying;
 		ALTER TABLE ax_flurstueck ADD gemeindezugehoerigkeit_land character varying;
 		ALTER TABLE ax_flurstueck ADD hatdirektunten character(16)[];
 		ALTER TABLE ax_flurstueck ADD istabgeleitetaus character(16)[];
 		ALTER TABLE ax_flurstueck ADD istteilvon character(16)[];
-		PERFORM AddGeometryColumn('ax_flurstueck','objektkoordinaten',find_srid(current_schema()::text,'ax_flurstueck','objektkoordinaten'),'POINT',2);
+		PERFORM AddGeometryColumn('ax_flurstueck','objektkoordinaten',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'POINT',2);
 		ALTER TABLE ax_flurstueck ADD traegtbeizu character(16)[];
 		ALTER TABLE ax_flurstueck ADD zeigtaufexternes_art character varying[];
 		ALTER TABLE ax_flurstueck ADD zeigtaufexternes_uri character varying[];
@@ -2585,9 +2590,9 @@ BEGIN
 		ALTER TABLE ax_fortfuehrungsnachweisdeckblatt ALTER beziehtsichauf TYPE character(16)[] USING CASE WHEN beziehtsichauf IS NULL THEN NULL ELSE ARRAY[beziehtsichauf] END;
 		ALTER TABLE ax_fortfuehrungsnachweisdeckblatt ALTER beziehtsichauf SET NOT NULL;
 		-- ax_fortfuehrungsnachweisdeckblatt.erstelltam => erstelltam: character varying => date
-		ALTER TABLE ax_fortfuehrungsnachweisdeckblatt ALTER erstelltam TYPE date USING to_date(erstelltam, 'YYYY-dd-mm');
+		ALTER TABLE ax_fortfuehrungsnachweisdeckblatt ALTER erstelltam TYPE date USING to_date(erstelltam, 'YYYY-mm-dd');
 		-- ax_fortfuehrungsnachweisdeckblatt.fortfuehrungsentscheidungam => fortfuehrungsentscheidungam: character varying => date
-		ALTER TABLE ax_fortfuehrungsnachweisdeckblatt ALTER fortfuehrungsentscheidungam TYPE date USING to_date(fortfuehrungsentscheidungam, 'YYYY-dd-mm');
+		ALTER TABLE ax_fortfuehrungsnachweisdeckblatt ALTER fortfuehrungsentscheidungam TYPE date USING to_date(fortfuehrungsentscheidungam, 'YYYY-mm-dd');
 		-- ax_fortfuehrungsnachweisdeckblatt.laufendenummer => laufendenummer: integer => character varying
 		ALTER TABLE ax_fortfuehrungsnachweisdeckblatt ALTER laufendenummer TYPE character varying USING laufendenummer::varchar;
 		ALTER TABLE ax_fortfuehrungsnachweisdeckblatt ALTER laufendenummer SET NOT NULL;
@@ -2781,7 +2786,7 @@ BEGIN
 			ALTER TABLE ax_gelaendekante RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_gelaendekante','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_gelaendekante SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_gelaendekante DROP wkb_geometry_;
+			ALTER TABLE ax_gelaendekante DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_gelaendekante_wkb_geometry_idx ON ax_gelaendekante USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_gelaendekante ADD erfassung_datetime character(20);
@@ -2898,7 +2903,7 @@ BEGIN
 			ALTER TABLE ax_georeferenziertegebaeudeadresse RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_georeferenziertegebaeudeadresse','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_georeferenziertegebaeudeadresse SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_georeferenziertegebaeudeadresse DROP wkb_geometry_;
+			ALTER TABLE ax_georeferenziertegebaeudeadresse DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_georeferenziertegebaeudeadresse_wkb_geometry_idx ON ax_georeferenziertegebaeudeadresse USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_georeferenziertegebaeudeadresse ADD datensatznummer character varying;
@@ -3013,7 +3018,7 @@ BEGIN
 			ALTER TABLE ax_grablochderbodenschaetzung RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_grablochderbodenschaetzung','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_grablochderbodenschaetzung SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_grablochderbodenschaetzung DROP wkb_geometry_;
+			ALTER TABLE ax_grablochderbodenschaetzung DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_grablochderbodenschaetzung_wkb_geometry_idx ON ax_grablochderbodenschaetzung USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_grablochderbodenschaetzung ADD hatdirektunten character(16)[];
@@ -3210,7 +3215,7 @@ BEGIN
 			ALTER TABLE ax_heilquellegasquelle RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_heilquellegasquelle','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_heilquellegasquelle SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_heilquellegasquelle DROP wkb_geometry_;
+			ALTER TABLE ax_heilquellegasquelle DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_heilquellegasquelle_wkb_geometry_idx ON ax_heilquellegasquelle USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_heilquellegasquelle ADD hatdirektunten character(16)[];
@@ -3312,9 +3317,9 @@ BEGIN
 		ALTER TABLE ax_historischesflurstueck DROP vorgaengerflurstueckskennzeichen;
 		ALTER TABLE ax_historischesflurstueck ALTER zaehler SET NOT NULL;
 		-- ax_historischesflurstueck.zeitpunktderentstehung => zeitpunktderentstehung: character(10) => date
-		ALTER TABLE ax_historischesflurstueck ALTER zeitpunktderentstehung TYPE date USING to_date(zeitpunktderentstehung, 'YYYY-dd-mm');
+		ALTER TABLE ax_historischesflurstueck ALTER zeitpunktderentstehung TYPE date USING to_date(zeitpunktderentstehung, 'YYYY-mm-dd');
 		-- ax_historischesflurstueck.zeitpunktderhistorisierung => zeitpunktderhistorisierung: character(10) => date
-		ALTER TABLE ax_historischesflurstueck ALTER zeitpunktderhistorisierung TYPE date USING to_date(zeitpunktderhistorisierung, 'YYYY-dd-mm');
+		ALTER TABLE ax_historischesflurstueck ALTER zeitpunktderhistorisierung TYPE date USING to_date(zeitpunktderhistorisierung, 'YYYY-mm-dd');
 		ALTER TABLE ax_historischesflurstueck ADD angabenzumabschnittbemerkung character varying[];
 		ALTER TABLE ax_historischesflurstueck ADD angabenzumabschnittflurstueck character varying[];
 		ALTER TABLE ax_historischesflurstueck ADD angabenzumabschnittnummeraktenzeichen character varying[];
@@ -3328,7 +3333,7 @@ BEGIN
 		ALTER TABLE ax_historischesflurstueck ADD istabgeleitetaus character(16)[];
 		ALTER TABLE ax_historischesflurstueck ADD istteilvon character(16)[];
 		ALTER TABLE ax_historischesflurstueck ADD kennungschluessel character varying[];
-		PERFORM AddGeometryColumn('ax_historischesflurstueck','objektkoordinaten',find_srid(current_schema()::text,'ax_flurstueck','objektkoordinaten'),'POINT',2);
+		PERFORM AddGeometryColumn('ax_historischesflurstueck','objektkoordinaten',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'POINT',2);
 		ALTER TABLE ax_historischesflurstueck ADD traegtbeizu character(16)[];
 		ALTER TABLE ax_historischesflurstueck ADD zeigtaufexternes_uri character varying[];
 		CREATE INDEX alkis_2e76a0c0_6f40_4a62_8f6d_be5ef7fb08a4 ON ax_historischesflurstueck USING btree (endet);
@@ -3359,11 +3364,11 @@ BEGIN
 		ALTER TABLE ax_historischesflurstueckalb ALTER zaehler SET NOT NULL;
 		ALTER TABLE ax_historischesflurstueckalb DROP zeitpunktderentstehung;
 		-- ax_historischesflurstueckalb.zeitpunktderentstehungdesbezugsflurstuecks => zeitpunktderentstehungdesbezugsflurstuecks: character varying => date
-		ALTER TABLE ax_historischesflurstueckalb ALTER zeitpunktderentstehungdesbezugsflurstuecks TYPE date USING to_date(zeitpunktderentstehungdesbezugsflurstuecks, 'YYYY-dd-mm');
+		ALTER TABLE ax_historischesflurstueckalb ALTER zeitpunktderentstehungdesbezugsflurstuecks TYPE date USING to_date(zeitpunktderentstehungdesbezugsflurstuecks, 'YYYY-mm-dd');
 		ALTER TABLE ax_historischesflurstueckalb DROP zweifelhafterflurstuecksnachweis;
 		ALTER TABLE ax_historischesflurstueckalb ADD buchungsblattbezirk_land character varying[];
 		ALTER TABLE ax_historischesflurstueckalb ADD istteilvon character(16)[];
-		PERFORM AddGeometryColumn('ax_historischesflurstueckalb','objektkoordinaten',find_srid(current_schema()::text,'ax_flurstueck','objektkoordinaten'),'POINT',2);
+		PERFORM AddGeometryColumn('ax_historischesflurstueckalb','objektkoordinaten',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'POINT',2);
 		ALTER TABLE ax_historischesflurstueckalb ADD zeigtaufexternes_art character varying[];
 		ALTER TABLE ax_historischesflurstueckalb ADD zeigtaufexternes_uri character varying[];
 		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='ax_historischesflurstueckalb' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON ax_historischesflurstueckalb USING btree (nachfolgerflurstueckskennzeichen)';
@@ -3386,7 +3391,7 @@ BEGIN
 		ALTER TABLE ax_historischesflurstueckohneraumbezug RENAME name TO zeigtaufexternes_name;
 		ALTER TABLE ax_historischesflurstueckohneraumbezug ALTER zaehler SET NOT NULL;
 		-- ax_historischesflurstueckohneraumbezug.zeitpunktderentstehung => zeitpunktderentstehung: character varying => date
-		ALTER TABLE ax_historischesflurstueckohneraumbezug ALTER zeitpunktderentstehung TYPE date USING to_date(zeitpunktderentstehung, 'YYYY-dd-mm');
+		ALTER TABLE ax_historischesflurstueckohneraumbezug ALTER zeitpunktderentstehung TYPE date USING to_date(zeitpunktderentstehung, 'YYYY-mm-dd');
 		ALTER TABLE ax_historischesflurstueckohneraumbezug ADD angabenzumabschnittbemerkung character varying[];
 		ALTER TABLE ax_historischesflurstueckohneraumbezug ADD angabenzumabschnittflurstueck character varying[];
 		ALTER TABLE ax_historischesflurstueckohneraumbezug ADD angabenzumabschnittnummeraktenzeichen character varying[];
@@ -3399,7 +3404,7 @@ BEGIN
 		ALTER TABLE ax_historischesflurstueckohneraumbezug ADD gemeindezugehoerigkeit_regierungsbezirk character varying;
 		ALTER TABLE ax_historischesflurstueckohneraumbezug ADD istteilvon character(16)[];
 		ALTER TABLE ax_historischesflurstueckohneraumbezug ADD kennungschluessel character varying[];
-		PERFORM AddGeometryColumn('ax_historischesflurstueckohneraumbezug','objektkoordinaten',find_srid(current_schema()::text,'ax_flurstueck','objektkoordinaten'),'POINT',2);
+		PERFORM AddGeometryColumn('ax_historischesflurstueckohneraumbezug','objektkoordinaten',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'POINT',2);
 		ALTER TABLE ax_historischesflurstueckohneraumbezug ADD zeigtaufexternes_art character varying[];
 		ALTER TABLE ax_historischesflurstueckohneraumbezug ADD zeigtaufexternes_uri character varying[];
 		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='ax_historischesflurstueckohneraumbezug' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON ax_historischesflurstueckohneraumbezug USING btree (nachfolgerflurstueckskennzeichen)';
@@ -3420,7 +3425,7 @@ BEGIN
 			ALTER TABLE ax_hoehenlinie RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_hoehenlinie','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_hoehenlinie SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_hoehenlinie DROP wkb_geometry_;
+			ALTER TABLE ax_hoehenlinie DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_hoehenlinie_wkb_geometry_idx ON ax_hoehenlinie USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_hoehenlinie ADD hatdirektunten character(16)[];
@@ -3467,7 +3472,7 @@ BEGIN
 			ALTER TABLE ax_hoehleneingang RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_hoehleneingang','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_hoehleneingang SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_hoehleneingang DROP wkb_geometry_;
+			ALTER TABLE ax_hoehleneingang DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_hoehleneingang_wkb_geometry_idx ON ax_hoehleneingang USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_hoehleneingang ADD hatdirektunten character(16)[];
@@ -3784,7 +3789,7 @@ BEGIN
 			ALTER TABLE ax_leitung RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_leitung','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_leitung SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_leitung DROP wkb_geometry_;
+			ALTER TABLE ax_leitung DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_leitung_wkb_geometry_idx ON ax_leitung USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_leitung ADD hatdirektunten character(16)[];
@@ -4009,7 +4014,7 @@ BEGIN
 
 		ALTER TABLE ax_person ALTER beginnt SET NOT NULL;
 		-- ax_person.geburtsdatum => geburtsdatum: character varying => date
-		ALTER TABLE ax_person ALTER geburtsdatum TYPE date USING to_date(geburtsdatum, 'YYYY-dd-mm');
+		ALTER TABLE ax_person ALTER geburtsdatum TYPE date USING to_date(geburtsdatum, 'YYYY-mm-dd');
 		ALTER TABLE ax_person ALTER nachnameoderfirma SET NOT NULL;
 		ALTER TABLE ax_person ADD ax_li_processstep_ohnedatenerhebung_description character varying[];
 		ALTER TABLE ax_person ADD beruf character varying;
@@ -4109,7 +4114,7 @@ BEGIN
 			ALTER TABLE ax_punktortag RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_punktortag','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_punktortag SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_punktortag DROP wkb_geometry_;
+			ALTER TABLE ax_punktortag DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_punktortag_wkb_geometry_idx ON ax_punktortag USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_punktortag ADD genauigkeitswert_datetime character(20)[];
@@ -4171,7 +4176,7 @@ BEGIN
 			ALTER TABLE ax_punktortau RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_punktortau','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_punktortau SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_punktortau DROP wkb_geometry_;
+			ALTER TABLE ax_punktortau DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_punktortau_wkb_geometry_idx ON ax_punktortau USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_punktortau ADD genauigkeitswert_datetime character(20)[];
@@ -4231,7 +4236,7 @@ BEGIN
 			ALTER TABLE ax_punktortta RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_punktortta','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_punktortta SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_punktortta DROP wkb_geometry_;
+			ALTER TABLE ax_punktortta DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_punktortta_wkb_geometry_idx ON ax_punktortta USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_punktortta ADD genauigkeitswert_datetime character(20)[];
@@ -4291,7 +4296,7 @@ BEGIN
 		CREATE INDEX alkis_1574bc43_c060_413a_a7e6_f64ff1b5dabb ON ax_regierungsbezirk USING gin (istteilvon);
 
 		-- ax_reservierung.ablaufderreservierung => ablaufderreservierung: character varying => date
-		ALTER TABLE ax_reservierung ALTER ablaufderreservierung TYPE date USING to_date(ablaufderreservierung, 'YYYY-dd-mm');
+		ALTER TABLE ax_reservierung ALTER ablaufderreservierung TYPE date USING to_date(ablaufderreservierung, 'YYYY-mm-dd');
 		ALTER TABLE ax_reservierung ALTER art SET NOT NULL;
 		ALTER TABLE ax_reservierung ALTER beginnt SET NOT NULL;
 		ALTER TABLE ax_reservierung ALTER land SET NOT NULL;
@@ -4321,7 +4326,7 @@ BEGIN
 			ALTER TABLE ax_schifffahrtsliniefaehrverkehr RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_schifffahrtsliniefaehrverkehr','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_schifffahrtsliniefaehrverkehr SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_schifffahrtsliniefaehrverkehr DROP wkb_geometry_;
+			ALTER TABLE ax_schifffahrtsliniefaehrverkehr DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_schifffahrtsliniefaehrverkehr_wkb_geometry_idx ON ax_schifffahrtsliniefaehrverkehr USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_schifffahrtsliniefaehrverkehr ADD hatdirektunten character(16)[];
@@ -4559,7 +4564,7 @@ BEGIN
 			ALTER TABLE ax_soll RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_soll','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_soll SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_soll DROP wkb_geometry_;
+			ALTER TABLE ax_soll DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_soll_wkb_geometry_idx ON ax_soll USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_soll ADD hatdirektunten character(16)[];
@@ -5416,7 +5421,7 @@ BEGIN
 			ALTER TABLE ax_wasserspiegelhoehe RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_wasserspiegelhoehe','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_wasserspiegelhoehe SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_wasserspiegelhoehe DROP wkb_geometry_;
+			ALTER TABLE ax_wasserspiegelhoehe DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_wasserspiegelhoehe_wkb_geometry_idx ON ax_wasserspiegelhoehe USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_wasserspiegelhoehe ADD hatdirektunten character(16)[];
@@ -5597,7 +5602,7 @@ BEGIN
 			ALTER TABLE ax_wohnplatz RENAME wkb_geometry TO wkb_geometry_;
 			PERFORM AddGeometryColumn('ax_wohnplatz','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
 			UPDATE ax_wohnplatz SET wkb_geometry=wkb_geometry_;
-			ALTER TABLE ax_wohnplatz DROP wkb_geometry_;
+			ALTER TABLE ax_wohnplatz DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_wohnplatz_wkb_geometry_idx ON ax_wohnplatz USING gist(wkb_geometry);
 		END;
 		ALTER TABLE ax_wohnplatz ADD bezeichnung character varying[];
@@ -16276,7 +16281,7 @@ Erholung von Reisenden.'),
 		  SELECT id::text AS k, value::text AS v,'' AS d,'levelofdetail' AS bezeichnung,'au_geometrieobjekt_3d' AS element FROM aa_levelofdetail;
 
 		PERFORM
-			DropGeometryColumn(f_table_name, f_geometry_column)
+			DropGeometryColumn(f_table_schema::varchar, f_table_name::varchar, f_geometry_column::varchar)
 		FROM geometry_columns
 		WHERE f_table_schema=current_schema()
 		  AND f_geometry_column='dummy'
