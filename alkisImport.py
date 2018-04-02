@@ -1132,7 +1132,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         " ({}/s)".format(self.memunits(ts * 1000 / t0.elapsed()))
                     ))
 
-                ok = self.rund(conn, "postprocessing")
+                if ok:
+                    ok = self.rund(conn, "postprocessing")
 
                 if ok:
                     self.status(u"VACUUM...")
