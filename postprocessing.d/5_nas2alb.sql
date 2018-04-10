@@ -35,6 +35,23 @@ DELETE FROM gema_shl
 	WHERE NOT EXISTS (SELECT * FROM flurst WHERE flurst.gemashl=gema_shl.gemashl)
 	  AND NOT EXISTS (SELECT * FROM bestand WHERE substr(bestdnr,1,6)=gema_shl.gemashl);
 
+INSERT INTO gema_shl(gemashl,gemarkung)
+	SELECT gemashl, '(Gemarkung '||gemashl||')' AS gemarkung
+	FROM (
+		SELECT substr(flurstueckskennzeichen,1,6) AS gemashl FROM ax_flurstueck
+	  UNION SELECT to_char(alkis_toint(land),'fm00') || to_char(alkis_toint(bezirk),'fm0000') FROM ax_buchungsblatt
+	) AS a
+	WHERE NOT EXISTS (SELECT * FROM gema_shl b WHERE a.gemashl=b.gemashl)
+	GROUP BY gemashl;
+
+INSERT INTO gem_shl(gemshl,gemname)
+	SELECT gemshl, '(Gemeinde '||gemshl||')' AS gemname
+	FROM (
+		SELECT to_char(alkis_toint(land),'fm00')||regierungsbezirk||to_char(alkis_toint(kreis),'fm00')||to_char(alkis_toint(gemeinde),'fm000') AS gemshl FROM ax_flurstueck
+	) AS a
+	WHERE NOT EXISTS (SELECT * FROM gem_shl b WHERE a.gemshl=b.gemshl)
+	GROUP BY gemshl;
+
 UPDATE gema_shl SET gemshl=(SELECT gemshl FROM flurst WHERE flurst.gemashl=gema_shl.gemashl LIMIT 1);
 
 DELETE FROM gem_shl

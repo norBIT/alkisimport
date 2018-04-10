@@ -1,12 +1,5 @@
 SET client_encoding TO 'UTF8';
 SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
---
--- Signaturnummern
--- 9001: Flurgrenze
--- 9002: Gemarkungsgrenze
--- 9003: Gemeindegrenze
--- 9004: Kreisgrenze
---
 
 DELETE FROM alkis_schriften WHERE signaturnummer IN ('pg-flur','pg-gemarkung','pg-gemeinde','pg-kreis');
 DELETE FROM alkis_linie WHERE signaturnummer IN ('pg-flur','pg-gemarkung','pg-gemeinde','pg-kreis');
