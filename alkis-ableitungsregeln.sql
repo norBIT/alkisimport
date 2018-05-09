@@ -3987,7 +3987,7 @@ FROM (
 		END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_transportanlage
-	WHERE bauwerksfunktion=1102 AND endet IS NULL
+	WHERE bauwerksfunktion=1102 AND geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
 ) AS t WHERE signaturnummer IS NOT NULL;
 
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
@@ -4008,7 +4008,7 @@ FROM (
 		END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_transportanlage
-	WHERE bauwerksfunktion=1101 AND endet IS NULL
+	WHERE bauwerksfunktion=1101 AND geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
 ) AS t WHERE signaturnummer IS NOT NULL;
 
 -- Transportanlage, Symbole
