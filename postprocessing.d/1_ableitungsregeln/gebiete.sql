@@ -69,14 +69,8 @@ INSERT INTO alkis_schriften(katalog,signaturnummer,darstellungsprioritaet,name,s
 		NULL AS position
 	FROM generate_series(1,2) AS katalog, unnest(ARRAY['pg-flur','pg-gemarkung','pg-gemeinde','pg-kreis']) AS signaturnummer;
 
---
--- Polygone löschen
---
-
-DELETE FROM po_polygons WHERE layer LIKE 'ax_flurstueck_flur_%' ESCAPE '?';
-DELETE FROM po_polygons WHERE layer LIKE 'ax_flurstueck_gemarkung_%' ESCAPE '?';
-DELETE FROM po_polygons WHERE layer LIKE 'ax_flurstueck_gemeinde_%' ESCAPE '?';
-DELETE FROM po_polygons WHERE layer LIKE 'ax_flurstueck_kreis_%' ESCAPE '?';
+DELETE FROM po_polygons WHERE sn_randlinie IN ('pg-flur','pg-gemarkung','pg-gemeinde','pg-kreis');
+DELETE FROM po_labels WHERE signaturnummer IN ('pg-flur','pg-gemarkung','pg-gemeinde','pg-kreis');
 
 CREATE TEMPORARY TABLE pp_gemarkungen AS
 	SELECT
@@ -156,9 +150,9 @@ SELECT 'Flurgrenzen werden aufbereitet...';
 
 INSERT INTO po_polygons(gml_id,thema,layer,signaturnummer,sn_randlinie,modell,polygon)
 	SELECT
-		min(gml_id) AS gml_od,
+		min(gml_id) AS gml_id,
 		'Politische Grenzen' AS thema,
-		'ax_flurstueck_flur_'||gemeindezugehoerigkeit_land||gemarkungsnummer||flurnummer AS layer,
+		'ax_flurstueck_flur_'||gemeindezugehoerigkeit_land||gemarkungsnummer||coalesce(flurnummer,0) AS layer,
 		'pg-flur' AS signaturnummer,
 		'pg-flur' AS sn_randlinie,
 		ARRAY['norGIS'] AS modell,
@@ -188,7 +182,7 @@ SELECT 'Gemarkungsgrenzen werden aufbereitet...';
 
 INSERT INTO po_polygons(gml_id,thema,layer,signaturnummer,sn_randlinie,modell,polygon)
 	SELECT
-		min(gml_id) AS gml_od,
+		min(gml_id) AS gml_id,
 		'Politische Grenzen' AS thema,
 		'ax_flurstueck_gemarkung_'||gemeindezugehoerigkeit_land||gemarkungsnummer AS layer,
 		'pg-gemarkung' AS signaturnummer,
@@ -219,7 +213,7 @@ SELECT 'Gemeindegrenzen werden aufbereitet...';
 
 INSERT INTO po_polygons(gml_id,thema,layer,signaturnummer,sn_randlinie,modell,polygon)
 	SELECT
-		min(gml_id) AS gml_od,
+		min(gml_id) AS gml_id,
 		'Politische Grenzen' AS thema,
 		'ax_flurstueck_gemeinde_'||gemeindezugehoerigkeit_land||gemeindezugehoerigkeit_regierungsbezirk||gemeindezugehoerigkeit_kreis||gemeindezugehoerigkeit_gemeinde AS layer,
 		'pg-gemeinde' AS signaturnummer,
@@ -250,7 +244,7 @@ SELECT 'Kreisgrenzen werden aufbereitet...';
 
 INSERT INTO po_polygons(gml_id,thema,layer,signaturnummer,sn_randlinie,modell,polygon)
 	SELECT
-		min(gml_id) AS gml_od,
+		min(gml_id) AS gml_id,
 		'Politische Grenzen' AS thema,
 		'ax_flurstueck_kreis_'||gemeindezugehoerigkeit_land||gemeindezugehoerigkeit_regierungsbezirk||gemeindezugehoerigkeit_kreis AS layer,
 		'pg-kreis' AS signaturnummer,
@@ -273,3 +267,6 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,mo
 		ARRAY['norGIS'] AS modell
 	FROM po_polygons
 	JOIN pg_temp.pp_kreise ON layer='ax_flurstueck_kreis_'||gemeindezugehoerigkeit_land||gemeindezugehoerigkeit_regierungsbezirk||gemeindezugehoerigkeit_kreis;
+
+DELETE FROM po_polygons WHERE sn_randlinie='pg-flur' AND gml_id LIKE 'DEBW%';
+DELETE FROM po_labels WHERE signaturnummer='pg-flur' AND gml_id LIKE 'DEBW%';
