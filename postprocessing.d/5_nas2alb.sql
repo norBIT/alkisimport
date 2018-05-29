@@ -47,7 +47,7 @@ INSERT INTO gema_shl(gemashl,gemarkung)
 INSERT INTO gem_shl(gemshl,gemname)
 	SELECT gemshl, '(Gemeinde '||gemshl||')' AS gemname
 	FROM (
-		SELECT to_char(alkis_toint(land),'fm00')||regierungsbezirk||to_char(alkis_toint(kreis),'fm00')||to_char(alkis_toint(gemeinde),'fm000') AS gemshl FROM ax_flurstueck
+		SELECT to_char(alkis_toint(land),'fm00')||gemeindezugehoerigkeit_regierungsbezirk||to_char(alkis_toint(gemeindezugehoerigkeit_kreis),'fm00')||to_char(alkis_toint(gemeindezugehoerigkeit_gemeinde),'fm000') AS gemshl FROM ax_flurstueck
 	) AS a
 	WHERE NOT EXISTS (SELECT * FROM gem_shl b WHERE a.gemshl=b.gemshl)
 	GROUP BY gemshl;
