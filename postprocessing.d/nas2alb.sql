@@ -103,6 +103,17 @@ INSERT INTO str_shl(strshl,strname,gemshl)
 	  -- Nur nötig, weil Kataloge nicht vernünfigt geführt werden und doppelte Einträge vorkommen
 	  AND NOT EXISTS (SELECT * FROM ax_lagebezeichnungkatalogeintrag b WHERE b.endet IS NULL AND a.schluesselgesamt=b.schluesselgesamt AND b.beginnt<a.beginnt);
 
+INSERT INTO str_shl(strshl,strname,gemshl)
+        SELECT gemshl||'   -'||row_number() OVER (PARTITION BY gemshl)+(SELECT count(*) FROM str_shl s WHERE s.gemshl=a.gemshl) AS strshl,strname,gemshl FROM (
+                SELECT DISTINCT
+                        unverschluesselt AS strname,
+                        to_char(alkis_toint(f.land),'fm00')||f.regierungsbezirk||to_char(alkis_toint(f.kreis),'fm00')||to_char(alkis_toint(f.gemeinde),'fm000') AS gemshl
+                FROM ax_lagebezeichnungmithausnummer l
+                JOIN ax_flurstueck f ON ARRAY[l.gml_id] <@ f.weistauf AND f.endet IS NULL
+                WHERE l.lage IS NULL AND l.unverschluesselt IS NOT NULL AND l.endet IS NULL
+        ) AS a
+        WHERE NOT EXISTS(SELECT * FROM str_shl b WHERE a.gemshl=b.gemshl AND a.strname=b.strname);
+
 SELECT alkis_dropobject('strassen_pk_seq');
 CREATE SEQUENCE strassen_pk_seq;
 
@@ -122,7 +133,15 @@ INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 			hausnummer AS hausnr
 		FROM ax_lagebezeichnungmithausnummer l
 		JOIN ax_flurstueck f ON ARRAY[l.gml_id] <@ f.weistauf AND f.endet IS NULL
-		WHERE NOT l.lage IS NULL AND l.endet IS NULL
+		WHERE l.lage IS NOT NULL AND l.endet IS NULL
+	UNION
+		SELECT
+			alkis_flsnr(f) AS flsnr,
+			(SELECT strshl FROM str_shl WHERE gemshl=to_char(alkis_toint(f.land),'fm00')||f.regierungsbezirk||to_char(alkis_toint(f.kreis),'fm00')||to_char(alkis_toint(f.gemeinde),'fm000') AND strname=unverschluesselt) AS strshl,
+			hausnummer AS hausnr
+		FROM ax_lagebezeichnungmithausnummer l
+		JOIN ax_flurstueck f ON ARRAY[l.gml_id] <@ f.weistauf AND f.endet IS NULL
+		WHERE l.lage IS NULL AND l.endet IS NULL AND l.unverschluesselt IS NOT NULL
 	UNION
 		SELECT
 			alkis_flsnr(f) AS flsnr,
