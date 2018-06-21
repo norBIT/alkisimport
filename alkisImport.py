@@ -990,8 +990,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
                     if self.cbxSkipFailures.isChecked() or fn in checked:
                         args.append("-skipfailures")
-
-                    args.extend(["--config", "PG_USE_COPY", "YES" if self.cbxUseCopy.isChecked() else "NO"])
+                        args.extend(["--config", "PG_USE_COPY", "NO"])
+                    else:
+                        args.extend(["--config", "PG_USE_COPY", "YES" if self.cbxUseCopy.isChecked() else "NO"])
 
                     if gdal2:
                         args.extend(["-nlt", "CONVERT_TO_LINEAR", "-ds_transaction"])
