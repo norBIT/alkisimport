@@ -1065,9 +1065,10 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         args.extend(["-a_srs", "EPSG:{}".format(self.epsg)])
 
                     if self.cbxSkipFailures.isChecked() or fn in checked:
-                        args.append("-skipfailures")
+                        args.extend(["-skipfailures", "--config", "PG_USE_COPY", "NO"])
+                    else:
+                        args.extend(["--config", "PG_USE_COPY", "YES" if self.cbxUseCopy.isChecked() else "NO"])
 
-                    args.extend(["--config", "PG_USE_COPY", "YES" if self.cbxUseCopy.isChecked() else "NO"])
                     args.extend(["-nlt", "CONVERT_TO_LINEAR", "-ds_transaction"])
 
                     args.append(src)
