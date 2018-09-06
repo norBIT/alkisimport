@@ -16486,11 +16486,20 @@ Erholung von Reisenden.'),
 
 		UPDATE alkis_po_version SET version=3;
 
+	END IF;
+
+	IF ver<4 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 4';
+
+		CREATE TABLE po_modelle(modelle varchar, n integer);
+
+		UPDATE alkis_po_version SET version=4;
+
 		r := coalesce(r||E'\n','') || 'ALKIS-PO-Schema migriert';
 	END IF;
 
-	IF ver>3 THEN
-		RAISE EXCEPTION 'ALKIS-PO-Schema % nicht unterstützt (bis 3).', ver;
+	IF ver>4 THEN
+		RAISE EXCEPTION 'ALKIS-PO-Schema % nicht unterstützt (bis 4).', ver;
 	END IF;
 
 	RETURN r;

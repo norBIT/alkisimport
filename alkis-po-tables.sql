@@ -20,7 +20,7 @@ SELECT 'Präsentationstabellen werden erzeugt.';
 
 SELECT alkis_dropobject('alkis_po_version');
 CREATE TABLE alkis_po_version(version integer);
-INSERT INTO alkis_po_version(version) VALUES (2);
+INSERT INTO alkis_po_version(version) VALUES (4);
 
 --
 -- Präsentationstabellen
@@ -93,6 +93,11 @@ COMMENT ON TABLE po_points IS 'BASE: Beschriftungsobjekte';
 
 SELECT AddGeometryColumn('po_labels','point', :alkis_epsg, 'POINT', 2);
 SELECT AddGeometryColumn('po_labels','line', :alkis_epsg, 'LINESTRING', 2);
+
+-- Verwendete Modelle
+SELECT alkis_dropobject('po_modelle');
+CREATE TABLE po_modelle(modell varchar, n INTEGER);
+COMMENT ON TABLE po_modelle IS 'BASE: Verwendete Modelle';
 
 --
 -- Indizes

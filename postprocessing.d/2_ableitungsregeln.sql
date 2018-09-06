@@ -233,4 +233,14 @@ UNION SELECT 'Beschriftungen',count(*),array_agg(distinct signaturnummer)
 SELECT alkis_dropobject('alkis_flaechenfuellung');
 SELECT alkis_dropobject('alkis_pnr3002');
 
+DELETE FROM po_modelle;
+INSERT INTO po_modelle(modell,n)
+	SELECT modell,count(*) AS n FROM (
+		SELECT unnest(modell) AS modell FROM po_points	 UNION ALL
+		SELECT unnest(modell) AS modell FROM po_lines	 UNION ALL
+		SELECT unnest(modell) AS modell FROM po_polygons UNION ALL
+		SELECT unnest(modell) AS modell FROM po_labels
+	) AS foo
+	GROUP BY modell;
+
 -- vim: foldmethod=marker
