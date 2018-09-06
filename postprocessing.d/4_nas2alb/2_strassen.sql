@@ -26,7 +26,7 @@ INSERT INTO str_shl(strshl,strname,gemshl)
 		JOIN ax_flurstueck f ON ARRAY[l.gml_id] <@ f.weistauf AND f.endet IS NULL
 		WHERE l.lage IS NULL AND l.unverschluesselt IS NOT NULL AND l.endet IS NULL
 	) AS a
-	WHERE NOT EXISTS(SELECT * FROM str_shl b WHERE a.gemshl=b.gemshl AND a.strname=b.strname);
+	WHERE gemshl IS NOT NULL AND NOT EXISTS(SELECT * FROM str_shl b WHERE a.gemshl=b.gemshl AND a.strname=b.strname);
 
 SELECT alkis_dropobject('strassen_pk_seq');
 CREATE SEQUENCE strassen_pk_seq;

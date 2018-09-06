@@ -13005,7 +13005,7 @@ CREATE TABLE ax_punktortau (
 
 CREATE UNIQUE INDEX ax_punktortau_gml ON ax_punktortau USING btree (gml_id,beginnt);
 CREATE INDEX ax_punktortau_endet ON ax_punktortau USING btree (endet);
-SELECT AddGeometryColumn('ax_punktortau', 'wkb_geometry', :alkis_epsg, 'GEOMETRY', 2);
+SELECT AddGeometryColumn('ax_punktortau', 'wkb_geometry', :alkis_epsg, 'GEOMETRY', 3);
 CREATE INDEX ax_punktortau_wkb_geometry_idx ON ax_punktortau USING gist (wkb_geometry);
 CREATE INDEX ax_punktortau_istabgeleitetaus ON ax_punktortau USING gin (istabgeleitetaus);
 CREATE INDEX ax_punktortau_traegtbeizu ON ax_punktortau USING gin (traegtbeizu);

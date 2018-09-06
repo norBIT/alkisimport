@@ -4174,7 +4174,7 @@ BEGIN
 			ALTER TABLE ax_punktortau DROP CONSTRAINT enforce_geotype_wkb_geometry;
 		EXCEPTION WHEN OTHERS THEN
 			ALTER TABLE ax_punktortau RENAME wkb_geometry TO wkb_geometry_;
-			PERFORM AddGeometryColumn('ax_punktortau','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+			PERFORM AddGeometryColumn('ax_punktortau','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',3);
 			UPDATE ax_punktortau SET wkb_geometry=wkb_geometry_;
 			ALTER TABLE ax_punktortau DROP wkb_geometry_ CASCADE;
 			CREATE INDEX ax_punktortau_wkb_geometry_idx ON ax_punktortau USING gist(wkb_geometry);
@@ -16491,7 +16491,7 @@ Erholung von Reisenden.'),
 	IF ver<4 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 4';
 
-		CREATE TABLE po_modelle(modelle varchar, n integer);
+		CREATE TABLE po_modelle(modell varchar, n integer);
 
 		UPDATE alkis_po_version SET version=4;
 
