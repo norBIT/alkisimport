@@ -38,19 +38,23 @@ SELECT
 	'Gebäude' AS thema,
 	'ax_sonstigesbauwerkodersonstigeeinrichtung' AS layer,
 	st_multi(polygon),
-	signaturnummer,
+	2510 AS signaturnummer,
 	modell
 FROM (
 	SELECT
 		o.gml_id,
-		alkis_bufferline(wkb_geometry,0.5) AS polygon,
-		CASE
-		WHEN bauwerksfunktion IN (1701,1702,1703,1721,1722,1723) THEN 2510
-		END AS signaturnummer,
+		alkis_bufferline(
+			CASE
+			WHEN bauwerksfunktion IN (1701, 1721) THEN st_reverse(alkis_offsetcurve(wkb_geometry, -0.25, ''))
+			WHEN bauwerksfunktion IN (1702, 1722) THEN alkis_offsetcurve(wkb_geometry, 0.25, '')
+			ELSE wkb_geometry
+			END,
+			0.5
+		) AS polygon,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_sonstigesbauwerkodersonstigeeinrichtung o
-	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
-) AS o WHERE NOT signaturnummer IS NULL;
+	WHERE bauwerksfunktion IN (1701,1702,1703,1721,1722,1723) AND geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
+) AS o;
 
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 SELECT
