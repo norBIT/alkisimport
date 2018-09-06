@@ -35,7 +35,7 @@ from tempfile import gettempdir
 from itertools import islice
 from glob import glob
 
-from PyQt4.QtCore import QSettings, QProcess, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QTime, QByteArray
+from PyQt4.QtCore import QSettings, QProcess, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QElapsedTimer, QByteArray
 from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox, QFont, QIntValidator, QListWidgetItem
 from PyQt4.QtSql import QSqlDatabase, QSqlQuery
 from PyQt4 import uic
@@ -608,6 +608,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 	    "-v", "ON_ERROR_STOP=1",
             "-v", "ECHO=errors",
             "--quiet",
+            "--no-psqlrc",
             "-f", fn, conn])
 
     def run(self):
@@ -724,7 +725,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         QApplication.setOverrideCursor(Qt.WaitCursor)
 
         while True:
-            t0 = QTime()
+            t0 = QElapsedTimer()
             t0.start()
 
             self.loadRe()
@@ -1075,7 +1076,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
                     self.status(u"{} mit {} wird importiert...".format(fn, self.memunits(size)))
 
-                    t1 = QTime()
+                    t1 = QElapsedTimer()
                     t1.start()
 
                     ok = self.runProcess(args)

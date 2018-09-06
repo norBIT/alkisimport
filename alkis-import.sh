@@ -443,7 +443,7 @@ do
 			pushd "$B" >/dev/null
 			local t0=$(bdate +%s)
 			echo "SQL RUN: $file $(bdate)"
-			psql -P pager=off \
+			psql -X -P pager=off \
 				-v alkis_pgverdraengen=$PGVERDRAENGEN \
 				-v alkis_fnbruch=$FNBRUCH \
 				-v alkis_epsg=$EPSG \
@@ -453,6 +453,7 @@ do
 				-v ON_ERROR_STOP=1 \
 				-v ECHO=errors \
 				--quiet \
+				-c "SET application_name='$file'" \
 				-f "$file" \
 				"$DB"
 			local r=$?
@@ -463,7 +464,7 @@ do
 		}
 		export -f sql
 		runsql() {
-			psql -P pager=off -c "$1" "$DB"
+			psql -X -P pager=off -c "$1" "$DB"
 		}
 		export -f runsql
 		dump() {
@@ -474,27 +475,27 @@ do
 				echo "$P: $1.cpgdmp nicht gefunden oder nicht lesbar." >&2
 				return 1
 			fi
-			pg_restore -Fc -c "$1.cpgdmp" | psql "$DB"
+			pg_restore -Fc -c "$1.cpgdmp" | psql -X "$DB"
 		}
 		export DB
 		log() {
-			n=$(psql -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname='${SCHEMA//\'/\'\'}'" "$DB")
-			n=${n//[	 ]/}
+			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname='${SCHEMA//\'/\'\'}'" "$DB")
+			n=${n//[	 ]}
 			if [ $n -eq 0 ]; then
-				psql -q -c "CREATE SCHEMA \"${SCHEMA//\"/\"\"}\"" "$DB"
+				psql -X -q -c "CREATE SCHEMA \"${SCHEMA//\"/\"\"}\"" "$DB"
 			fi
 
-			n=$(psql -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname='${SCHEMA//\'/\'\'}'" "$DB")
-			n=${n//[	 ]/}
+			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname='${SCHEMA//\'/\'\'}'" "$DB")
+			n=${n//[	 ]}
 			if [ $n -eq 0 ]; then
 				echo "Schema $SCHEMA nicht erzeugt" >&2
 				exit 1
 			fi
 
-			n=$(psql -t -c "SELECT count(*) FROM pg_catalog.pg_tables WHERE schemaname='${SCHEMA//\'/\'\'}' AND tablename='alkis_importlog'" "$DB")
-			n=${n//[	 ]/}
+			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_tables WHERE schemaname='${SCHEMA//\'/\'\'}' AND tablename='alkis_importlog'" "$DB")
+			n=${n//[	 ]}
 			if [ $n -eq 0 ]; then
-				psql -q -c "CREATE TABLE \"${SCHEMA//\"/\"\"}\".alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" "$DB"
+				psql -X -q -c "CREATE TABLE \"${SCHEMA//\"/\"\"}\".alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" "$DB"
 			fi
 
 			tee $1 |
@@ -508,7 +509,7 @@ do
 				done
 				echo "\\q"
 			) |
-			psql -q "$DB"
+			psql -X -q "$DB"
 		}
 		continue
 		;;
