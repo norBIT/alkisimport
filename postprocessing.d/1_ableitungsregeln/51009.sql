@@ -45,8 +45,8 @@ FROM (
 		o.gml_id,
 		alkis_bufferline(
 			CASE
-			WHEN bauwerksfunktion IN (1701, 1721) THEN st_reverse(alkis_offsetcurve(wkb_geometry, -0.25, ''))
-			WHEN bauwerksfunktion IN (1702, 1722) THEN alkis_offsetcurve(wkb_geometry, 0.25, '')
+			WHEN bauwerksfunktion IN (1701, 1721) THEN st_reverse(alkis_safe_offsetcurve(wkb_geometry, -0.25, ''))
+			WHEN bauwerksfunktion IN (1702, 1722) THEN alkis_safe_offsetcurve(wkb_geometry, 0.25, '')
 			ELSE wkb_geometry
 			END,
 			0.5
