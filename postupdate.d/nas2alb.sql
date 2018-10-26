@@ -83,8 +83,14 @@ BEGIN
 		COMMENT ON TABLE kls_shl IS 'BASE: Klassifiziersschlüssel';
 
 		ALTER TABLE strassen ALTER hausnr TYPE varchar;
+	END IF;
 
-		UPDATE alb_version SET version=3;
+	IF v<4 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 4';
+
+		ALTER TABLE bestand ALTER gbblnr TYPE varchar;
+
+		UPDATE alb_version SET version=4;
 
 		r := coalesce(r||E'\n','') || 'ALB-Schema migriert';
 	END IF;

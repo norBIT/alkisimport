@@ -23,7 +23,7 @@ SET search_path = :"alkis_schema", :"postgis_schema", public;
 
 SELECT alkis_dropobject('alb_version');
 CREATE TABLE alb_version(version integer);
-INSERT INTO alb_version(version) VALUES (3);
+INSERT INTO alb_version(version) VALUES (4);
 
 -- Sichten löschen, die von alkis_toint abhängen
 SELECT alkis_dropobject('ax_tatsaechlichenutzung');
@@ -177,7 +177,7 @@ SELECT alkis_dropobject('bestand');
 CREATE TABLE bestand (
 	bestdnr character(16) NOT NULL,
 	gbbz character(4),
-	gbblnr character(7),
+	gbblnr varchar,
 	anteil character(24),
 	auftlnr character(12),
 	bestfl varchar,
