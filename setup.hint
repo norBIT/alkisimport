@@ -1,5 +1,5 @@
-sdesc: "norGIS ALKIS Import (fullschema branch)"
-ldesc: "norGIS ALKIS Import (fullschema branch)"
+sdesc: "norGIS ALKIS Import"
+ldesc: "norGIS ALKIS Import"
 maintainer: JuergenFischer
 category: Desktop
-requires: pyqt4 psql sip gdal-dev
+requires: pyqt5 psql sip-qt5 gdal

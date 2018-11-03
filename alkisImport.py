@@ -1,6 +1,7 @@
-#!/usr/bin/python
+#! /usr/bin/env python
 # -*- coding: utf8 -*-
 
+""""""
 """
 ***************************************************************************
     alkisImport.py
@@ -18,6 +19,9 @@
 ***************************************************************************
 """
 
+from __future__ import unicode_literals
+from builtins import str
+from io import open
 
 import sip
 for c in ["QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"]:
@@ -33,12 +37,18 @@ import re
 from zipfile import ZipFile
 from tempfile import gettempdir
 from itertools import islice
-from glob import glob
 
-from PyQt4.QtCore import QSettings, QProcess, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QElapsedTimer, QByteArray
-from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox, QFont, QIntValidator, QListWidgetItem
-from PyQt4.QtSql import QSqlDatabase, QSqlQuery
-from PyQt4 import uic
+try:
+    from PyQt4.QtCore import QSettings, QProcess, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QElapsedTimer, QByteArray
+    from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox, QFont, QIntValidator, QListWidgetItem
+    from PyQt4.QtSql import QSqlDatabase, QSqlQuery
+    from PyQt4 import uic
+except ImportError:
+    from PyQt5.QtCore import QSettings, QProcess, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QElapsedTimer, QByteArray
+    from PyQt5.QtGui import QIcon, QFont, QIntValidator
+    from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMessageBox, QListWidgetItem
+    from PyQt5.QtSql import QSqlDatabase, QSqlQuery
+    from PyQt5 import uic
 
 d = os.path.dirname(__file__)
 sys.path.insert(0, d)
@@ -70,6 +80,7 @@ os.putenv("NAS_SKIP_CORRUPTED_FEATURES", "YES")
 os.putenv("TABLES", "aa_advstandardmodell,aa_nas_ausgabeform,nas_filter_capabilities,aa_themendimension,aa_art_themendefinition,operation,ap_horizontaleausrichtung,ap_vertikaleausrichtung,ap_dateityp_3d,ax_artdesnullpunktes_nullpunkt,ax_li_processstep_mitdatenerhebung_description,ax_datenerhebung,ax_sportart_bauwerkoderanlagefuersportfreizeitunderholung,ax_lagezurerdoberflaeche_transportanlage,ax_produkt_transportanlage,ax_bauwerksfunktion_turm,ax_hydrologischesmerkmal_sonstigesbauwerkodersonstigeeinri,ax_zustand_turm,ax_art_heilquellegasquelle,ax_bauwerksfunktion_transportanlage,ax_lagezurerdoberflaeche_vorratsbehaelterspeicherbauwerk,ax_speicherinhalt_vorratsbehaelterspeicherbauwerk,ax_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewer,ax_art_einrichtunginoeffentlichenbereichen,ax_bauwerksfunktion_bauwerkoderanlagefuersportfreizeitunde,ax_archaeologischertyp_historischesbauwerkoderhistorischee,ax_hydrologischesmerkmal_heilquellegasquelle,ax_zustand_bauwerkoderanlagefuerindustrieundgewerbe,ax_bauwerksfunktion_sonstigesbauwerkodersonstigeeinrichtun,ax_funktion_bauwerk,ax_bauwerksfunktion_leitung,ax_bauwerksfunktion_vorratsbehaelterspeicherbauwerk,ax_befestigung_wegpfadsteig,ax_oberflaechenmaterial_flugverkehrsanlage,ax_art_gleis,ax_bahnkategorie_gleis,ax_art_strassenverkehrsanlage,ax_markierung_wegpfadsteig,ax_bahnhofskategorie_bahnverkehrsanlage,ax_bahnkategorie_seilbahnschwebebahn,ax_zustand_bahnverkehrsanlage,ax_zustand_bauwerkimgewaesserbereich,ax_art_wegpfadsteig,ax_lagezuroberflaeche_gleis,ax_art_flugverkehrsanlage,ax_bauwerksfunktion_bauwerkimverkehrsbereich,ax_bauwerksfunktion_bauwerkimgewaesserbereich,ax_art_einrichtungenfuerdenschiffsverkehr,ax_zustand_bauwerkimverkehrsbereich,ax_artdergewaesserachse,ax_art_schifffahrtsliniefaehrverkehr,ax_zustand_schleuse,ax_nutzung_hafen,ax_konstruktionsmerkmalbauart_schleuse,ax_hafenkategorie_hafen,ax_art_gewaessermerkmal,ax_hydrologischesmerkmal_untergeordnetesgewaesser,ax_lagezurerdoberflaeche_untergeordnetesgewaesser,ax_artdespolders,ax_funktion_polder,ax_funktion_untergeordnetesgewaesser,ax_hydrologischesmerkmal_gewaessermerkmal,ax_funktion_vegetationsmerkmal,ax_zustand_vegetationsmerkmal,ax_bewuchs_vegetationsmerkmal,ax_eigentuemerart_namensnummer,ax_li_processstep_ohnedatenerhebung_description,ax_blattart_buchungsblatt,ax_anrede_person,ax_artderrechtsgemeinschaft_namensnummer,ax_buchungsart_buchungsstelle,ax_klassifikation_hierarchiestufe3d_lagefestpunkt,ax_punktstabilitaet,ax_punktstabilitaet_hoehenfestpunkt_geologischestabilitaet,ax_klassifikation_ordnung_lagefestpunkt,ax_punktstabilitaet_hoehenfestpunkt_guetedesvermarkungstra,ax_ordnung_schwerefestpunkt,ax_funktion_referenzstationspunkt,ax_funktion_lagefestpunkt,ax_skizzenart_skizze,ax_funktion_schwerefestpunkt,ax_punktstabilitaet_hoehenfestpunkt_hoehenstabilitaetauswi,ax_punktstabilitaet_hoehenfestpunkt_guetedesbaugrundes,ax_punktstabilitaet_hoehenfestpunkt_grundwasserschwankung,ax_punktstabilitaet_hoehenfestpunkt_topographieundumwelt,ax_klassifikation_wertigkeit_lagefestpunkt,ax_gnsstauglichkeit,ax_punktstabilitaet_hoehenfestpunkt_grundwasserstand,ax_punktstabilitaet_hoehenfestpunkt_vermutetehoehenstabili,ax_ordnung_hoehenfestpunkt,ax_horizontfreiheit_grenzpunkt,ax_gruendederausgesetztenabmarkung_grenzpunkt,ax_bemerkungzurabmarkung_grenzpunkt,ax_artderflurstuecksgrenze_besondereflurstuecksgrenze,ax_horizontfreiheit_netzpunkt,ax_marke,ax_genauigkeitsstufe_punktort,ax_messmethode_schwere,ax_koordinatenstatus_punktort,ax_datenerhebung_schwere,ax_vertrauenswuerdigkeit_schwere,ax_schwereanomalie_schwere_art,ax_vertrauenswuerdigkeit_punktort,ax_schwerestatus_schwere,ax_li_processstep_punktort_description,ax_genauigkeitsstufe_schwere,ax_datenerhebung_punktort,ax_schweresystem_schwere,ax_blattart_historischesflurstueck,ax_qualitaet_hauskoordinate,ax_art_punktkennung,ax_art_reservierung,ax_art_adressat_auszug,ax_lagezurerdoberflaeche_bauteil,ax_lagezurerdoberflaeche_gebaeude,ax_zustand_gebaeude,ax_dachgeschossausbau_gebaeude,ax_dachform,ax_bauweise_gebaeude,ax_gebaeudefunktion,ax_art_gebaeudepunkt,ax_weitere_gebaeudefunktion,ax_beschaffenheit_besonderegebaeudelinie,ax_bauart_bauteil,ax_nutzung,ax_art_verbandsgemeinde,ax_art_baublock,ax_artdergebietsgrenze_gebietsgrenze,ax_sonstigeangaben_bodenschaetzung,ax_kulturart_musterlandesmusterundvergleichsstueck,ax_entstehungsartoderklimastufewasserverhaeltnisse_bodensc,ax_sonstigeangaben_musterlandesmusterundvergleichsstueck,ax_kulturart_bodenschaetzung,ax_klassifizierung_bewertung,ax_merkmal_musterlandesmusterundvergleichsstueck,ax_zustandsstufeoderbodenstufe_bodenschaetzung,ax_bedeutung_grablochderbodenschaetzung,ax_zustandsstufeoderbodenstufe_musterlandesmusterundvergle,ax_entstehungsartoderklimastufewasserverhaeltnisse_musterl,ax_bodenart_bodenschaetzung,ax_bodenart_musterlandesmusterundvergleichsstueck,ax_landschaftstyp,ax_art_verband,ax_behoerde,ax_administrative_funktion,ax_bezeichnung_verwaltungsgemeinschaft,ax_funktion_schutzgebietnachwasserrecht,ax_artderfestlegung_schutzgebietnachnaturumweltoderbodensc,ax_artderfestlegung_anderefestlegungnachstrassenrecht,ax_artderfestlegung_schutzgebietnachwasserrecht,ax_besonderefunktion_forstrecht,ax_zone_schutzzone,ax_artderfestlegung_klassifizierungnachstrassenrecht,ax_artderfestlegung_denkmalschutzrecht,ax_artderfestlegung_klassifizierungnachwasserrecht,ax_rechtszustand_schutzzone,ax_artderfestlegung_bauraumoderbodenordnungsrecht,ax_artderfestlegung_anderefestlegungnachwasserrecht,ax_artderfestlegung_forstrecht,ax_zustand_naturumweltoderbodenschutzrecht,ax_artderfestlegung_sonstigesrecht,ax_artderfestlegung_naturumweltoderbodenschutzrecht,ax_liniendarstellung_topographischelinie,ax_darstellung_gebaeudeausgestaltung,ax_datenformat_benutzer,ax_art_bereichzeitlich,ax_letzteabgabeart,ax_ausgabemedium_benutzer,ax_identifikation,ax_dqerfassungsmethodemarkantergelaendepunkt,ax_dqerfassungsmethodestrukturiertegelaendepunkte,ax_dqerfassungsmethode,ax_besonderebedeutung,ax_dqerfassungsmethodebesondererhoehenpunkt,ax_artdergeripplinie,ax_artdergelaendekante,ax_artderstrukturierung,ax_dqerfassungsmethodegewaesserbegrenzung,ax_artdernichtgelaendepunkte,ax_artdesmarkantengelaendepunktes,ax_artderaussparung,ax_besondereartdergewaesserbegrenzung,ax_ursprung,ax_funktion_dammwalldeich,ax_art_dammwalldeich,ax_funktion_einschnitt,ax_zustand_boeschungkliff,ax_zustand_hoehleneingang,ax_berechnungsmethode,ax_verwendeteobjekte,ax_berechnungsmethodehoehenlinie,ax_dqerfassungsmethodesekundaeresdgm,ax_zustand_kanal,ax_funktion_stehendesgewaesser,ax_schifffahrtskategorie,ax_hydrologischesmerkmal_fliessgewaesser,ax_schifffahrtskategorie_kanal,ax_funktion_fliessgewaesser,ax_widmung_wasserlauf,ax_funktion_meer,ax_hydrologischesmerkmal_gewaesserachse,ax_tidemerkmal_meer,ax_nutzung_hafenbecken,ax_hydrologischesmerkmal_stehendesgewaesser,ax_widmung_stehendesgewaesser,ax_funktion_gewaesserachse,ax_funktion_hafenbecken,ax_widmung_kanal,ax_zustand_wohnbauflaeche,ax_artderbebauung_wohnbauflaeche,ax_zustand_flaechebesondererfunktionalerpraegung,ax_funktion_flaechegemischternutzung,ax_foerdergut_industrieundgewerbeflaeche,ax_artderbebauung_flaechegemischternutzung,ax_zustand_sportfreizeitunderholungsflaeche,ax_funktion_flaechebesondererfunktionalerpraegung,ax_funktion_sportfreizeitunderholungsflaeche,ax_lagergut_industrieundgewerbeflaeche,ax_zustand_halde,ax_zustand_bergbaubetrieb,ax_abbaugut_tagebaugrubesteinbruch,ax_primaerenergie_industrieundgewerbeflaeche,ax_abbaugut_bergbaubetrieb,ax_zustand_flaechegemischternutzung,ax_zustand_industrieundgewerbeflaeche,ax_funktion_friedhof,ax_zustand_friedhof,ax_lagergut_halde,ax_funktion_industrieundgewerbeflaeche,ax_zustand_tagebaugrubesteinbruch,ax_artderbebauung_siedlungsflaeche,ax_artderbebauung_flaechebesondererfunktionalerpraegung,ax_vegetationsmerkmal_gehoelz,ax_vegetationsmerkmal_wald,ax_vegetationsmerkmal_landwirtschaft,ax_oberflaechenmaterial_unlandvegetationsloseflaeche,ax_funktion_unlandvegetationsloseflaeche,ax_funktion_gehoelz,ax_bahnkategorie,ax_funktion_weg,ax_funktion_bahnverkehr,ax_verkehrsbedeutunginneroertlich,ax_internationalebedeutung_strasse,ax_besonderefahrstreifen,ax_zustand_bahnverkehr,ax_befestigung_fahrwegachse,ax_spurweite,ax_zustand_schiffsverkehr,ax_funktion_platz,ax_art_flugverkehr,ax_elektrifizierung,ax_zustand,ax_fahrbahntrennung_strasse,ax_funktion_fahrbahnachse,ax_oberflaechenmaterial_strasse,ax_funktion_flugverkehr,ax_funktion_wegachse,ax_zustand_strasse,ax_markierung_wegachse,ax_zustand_flugverkehr,ax_funktion_strassenachse,ax_verkehrsbedeutungueberoertlich,ax_nutzung_flugverkehr,ax_funktion_schiffsverkehr,ax_funktion_strasse,ax_widmung_strasse,ax_anzahlderstreckengleise,ax_funktionoa_k_tngr_all,ax_klassifizierunggr_k_bewgr,ax_funktionoa_k_tnfl,ax_klassifizierungobg_k_bewfl,ax_funktionoa_k_tngrerweitert_all,ax_funktionhgr_k_tnhgr,ax_wirtschaftsart,ax_punktart_k_punkte,ax_k_zeile_punktart,aa_besonderemeilensteinkategorie,aa_anlassart,aa_levelofdetail,aa_anlassart_benutzungsauftrag,aa_weiteremodellart,aa_instanzenthemen,ax_benutzer,ax_benutzergruppemitzugriffskontrolle,ax_benutzergruppenba,ap_darstellung,aa_projektsteuerung,aa_meilenstein,aa_antrag,aa_aktivitaet,aa_vorgang,ax_person,ax_namensnummer,ax_anschrift,ax_verwaltung,ax_buchungsstelle,ax_personengruppe,ax_buchungsblatt,ax_vertretung,ax_skizze,ax_schwere,ax_historischesflurstueckalb,ax_historischesflurstueckohneraumbezug,ax_lagebezeichnungohnehausnummer,ax_lagebezeichnungmithausnummer,ax_lagebezeichnungmitpseudonummer,ax_reservierung,ax_punktkennunguntergegangen,ax_punktkennungvergleichend,ax_fortfuehrungsnachweisdeckblatt,ax_fortfuehrungsfall,ax_gemeinde,ax_buchungsblattbezirk,ax_gemarkungsteilflur,ax_kreisregion,ax_bundesland,ax_regierungsbezirk,ax_gemeindeteil,ax_lagebezeichnungkatalogeintrag,ax_gemarkung,ax_dienststelle,ax_verband,ax_nationalstaat,ax_besondererbauwerkspunkt,ax_netzknoten,ax_referenzstationspunkt,ax_lagefestpunkt,ax_hoehenfestpunkt,ax_schwerefestpunkt,ax_grenzpunkt,ax_aufnahmepunkt,ax_sonstigervermessungspunkt,ax_sicherungspunkt,ax_besonderergebaeudepunkt,ax_wirtschaftlicheeinheit,ax_verwaltungsgemeinschaft,ax_schutzgebietnachnaturumweltoderbodenschutzrecht,ax_schutzgebietnachwasserrecht,ax_boeschungkliff,ax_besonderertopographischerpunkt,ax_kanal,ax_wasserlauf,ax_strasse,ap_fpo,aa_antragsgebiet,ax_polder,ax_historischesflurstueck,ax_kondominium,ax_baublock,ax_aussparungsflaeche,ax_soll,ax_duene,ax_transportanlage,ax_wegpfadsteig,ax_gleis,ax_bahnverkehrsanlage,ax_strassenverkehrsanlage,ax_einrichtungenfuerdenschiffsverkehr,ax_flugverkehrsanlage,ax_hafen,ax_testgelaende,ax_schleuse,ax_ortslage,ax_grenzuebergang,ax_gewaessermerkmal,ax_untergeordnetesgewaesser,ax_vegetationsmerkmal,ax_musterlandesmusterundvergleichsstueck,ax_insel,ax_gewann,ax_kleinraeumigerlandschaftsteil,ax_landschaft,ax_felsenfelsblockfelsnadel,ap_lto,ax_leitung,ax_abschnitt,ax_ast,ap_lpo,ax_seilbahnschwebebahn,ax_gebaeudeausgestaltung,ax_topographischelinie,ax_geripplinie,ax_gewaesserbegrenzung,ax_strukturierterfasstegelaendepunkte,ax_einschnitt,ax_hoehenlinie,ax_abgeleitetehoehenlinie,ap_pto,ax_heilquellegasquelle,ax_wasserspiegelhoehe,ax_nullpunkt,ax_punktortau,ax_georeferenziertegebaeudeadresse,ax_grablochderbodenschaetzung,ax_wohnplatz,ax_markantergelaendepunkt,ax_besondererhoehenpunkt,ax_hoehleneingang,ap_ppo,ax_sickerstrecke,ax_firstlinie,ax_besonderegebaeudelinie,ax_gelaendekante,ax_sonstigesbauwerkodersonstigeeinrichtung,ax_bauwerkoderanlagefuersportfreizeitunderholung,ax_bauwerkoderanlagefuerindustrieundgewerbe,ax_einrichtunginoeffentlichenbereichen,ax_historischesbauwerkoderhistorischeeinrichtung,ax_turm,ax_vorratsbehaelterspeicherbauwerk,ax_bauwerkimgewaesserbereich,ax_bauwerkimverkehrsbereich,ax_schifffahrtsliniefaehrverkehr,ax_gebaeude,ax_anderefestlegungnachstrassenrecht,ax_naturumweltoderbodenschutzrecht,ax_klassifizierungnachstrassenrecht,ax_sonstigesrecht,ax_denkmalschutzrecht,ax_dammwalldeich,ax_punktortag,ax_bauteil,ax_tagesabschnitt,ax_bewertung,ax_anderefestlegungnachwasserrecht,ax_klassifizierungnachwasserrecht,ax_forstrecht,ax_bauraumoderbodenordnungsrecht,ax_schutzzone,ax_boeschungsflaeche,ax_flurstueck,ax_gebiet_kreis,ax_gebiet_bundesland,ax_gebiet_regierungsbezirk,ax_gebiet_nationalstaat,ax_kommunalesgebiet,ax_gebiet_verwaltungsgemeinschaft,ax_bodenschaetzung,ax_gewaesserstationierungsachse,ax_besondereflurstuecksgrenze,ax_gebietsgrenze,ax_gewaesserachse,ax_strassenachse,ax_bahnstrecke,ax_fahrwegachse,ax_fahrbahnachse,ax_punktortta,ax_stehendesgewaesser,ax_meer,ax_fliessgewaesser,ax_hafenbecken,ax_bergbaubetrieb,ax_friedhof,ax_flaechegemischternutzung,ax_wohnbauflaeche,ax_flaechebesondererfunktionalerpraegung,ax_industrieundgewerbeflaeche,ax_siedlungsflaeche,ax_tagebaugrubesteinbruch,ax_sportfreizeitunderholungsflaeche,ax_halde,ax_flaechezurzeitunbestimmbar,ax_sumpf,ax_unlandvegetationsloseflaeche,ax_gehoelz,ax_wald,ax_heide,ax_moor,ax_landwirtschaft,ax_bahnverkehr,ax_weg,ax_schiffsverkehr,ax_flugverkehr,ax_platz,ax_strassenverkehr,ta_compositesolidcomponent_3d,ta_surfacecomponent_3d,ta_curvecomponent_3d,ta_pointcomponent_3d,au_trianguliertesoberflaechenobjekt_3d,au_mehrfachflaechenobjekt_3d,au_mehrfachlinienobjekt_3d,au_umringobjekt_3d,ap_kpo_3d,au_punkthaufenobjekt_3d,au_koerperobjekt_3d,au_geometrieobjekt_3d,ax_fortfuehrungsauftrag,ks_einrichtunginoeffentlichenbereichen,ks_bauwerkanlagenfuerverundentsorgung,ks_sonstigesbauwerk,ks_verkehrszeichen,ks_bauwerkimgewaesserbereich,ks_vegetationsmerkmal,ks_bauraumoderbodenordnungsrecht,ks_kommunalerbesitz")
 os.putenv("LIST_ALL_TABLES", "YES")
 
+
 def which(program):
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
@@ -98,9 +109,9 @@ def getFiles(pattern, directory):
         fi = QFileInfo(d, f)
 
         if fi.isDir():
-            files.extend(getFiles(pattern, unicode(fi.filePath())))
+            files.extend(getFiles(pattern, fi.filePath()))
         elif re.search(pattern, f, re.IGNORECASE):
-            files.append(os.path.abspath(unicode(fi.filePath())))
+            files.append(os.path.abspath(fi.filePath()))
 
     return files
 
@@ -110,7 +121,7 @@ class ProcessError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return unicode(self.msg)
+        return str(self.msg)
 
 
 class aboutDlg(QDialog, aboutDlgBase):
@@ -205,13 +216,13 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.reFilter = []
 
     def loadRe(self):
-        f = open("re", "r")
+        f = open("re", "r", encoding="utf-8")
         while True:
-            l = list(islice(f, 50))
-            if not l:
+            line = list(islice(f, 50))
+            if not line:
                 break
 
-            self.reFilter.append(re.compile("|".join(map(str.rstrip, l))))
+            self.reFilter.append(re.compile("|".join([x.replace('\n', '') for x in line])))
 
         f.close()
 
@@ -233,7 +244,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             s /= 1024
             u = "GiB"
 
-        return "{}{}".format(s, u)
+        return "{}{}".format(int(s), u)
 
     def timeunits(self, t):
         ms = t % 1000
@@ -246,14 +257,14 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         d = t / 60 / 60 / 24
 
         r = ""
-        if d > 0:
-            r += "{}t".format(d)
-        if h > 0:
-            r += "{}h".format(h)
-        if m > 0:
-            r += "{}m".format(m)
-        if s > 0:
-            r += "{}s".format(s)
+        if d >= 1:
+            r += "{}t".format(int(d))
+        if h >= 1:
+            r += "{}h".format(int(h))
+        if m >= 1:
+            r += "{}m".format(int(m))
+        if s >= 1:
+            r += "{}s".format(int(s))
         if r == "":
             r = "{}ms".format(ms)
 
@@ -263,14 +274,14 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         s = QSettings("norBIT", "norGIS-ALKIS-Import")
         lastDir = s.value("lastDir", ".")
 
-        files = QFileDialog.getOpenFileNames(self, u"NAS-Dateien wählen", lastDir, "NAS-Dateien (*.xml *.xml.gz *.zip)")
+        files, _ = QFileDialog.getOpenFileNames(self, "NAS-Dateien wählen", lastDir, "NAS-Dateien (*.xml *.xml.gz *.zip)")
         if files is None:
             return
 
         dirs = []
 
         for f in files:
-            f = os.path.abspath(unicode(f))
+            f = os.path.abspath(f)
             item = QListWidgetItem(f)
             if not self.cbxSkipFailures.isChecked():
                 item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
@@ -284,9 +295,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         s = QSettings("norBIT", "norGIS-ALKIS-Import")
         lastDir = s.value("lastDir", ".")
 
-        d = QFileDialog.getExistingDirectory(self, u"Verzeichnis mit NAS-Dateien wählen", lastDir)
+        d = QFileDialog.getExistingDirectory(self, "Verzeichnis mit NAS-Dateien wählen", lastDir)
         if d is None or d == '':
-            QMessageBox.critical(self, u"norGIS-ALKIS-Import", u"Kein eindeutiges Verzeichnis gewählt!", QMessageBox.Cancel)
+            QMessageBox.critical(self, "norGIS-ALKIS-Import", "Kein eindeutiges Verzeichnis gewählt!", QMessageBox.Cancel)
             return
 
         s.setValue("lastDir", d)
@@ -295,7 +306,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         self.status("Verzeichnis wird durchsucht...")
 
-        for f in sorted(getFiles("\.(xml|xml\.gz|zip)$", d)):
+        for f in sorted(getFiles("\\.(xml|xml\\.gz|zip)$", d)):
             item = QListWidgetItem(f)
             if not self.cbxSkipFailures.isChecked():
                 item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
@@ -311,11 +322,11 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             self.lstFiles.takeItem(self.lstFiles.row(item))
 
     def saveList(self):
-        fn = QFileDialog.getSaveFileName(self, u"Liste wählen", ".", "Dateilisten (*.lst)")
-        if file is None:
+        fn, _ = QFileDialog.getSaveFileName(self, "Liste wählen", ".", "Dateilisten (*.lst)")
+        if fn is None or fn == "":
             return
 
-        f = open(unicode(fn), "w")
+        f = open(fn, "w", encoding="utf-8")
 
         for i in range(self.lstFiles.count()):
             f.write(self.lstFiles.item(i).text())
@@ -324,17 +335,15 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         f.close()
 
     def loadList(self):
-        fn = QFileDialog.getOpenFileName(self, u"Liste wählen", ".", "Dateilisten (*.lst)")
-        if fn is None:
+        fn, _ = QFileDialog.getOpenFileName(self, "Liste wählen", ".", "Dateilisten (*.lst)")
+        if fn is None or fn == "":
             return
 
-        fn = unicode(fn)
-
-        f = open(fn, "rU")
-        for l in f.read().splitlines():
-            if not os.path.isabs(l):
-                l = os.path.join(os.path.dirname(fn), l)
-            self.lstFiles.addItem(os.path.abspath(l))
+        f = open(fn, "r", encoding="utf-8")
+        for line in f.read().splitlines():
+            if not os.path.isabs(line):
+                line = os.path.join(os.path.dirname(fn), line)
+            self.lstFiles.addItem(os.path.abspath(line))
         f.close()
 
     def selChanged(self):
@@ -376,7 +385,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             logqry = self.logqry
             self.logqry = None
 
-            self.log(u"Datenbank-Protokollierung fehlgeschlagen [{}: {}]".format(err, msg))
+            self.log("Datenbank-Protokollierung fehlgeschlagen [{}: {}]".format(err, msg))
             self.logqry = logqry
 
     def loadLog(self):
@@ -409,7 +418,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         QApplication.restoreOverrideCursor()
 
     def saveLog(self):
-        save = QFileDialog.getSaveFileName(self, u"Protokolldatei angeben", ".", "Protokoll-Dateien (*.log)")
+        save, _ = QFileDialog.getSaveFileName(self, "Protokolldatei angeben", ".", "Protokoll-Dateien (*.log)")
         if save is None:
             return
 
@@ -519,7 +528,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         try:
             r = output.data().decode('utf-8')
-        except:
+        except UnicodeDecodeError:
             r = output.data().decode('latin-1')
 
         lines = r.split("\n")
@@ -538,14 +547,14 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         for l in lines:
             if self.keep(l):
-                self.log(u"> {}|".format(l.rstrip()))
+                self.log("> {}|".format(l.rstrip()))
             else:
                 self.logDb(l)
 
         return current + lastline
 
     def runProcess(self, args):
-        self.logDb(u"BEFEHL: '{}'".format(re.sub(u'password=\S+', u'password=*removed*', u"' '".join(args))))
+        self.logDb("BEFEHL: '{}'".format(re.sub('password=\\S+', 'password=*removed*', "' '".join(args))))
 
         currout = ""
         currerr = ""
@@ -556,7 +565,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         i = 0
         while not p.waitForFinished(500):
             i += 1
-            self.alive.setText(self.alive.text()[:-1] + ("-\|/")[i % 4])
+            self.alive.setText(self.alive.text()[:-1] + ("-\\|/")[i % 4])
             app.processEvents()
 
             currout = self.processOutputOut(currout, p.readAllStandardOutput())
@@ -564,11 +573,11 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
             if p.state() != QProcess.Running:
                 if self.canceled:
-                    self.log(u"Prozeß abgebrochen.")
+                    self.log("Prozeß abgebrochen.")
                 break
 
             if self.canceled:
-                self.log(u"Prozeß wird abgebrochen.")
+                self.log("Prozeß wird abgebrochen.")
                 p.kill()
 
         currout = self.processOutputOut(currout, p.readAllStandardOutput())
@@ -584,9 +593,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             if p.exitCode() == 0:
                 ok = True
             else:
-                self.log(u"Fehler bei Prozeß: {}".format(p.exitCode()))
+                self.log("Fehler bei Prozeß: {}".format(p.exitCode()))
         else:
-            self.log(u"Prozeß abgebrochen: {}".format(p.exitCode()))
+            self.log("Prozeß abgebrochen: {}".format(p.exitCode()))
 
         self.logDb("EXITCODE: {}".format(p.exitCode()))
 
@@ -599,13 +608,13 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
     def runSQLScript(self, conn, fn, parallel=False):
         return self.runProcess([
             self.psql,
-            "-v", "alkis_epsg={}".format(3068 if self.epsg==13068 else self.epsg),
-            "-v", u"alkis_schema={}".format(self.schema),
-            "-v", u"postgis_schema={}".format(self.pgschema),
-            "-v", u"parent_schema={}".format(self.parentschema if self.parentschema else self.schema),
+            "-v", "alkis_epsg={}".format(3068 if self.epsg == 13068 else self.epsg),
+            "-v", "alkis_schema={}".format(self.schema),
+            "-v", "postgis_schema={}".format(self.pgschema),
+            "-v", "parent_schema={}".format(self.parentschema if self.parentschema else self.schema),
             "-v", "alkis_fnbruch={}".format("true" if self.fnbruch else "false"),
             "-v", "alkis_pgverdraengen={}".format("true" if self.pgverdraengen else "false"),
-	    "-v", "ON_ERROR_STOP=1",
+            "-v", "ON_ERROR_STOP=1",
             "-v", "ECHO=errors",
             "--quiet",
             "--no-psqlrc",
@@ -616,56 +625,56 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
     def connectDb(self):
         if self.leSERVICE.text() != '':
-            conn = u"service={} ".format(self.leSERVICE.text())
+            conn = "service={} ".format(self.leSERVICE.text())
         else:
             if self.leHOST.text() != '':
                 conn = "host={} port={} ".format(self.leHOST.text(), self.lePORT.text())
             else:
                 conn = ""
 
-        conn += u"dbname={} user='{}' password='{}'".format(self.leDBNAME.text(), self.leUID.text(), self.lePWD.text())
+        conn += "dbname={} user='{}' password='{}'".format(self.leDBNAME.text(), self.leUID.text(), self.lePWD.text())
 
         self.db = QSqlDatabase.addDatabase("QPSQL")
         self.db.setConnectOptions(conn)
         if not self.db.open():
-            self.log(u"Konnte Datenbankverbindung nicht aufbauen!")
+            self.log("Konnte Datenbankverbindung nicht aufbauen!")
             return None
 
         self.db.exec_("SET STANDARD_CONFORMING_STRINGS TO ON")
 
-        qry = self.db.exec_(u"SELECT 1 FROM pg_namespace WHERE nspname='{}'".format(self.schema.replace("'", "''")))
+        qry = self.db.exec_("SELECT 1 FROM pg_namespace WHERE nspname='{}'".format(self.schema.replace("'", "''")))
         if not qry:
-            self.log(u"Konnte Schema nicht überprüfen! [{}]".format(qry.lastError().text()))
+            self.log("Konnte Schema nicht überprüfen! [{}]".format(qry.lastError().text()))
             return None
 
         if not qry.next():
-            if not self.db.exec_(u"CREATE SCHEMA \"{}\"".format(self.schema.replace('"', '""'))):
-                self.log(u"Konnte Schema nicht erstellen!")
+            if not self.db.exec_("CREATE SCHEMA \"{}\"".format(self.schema.replace('"', '""'))):
+                self.log("Konnte Schema nicht erstellen!")
                 return None
 
-        self.db.exec_(u"SET search_path = \"{}\", \"{}\", public".format(self.schema, self.pgschema))
+        self.db.exec_("SET search_path = \"{}\", \"{}\", public".format(self.schema, self.pgschema))
 
         return conn
 
     def rund(self, conn, dir):
         matches = []
-        for root, dirnames, filenames in os.walk(u"{}.d".format(dir)):
+        for root, dirnames, filenames in os.walk("{}.d".format(dir)):
             for filename in fnmatch.filter(filenames, '*.sql'):
                 matches.append(os.path.join(root, filename))
 
         for f in sorted(matches):
-            self.status(u"{} wird gestartet...".format(f))
+            self.status("{} wird gestartet...".format(f))
             if not self.runSQLScript(conn, f):
-                self.log(u"{} gescheitert.".format(f))
+                self.log("{} gescheitert.".format(f))
                 return False
 
-            self.log(u"{} ausgeführt.".format(f))
+            self.log("{} ausgeführt.".format(f))
 
         return True
 
     def importALKIS(self):
         if 'CPL_DEBUG' in os.environ:
-            self.log(u"Debug-Ausgaben aktiv.")
+            self.log("Debug-Ausgaben aktiv.")
 
         files = []
         for i in range(self.lstFiles.count()):
@@ -744,65 +753,65 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             qry = self.db.exec_("SELECT version()")
 
             if not qry or not qry.next():
-                self.log(u"Konnte PostgreSQL-Version nicht bestimmen!")
+                self.log("Konnte PostgreSQL-Version nicht bestimmen!")
                 break
 
             self.log("Datenbank-Version: {}".format(qry.value(0)))
 
-            m = re.search("PostgreSQL (\d+)\.(\d+)", qry.value(0))
+            m = re.search("PostgreSQL (\\d+)\\.(\\d+)", qry.value(0))
             if not m:
-                self.log(u"PostgreSQL-Version nicht im erwarteten Format")
+                self.log("PostgreSQL-Version nicht im erwarteten Format")
                 break
 
             if int(m.group(1)) < 8 or (int(m.group(1)) == 8 and int(m.group(2)) < 4):
-                self.log(u"Mindestens PostgreSQL 8.4 erforderlich")
+                self.log("Mindestens PostgreSQL 8.4 erforderlich")
                 break
 
             qry = self.db.exec_("SELECT postgis_version()")
             if not qry or not qry.next():
-                self.log(u"Konnte PostGIS-Version nicht bestimmen!")
+                self.log("Konnte PostGIS-Version nicht bestimmen!")
                 break
 
             self.log("PostGIS-Version: {}".format(qry.value(0)))
 
             qry = self.db.exec_("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='alkis_importlog'")
             if not qry or not qry.next():
-                self.log(u"Konnte Existenz von Protokolltabelle nicht überprüfen.")
+                self.log("Konnte Existenz von Protokolltabelle nicht überprüfen.")
                 break
 
             if int(qry.value(0)) == 0:
                 qry = self.db.exec_("CREATE TABLE alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)")
                 if not qry:
-                    self.log(u"Konnte Protokolltabelle nicht anlegen [{}]".format(qry.lastError().text()))
+                    self.log("Konnte Protokolltabelle nicht anlegen [{}]".format(qry.lastError().text()))
                     break
             elif self.cbxClearProtocol.isChecked():
                 qry = self.db.exec_("TRUNCATE alkis_importlog")
                 if not qry:
-                    self.log(u"Konnte Protokolltabelle nicht leeren [{}]".format(qry.lastError().text()))
+                    self.log("Konnte Protokolltabelle nicht leeren [{}]".format(qry.lastError().text()))
                     break
                 self.cbxClearProtocol.setChecked(False)
-                self.log(u"Protokolltabelle gelöscht.")
+                self.log("Protokolltabelle gelöscht.")
 
             qry = self.db.exec_("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='ax_flurstueck'")
             if not qry or not qry.next():
-                self.log(u"Konnte Existenz des ALKIS-Schema nicht überprüfen.")
+                self.log("Konnte Existenz des ALKIS-Schema nicht überprüfen.")
                 break
 
             if not self.cbxCreate.isChecked():
                 if int(qry.value(0)) == 0:
                     self.cbxCreate.setChecked(True)
-                    self.log(u"Keine ALKIS-Daten vorhanden - Datenbestand muß angelegt werden.")
+                    self.log("Keine ALKIS-Daten vorhanden - Datenbestand muß angelegt werden.")
                     break
 
                 if not qry.exec_("SELECT find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry')") or not qry.next():
-                    self.log(u"Konnte Koordinatensystem der vorhandenen Datenbank nicht bestimmen.")
+                    self.log("Konnte Koordinatensystem der vorhandenen Datenbank nicht bestimmen.")
                     break
 
                 self.epsg = int(qry.value(0))
 
             self.logqry = QSqlQuery(self.db)
             if not self.logqry.prepare("INSERT INTO alkis_importlog(msg) VALUES (?)"):
-                self.log(u"Konnte Protokollierungsanweisung nicht vorbereiten [{}]".format(qry.lastError().text()))
+                self.log("Konnte Protokollierungsanweisung nicht vorbereiten [{}]".format(qry.lastError().text()))
                 self.logqry = None
                 break
 
@@ -811,26 +820,26 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.ogr2ogr = which("ogr2ogr.exe")
 
             if not self.ogr2ogr:
-                self.log(u"ogr2ogr nicht gefunden!")
+                self.log("ogr2ogr nicht gefunden!")
                 break
 
             n = self.lwProtocol.count() - 1
 
             if not self.runProcess([self.ogr2ogr, "--version"]):
-                self.log(u"Konnte ogr2ogr-Version nicht abfragen!")
+                self.log("Konnte ogr2ogr-Version nicht abfragen!")
                 break
 
             for i in range(n, self.lwProtocol.count()):
-                m = re.search("GDAL (\d+)\.(\d+)", self.lwProtocol.item(i).text())
+                m = re.search("GDAL (\\d+)\\.(\\d+)", self.lwProtocol.item(i).text())
                 if m:
                     break
 
             if not m:
-                self.log(u"GDAL-Version nicht gefunden")
+                self.log("GDAL-Version nicht gefunden")
                 break
 
             if int(m.group(1)) < 2 or (int(m.group(1)) == 2 and int(m.group(2)) < 3):
-                self.log(u"Mindestens GDAL 2.3 erforderlich")
+                self.log("Mindestens GDAL 2.3 erforderlich")
                 break
 
             self.psql = which("psql")
@@ -838,15 +847,15 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.psql = which("psql.exe")
 
             if not self.psql:
-                self.log(u"psql nicht gefunden!")
+                self.log("psql nicht gefunden!")
                 break
 
             if not self.runProcess([self.psql, "--version"]):
-                self.log(u"Konnte psql-Version nicht abfragen!")
+                self.log("Konnte psql-Version nicht abfragen!")
                 break
 
             try:
-                self.status(u"Bestimme Gesamtgröße des Imports...")
+                self.status("Bestimme Gesamtgröße des Imports...")
 
                 self.pbProgress.setVisible(True)
                 self.pbProgress.setRange(0, self.lstFiles.count())
@@ -857,26 +866,26 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 for i in range(self.lstFiles.count()):
                     self.pbProgress.setValue(i)
                     item = self.lstFiles.item(i)
-                    fn = unicode(item.text())
+                    fn = item.text()
 
                     if fn.lower().endswith(".xml"):
                         s = os.path.getsize(fn)
                         sizes[fn] = s
 
                     elif fn.lower().endswith(".zip"):
-                        l = -8 if fn[-8:].lower() == ".xml.zip" else -4
-                        self.status(u"{} wird abgefragt...".format(fn))
+                        extl = -8 if fn[-8:].lower() == ".xml.zip" else -4
+                        self.status("{} wird abgefragt...".format(fn))
                         app.processEvents()
 
                         f = ZipFile(fn, "r")
                         il = f.infolist()
                         if len(il) != 1:
-                            raise ProcessError(u"ZIP-Archiv {} enthält mehr als eine Datei!".format(fn))
+                            raise ProcessError("ZIP-Archiv {} enthält mehr als eine Datei!".format(fn))
                         s = il[0].file_size
-                        sizes[fn[:l] + ".xml"] = s
+                        sizes[fn[:extl] + ".xml"] = s
 
                     elif fn.lower().endswith(".xml.gz"):
-                        self.status(u"{} wird abgefragt...".format(fn))
+                        self.status("{} wird abgefragt...".format(fn))
 
                         f = gzip.open(fn)
                         s = 0
@@ -898,21 +907,21 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
                 self.pbProgress.setVisible(False)
 
-                self.log(u"Gesamtgröße des Imports: {}".format(self.memunits(ts)))
+                self.log("Gesamtgröße des Imports: {}".format(self.memunits(ts)))
 
                 self.pbProgress.setRange(0, 10000)
                 self.pbProgress.setValue(0)
 
                 if self.cbxCreate.isChecked():
-                    if self.parentschema == "" or self.parentschema==self.schema:
+                    if self.parentschema == "" or self.parentschema == self.schema:
                         if not self.rund(conn, "precreate"):
                             break
 
-                        self.status(u"Datenbestand wird angelegt...")
+                        self.status("Datenbestand wird angelegt...")
                         if not self.runSQLScript(conn, "alkis-init.sql"):
-                            self.log(u"Anlegen des Datenbestands schlug fehl.")
+                            self.log("Anlegen des Datenbestands schlug fehl.")
                             break
-                        self.log(u"Datenbestand angelegt.")
+                        self.log("Datenbestand angelegt.")
 
                         if not self.rund(conn, "postcreate"):
                             break
@@ -920,11 +929,11 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         if not self.rund(conn, "preinherit"):
                             break
 
-                        self.status(u"Datenmodell wird vererbt...")
+                        self.status("Datenmodell wird vererbt...")
                         if not self.runSQLScript(conn, "alkis-inherit.sql"):
-                            self.log(u"Vererben des Datenmodell schlug fehl.")
+                            self.log("Vererben des Datenmodell schlug fehl.")
                             break
-                        self.log(u"Datenmodell vererbt.")
+                        self.log("Datenmodell vererbt.")
 
                         if not self.rund(conn, "postinherit"):
                             break
@@ -935,9 +944,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         if not self.rund(conn, "preclean"):
                             break
 
-                        self.status(u"Datenbankschema wird geleert...")
+                        self.status("Datenbankschema wird geleert...")
                         if not self.runSQLScript(conn, "alkis-clean.sql"):
-                            self.log(u"Datenbankleerung schlug fehl.")
+                            self.log("Datenbankleerung schlug fehl.")
                             break
                         self.cbxClean.setChecked(False)
 
@@ -947,9 +956,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     if not self.rund(conn, "preupdate"):
                         break
 
-                    self.status(u"Datenbankschema wird geprüft...")
+                    self.status("Datenbankschema wird geprüft...")
                     if not self.runSQLScript(conn, "alkis-update.sql"):
-                        self.log(u"Schemaprüfung schlug fehl.")
+                        self.log("Schemaprüfung schlug fehl.")
                         break
 
                     if not self.rund(conn, "postupdate"):
@@ -968,14 +977,14 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     item = self.lstFiles.item(i)
                     self.lstFiles.setCurrentItem(item)
 
-                    fn = unicode(item.text())
+                    fn = item.text()
 
                     src = ""
                     if fn.lower().endswith(".xml.gz"):
                         src = fn[:-3]
                         size = sizes[src]
 
-                        self.status(u"{} wird extrahiert.".format(fn))
+                        self.status("{} wird extrahiert.".format(fn))
                         app.processEvents()
 
                         src = os.path.join(gettempdir(), os.path.basename(src))
@@ -992,13 +1001,13 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         f_out.close()
                         f_in.close()
 
-                        self.logDb(u"{} wurde entpackt.".format(fn))
+                        self.logDb("{} wurde entpackt.".format(fn))
 
                     elif fn.lower().endswith(".zip"):
                         src = fn[:-4] + ".xml"
                         size = sizes[src]
 
-                        self.status(u"{} wird extrahiert.".format(fn))
+                        self.status("{} wird extrahiert.".format(fn))
                         app.processEvents()
 
                         src = os.path.join(gettempdir(), os.path.basename(src))
@@ -1016,7 +1025,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         f_in.close()
                         zipf.close()
 
-                        self.logDb(u"{} wurde entpackt.".format(fn))
+                        self.logDb("{} wurde entpackt.".format(fn))
 
                     else:
                         src = fn
@@ -1029,7 +1038,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
                     # if size==623 or size==712:
                     #    item.setSelected(True)
-                    #    self.log(u"Kurze Datei {} übersprungen.".format(fn))
+                    #    self.log("Kurze Datei {} übersprungen.".format(fn))
                     #    continue
 
                     args = [
@@ -1038,7 +1047,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         "-update",
                         "-append",
                         "-progress",
-                        u"PG:{} active_schema={}','{}".format(conn,self.schema,self.pgschema),
+                        "PG:{} active_schema={}','{}".format(conn, self.schema, self.pgschema)
                     ]
 
                     if int(self.leGT.text() or '0') >= 1:
@@ -1074,7 +1083,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
                     args.append(src)
 
-                    self.status(u"{} mit {} wird importiert...".format(fn, self.memunits(size)))
+                    self.status("{} mit {} wird importiert...".format(fn, self.memunits(size)))
 
                     t1 = QElapsedTimer()
                     t1.start()
@@ -1093,7 +1102,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     else:
                         throughput = ""
 
-                    self.log(u"{} mit {} in {} importiert{}".format(
+                    self.log("{} mit {} in {} importiert{}".format(
                         fn,
                         self.memunits(size),
                         self.timeunits(elapsed),
@@ -1110,7 +1119,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     remaining_data = ts - s
                     remaining_time = remaining_data * t0.elapsed() / s
 
-                    self.alive.setText(u"Noch {} in etwa {}\nETA: {} -".format(
+                    self.alive.setText("Noch {} in etwa {}\nETA: {} -".format(
                         self.memunits(remaining_data),
                         self.timeunits(remaining_time),
                         QDateTime.currentDateTime().addMSecs(remaining_time).toString(Qt.ISODate)
@@ -1119,7 +1128,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     app.processEvents()
 
                     if not ok:
-                        self.status(u"Fehler bei {}.".format(fn))
+                        self.status("Fehler bei {}.".format(fn))
                         break
 
                 self.pbProgress.setValue(10000)
@@ -1127,7 +1136,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
                 if ok and self.lstFiles.count() > 0:
                     self.alive.setText(" -")
-                    self.log(u"{} Dateien mit {} in {} importiert{}".format(
+                    self.log("{} Dateien mit {} in {} importiert{}".format(
                         self.lstFiles.count(),
                         self.memunits(ts),
                         self.timeunits(t0.elapsed()),
@@ -1138,22 +1147,25 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     ok = self.rund(conn, "postprocessing")
 
                 if ok:
-                    self.status(u"VACUUM...")
+                    self.status("VACUUM...")
                     ok = self.db.exec_("VACUUM")
                     if ok:
-                        self.log(u"VACUUM abgeschlossen.")
+                        self.log("VACUUM abgeschlossen.")
 
                 if ok:
-                    self.log(u"Import nach {} erfolgreich beendet.".format(self.timeunits(t0.elapsed())))
+                    self.log("Import nach {} erfolgreich beendet.".format(self.timeunits(t0.elapsed())))
                 else:
-                    self.log(u"Import nach {} abgebrochen.".format(self.timeunits(t0.elapsed())))
+                    self.log("Import nach {} abgebrochen.".format(self.timeunits(t0.elapsed())))
 
             except Exception:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                err = u"\n> ".join([x.decode("utf-8", 'replace') for x in traceback.format_exception(exc_type, exc_value, exc_traceback)])
+                try:
+                    err = "\n> ".join([x.decode("utf-8", 'replace') for x in traceback.format_exception(exc_type, exc_value, exc_traceback)])
+                except AttributeError:
+                    err = "\n> ".join([x for x in traceback.format_exception(exc_type, exc_value, exc_traceback)])
                 if sys.stdout:
-                    print err
-                self.log(u"Abbruch nach Fehler\n> {}".format(unicode(err)))
+                    print(err)
+                self.log("Abbruch nach Fehler\n> {}".format(str(err)))
 
             break
 
@@ -1179,6 +1191,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         self.db.close()
         self.db = None
+
 
 app = QApplication(sys.argv)
 dlg = alkisImportDlg()

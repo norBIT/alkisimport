@@ -18,6 +18,9 @@
 ***************************************************************************
 """
 
+from __future__ import print_function
+from builtins import str
+
 import re
 import sys
 import os
@@ -25,42 +28,42 @@ from itertools import islice
 
 patterns = []
 
-f = open(os.path.join( os.path.dirname(__file__), "re"), "rbU")
+f = open(os.path.join(os.path.dirname(__file__), "re"), "rU")
 while True:
-	l = list(islice(f, 50))
-	if not l:
-		break
-	patterns.append( re.compile( "|".join( map(str.strip, l) ) ) )
+    line = list(islice(f, 50))
+    if not line:
+        break
+    patterns.append(re.compile("|".join([x.replace('\n','') for x in line])))
 f.close()
 
-if len(sys.argv)>2:
-	print "usage: %s [logfile]" % (sys.argv[0])
-	exit(1)
+if len(sys.argv) > 2:
+    print("usage: %s [logfile]" % (sys.argv[0]))
+    exit(1)
 
 try:
-	if len(sys.argv)==2:
-		f = open(sys.argv[1], "rbU")
-	else:
-		f = os.fdopen(0, "rbU")
-except:
-	print "%s: could not open %s" % (sys.argv[0], sys.argv[1])
-	exit(1)
+    if len(sys.argv) == 2:
+        f = open(sys.argv[1], "rbU")
+    else:
+        f = os.fdopen(0, "rbU")
+except IOError:
+    print("%s: could not open %s" % (sys.argv[0], sys.argv[1]))
+    exit(1)
 
 while True:
-	l = f.readline()
-	if l=="":
-		break
+    line = f.readline()
+    if line == "":
+        break
 
-	found = False
-	for p in patterns:
-		if p.match(l):
-			found = True
-			break
+    found = False
+    for p in patterns:
+        if p.match(line):
+            found = True
+            break
 
-	if found:
-		continue
+    if found:
+        continue
 
-	print l,
-	sys.stdout.flush()
+    print(line, end=' ')
+    sys.stdout.flush()
 
 f.close()

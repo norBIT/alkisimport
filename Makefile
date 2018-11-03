@@ -1,5 +1,5 @@
-PKG=alkis-import-dev
-VERSION = 2.99
+PKG=alkis-import
+VERSION = 3.0
 P=$(shell cat .pkg-$(VERSION) || echo 1)
 
 O4W=osgeo4w/apps/$(PKG)
