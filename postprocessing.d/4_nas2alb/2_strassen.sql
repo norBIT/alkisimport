@@ -48,7 +48,7 @@ INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 	SELECT
 		alkis_flsnr(f) AS flsnr,
 		to_hex(nextval('strassen_pk_seq'::regclass)) AS pk,
-		(SELECT strshl FROM str_shl WHERE gemshl=to_char(alkis_toint(f.gemeindezugehoerigkeit_land),'fm00')||f.gemeindezugehoerigkeit_regierungsbezirk||to_char(alkis_toint(f.gemeindezugehoerigkeit_kreis),'fm00')||to_char(alkis_toint(f.gemeindezugehoerigkeit_gemeinde),'fm000') AND strname=unverschluesselt) AS strshl,
+		(SELECT strshl FROM str_shl WHERE gemshl=to_char(alkis_toint(f.gemeindezugehoerigkeit_land),'fm00')||f.gemeindezugehoerigkeit_regierungsbezirk||to_char(alkis_toint(f.gemeindezugehoerigkeit_kreis),'fm00')||to_char(alkis_toint(f.gemeindezugehoerigkeit_gemeinde),'fm000') AND strname=unverschluesselt LIMIT 1) AS strshl,
 		hausnummer AS hausnr,
 		0 AS ff_entst,
 		0 AS ff_stand

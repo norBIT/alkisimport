@@ -45,7 +45,7 @@
 ^\s+(addgeometrycolumn|alkis_clean|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|alkis_fixareas|alkis_inherit|version|postgis_version|\?column\?|alkis_set_schema)\s*$
 ^-+\s*$
 ^\s+[^.]+\..*\.(wkb_geometry|dummy|objektkoordinaten|line) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$
-^\s+[^.]+\.ax_punktortau\.wkb_geometry SRID:\d+ TYPE:POINT DIMS:3\+?\s*$
+^\s+[^.]+\.ax_punktortau\.wkb_geometry SRID:\d+ TYPE:(POINT|GEOMETRY) DIMS:3\+?\s*$
 ^\s+[^.]+\.po_points\.point SRID:\d+ TYPE:MULTIPOINT DIMS:2\+?\s*$
 ^\s+[^.]+\.po_lines\.line SRID:\d+ TYPE:MULTILINESTRING DIMS:2\+?\s*$
 ^\s+[^.]+\.po_polygons\.polygon SRID:\d+ TYPE:MULTIPOLYGON DIMS:2\+?\s*$
