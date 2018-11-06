@@ -20,7 +20,7 @@
 ^psql:.*: (NOTICE|HINWEIS):  gserialized_gist_joinsel: jointype 4 not supported\s*$
 ^psql:.*: (NOTICE|HINWEIS):  (geometry|LWGEOM)_gist_joinsel called with incorrect join type\s*$
 ^psql:.*: (NOTICE|HINWEIS):  no non-null\/empty features, unable to compute statistics$
-^CONTEXT:  PL\/pgSQL-Funktion (alkis|alb)_.* Zeile \d+ bei RAISE
+^CONTEXT:  PL\/pgSQL-Funktion (pg_temp_\d+\.)?(alkis|alb)_.* Zeile \d+ bei RAISE
 ^CONTEXT:  SQL statement in PL\/PgSQL function "alkis_(update_schema|set_comments)" near line \d+\s*$
 ^CONTEXT:  SQL statement "ALTER TABLE alkis_(flaechen|linien|schriften) ADD PRIMARY KEY \(katalog,signaturnummer\)"
 ^\s+\^\s*$
@@ -37,6 +37,7 @@
 ^psql:alkis-compat.sql:.*: FEHLER:  Berechtigung nur f\S+r Eigent\S+mer der Funktion st_dump\s*$
 ^psql:alkis-compat.sql:.*: ERROR:  aggregate ([^.]+\.)?array_agg\(any(element|array)\) does not exist
 ^psql:alkis-compat.sql:.*: ERROR:  must be owner of function array_agg
+^psql:alkis-compat.sql:.*: FEHLER:  Berechtigung nur f\S+r Eigent\S+mer der Funktion array_agg\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Aggregatfunktion ([^.]\.)?array_agg\(any(element|array)\) existiert nicht
 ^psql:alkis-compat.sql:.*: ERROR:  cannot drop function array_agg\(anyelement\) because it is required by the database system
 ^psql:alkis-compat.sql:.*: FEHLER:  kann .* nicht löschen, wird vom Datenbanksystem benötigt

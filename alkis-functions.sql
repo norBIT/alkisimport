@@ -441,7 +441,7 @@ CREATE OR REPLACE FUNCTION :"parent_schema".alkis_update_schema() RETURNS varcha
 DECLARE
 	c RECORD;
 	s INTEGER;
-	n INTEGER;
+	v_n INTEGER;
 	i INTEGER;
 	ver INTEGER;
 	r TEXT;
@@ -451,11 +451,11 @@ BEGIN
 	--
 	-- ALKIS-Schema
 	--
-	SELECT count(*) INTO n FROM information_schema.columns
+	SELECT count(*) INTO v_n FROM information_schema.columns
 		WHERE table_schema=current_schema()
 		  AND table_name='ax_flurstueck'
 		  AND column_name='sonstigesmodell';
-	IF n=0 THEN
+	IF v_n=0 THEN
 		RAISE EXCEPTION 'Modell zu alt für Migration.';
 	END IF;
 
@@ -513,8 +513,8 @@ BEGIN
 		LOOP
 			-- RAISE NOTICE '%', 'UPDATE ' || c.table_name || ' SET gml_id=substring(gml_id,1,16) WHERE length(gml_id)>16';
 			EXECUTE 'UPDATE ' || c.table_name || ' SET gml_id=substring(gml_id,1,16) WHERE length(gml_id)>16';
-			GET DIAGNOSTICS n = ROW_COUNT;
-			s := s + n;
+			GET DIAGNOSTICS v_n = ROW_COUNT;
+			s := s + v_n;
 
 			-- RAISE NOTICE '%', 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN gml_id TYPE character(16)';
 			EXECUTE 'ALTER TABLE ' || c.table_name || ' ALTER COLUMN gml_id TYPE character(16)';
@@ -16469,24 +16469,7 @@ Erholung von Reisenden.'),
 		UPDATE alkis_po_version SET version=2;
 	END IF;
 
-	IF ver<3 THEN
-		RAISE NOTICE 'Migriere auf Schema-Version 3';
-
-		ALTER TABLE po_points DROP CONSTRAINT po_points_pkey;
-		ALTER TABLE po_points ADD CONSTRAINT po_points_pkey PRIMARY KEY(ogc_fid) DEFERRABLE INITIALLY DEFERRED;
-
-		ALTER TABLE po_lines DROP CONSTRAINT po_lines_pkey;
-		ALTER TABLE po_lines ADD CONSTRAINT po_lines_pkey PRIMARY KEY(ogc_fid) DEFERRABLE INITIALLY DEFERRED;
-
-		ALTER TABLE po_polygons DROP CONSTRAINT po_polygons_pkey;
-		ALTER TABLE po_polygons ADD CONSTRAINT po_polygons_pkey PRIMARY KEY(ogc_fid) DEFERRABLE INITIALLY DEFERRED;
-
-		ALTER TABLE po_labels DROP CONSTRAINT po_labels_pkey;
-		ALTER TABLE po_labels ADD CONSTRAINT po_labels_pkey PRIMARY KEY(ogc_fid) DEFERRABLE INITIALLY DEFERRED;
-
-		UPDATE alkis_po_version SET version=3;
-
-	END IF;
+	-- Version 3: deferrable Primärschlüssel revidiert
 
 	IF ver<4 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 4';
