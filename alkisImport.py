@@ -167,6 +167,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.cbxUseCopy.setChecked(s.value("usecopy", True, type=bool))
         self.cbxCreate.setChecked(False)
         self.cbxClean.setChecked(False)
+        self.cbxHistorie.setDisabled(True)
+        self.cbxHistorie.setChecked(s.value("historie", True, type=bool))
 
         self.cbEPSG.addItem("UTM32N", "25832")
         self.cbEPSG.addItem("UTM33N", "25833")
@@ -614,6 +616,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             "-v", "parent_schema={}".format(self.parentschema if self.parentschema else self.schema),
             "-v", "alkis_fnbruch={}".format("true" if self.fnbruch else "false"),
             "-v", "alkis_pgverdraengen={}".format("true" if self.pgverdraengen else "false"),
+            "-v", "alkis_hist={}".format("true" if self.historie else "false"),
             "-v", "ON_ERROR_STOP=1",
             "-v", "ECHO=errors",
             "--quiet",
@@ -712,6 +715,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         self.pgverdraengen = self.cbPgVerdraengen.currentIndex() == 1
         s.setValue("pgverdraengen", self.pgverdraengen)
+
+        self.historie = self.cbxHistorie.isChecked()
+        s.setValue("historie", self.historie)
 
         self.epsg = int(self.cbEPSG.itemData(self.cbEPSG.currentIndex()))
         s.setValue("epsg", self.epsg)

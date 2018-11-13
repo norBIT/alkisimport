@@ -43,7 +43,7 @@
 ^psql:alkis-compat.sql:.*: FEHLER:  kann .* nicht löschen, wird vom Datenbanksystem benötigt
 ^psql:alkis-update.sql:.*: NOTICE:  ALTER TABLE \/ ADD PRIMARY KEY will create implicit index "alkis_(flaechen|linien|schriften)_pkey" for table "alkis_(flaechen|linien|schriften)"
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*gel\S+scht\..*$
-^\s+(addgeometrycolumn|alkis_clean|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|alkis_fixareas|alkis_inherit|version|postgis_version|\?column\?|alkis_set_schema)\s*$
+^\s+(addgeometrycolumn|alkis_clean|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|alkis_fixareas|alkis_inherit|version|postgis_version|\?column\?|alkis_set_schema|create_trigger)\s*$
 ^-+\s*$
 ^\s+[^.]+\..*\.(wkb_geometry|dummy|objektkoordinaten|line) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$
 ^\s+[^.]+\.ax_punktortau\.wkb_geometry SRID:\d+ TYPE:(POINT|GEOMETRY) DIMS:3\+?\s*$

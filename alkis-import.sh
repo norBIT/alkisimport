@@ -42,6 +42,7 @@ export PGCLIENTENCODING=UTF8
 export EPSG=25832
 export CRS="-a_srs EPSG:$EPSG"
 export FNBRUCH=true
+export HISTORIE=true
 export PGVERDRAENGEN=false
 export SCHEMA=public
 export PARENTSCHEMA=
@@ -446,6 +447,7 @@ do
 			psql -X -P pager=off \
 				-v alkis_pgverdraengen=$PGVERDRAENGEN \
 				-v alkis_fnbruch=$FNBRUCH \
+				-v alkis_hist=$HISTORIE \
 				-v alkis_epsg=$EPSG \
 				-v alkis_schema=$SCHEMA \
 				-v postgis_schema=$PGSCHEMA \
@@ -565,6 +567,24 @@ EOF
 	"schema "*)
 		SCHEMA=${src#schema }
 		DST="${DST/ active_schema=*/} active_schema=$SCHEMA','$PGSCHEMA"
+		continue
+		;;
+
+	"historie "*)
+		HISTORIE=${src#historie }
+		case "$HISTORIE" in
+		an|on|true|an)
+			HISTORIE=true
+			;;
+		aus|off|false)
+			HISTORIE=false
+			;;
+		*)
+			echo "$P: Ungültiger Wert $HISTORIE (true or false erwartet)"
+			exit 1
+			;;
+		esac
+
 		continue
 		;;
 

@@ -314,6 +314,16 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="cbxHistorie">
+            <property name="text">
+             <string>Historie führen</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>
@@ -591,6 +601,7 @@
   <tabstop>lePGSCHEMA</tabstop>
   <tabstop>cbxCreate</tabstop>
   <tabstop>cbxClean</tabstop>
+  <tabstop>cbxHistorie</tabstop>
   <tabstop>cbEPSG</tabstop>
   <tabstop>cbFnbruch</tabstop>
   <tabstop>cbPgVerdraengen</tabstop>
@@ -642,8 +653,8 @@
      <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1597</x>
-     <y>91</y>
+     <x>1403</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -660,6 +671,22 @@
     <hint type="destinationlabel">
      <x>493</x>
      <y>490</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbxCreate</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cbxHistorie</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>809</x>
+     <y>78</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1507</x>
+     <y>76</y>
     </hint>
    </hints>
   </connection>
