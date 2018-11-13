@@ -1,7 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf8 -*-
 
-""""""
+from __future__ import unicode_literals
+
 """
 ***************************************************************************
     alkisImport.py
@@ -19,7 +20,6 @@
 ***************************************************************************
 """
 
-from __future__ import unicode_literals
 from builtins import str
 from io import open
 
