@@ -324,7 +324,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             self.lstFiles.takeItem(self.lstFiles.row(item))
 
     def saveList(self):
-        fn, _ = QFileDialog.getSaveFileName(self, "Liste wählen", ".", "Dateilisten (*.lst)")
+        fn = QFileDialog.getSaveFileName(self, "Liste wählen", ".", "Dateilisten (*.lst)")
         if fn is None or fn == "":
             return
 
@@ -420,7 +420,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         QApplication.restoreOverrideCursor()
 
     def saveLog(self):
-        save, _ = QFileDialog.getSaveFileName(self, "Protokolldatei angeben", ".", "Protokoll-Dateien (*.log)")
+        save = QFileDialog.getSaveFileName(self, "Protokolldatei angeben", ".", "Protokoll-Dateien (*.log)")
         if save is None:
             return
 
