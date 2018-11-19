@@ -80,7 +80,7 @@ CREATE TEMPORARY TABLE pp_gemarkungen AS
 		gemeindezugehoerigkeit_gemeinde,
 		gemarkungsnummer,
 		coalesce(
-			(SELECT bezeichnung FROM ax_gemarkung b WHERE a.gemeindezugehoerigkeit_land=b.land AND a.gemarkungsnummer=b.gemarkungsnummer AND b.endet IS NULL),
+			(SELECT bezeichnung FROM ax_gemarkung b WHERE a.gemeindezugehoerigkeit_land=b.land AND a.gemarkungsnummer=b.gemarkungsnummer AND b.endet IS NULL LIMIT 1),
 			'(Gemarkung '||gemeindezugehoerigkeit_land||gemarkungsnummer||')'
 		) AS gemarkungsname
 	FROM ax_flurstueck a
@@ -99,7 +99,7 @@ CREATE TEMPORARY TABLE pp_gemeinden AS
 	SELECT
 		gemeindezugehoerigkeit_land, gemeindezugehoerigkeit_regierungsbezirk, gemeindezugehoerigkeit_kreis, gemeindezugehoerigkeit_gemeinde,
 		coalesce(
-			(SELECT bezeichnung FROM ax_gemeinde b WHERE a.gemeindezugehoerigkeit_land=b.land AND a.gemeindezugehoerigkeit_regierungsbezirk=b.regierungsbezirk AND a.gemeindezugehoerigkeit_kreis=b.kreis AND a.gemeindezugehoerigkeit_gemeinde=b.gemeinde AND b.endet IS NULL),
+			(SELECT bezeichnung FROM ax_gemeinde b WHERE a.gemeindezugehoerigkeit_land=b.land AND a.gemeindezugehoerigkeit_regierungsbezirk=b.regierungsbezirk AND a.gemeindezugehoerigkeit_kreis=b.kreis AND a.gemeindezugehoerigkeit_gemeinde=b.gemeinde AND b.endet IS NULL LIMIT 1),
 			'(Gemeinde '||gemeindezugehoerigkeit_land||gemeindezugehoerigkeit_regierungsbezirk||gemeindezugehoerigkeit_kreis||gemeindezugehoerigkeit_gemeinde||')'
 		) AS gemeindename
 	FROM pg_temp.pp_gemarkungen a
@@ -113,7 +113,7 @@ CREATE TEMPORARY TABLE pp_kreise AS
 	SELECT
 		gemeindezugehoerigkeit_land, gemeindezugehoerigkeit_regierungsbezirk, gemeindezugehoerigkeit_kreis,
 		coalesce(
-			(SELECT bezeichnung FROM ax_kreisregion b WHERE a.gemeindezugehoerigkeit_land=b.land AND a.gemeindezugehoerigkeit_regierungsbezirk=b.regierungsbezirk AND a.gemeindezugehoerigkeit_kreis=b.kreis AND b.endet IS NULL),
+			(SELECT bezeichnung FROM ax_kreisregion b WHERE a.gemeindezugehoerigkeit_land=b.land AND a.gemeindezugehoerigkeit_regierungsbezirk=b.regierungsbezirk AND a.gemeindezugehoerigkeit_kreis=b.kreis AND b.endet IS NULL LIMIT 1),
 			'(Kreis '||gemeindezugehoerigkeit_land||gemeindezugehoerigkeit_regierungsbezirk||gemeindezugehoerigkeit_kreis||')'
 		) AS kreisname
 	FROM pg_temp.pp_gemeinden a
