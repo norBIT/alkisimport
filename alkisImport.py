@@ -420,17 +420,16 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         QApplication.restoreOverrideCursor()
 
     def saveLog(self):
-        save = QFileDialog.getSaveFileName(self, "Protokolldatei angeben", ".", "Protokoll-Dateien (*.log)")
+        save, _ = QFileDialog.getSaveFileName(self, "Protokolldatei angeben", ".", "Protokoll-Dateien (*.log)")
         if save is None:
             return
 
-        f = QFile(save)
-        if not f.open(QIODevice.WriteOnly):
-            return
+        f = open(save, "w", encoding="utf-8")
 
         for i in range(0, self.lwProtocol.count()):
-            f.write(self.lwProtocol.item(i).text().encode("utf-8", "ignore"))
-            f.write(os.linesep)
+            f.write(self.lwProtocol.item(i).text())
+            f.write("\n")
+
         f.close()
 
     def clearLog(self):
@@ -644,6 +643,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             return None
 
         self.db.exec_("SET STANDARD_CONFORMING_STRINGS TO ON")
+
+        self.schema = self.leSCHEMA.text()
+        self.pgschema = self.lePGSCHEMA.text()
 
         qry = self.db.exec_("SELECT 1 FROM pg_namespace WHERE nspname='{}'".format(self.schema.replace("'", "''")))
         if not qry:
