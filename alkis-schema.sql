@@ -183,7 +183,7 @@ INSERT INTO ax_datenerhebung (wert,beschreibung,dokumentation) VALUES
 ('4220', 'Aus Katasterkarten digitalisiert, Kartenmaßstab 1 zu 1000 größer M größer gleich 1 zu 2000', ''),
 ('4230', 'Aus Katasterkarten digitalisiert, Kartenmaßstab 1 zu 2000 größer M größer gleich 1 zu 3000', ''),
 ('4240', 'Aus Katasterkarten digitalisiert, Kartenmaßstab 1 zu 3000 größer M größer gleich 1 zu 5000', ''),
-('4250', 'Aus Katasterkarten  digitalisiert, Kartenmaßstab 1 zu 5000 größer M', ''),
+('4250', 'Aus Katasterkarten digitalisiert, Kartenmaßstab 1 zu 5000 größer M', ''),
 ('4300', 'Aus sonstigen Unterlagen digitalisiert', ''),
 ('4310', 'Aus sonstigen Unterlagen digitalisiert, Kartenmaßstab M größer gleich 1 zu 1000', ''),
 ('4320', 'Aus sonstigen Unterlagen digitalisiert, Kartenmaßstab 1 zu 1000 größer M größer gleich 1 zu 2000', ''),
@@ -209,16 +209,16 @@ INSERT INTO ax_sportart_bauwerkoderanlagefuersportfreizeitunderholung (wert,besc
 ('1011', 'Fußball', 'Fußball bedeutet, dass ein Spielfeld oder Stadion zum Fußball spielen genutzt wird.'),
 ('1020', 'Leichtathletik', 'Leichtathletik bedeutet, dass ein Spielfeld oder Stadion zur Ausübung verschiedener Leichtathletikdisziplinen genutzt wird.'),
 ('1030', 'Tennis', 'Tennis bedeutet, dass ein Spielfeld oder Stadion zum Tennis spielen genutzt wird.'),
-('1040', 'Reiten', 'Reiten bedeutet, dass ein Stadion oder eine Rennbahn zur  Ausübung des Reitsports genutzt wird.'),
-('1050', 'Schwimmen', 'Schwimmen bedeutet, dass ein Stadion zum  Schwimmen  genutzt wird.'),
-('1060', 'Skisport', 'Skisport bedeutet, dass ein Stadion zur Ausübung des  Skisports genutzt wird.'),
-('1070', 'Eislaufsport, Rollschuhlaufen', 'Eislaufsport, Rollschuhlaufen bedeutet, dass ein Stadion zur  Ausübung des Eislaufsports oder des Rollschuhlaufens genutzt  wird.'),
+('1040', 'Reiten', 'Reiten bedeutet, dass ein Stadion oder eine Rennbahn zur Ausübung des Reitsports genutzt wird.'),
+('1050', 'Schwimmen', 'Schwimmen bedeutet, dass ein Stadion zum Schwimmen genutzt wird.'),
+('1060', 'Skisport', 'Skisport bedeutet, dass ein Stadion zur Ausübung des Skisports genutzt wird.'),
+('1070', 'Eislaufsport, Rollschuhlaufen', 'Eislaufsport, Rollschuhlaufen bedeutet, dass ein Stadion zur Ausübung des Eislaufsports oder des Rollschuhlaufens genutzt  wird.'),
 ('1071', 'Eislaufsport', ''),
 ('1072', 'Rollschuhlaufen', ''),
 ('1080', 'Skating', 'Skating bedeutet, dass eine Laufbahn zum Skaten genutzt wird.'),
-('1090', 'Motorrennsport', 'Motorrennsport bedeutet, dass eine Rennbahn zur Ausübung  des Motorrennsports genutzt wird.'),
-('1100', 'Radsport', 'Radsport bedeutet, dass ein Stadion oder eine Rennbahn zur  Ausübung des Radsports genutzt wird.'),
-('1110', 'Pferderennsport', 'Pferderennsport bedeutet, dass eine Rennbahn zur Ausübung  des Pferderennsports genutzt wird.'),
+('1090', 'Motorrennsport', 'Motorrennsport bedeutet, dass eine Rennbahn zur Ausübung des Motorrennsports genutzt wird.'),
+('1100', 'Radsport', 'Radsport bedeutet, dass ein Stadion oder eine Rennbahn zur Ausübung des Radsports genutzt wird.'),
+('1110', 'Pferderennsport', 'Pferderennsport bedeutet, dass eine Rennbahn zur Ausübung des Pferderennsports genutzt wird.'),
 ('1115', 'Hunderennsport', 'Hunderennsport bedeutet, dass eine Rennbahn zur Ausübung des Hunderennsports genutzt wird.');
 CREATE TABLE ax_lagezurerdoberflaeche_transportanlage (
   wert integer,
@@ -316,7 +316,7 @@ COMMENT ON TABLE ax_bauwerksfunktion_transportanlage IS 'Alias: "AX_Bauwerksfunk
 INSERT INTO ax_bauwerksfunktion_transportanlage (wert,beschreibung,dokumentation) VALUES
 ('1101', 'Rohrleitung, Pipeline', 'Rohrleitung, Pipeline ist ein langgestreckter Hohlkörper zum Transport von Flüssigkeiten und Gasen.'),
 ('1102', 'Förderband, Bandstraße', 'Förderband, Bandstraße ist ein mechanisch bewegtes Band zum Transport von Gütern.'),
-('1103', 'Pumpe', 'Pumpe ist eine Vorrichtung zum An-, Absaugen oder Injizieren von Flüssigkeiten oder Gasen; Verdichtungsstation  für Gase.');
+('1103', 'Pumpe', 'Pumpe ist eine Vorrichtung zum An-, Absaugen oder Injizieren von Flüssigkeiten oder Gasen; Verdichtungsstation für Gase.');
 CREATE TABLE ax_lagezurerdoberflaeche_vorratsbehaelterspeicherbauwerk (
   wert integer,
   beschreibung character varying,
@@ -327,7 +327,7 @@ CREATE TABLE ax_lagezurerdoberflaeche_vorratsbehaelterspeicherbauwerk (
 COMMENT ON TABLE ax_lagezurerdoberflaeche_vorratsbehaelterspeicherbauwerk IS 'Alias: "AX_LageZurErdoberflaeche_VorratsbehaelterSpeicherbauwerk", UML-Typ: Enumeration';
 INSERT INTO ax_lagezurerdoberflaeche_vorratsbehaelterspeicherbauwerk (wert,beschreibung,dokumentation) VALUES
 ('1200', 'Unter der Erdoberfläche', 'Unter der Erdoberfläche bedeutet, dass sich der Vorratsbehälter bzw. das Speicherbauwerk unter der Erdoberfläche befindet.'),
-('1400', 'Aufgeständert', 'Aufgeständert bedeutet, dass der Vorratsbehälter bzw. das  Speicherbauwerk auf Stützen steht.');
+('1400', 'Aufgeständert', 'Aufgeständert bedeutet, dass der Vorratsbehälter bzw. das Speicherbauwerk auf Stützen steht.');
 CREATE TABLE ax_speicherinhalt_vorratsbehaelterspeicherbauwerk (
   wert integer,
   beschreibung character varying,
@@ -340,7 +340,7 @@ INSERT INTO ax_speicherinhalt_vorratsbehaelterspeicherbauwerk (wert,beschreibung
 ('1000', 'Erze', 'Erze bedeutet, dass die in der Natur vorkommenden, metallhaltigen Mineralien und Mineralgemische gelagert werden.'),
 ('1100', 'Treib- und Brennstoffe', 'Treib- und Brennstoffe bedeutet, dass die in der Natur vorkommenden brennbaren organischen und anorganischen Substanzen gelagert werden.'),
 ('1110', 'Erdöl', 'Erdöl ist ein flüssiges und brennbares Kohlenwasserstoffgemisch, das gelagert wird.'),
-('1120', 'Gas', 'Gas ist eine gasförmige und brennbare Materie, die  gespeichert wird.'),
+('1120', 'Gas', 'Gas ist eine gasförmige und brennbare Materie, die gespeichert wird.'),
 ('1130', 'Wasser', 'Wasser ist die chemische Verbindung von Sauerstoff und Wasserstoff, die gespeichert wird.'),
 ('1140', 'Gülle', ''),
 ('1200', 'Baustoffe', 'Baustoffe sind sämtliche im Bauwesen verwendete Materialien, die gelagert werden.'),
@@ -360,15 +360,15 @@ COMMENT ON TABLE ax_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewer IS '
 INSERT INTO ax_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewer (wert,beschreibung,dokumentation) VALUES
 ('1210', 'Klärbecken', 'Klärbecken ist ein künstlich errichtetes Becken oder eine Geländevertiefung, in der Feststoffe aus einer Flüssigkeit ausgefällt werden.'),
 ('1215', 'Biogasanlage', ''),
-('1220', 'Windrad', 'Windrad ist ein mit Flügeln besetztes Rad, das durch Wind in Rotation versetzt wird und mit Hilfe eines eingebauten  Generators elektrische Energie erzeugt.'),
+('1220', 'Windrad', 'Windrad ist ein mit Flügeln besetztes Rad, das durch Wind in Rotation versetzt wird und mit Hilfe eines eingebauten Generators elektrische Energie erzeugt.'),
 ('1230', 'Solarzellen', 'Solarzellen sind Flächenelemente aus Halbleitern, die die Energie der Sonnenstrahlen in elektrische Energie umwandeln.'),
-('1240', 'Wasserrad', 'Wasserrad ist ein mit Schaufeln oder Zellen besetztes Rad, das die Energie des strömenden Wassers zum Antrieb,  besonders von Mühlen, ausnutzt oder zum Schöpfen von  Wasser (Schöpfrad) genutzt wird.'),
+('1240', 'Wasserrad', 'Wasserrad ist ein mit Schaufeln oder Zellen besetztes Rad, das die Energie des strömenden Wassers zum Antrieb, besonders von Mühlen, ausnutzt oder zum Schöpfen von Wasser (Schöpfrad) genutzt wird.'),
 ('1250', 'Mast', 'Mast ist eine senkrecht stehende Konstruktion mit stützender oder tragender Funktion.'),
 ('1251', 'Freileitungsmast', 'Freileitungsmast ist ein Mast, an dem Hochspannungsleitungen befestigt sind.'),
 ('1260', 'Funkmast', 'Funkmast ist ein Mast mit Vorrichtungen zum Empfangen, Umformen und Weitersenden von elektromagnetischen Wellen.'),
 ('1270', 'Antenne', 'Antenne ist eine Vorrichtung zum Empfang oder zur Ausstrahlung elektromagnetischer Wellen.'),
 ('1280', 'Radioteleskop', 'Radioteleskop ist ein Bauwerk mit einer Parabolantenne für den Empfang von elektromagnetischer Strahlung aus dem Weltall.'),
-('1290', 'Schornstein, Schlot, Esse', 'Schornstein, Schlot, Esse ist ein freistehend senkrecht  hochgeführter Abzugskanal für die Rauchgase einer  Feuerungsanlage oder für andere Abgase.'),
+('1290', 'Schornstein, Schlot, Esse', 'Schornstein, Schlot, Esse ist ein freistehend senkrecht hochgeführter Abzugskanal für die Rauchgase einer Feuerungsanlage oder für andere Abgase.'),
 ('1310', 'Stollenmundloch', 'Stollenmundloch ist der Eingang eines unterirdischen Gangs, der annähernd horizontal von der Erdoberfläche in das Gebirge führt.'),
 ('1320', 'Schachtöffnung', 'Schachtöffnung ist der Eingang auf der Erdoberfläche zu einem Schacht.'),
 ('1330', 'Kran', 'Kran ist eine Vorrichtung, die aus einer fahrbaren oder ortsfesten Konstruktion besteht und die zum Heben von Lasten benutzt wird.'),
@@ -439,18 +439,18 @@ CREATE TABLE ax_bauwerksfunktion_bauwerkoderanlagefuersportfreizeitunde (
 
 COMMENT ON TABLE ax_bauwerksfunktion_bauwerkoderanlagefuersportfreizeitunde IS 'Alias: "AX_Bauwerksfunktion_BauwerkOderAnlageFuerSportFreizeitUndErholung", UML-Typ: Enumeration';
 INSERT INTO ax_bauwerksfunktion_bauwerkoderanlagefuersportfreizeitunde (wert,beschreibung,dokumentation) VALUES
-('1410', 'Spielfeld', 'Spielfeld ist eine abgegrenzte, markierte Fläche, auf der die Sportart unmittelbar ausgeübt wird, z.B. die einzelnen  Fußballfelder (Hauptplatz und Trainingsplätze) einer größeren Anlage. Die zusammenhängenden Spielflächen innerhalb einer Tennisanlage werden zu einem Spielfeld  zusammengefasst'),
+('1410', 'Spielfeld', 'Spielfeld ist eine abgegrenzte, markierte Fläche, auf der die Sportart unmittelbar ausgeübt wird, z.B. die einzelnen Fußballfelder (Hauptplatz und Trainingsplätze) einer größeren Anlage. Die zusammenhängenden Spielflächen innerhalb einer Tennisanlage werden zu einem Spielfeld zusammengefasst'),
 ('1411', 'Hartplatz', ''),
 ('1412', 'Rasenplatz', ''),
-('1420', 'Rennbahn, Laufbahn, Geläuf', 'Rennbahn, Laufbahn, Geläuf ist eine je nach Art des  Rennens verschiedenartig gestaltete Strecke (oval, gerade,  kurvig), auf der das Rennen stattfindet.'),
+('1420', 'Rennbahn, Laufbahn, Geläuf', 'Rennbahn, Laufbahn, Geläuf ist eine je nach Art des Rennens verschiedenartig gestaltete Strecke (oval, gerade, kurvig), auf der das Rennen stattfindet.'),
 ('1430', 'Zuschauertribüne', 'Zuschauertribüne ist ein großes Gerüst oder ein festes, meist überdachtes Bauwerk mit ansteigenden Sitz- oder Stehplatzreihen für Zuschauer.'),
 ('1431', 'Zuschauertribüne, überdacht', 'Zuschauertribüne, überdacht bedeutet, dass Zuschauertribüne mit einer Dachfläche ausgestattet ist.'),
 ('1432', 'Zuschauertribüne, nicht überdacht', 'Zuschauertribüne, nicht überdacht bedeutet, dass die Zuschauertribüne keine Dachfläche besitzt.'),
-('1440', 'Stadion', 'Stadion ist ein Bauwerk mit Tribünen und entsprechenden  Einrichtungen zur Ausübung von bestimmten Sportarten.'),
+('1440', 'Stadion', 'Stadion ist ein Bauwerk mit Tribünen und entsprechenden Einrichtungen zur Ausübung von bestimmten Sportarten.'),
 ('1450', 'Schwimmbecken', 'Schwimmbecken ist ein mit Wasser gefülltes Becken zum Schwimmen oder Baden.'),
 ('1460', 'Liegewiese', ''),
 ('1470', 'Sprungschanze (Anlauf)', 'Sprungschanze (Anlauf) ist eine Anlage zum Skispringen mit einer stark abschüssigen, in einem Absprungtisch endenden Bahn zum Anlauf nehmen.'),
-('1480', 'Schießanlage', 'Schießanlage ist eine Anlage mit Schießbahnen für  Schießübungen oder sportliche Wettbewerbe.'),
+('1480', 'Schießanlage', 'Schießanlage ist eine Anlage mit Schießbahnen für Schießübungen oder sportliche Wettbewerbe.'),
 ('1490', 'Gradierwerk', 'Gradierwerk ist ein mit Reisig bedecktes Gerüst, über das Sole rieselt, die durch erhöhte Verdunstung konzentriert wird.'),
 ('1510', 'Wildgehege', 'Wildgehege ist ein eingezäuntes Areal, in dem Wild waidgerecht betreut wird oder beobachtet werden kann.'),
 ('9999', 'Sonstiges', 'Sonstiges bedeutet, dass die Bauwerkfunktion bekannt, aber in der Attributwertliste nicht aufgeführt ist.');
@@ -463,11 +463,11 @@ CREATE TABLE ax_archaeologischertyp_historischesbauwerkoderhistorischee (
 
 COMMENT ON TABLE ax_archaeologischertyp_historischesbauwerkoderhistorischee IS 'Alias: "AX_ArchaeologischerTyp_HistorischesBauwerkOderHistorischeEinrichtung", UML-Typ: Enumeration';
 INSERT INTO ax_archaeologischertyp_historischesbauwerkoderhistorischee (wert,beschreibung,dokumentation) VALUES
-('1000', 'Grab', 'Grab ist eine künstlich geschaffene Bestattungsstätte unter, auf oder über der  Erdoberfläche.'),
+('1000', 'Grab', 'Grab ist eine künstlich geschaffene Bestattungsstätte unter, auf oder über der Erdoberfläche.'),
 ('1010', 'Großsteingrab (Dolmen, Hünenbett)', 'Großsteingrab (Dolmen, Hünenbett) ist ein Grab mit Steineinbau, d. h. es ist ein aus großen Steinen (z.B. Findlingen) errichteter Grabbau.'),
-('1020', 'Grabhügel (Hügelgrab)', 'Grabhügel (Hügelgrab) ist ein meist runder oder ovaler Hügel, der über einer ur- oder frühgeschichtlichen Bestattung aus Erde aufgeschüttet oder aus Plaggen aufgeschichtet  wurde.'),
+('1020', 'Grabhügel (Hügelgrab)', 'Grabhügel (Hügelgrab) ist ein meist runder oder ovaler Hügel, der über einer ur- oder frühgeschichtlichen Bestattung aus Erde aufgeschüttet oder aus Plaggen aufgeschichtet wurde.'),
 ('1100', 'Historische Wasserleitung', 'Historische Wasserleitung ist ein meist offenes System von Gräben, Kunstgräben und Kanälen, in dem Wasser transportiert wird.'),
-('1110', 'Aquädukt', 'Aquädukt ist ein brückenartiges Steinbauwerk zur Überführung von Freispiegel-Wasserleitungen mit  natürlichem Gefälle über Täler oder andere Bodenunebenheiten.'),
+('1110', 'Aquädukt', 'Aquädukt ist ein brückenartiges Steinbauwerk zur Überführung von Freispiegel-Wasserleitungen mit natürlichem Gefälle über Täler oder andere Bodenunebenheiten.'),
 ('1200', 'Befestigung (Wall, Graben)', 'Befestigung (Wall, Graben) ist ein aus Erde aufgeschütteter Grenz-, Schutz- oder Stadtwall. Zu der Befestigung (Wall) zählen auch Limes und Landwehr.'),
 ('1210', 'Wachturm (römisch), Warte', 'Wachtturm (römisch), Warte ist ein allein oder in Verbindung mit einem Befestigungssystem (Limes) stehender Beobachtungsturm.'),
 ('1300', 'Steinmal', 'Steinmal ist eine kultische oder rechtliche Kennzeichnung, bestehend aus einzelnen oder Gruppen von Steinen.'),
@@ -533,11 +533,11 @@ INSERT INTO ax_bauwerksfunktion_sonstigesbauwerkodersonstigeeinrichtun (wert,bes
 ('1723', 'Stützmauermitte', ''),
 ('1740', 'Zaun', 'Zaun ist eine Abgrenzung oder Einfriedung aus Holz- oder Metallstäben oder aus Draht bzw. Drahtgeflecht.'),
 ('1750', 'Gedenkstätte, Denkmal, Denkstein, Standbild', 'Gedenkstätte, Denkmal, Denkstein, Standbild ist ein zum Gedenken errichtete Anlage oder Bauwerk an eine Person, ein Ereignis oder eine plastische Darstellung.'),
-('1760', 'Bildstock, Wegekreuz, Gipfelkreuz', 'Bildstock, Wegekreuz, Gipfelkreuz ist ein frei stehendes Mal aus Holz oder Stein, das in einem tabernakelartigen Aufbau ein Kruzifix oder eine Heiligendarstellung enthält und als Andachtsbild,  als Erinnerung an Verstorbene oder als Sühnemal errichtet wurde;  ist ein errichtetes Kreuz z.B. an Wegen; ist ein Kreuz auf dem Gipfel eines Berges.'),
+('1760', 'Bildstock, Wegekreuz, Gipfelkreuz', 'Bildstock, Wegekreuz, Gipfelkreuz ist ein frei stehendes Mal aus Holz oder Stein, das in einem tabernakelartigen Aufbau ein Kruzifix oder eine Heiligendarstellung enthält und als Andachtsbild, als Erinnerung an Verstorbene oder als Sühnemal errichtet wurde; ist ein errichtetes Kreuz z.B. an Wegen; ist ein Kreuz auf dem Gipfel eines Berges.'),
 ('1761', 'Bildstock', ''),
 ('1762', 'Wegekreuz', ''),
 ('1763', 'Gipfelkreuz', ''),
-('1770', 'Meilenstein, historischer Grenzstein', 'Meilenstein, historischer Grenzstein sind Steine von kulturgeschichtlicher  Bedeutung, die als Meilensteine (Entfernungsangaben in Meilen) am Rande einer Straße aufgestellt sind oder als Grenzsteine vergangene Eigentumsverhältnisse dokumentieren.'),
+('1770', 'Meilenstein, historischer Grenzstein', 'Meilenstein, historischer Grenzstein sind Steine von kulturgeschichtlicher Bedeutung, die als Meilensteine (Entfernungsangaben in Meilen) am Rande einer Straße aufgestellt sind oder als Grenzsteine vergangene Eigentumsverhältnisse dokumentieren.'),
 ('1780', 'Brunnen', 'Brunnen ist eine Anlage zur Gewinnung von Grundwasser bzw. ein architektonisch ausgestaltetes Bauwerk mit Becken zum Auffangen von Wasser.'),
 ('1781', 'Brunnen (Trinkwasserversorgung)', 'Brunnen (Trinkwasserversorgung) bedeutet, dass in dem Brunnen ausschließlich Trinkwasser gewonnen wird.'),
 ('1782', 'Springbrunnen, Zierbrunnen', ''),
@@ -565,7 +565,7 @@ CREATE TABLE ax_bauwerksfunktion_leitung (
 
 COMMENT ON TABLE ax_bauwerksfunktion_leitung IS 'Alias: "AX_Bauwerksfunktion_Leitung", UML-Typ: Enumeration';
 INSERT INTO ax_bauwerksfunktion_leitung (wert,beschreibung,dokumentation) VALUES
-('1110', 'Freileitung', 'Freileitung ist eine aus einem oder mehreren Drähten oder  Fasern hergestellte oberirdische Leitung zum Transport von  elektrischer Energie und zur Übertragung von elektrischen  Signalen.'),
+('1110', 'Freileitung', 'Freileitung ist eine aus einem oder mehreren Drähten oder Fasern hergestellte oberirdische Leitung zum Transport von elektrischer Energie und zur Übertragung von elektrischen Signalen.'),
 ('1111', 'Erdkabel', '');
 CREATE TABLE ax_bauwerksfunktion_vorratsbehaelterspeicherbauwerk (
   wert integer,
@@ -582,7 +582,7 @@ INSERT INTO ax_bauwerksfunktion_vorratsbehaelterspeicherbauwerk (wert,beschreibu
 ('1204', 'Getreideheber', ''),
 ('1205', 'Tank', 'Tank ist ein Behälter, in dem Flüssigkeiten gelagert oder Gase gespeichert werden.'),
 ('1206', 'Gasometer', 'Gasometer ist ein Vorratsbehälter für Gas.'),
-('9999', 'Sonstiges', 'Sonstiges bedeutet, dass die Bauwerkfunktion bekannt, aber  in der Attributwertliste nicht aufgeführt ist.');
+('9999', 'Sonstiges', 'Sonstiges bedeutet, dass die Bauwerkfunktion bekannt, aber in der Attributwertliste nicht aufgeführt ist.');
 CREATE TABLE ax_befestigung_wegpfadsteig (
   wert integer,
   beschreibung character varying,
@@ -773,7 +773,7 @@ CREATE TABLE ax_bauwerksfunktion_bauwerkimverkehrsbereich (
 
 COMMENT ON TABLE ax_bauwerksfunktion_bauwerkimverkehrsbereich IS 'Alias: "AX_Bauwerksfunktion_BauwerkImVerkehrsbereich", UML-Typ: Enumeration';
 INSERT INTO ax_bauwerksfunktion_bauwerkimverkehrsbereich (wert,beschreibung,dokumentation) VALUES
-('1800', 'Brücke', 'Brücke ist ein Bauwerk zum Zweck der Überführung eines Verkehrsweges über einen anderen Verkehrsweg  oder über ein Gewässer sowie zur Überführung über ein tieferliegendes Gelände.'),
+('1800', 'Brücke', 'Brücke ist ein Bauwerk zum Zweck der Überführung eines Verkehrsweges über einen anderen Verkehrsweg oder über ein Gewässer sowie zur Überführung über ein tieferliegendes Gelände.'),
 ('1801', 'Mehrstöckige Brücke', 'Mehrstöckige Brücke ist eine Brücke, die mit Verkehrswegen in mehreren Etagen ausgestattet ist.'),
 ('1802', 'Bogenbrücke', 'Bogenbrücke ist eine Brücke, bei der das Tragwerk aus Bögen besteht.'),
 ('1803', 'Fachwerkbrücke', 'Fachwerkbrücke ist eine Brücke, bei der das Tragwerk aus starr zusammengesetzten Tragbalken (Holz oder Metall) besteht.'),
@@ -1209,8 +1209,8 @@ CREATE TABLE ax_buchungsart_buchungsstelle (
 COMMENT ON TABLE ax_buchungsart_buchungsstelle IS 'Alias: "AX_Buchungsart_Buchungsstelle", UML-Typ: Enumeration';
 INSERT INTO ax_buchungsart_buchungsstelle (wert,beschreibung,dokumentation) VALUES
 ('1100', 'Grundstück', 'Das Grundstück ist ein räumlich abgegrenzter Teil der Erdoberfläche, der auf einem besonderen Blatt, dem Grundbuchblatt, für sich allein oder auf einem gemeinschaftlichen Grundbuchblatt unter einer eindeutigen Nummer des Bestandsverzeichnisses eingetragen ist (Grundstück im Rechtssinn). Das Grundstück besteht aus einem oder mehreren Flurstücken.'),
-('1101', 'Aufgeteiltes Grundstück WEG', 'Ein aufgeteiltes GrundstückWEG ist die Zusammenfassung  aller in Wohnungs- oder Teileigentum aufgeteilten Anteile eines Grundstücks. Es handelt sich daher um eine Buchungsart für das Fiktive Blatt.'),
-('1102', 'Aufgeteiltes Grundstück Par. 3 Abs. 4 GBO', 'Ein aufgeteiltes Grundstück nach Par. 3  Abs. 4 GBO ist die Zusammenfassung  aller dienenden Miteigentumsanteile eines Grundstücks (Miteigentumsanteil nach  § 3 Abs. 4 GBO).  Es handelt sich daher um eine Buchungsart für das Fiktive Blatt.'),
+('1101', 'Aufgeteiltes Grundstück WEG', 'Ein aufgeteiltes GrundstückWEG ist die Zusammenfassung aller in Wohnungs- oder Teileigentum aufgeteilten Anteile eines Grundstücks. Es handelt sich daher um eine Buchungsart für das Fiktive Blatt.'),
+('1102', 'Aufgeteiltes Grundstück Par. 3 Abs. 4 GBO', 'Ein aufgeteiltes Grundstück nach Par. 3 Abs. 4 GBO ist die Zusammenfassung aller dienenden Miteigentumsanteile eines Grundstücks (Miteigentumsanteil nach § 3 Abs. 4 GBO). Es handelt sich daher um eine Buchungsart für das Fiktive Blatt.'),
 ('1200', 'Ungetrennter Hofraum', 'Zu einem ungetrennten Hofraum gehören Grundstücke, die zwar in ihren Außengrenzen, nicht aber bezüglich der daran bestehenden Anteile vermessen und katastermäßig erfasst sind. Im Grundbuch werden die nicht ausgemessenen , einzelnen Grundstücksflächen als Anteil an einem ungetrennten Hofraum ausgewiesen. Bis zur Vermessung der einzelnen Grundstücksflächen und Aufnahme in das Liegenschaftsbuch gilt das Gebäudesteuerbuch als amtliches Verzeichnis nach Par. 2 Abs. 2 GBO. Diese Nummer des Gebäudesteuerbuchs ist bis zur Vermessung im Grundbuch eingetragen. Für ungetrennte Hofräume existieren zwei miteinander korrespondierende Eintragungen:
 In einem Grundbuchblatt sind alle ungetrennten Hofräume eines Grundbuchbezirks verzeichnet. Im zweiten Grundbuchblatt ist im Bestandsverzeichnis dann der Anteil an einem bestimmten ungetrennten Hofraum eingetragen.
 Nach der katasterlichen Erfassung wird die bisherige Eintragung in beiden Grundbüchern gelöscht und das vermessenene Grundstück als normales Grundstück gebucht.'),
@@ -1219,31 +1219,31 @@ begründet werden.
 Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerlichen Rechts in Form einer rechtlichen Verbindung von Miteigentum an Grundstück und Gebäude mit Sondereigentum an einer Wohnung bzw. Teileigentum an nicht zu Wohnzwecken dienenden Räumen.'),
 ('1302', 'Miteigentum Par. 3 Abs. 4 GBO', 'Ein Miteigentum nach Par. 3 Abs. 4 der Grundbuchordnung (GBO) ist ein Miteigentum an einem dienenden Grundstück. Ist das Grundstück im wirtschaftlichen Sinn als Zubehör mehrerer anderer Grundstücke anzusehen und steht es im Miteigentum dieser Grundstücke (Bruchteilseigentum nach Par. 1008 ff des Bürgerlichen Gesetzbuchs (BGB), muss das Grundstück nicht in einem separaten Grundbuch geführt werden. Vielmehr wird das dienende Grundstück in ideellen Miteigentumsanteilen auf den Grundbuchblättern der herrschenden Grundstücke gebucht.'),
 ('1303', 'Anteil am ungetrennten Hofraum', 'Hierbei handelt es sich um die Buchung des Anteils am ungetrennten Hofraum.'),
-('1401', 'Aufgeteilter Anteil Wohnungs-/Teileigentum', 'Hier wurde der mit dem Sondereigentum verbundene Miteigentumsanteil (Wohnungs-/Teileigentum) nochmals unterteilt. Die vorgenommene Grundbucheintragung deutet auf  eine Untergemeinschaft innerhalb der Gesamtgemeinschaft hin. Es handelt sich um eine Buchungsart für das Fiktive Blatt.'),
-('1402', 'Aufgeteilter Anteil Miteigentum Par. 3 Abs. 4 GBO', 'Hier wurde der Miteigentumsanteil nach Par. 3 (4) GBO nochmals unterteilt. Die vorgenommene Grundbucheintragung deutet auf  eine Untergemeinschaft innerhalb der Gesamtgemeinschaft hin. Es handelt sich um eine Buchungsart für das Fiktive Blatt.'),
-('1403', 'Aufgeteilter Anteil am ungetrennten Hofraum', 'Hier wurde der Anteil an ungeteiltem Hofraum nochmals unterteilt. Die vorgenommene Grundbucheintragung deutet auf  eine Untergemeinschaft innerhalb der Gesamtgemeinschaft hin. Es handelt sich um eine Buchungsart für das Fiktive Blatt.'),
+('1401', 'Aufgeteilter Anteil Wohnungs-/Teileigentum', 'Hier wurde der mit dem Sondereigentum verbundene Miteigentumsanteil (Wohnungs-/Teileigentum) nochmals unterteilt. Die vorgenommene Grundbucheintragung deutet auf eine Untergemeinschaft innerhalb der Gesamtgemeinschaft hin. Es handelt sich um eine Buchungsart für das Fiktive Blatt.'),
+('1402', 'Aufgeteilter Anteil Miteigentum Par. 3 Abs. 4 GBO', 'Hier wurde der Miteigentumsanteil nach Par. 3 (4) GBO nochmals unterteilt. Die vorgenommene Grundbucheintragung deutet auf eine Untergemeinschaft innerhalb der Gesamtgemeinschaft hin. Es handelt sich um eine Buchungsart für das Fiktive Blatt.'),
+('1403', 'Aufgeteilter Anteil am ungetrennten Hofraum', 'Hier wurde der Anteil an ungeteiltem Hofraum nochmals unterteilt. Die vorgenommene Grundbucheintragung deutet auf eine Untergemeinschaft innerhalb der Gesamtgemeinschaft hin. Es handelt sich um eine Buchungsart für das Fiktive Blatt.'),
 ('1501', 'Anteil an Wohnungs-/Teileigentumsanteil', 'Hier wird der Anteil an dem Wohnungs-/Teileigentumsanteil im Grundbuch eingetragen.'),
 ('1502', 'Anteil an Miteigentumsanteil Par. 3 Abs. 4 GBO', 'Hier wird der Anteil an dem Miteigentumsanteil nach Par. 3 Abs. 4 GBO im Grundbuch eingetragen'),
 ('1503', 'Anteil am Anteil zum ungetrennten Hofraum', 'Hier wird der Anteil an dem Anteil an dem ungetrennten Hofraum im Grundbuch eingetragen.'),
 ('2101', 'Erbbaurecht', 'Veräußerliches und vererbliches grundstücksgleiches Recht, auf oder unter der Erdoberfläche eines (in der Regel) fremden Grundstücks ein Bauwerk zu haben.'),
 ('2102', 'Untererbbaurecht', 'Untererbbaurecht ist das Erbbaurecht an einem Erbbaurecht. Hier ist der Belastungsgegenstand nicht das Grundstück, sondern das auf diesem lastenden Erbbaurecht.'),
-('2103', 'Gebäudeeigentum', 'Das Gebäudeeigentum an einem Grundstück als Ganzes zur Errichtung und  Nutzung eines Gebäudes.'),
+('2103', 'Gebäudeeigentum', 'Das Gebäudeeigentum an einem Grundstück als Ganzes zur Errichtung und Nutzung eines Gebäudes.'),
 ('2104', 'Fischereirecht', 'Fischereirecht ist die Befugnis, in einem Binnengewässer (See, Teich, Fluß, Bach) Fische, Krebse und andere nutzbare Wassertiere (z.B. Muscheln, Frösche), die nicht Gegenstand des Jagdrechts sind, zu hegen und sich anzueignen.'),
 ('2105', 'Bergwerksrecht', 'Bergwerksrecht ist das ausschließliche Recht, in einem bestimmten Feld die in der Bewilligung bezeichneten Bodenschätze aufzusuchen und zu gewinnen (Par.9 I, Par. 8 BBergG vom 13.08.1980, BGBl. I 1310).'),
 ('2106', 'Nutzungsrecht', 'Hierunter sind alle Nutzungsrechte zu verstehen, die im Bestandsverzeichnis eingetragen werden, unabhängig von ihrer öffentlich- oder privatrechtlichen Natur. Die nähere Bezeichnung des Nutzungsrechts ergibt sich aus dem Attribut Buchungstext.'),
-('2107', 'Realgewerberecht', 'Hierbei handelt es sich um die frei veräußerliche und vedrerbliche Befugnis zum Betrieb eines bestimmten Gewerbes, die mit dem Besitz einer Liegenschaft verbunden sein  kann aber nicht zwingend an ein bestimmtes Grundstücks gebunden sein  muss. Die nähere Bezeichnung des Nutzungsrechts ergibt sich aus dem Attribut Buchungstext.'),
+('2107', 'Realgewerberecht', 'Hierbei handelt es sich um die frei veräußerliche und vedrerbliche Befugnis zum Betrieb eines bestimmten Gewerbes, die mit dem Besitz einer Liegenschaft verbunden sein kann aber nicht zwingend an ein bestimmtes Grundstücks gebunden sein muss. Die nähere Bezeichnung des Nutzungsrechts ergibt sich aus dem Attribut Buchungstext.'),
 ('2108', 'Gemeinderecht', 'Gemeinderecht ist das Recht zur Nutzung eines gemeinschftlichen Grundstücks. Die näheren Angaben zu diesem Recht sind in privatrechtlichen Verträgen enthalten.'),
-('2109', 'Stavenrecht', 'Ist ein mit dem Erbbaurecht vergleichbares Recht in  den nordfriesischen Küstenregionen.'),
+('2109', 'Stavenrecht', 'Ist ein mit dem Erbbaurecht vergleichbares Recht in den nordfriesischen Küstenregionen.'),
 ('2110', 'Hauberge', ''),
-('2201', 'Aufgeteiltes Erbbaurecht WEG', 'Diese Buchungsart ist die Zusammenfassung aller Anteile eines Erbbaurechts, die  auf mehreren Grundbuchblättern gebucht sind. Es handelt sich hier um eine Buchungsart für das Fiktive Blatt.'),
-('2202', 'Aufgeteiltes Untererbbaurecht WEG', 'Diese Buchungsart ist die Zusammenfassung aller Anteile eines Untererbbaurechts, die  auf mehreren Grundbuchblättern gebucht sind. Es handelt sich hier um eine Buchungsart für das Fiktive Blatt.'),
+('2201', 'Aufgeteiltes Erbbaurecht WEG', 'Diese Buchungsart ist die Zusammenfassung aller Anteile eines Erbbaurechts, die auf mehreren Grundbuchblättern gebucht sind. Es handelt sich hier um eine Buchungsart für das Fiktive Blatt.'),
+('2202', 'Aufgeteiltes Untererbbaurecht WEG', 'Diese Buchungsart ist die Zusammenfassung aller Anteile eines Untererbbaurechts, die auf mehreren Grundbuchblättern gebucht sind. Es handelt sich hier um eine Buchungsart für das Fiktive Blatt.'),
 ('2203', 'Aufgeteiltes Recht Par. 3 Abs. 4 GBO', 'Diese Buchungsart ist die Zusammenfassung aller dienenden Miteigentumsanteile eines Erbbaurechts. Es handelt sich hier um eine Buchungsart für das Fiktive Blatt.'),
-('2204', 'Aufgeteiltes Recht, Körperschaft', 'Diese Buchungsart ist die Zusammenfassung aller auf den Grundbuchblättern der herrschenden Grundstücke gebuchten Nutzanteile an einer Körperschaft. Es handelt sich hier um eine Buchungsart für das Fiktive Blatt. Eine Körperschaft besteht aus einem Verband von Mitgliedern, deren Mitgliedschaft an landesrechtliche (meistens  altrechtliche ) und persönliche Merkmale gebunden ist; die  Mitglieder haben das Recht zur Nutzung des Grundstücks in einem bestimmten Umfang (z.B. Körperschaftswaldungen).'),
-('2205', 'Aufgeteiltes Gebäudeeigentum', 'Diese Buchungsart ist die Zusammenfassung aller Anteile eines Gebäudeeigentums, die  auf mehreren Grundbuchblättern gebucht sind. Es handelt sich hier um eine  Buchungsart für das Fiktive Blatt.'),
+('2204', 'Aufgeteiltes Recht, Körperschaft', 'Diese Buchungsart ist die Zusammenfassung aller auf den Grundbuchblättern der herrschenden Grundstücke gebuchten Nutzanteile an einer Körperschaft. Es handelt sich hier um eine Buchungsart für das Fiktive Blatt. Eine Körperschaft besteht aus einem Verband von Mitgliedern, deren Mitgliedschaft an landesrechtliche (meistens altrechtliche) und persönliche Merkmale gebunden ist; die Mitglieder haben das Recht zur Nutzung des Grundstücks in einem bestimmten Umfang (z.B. Körperschaftswaldungen).'),
+('2205', 'Aufgeteiltes Gebäudeeigentum', 'Diese Buchungsart ist die Zusammenfassung aller Anteile eines Gebäudeeigentums, die auf mehreren Grundbuchblättern gebucht sind. Es handelt sich hier um eine Buchungsart für das Fiktive Blatt.'),
 ('2301', 'Wohnungs-/Teilerbbaurecht', 'Wohnungs-/Teilerbaurechte können nach Par. 30 WEG unter Anwendung der Par. 3, 8 WEG begründet werden, wobei an die Stelle des Miteigentums am Grundstück die Mitberechtigung nach Bruchteilen an einem Erbbaurecht tritt, mit welchem das Sondereigentum an der Wohnung bzw. den nicht zu Wohnzwecken dienenden Räumen verbunden wird.'),
 ('2302', 'Wohnungs-/Teiluntererbbaurecht', 'Wohnungs-/Teiluntererbbaurecht ist die Aufteilung eines Untererbbaurechts analog Par. 30 WEG.'),
 ('2303', 'Erbbaurechtsanteil Par. 3 Abs. 4 GBO', 'Ein Erbbaurechtsanteil nach Par. 3 Abs. 4 der Grundbuchordnung (GBO) ist ein Miteigentum an einem dienenden Erbbaurecht.'),
-('2304', 'Anteiliges Recht, Körperschaft', 'Eintragung eines Anteils an dem  Recht - Körperschaft nach Par. 9 GBO im Grundbuch des jeweils herrschenden Grundstückes, dabei besteht die Körperschaft aus einem Verband von Mitgliedern, deren Mitgliedschaft  an gebietliche und persönliche Merkmale geknüpft ist  (z. B. Körperschaftswaldungen).'),
+('2304', 'Anteiliges Recht, Körperschaft', 'Eintragung eines Anteils an dem Recht - Körperschaft nach Par. 9 GBO im Grundbuch des jeweils herrschenden Grundstückes, dabei besteht die Körperschaft aus einem Verband von Mitgliedern, deren Mitgliedschaft an gebietliche und persönliche Merkmale geknüpft ist (z. B. Körperschaftswaldungen).'),
 ('2305', 'Anteil am Gebäudeeigentum', 'Ist der Anteil des Nutzungsberechtigten für die Nutzung des auf dem Grundstück stehenden Gebäudes.'),
 ('2401', 'Aufgeteilter Anteil Wohnungs-/Teilerbbaurecht', 'Hierbei wurde der Anteil an einem Wohnungs-/Teilerbbaurecht nochmals unterteilt. Es handelt sich um eine Buchungsart für das Fiktive Blatt.'),
 ('2402', 'Aufgeteilter Anteil Wohnungs-/Teiluntererbbaurecht', 'Hierbei wurde der Anteil an einem Wohnungs-/Teiluntererbbaurecht nochmals unterteilt. Es handelt sich um eine Buchungsart für das Fiktive Blatt.'),
@@ -1252,7 +1252,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 ('2405', 'Aufgeteilter Anteil am Gebäudeeigentum', 'Hierbei wurde der Anteil an einem Gebäudeeigentum nochmals unterteilt. Es handelt sich um eine Buchungsart für das Fiktive Blatt.'),
 ('2501', 'Anteil am Wohnungs-/Teilerbbaurechtsanteil', 'Hier wird der Anteil an dem Wohnungs-/Teilerbbaurechtsanteil im Grundbuch eingetragen.'),
 ('2502', 'Anteil am Wohnungs-/Teiluntererbbaurechtsanteil', 'Hier wird der Anteil an dem Wohnungs-/Teiluntererbbaurechtsanteil im Grundbuch eingetragen.'),
-('2503', 'Anteil am Erbbaurechtsanteil Par. 3 Abs. 4 GBO', 'Hier wird der Anteil an dem Erbbaurechtsanteil  im Grundbuch eingetragen.'),
+('2503', 'Anteil am Erbbaurechtsanteil Par. 3 Abs. 4 GBO', 'Hier wird der Anteil an dem Erbbaurechtsanteil im Grundbuch eingetragen.'),
 ('2504', 'Anteil am anteiligen Recht, Körperschaft', 'Hier wird der Anteil an dem anteiligen Recht Körperschaft im Grundbuch eingetragen.'),
 ('2505', 'Anteil am Anteil zum Gebäudeeigentum', 'Hier wird der Anteil an dem Anteil zum Gebäudeeigentum im Grundbuch eingetragen.'),
 ('3100', 'Vermerk subjektiv dinglicher Rechte (Par. 9 GBO)', 'Der Vermerk ist ein Hinweis auf eine in Abteilung II des Grundbuchs des dienenden Grundstücks eingetragene Belastung. Er selbst ist kein Recht; seine Eintragung sichert lediglich, dass bei einer Aufhebung des Rechts im Grundbuch des dienenden Grundstücks die Bewilligung derer erforderlich ist, die der Rechtsänderung nach Par. 876 S. 2, 877, 888 BGB zustimmen müssen.'),
@@ -1585,7 +1585,7 @@ INSERT INTO ax_gruendederausgesetztenabmarkung_grenzpunkt (wert,beschreibung,dok
 ('5000', 'Grenzpunkt liegt innerhalb oder an einem Gewässer', ''),
 ('6000', 'Keine Abmarkung aufgrund von anderweitigen Hindernissen', ''),
 ('7000', 'Abmarkung würde unzumutbare Schäden verursachen', ''),
-('8000', 'Langfristige gemeinschaftliche Nutzung der angrenzenden  Flurstücke', ''),
+('8000', 'Langfristige gemeinschaftliche Nutzung der angrenzenden Flurstücke', ''),
 ('9000', 'Angrenzende Flurstücke dienen dem Gemeingebrauch', ''),
 ('9999', 'Sonstiges', '');
 CREATE TABLE ax_bemerkungzurabmarkung_grenzpunkt (
@@ -1938,7 +1938,7 @@ INSERT INTO ax_koordinatenstatus_punktort (wert,beschreibung,dokumentation) VALU
 ('2000', 'Weitere gültige Koordinaten bzw. weitere gültige Höhe', 'Nicht in einem amtlichen Bezugssystem'),
 ('3000', 'Vorläufige Koordinaten bzw. vorläufige Höhe', ''),
 ('4000', 'Zu keiner Zeit gültig gewesene Koordinaten bzw. Höhe', ''),
-('5000', 'Historische (nicht mehr gültige)  Koordinaten bzw. Höhe', ''),
+('5000', 'Historische (nicht mehr gültige) Koordinaten bzw. Höhe', ''),
 ('5100', 'Koordinaten bzw. Höhe, die sich als fehlerhaft herausgestellt haben', '');
 CREATE TABLE ax_datenerhebung_schwere (
   wert integer,
@@ -2090,13 +2090,13 @@ INSERT INTO ax_datenerhebung_punktort (wert,beschreibung,dokumentation) VALUES
 ('4230', 'Aus Katasterkarten digitalisiert, Kartenmaßstab 1 zu 2000 größer M größer gleich 1 zu 3000', ''),
 ('4240', 'Aus Katasterkarten digitalisiert, Kartenmaßstab 1 zu 3000 größer M größer gleich 1 zu 5000', ''),
 ('4250', 'Aus Katasterkarten digitalisiert, Kartenmaßstab 1 zu 5000 größer M', ''),
-('4260', 'Mit  sonstigen geometrischen Bedingungen und/oder Homogenisierung (M größer gleich 1 zu 1000)', ''),
-('4270', 'Mit Berechnung  oder Abstandsbedingung (M größer gleich 1 zu 1000)', ''),
-('4280', 'Mit sonstigen geometrischen  Bedingungen und/oder Homogenisierung (M kleiner 1 zu 1000)', ''),
-('4290', 'Mit  Berechnung oder Abstandsbedingungen (M kleiner 1 zu 1000)', ''),
+('4260', 'Mit sonstigen geometrischen Bedingungen und/oder Homogenisierung (M größer gleich 1 zu 1000)', ''),
+('4270', 'Mit Berechnung oder Abstandsbedingung (M größer gleich 1 zu 1000)', ''),
+('4280', 'Mit sonstigen geometrischen Bedingungen und/oder Homogenisierung (M kleiner 1 zu 1000)', ''),
+('4290', 'Mit Berechnung oder Abstandsbedingungen (M kleiner 1 zu 1000)', ''),
 ('4300', 'Aus sonstigen Unterlagen digitalisiert', ''),
 ('4310', 'Aus sonstigen Unterlagen digitalisiert, Kartenmaßstab M größer gleich 1 zu 1000', ''),
-('4320', 'Aus  sonstigen Unterlagen digitalisiert, Kartenmaßstab 1 zu 1000 größer M größer gleich 1 zu 2000', ''),
+('4320', 'Aus sonstigen Unterlagen digitalisiert, Kartenmaßstab 1 zu 1000 größer M größer gleich 1 zu 2000', ''),
 ('4330', 'Aus sonstigen Unterlagen digitalisiert, Kartenmaßstab 1 zu 2000 größer M größer gleich 1 zu 3000', ''),
 ('4340', 'Aus sonstigen Unterlagen digitalisiert, Kartenmaßstab 1 zu 3000 größer M größer gleich 1 zu 5000', ''),
 ('4350', 'Aus sonstigen Unterlagen digitalisiert, Kartenmaßstab 1 zu 5000 größer M', ''),
@@ -2110,15 +2110,15 @@ INSERT INTO ax_datenerhebung_punktort (wert,beschreibung,dokumentation) VALUES
 ('5030', 'Aus trigonometrischer Präzisionshöhenübertragung', ''),
 ('5100', 'Aus Präzisionsnivellement', ''),
 ('5110', 'Aus Höhenangaben nivellitisch bestimmt, Messgenauigkeit 1.Ordnung', ''),
-('5120', 'Aus  Höhenangaben nivellitisch bestimmt, Messgenauigkeit 2.Ordnung', ''),
-('5130', 'Aus Höhenangaben  nivellitisch bestimmt, Messgenauigkeit 3.Ordnung', ''),
+('5120', 'Aus Höhenangaben nivellitisch bestimmt, Messgenauigkeit 2.Ordnung', ''),
+('5130', 'Aus Höhenangaben nivellitisch bestimmt, Messgenauigkeit 3.Ordnung', ''),
 ('5140', 'Aus Höhenangaben nivellitisch bestimmt, Messgenauigkeit 4.Ordnung', ''),
-('5150', 'Aus geometrischem Präzisionsnivellement, Messgenauigkeit  1. Ordnung', ''),
-('5160', 'Aus geometrischem Präzisionsnivellement, Messgenauigkeit  2. Ordnung', ''),
-('5170', 'Aus geometrischem Präzisionsnivellement, Messgenauigkeit  3. Ordnung', ''),
+('5150', 'Aus geometrischem Präzisionsnivellement, Messgenauigkeit 1. Ordnung', ''),
+('5160', 'Aus geometrischem Präzisionsnivellement, Messgenauigkeit 2. Ordnung', ''),
+('5170', 'Aus geometrischem Präzisionsnivellement, Messgenauigkeit 3. Ordnung', ''),
 ('5200', 'Aus Präzisionsnivellement (nur eine Messungsrichtung)', ''),
 ('5500', 'Höhe aus Laserscannermessung', ''),
-('6000', 'Aus satellitengeodätischer Messung  und Addition einer Undulation', ''),
+('6000', 'Aus satellitengeodätischer Messung und Addition einer Undulation', ''),
 ('6100', 'Mittels Quasigeoidundulation abgeleitet von gemessener ellipsoidischer Höhe', ''),
 ('6200', 'Mittels Quasigeoidundulation abgeleitet von gemessener Normalhöhe', ''),
 ('7000', 'Aus trigonometrischer Messung', ''),
@@ -2490,7 +2490,7 @@ INSERT INTO ax_gebaeudefunktion (wert,beschreibung,dokumentation) VALUES
 ('3013', 'Post', 'Post ist ein Gebäude, in dem die Post Dienstleistungen anbietet.'),
 ('3014', 'Zollamt', 'Zollamt ist ein Gebäude für die Zollabfertigung an der Staatsgrenze (Grenzzollamt) oder im Inland (Binnenzollamt).'),
 ('3015', 'Gericht', 'Gericht ist ein Gebäude, in dem Rechtsprechung und Rechtspflege stattfinden.'),
-('3016', 'Botschaft, Konsulat', 'Botschaft, Konsulat ist ein Gebäude, in dem eine ständige diplomatische Vertretung ersten Rangs eines fremden Staates oder einer  internationalen Organisation untergebracht ist.'),
+('3016', 'Botschaft, Konsulat', 'Botschaft, Konsulat ist ein Gebäude, in dem eine ständige diplomatische Vertretung ersten Rangs eines fremden Staates oder einer internationalen Organisation untergebracht ist.'),
 ('3017', 'Kreisverwaltung', ''),
 ('3018', 'Bezirksregierung', ''),
 ('3019', 'Finanzamt', ''),
@@ -2658,7 +2658,7 @@ INSERT INTO ax_bauart_bauteil (wert,beschreibung,dokumentation) VALUES
 ('2520', 'Zurückspringende Geschosse', ''),
 ('2610', 'Durchfahrt im Gebäude', ''),
 ('2620', 'Durchfahrt an überbauter Verkehrsstraße', 'Durchfahrt an überbauter Verkehrsstraße ist eine Stelle, an der mit Fahrzeugen durch Gebäude gefahren werden kann.'),
-('2710', 'Schornstein im Gebäude', 'Schornstein im Gebäude ist ein über das Dach  hinausragender Abzugskanal für die Rauchgase einer  Feuerungsanlage oder für andere Abgase.'),
+('2710', 'Schornstein im Gebäude', 'Schornstein im Gebäude ist ein über das Dach hinausragender Abzugskanal für die Rauchgase einer Feuerungsanlage oder für andere Abgase.'),
 ('2720', 'Turm im Gebäude', 'Turm im Gebäude ist ein hochaufragendes Bauwerk innerhalb eines Gebäudes.'),
 ('9999', 'Sonstiges', '');
 CREATE TABLE ax_nutzung (
@@ -3076,9 +3076,9 @@ INSERT INTO ax_bodenart_bodenschaetzung (wert,beschreibung,dokumentation) VALUES
 ('9130', 'Lehmiger Sand mit starkem Steingehalt (lSg)', ''),
 ('9140', 'Lehm mit starkem Steingehalt (Lg)', ''),
 ('9150', 'lehmiger Sand mit Steinen und Blöcken (lS+St)', ''),
-('9160', 'Lehm mit Steinen und Blöcken L+St)', ''),
-('9170', 'Steine und Blöcke mit  lehmigem Sand (St+lS)', ''),
-('9180', 'Steine und Blöcke mit  Lehm (St+L)', ''),
+('9160', 'Lehm mit Steinen und Blöcken (L+St)', ''),
+('9170', 'Steine und Blöcke mit lehmigem Sand (St+lS)', ''),
+('9180', 'Steine und Blöcke mit Lehm (St+L)', ''),
 ('9190', 'lehmiger Sand mit Felsen (lS+Fe)', ''),
 ('9200', 'Lehm mit Felsen (L+Fe)', ''),
 ('9210', 'Felsen mit lehmigem Sand (Fe+lS)', ''),
@@ -3212,7 +3212,7 @@ INSERT INTO ax_behoerde (wert,beschreibung,dokumentation) VALUES
 ('1900', 'Kreis- oder Stadtverwaltung', ''),
 ('2000', 'Wasser- und Bodenverband', ''),
 ('2100', 'Umlegungsstelle', ''),
-('2200', 'Landesvermessungsverwaltung', 'Landesvermessungsverwaltung ist eine Fachstelle, die für die Aufgaben des amtlichen  Vermessungswesens, insbesondere für die Landesvermessung und des Liegenschaftskatasters in einem Bundesland zuständig ist.'),
+('2200', 'Landesvermessungsverwaltung', 'Landesvermessungsverwaltung ist eine Fachstelle, die für die Aufgaben des amtlichen Vermessungswesens, insbesondere für die Landesvermessung und des Liegenschaftskatasters in einem Bundesland zuständig ist.'),
 ('2300', 'ÖbVI', ''),
 ('2400', 'Bundeseisenbahnvermögen', ''),
 ('2500', 'Landwirtschaftskammer', '');
@@ -3420,7 +3420,7 @@ INSERT INTO ax_artderfestlegung_denkmalschutzrecht (wert,beschreibung,dokumentat
 ('2712', 'Kunstdenkmal', ''),
 ('2713', 'Gartendenkmal', ''),
 ('2800', 'Archäologisches Denkmal (auch Bodendenkmal) nach Landesdenkmalschutzgesetz', ''),
-('2810', 'Archäologisches Denkmal', 'Archäologisches Denkmal ist ein Ort, an dem Reste vor-  oder frühgeschichtlicher Kulturen oder früheren menschlichen Wirkens entdeckt wurden.'),
+('2810', 'Archäologisches Denkmal', 'Archäologisches Denkmal ist ein Ort, an dem Reste vor- oder frühgeschichtlicher Kulturen oder früheren menschlichen Wirkens entdeckt wurden.'),
 ('2820', 'Bodendenkmal', 'Bodendenkmal ist eine mit dem Boden verbundene oder im Boden verborgene Sache, die von Menschen geschaffen oder bearbeitet wurde oder Aufschluss über menschliches Leben in vergangenen Zeiten gibt und deshalb erhaltenswert ist.'),
 ('2900', 'Schutzgebiet oder -bereiche nach Landesdenkmalschutzgesetz', ''),
 ('2910', 'Denkmalzone oder -bereich', ''),
@@ -4068,7 +4068,7 @@ COMMENT ON TABLE ax_zustand_hoehleneingang IS 'Alias: "AX_Zustand_Hoehleneingang
 INSERT INTO ax_zustand_hoehleneingang (wert,beschreibung,dokumentation) VALUES
 ('2200', 'Verfallen, zerstört', 'Verfallen, zerstört bedeutet, dass sich der ursprüngliche Zustand von Höhleneingang durch menschliche oder zeitliche Einwirkungen so verändert hat, dass eine Nutzung nicht mehr möglich ist.'),
 ('4100', 'Offen', 'Offen bedeutet, dass Höhleneingang allgemein zugänglich ist.'),
-('4200', 'Verschlossen', 'Verschlossen bedeutet, dass  Höhleneingang nicht allgemein zugänglich ist.');
+('4200', 'Verschlossen', 'Verschlossen bedeutet, dass Höhleneingang nicht allgemein zugänglich ist.');
 CREATE TABLE ax_berechnungsmethode (
   wert integer,
   beschreibung character varying,
@@ -4280,7 +4280,7 @@ CREATE TABLE ax_widmung_stehendesgewaesser (
 
 COMMENT ON TABLE ax_widmung_stehendesgewaesser IS 'Alias: "AX_Widmung_StehendesGewaesser", UML-Typ: Enumeration';
 INSERT INTO ax_widmung_stehendesgewaesser (wert,beschreibung,dokumentation) VALUES
-('1310', 'Gewässer I. Ordnung - Bundeswasserstraße', 'Gewässer I. Ordnung - Bundeswasserstraße ist ein Gewässer, das der Zuständigkeit  des Bundes obliegt.'),
+('1310', 'Gewässer I. Ordnung - Bundeswasserstraße', 'Gewässer I. Ordnung - Bundeswasserstraße ist ein Gewässer, das der Zuständigkeit des Bundes obliegt.'),
 ('1320', 'Gewässer I. Ordnung - nach Landesrecht', 'Gewässer I. Ordnung - nach Landesrecht ist ein Gewässer, das der Zuständigkeit des Landes obliegt.'),
 ('1330', 'Gewässer II. Ordnung', 'Gewässer II. Ordnung ist ein Gewässer, für das die Unterhaltungsverbände zuständig sind.'),
 ('1340', 'Gewässer III. Ordnung', 'Gewässer III. Ordnung ist ein Gewässer, das weder zu den Gewässern I. noch II. Ordnung zählt.');
@@ -4313,7 +4313,7 @@ CREATE TABLE ax_widmung_kanal (
 
 COMMENT ON TABLE ax_widmung_kanal IS 'Alias: "AX_Widmung_Kanal", UML-Typ: Enumeration';
 INSERT INTO ax_widmung_kanal (wert,beschreibung,dokumentation) VALUES
-('1310', 'Gewässer I. Ordnung - Bundeswasserstraße', 'Gewässer I. Ordnung -Bundeswasserstraße ist ein Gewässer, das der Zuständigkeit  des Bundes obliegt.'),
+('1310', 'Gewässer I. Ordnung - Bundeswasserstraße', 'Gewässer I. Ordnung -Bundeswasserstraße ist ein Gewässer, das der Zuständigkeit des Bundes obliegt.'),
 ('1320', 'Gewässer I. Ordnung - nach Landesrecht', 'Gewässer I. Ordnung - nach Landesrecht ist ein Gewässer, das der Zuständigkeit des Landes obliegt.'),
 ('1330', 'Gewässer II. Ordnung', 'Gewässer II. Ordnung ist ein Gewässer, für das die Unterhaltungsverbände zuständig sind.'),
 ('1340', 'Gewässer III. Ordnung', 'Gewässer III. Ordnung ist ein Gewässer, das weder zu den Gewässern I. noch II. Ordnung zählt.');
@@ -4725,7 +4725,7 @@ Präsentation von Warenmustern.'),
 ('1470', 'Restauration', ''),
 ('1480', 'Vergnügung', ''),
 ('1490', 'Gärtnerei', 'Gärtnerei bezeichnet eine Fläche mit Gebäuden, Gewächshäusern und sonstigen Einrichtungen, zur Aufzucht von Blumen und Gemüsepflanzen.'),
-('1700', 'Industrie und Gewerbe', 'Industrie und Gewerbe bezeichnet Flächen, auf denen vorwiegend Industrie- und Gewerbebetriebe vorhanden sind.  Darin sind Gebäude- und Freiflächen und die Betriebsläche Lagerplatz enthalten.'),
+('1700', 'Industrie und Gewerbe', 'Industrie und Gewerbe bezeichnet Flächen, auf denen vorwiegend Industrie- und Gewerbebetriebe vorhanden sind. Darin sind Gebäude- und Freiflächen und die Betriebsläche Lagerplatz enthalten.'),
 ('1701', 'Gebäude- und Freifläche Industrie und Gewerbe', 'Darin sind die Gebäude- und Freiflächen der folgenden Differenzierung enthalten ohne die Betriebsfläche Lagerplatz.'),
 ('1710', 'Produktion', ''),
 ('1720', 'Handwerk', ''),
@@ -4770,7 +4770,7 @@ Präsentation von Warenmustern.'),
 ('2622', 'Betriebsfläche Entsorgungsanlage, Abfallbeseitigung', 'Betriebsfläche Entsorgungsanlage, Abfallbeseitigung ist Teil von Abfallbehandlungsanlage. Abfallbehandlungsanlage bezeichnet eine Fläche mit Bauwerken und sonstigen Einrichtungen, auf der Abfälle mit chemisch/physikalischen und biologischen oder thermischen Verfahren oder Kombinationen dieser Verfahren behan-delt werden.'),
 ('2623', 'Betriebsfläche Entsorgungsanlage, Schlamm', 'Betriebsfläche Entsorgungsanlage, Schlamm ist Teil von Abfallbehandlungsanlage. Abfallbehandlungsanlage bezeichnet eine Fläche mit Bauwerken und sonstigen Einrichtungen, auf der Abfälle mit chemisch/physikalischen und biologischen oder thermischen Verfahren oder Kombinationen dieser Verfahren behandelt wer-den.'),
 ('2630', 'Deponie (oberirdisch)', 'Deponie (oberirdisch) bezeichnet eine Fläche, auf der oberirdisch Abfallstoffe gelagert werden.'),
-('2640', 'Deponie (untertägig)', 'Deponie (untertägig) bezeichnet eine oberirdische Betriebsfläche, unter der  Abfallstoffe eingelagert werden (Untertagedeponie).');
+('2640', 'Deponie (untertägig)', 'Deponie (untertägig) bezeichnet eine oberirdische Betriebsfläche, unter der Abfallstoffe eingelagert werden (Untertagedeponie).');
 CREATE TABLE ax_zustand_tagebaugrubesteinbruch (
   wert integer,
   beschreibung character varying,
@@ -4792,7 +4792,7 @@ CREATE TABLE ax_artderbebauung_siedlungsflaeche (
 COMMENT ON TABLE ax_artderbebauung_siedlungsflaeche IS 'Alias: "AX_ArtDerBebauung_Siedlungsflaeche", UML-Typ: Enumeration';
 INSERT INTO ax_artderbebauung_siedlungsflaeche (wert,beschreibung,dokumentation) VALUES
 ('1000', 'Offen', 'Offen beschreibt die Bebauung von Fläche gemischter Nutzung, die vorwiegend durch einzelstehende Gebäude charakterisiert wird.'),
-('2000', 'Geschlossen', 'Geschlossen beschreibt die Bebauung von Siedlungsfläche, die vorwiegend durch zusammenhängende Gebäude charakterisiert wird. Die Gebäudeabdeckung ist in der Regel  > 50 Prozent der Fläche.');
+('2000', 'Geschlossen', 'Geschlossen beschreibt die Bebauung von Siedlungsfläche, die vorwiegend durch zusammenhängende Gebäude charakterisiert wird. Die Gebäudeabdeckung ist in der Regel > 50 Prozent der Fläche.');
 CREATE TABLE ax_artderbebauung_flaechebesondererfunktionalerpraegung (
   wert integer,
   beschreibung character varying,
@@ -4911,7 +4911,7 @@ INSERT INTO ax_bahnkategorie (wert,beschreibung,dokumentation) VALUES
 ('1302', 'Standseilbahn', 'Standseilbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine Schienenbahn auf einer stark geneigten, meist kurzen und geraden Strecke verläuft. Mit Hilfe eines oder mehrerer Zugseile wird ein Schienenfahrzeug bergauf gezogen und gleichzeitig ein zweites bergab gelassen.'),
 ('1400', 'Museumsbahn', 'Museumsbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem ausschließlich Touristen in alten, meist restaurierten Zügen befördert werden.'),
 ('1500', 'Bahn im Freizeitpark', 'Bahn im Freizeitpark ist die Bezeichnung für einen schienengebundenen Verkehrsweg innerhalb eines Freizeitparks.'),
-('1600', 'Magnetschwebebahn', 'Magnetschwebebahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem  räderlose Schienenfahrzeuge mit Hilfe von Magnetfeldern an oder auf einer Fahrschiene schwebend entlanggeführt werden.');
+('1600', 'Magnetschwebebahn', 'Magnetschwebebahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem räderlose Schienenfahrzeuge mit Hilfe von Magnetfeldern an oder auf einer Fahrschiene schwebend entlanggeführt werden.');
 CREATE TABLE ax_funktion_weg (
   wert integer,
   beschreibung character varying,
@@ -5047,7 +5047,7 @@ CREATE TABLE ax_art_flugverkehr (
 
 COMMENT ON TABLE ax_art_flugverkehr IS 'Alias: "AX_Art_Flugverkehr", UML-Typ: Enumeration';
 INSERT INTO ax_art_flugverkehr (wert,beschreibung,dokumentation) VALUES
-('5510', 'Flughafen', 'Flughafen ist eine Anlage mit Gebäuden, Bauwerken, Start- und Landebahnen sowie sonstigen  flugtechnischen Einrichtungen zur Abwicklung des Flugverkehrs.'),
+('5510', 'Flughafen', 'Flughafen ist eine Anlage mit Gebäuden, Bauwerken, Start- und Landebahnen sowie sonstigen flugtechnischen Einrichtungen zur Abwicklung des Flugverkehrs.'),
 ('5511', 'Internationaler Flughafen', 'Internationaler Flughafen ist ein Flughafen, der in der Luftfahrtkarte 1 : 500000 (ICAO) als solcher ausgewiesen ist.'),
 ('5512', 'Regionalflughafen', 'Regionalflughafen ist ein Flughafen der gemäß Raumordnungsgesetz als Regionalflughafen eingestuft ist.'),
 ('5520', 'Verkehrslandeplatz', 'Verkehrslandeplatz ist ein Flugplatz, der in der Luftfahrtkarte 1:500000 (ICAO) als solcher ausgewiesen ist.'),
@@ -5129,7 +5129,7 @@ CREATE TABLE ax_funktion_wegachse (
 COMMENT ON TABLE ax_funktion_wegachse IS 'Alias: "AX_Funktion_Wegachse", UML-Typ: Enumeration';
 INSERT INTO ax_funktion_wegachse (wert,beschreibung,dokumentation) VALUES
 ('5211', 'Hauptwirtschaftsweg', 'Hauptwirtschaftsweg ist ein Weg mit fester Fahrbahndecke zur Erschließung eines oder mehrerer Grundstücke, der für den Kraftverkehr zu jeder Jahreszeit befahrbar ist.'),
-('5212', 'Wirtschaftsweg', 'Wirtschaftsweg ist ein leicht- oder unbefestigter Weg zur Erschließung  land- und forstwirtschaftlicher Flächen.');
+('5212', 'Wirtschaftsweg', 'Wirtschaftsweg ist ein leicht- oder unbefestigter Weg zur Erschließung land- und forstwirtschaftlicher Flächen.');
 CREATE TABLE ax_zustand_strasse (
   wert integer,
   beschreibung character varying,
