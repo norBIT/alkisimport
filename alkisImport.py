@@ -1068,7 +1068,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     elif self.epsg == 31466 or self.epsg == 31467 or self.epsg == 31468:
                         args.extend([
                             "-s_srs", "+init=custom:1{}".format(self.epsg),
-                            "-t_srs", "EPSG:{}".format(self.epsg)
+                            "-t_srs", "+init=custom:{}".format(self.epsg)
                         ])
                         os.putenv("PROJ_LIB", ".")
 
