@@ -276,7 +276,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         s = QSettings("norBIT", "norGIS-ALKIS-Import")
         lastDir = s.value("lastDir", ".")
 
-        files, _ = QFileDialog.getOpenFileNames(self, "NAS-Dateien wählen", lastDir, "NAS-Dateien (*.xml *.xml.gz *.zip)")
+        files = QFileDialog.getOpenFileNames(self, "NAS-Dateien wählen", lastDir, "NAS-Dateien (*.xml *.xml.gz *.zip)")
         if files is None:
             return
 
@@ -337,7 +337,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         f.close()
 
     def loadList(self):
-        fn, _ = QFileDialog.getOpenFileName(self, "Liste wählen", ".", "Dateilisten (*.lst)")
+        fn = QFileDialog.getOpenFileName(self, "Liste wählen", ".", "Dateilisten (*.lst)")
+        if isinstance(fn, tuple):
+            fn = fn[0]
         if fn is None or fn == "":
             return
 
@@ -420,7 +422,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         QApplication.restoreOverrideCursor()
 
     def saveLog(self):
-        save, _ = QFileDialog.getSaveFileName(self, "Protokolldatei angeben", ".", "Protokoll-Dateien (*.log)")
+        save = QFileDialog.getSaveFileName(self, "Protokolldatei angeben", ".", "Protokoll-Dateien (*.log)")
+        if isinstance(save, tuple):
+            save = save[0]
         if save is None:
             return
 
