@@ -41,7 +41,7 @@ FROM (
 			gml_id,
 			einzug,
 			abstand,
-			(st_dump(st_multi(st_collectionextract(line, 2)))).geom AS line,
+			(st_dump(st_multi(line))).geom AS line,
 			signaturnummer,
 			modell
 		FROM (

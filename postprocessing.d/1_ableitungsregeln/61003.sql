@@ -26,10 +26,11 @@ FROM (
 	SELECT
 		gml_id,
 		art,
-		(st_dump(st_multi(st_collectionextract(wkb_geometry, 2)))).geom AS line,
+		(st_dump(st_multi(wkb_geometry))).geom AS line,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_dammwalldeich
-	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
+	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+	  AND endet IS NULL
 ) AS o;
 
 -- Punkte, Wall
@@ -58,10 +59,12 @@ FROM (
 		SELECT
 			gml_id,
 			art,
-			(st_dump(st_multi(st_collectionextract(wkb_geometry, 2)))).geom AS line,
+			(st_dump(st_multi(wkb_geometry))).geom AS line,
 			advstandardmodell||sonstigesmodell AS modell
 		FROM ax_dammwalldeich o
-		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art IN ('1910','1920','1930','1940','1950','1960','1970','1980','1990','1991','1992','2010','2011','2012','2013')
+		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+		  AND endet IS NULL
+		  AND art IN ('1910','1920','1930','1940','1950','1960','1970','1980','1990','1991','1992','2010','2011','2012','2013')
 	) AS o
 ) AS o;
 
@@ -89,7 +92,7 @@ FROM (
 		SELECT
 			gml_id,
 			art,
-			(st_dump(st_multi(st_collectionextract(wkb_geometry, 2)))).geom AS line,
+			(st_dump(st_multi(wkb_geometry))).geom AS line,
 			advstandardmodell||sonstigesmodell AS modell
 		FROM ax_dammwalldeich o
 		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art IN ('2000','2001','2002','2003')
@@ -120,7 +123,7 @@ FROM (
 		SELECT
 			gml_id,
 			art,
-			(st_dump(st_multi(st_collectionextract(wkb_geometry, 2)))).geom AS line,
+			(st_dump(st_multi(wkb_geometry))).geom AS line,
 			advstandardmodell||sonstigesmodell AS modell
 		FROM ax_dammwalldeich o
 		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art IN ('2000','2001','2002','2003')

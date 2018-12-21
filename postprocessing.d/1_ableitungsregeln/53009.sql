@@ -19,14 +19,24 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
-		alkis_bufferline(wkb_geometry,0.5) AS polygon,
+		alkis_bufferline(line,0.5) AS polygon,
 		CASE
 		WHEN bauwerksfunktion=2136 THEN 2510
 		WHEN bauwerksfunktion=2060 THEN 2526
 		END AS signaturnummer,
-		advstandardmodell||sonstigesmodell AS modell
-	FROM ax_bauwerkimgewaesserbereich o
-	WHERE geometrytype(o.wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
+		modell
+	FROM (
+		SELECT
+			gml_id,
+			(st_dump(st_multi(wkb_geometry))).geom AS line,
+			bauwerksfunktion,
+			signaturnummer,
+			advstandardmodell||sonstigesmodell AS modell
+		FROM
+			ax_bauwerkimgewaesserbereich
+		WHERE geometrytype(o.wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+		  AND endet IS NULL
+	) AS o
 ) AS o WHERE NOT signaturnummer IS NULL;
 
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)

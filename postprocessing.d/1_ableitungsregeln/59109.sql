@@ -45,23 +45,35 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
-		o.wkb_geometry AS line,
-		generate_series(1000, trunc(st_length(wkb_geometry)*1000.0)::int, 2000) / 1000.0 / st_length(wkb_geometry) AS offset,
+		line,
+		generate_series(1000, trunc(st_length(line)*1000.0)::int, 2000) / 1000.0 / st_length(line) AS offset,
 		0.5*pi() AS winkel,
 		'KS_1026' AS  signaturnummer,
-		advstandardmodell||sonstigesmodell AS modell
-	FROM ks_sonstigesbauwerk o
-	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND bauwerksfunktion='3000'
+		modell
+	FROM (
+		SELECT
+			gml_id,
+			(st_dump(st_multi(wkb_geometry))).geom AS line,
+			advstandardmodell||sonstigesmodell AS modell
+		FROM ks_sonstigesbauwerk
+		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND bauwerksfunktion='3000'
+	) AS o
 	UNION
 	SELECT
 		o.gml_id,
-		o.wkb_geometry AS line,
-		generate_series(2000, trunc(st_length(wkb_geometry)*1000.0)::int, 2000) / 1000.0 / st_length(wkb_geometry) AS offset,
+		line,
+		generate_series(2000, trunc(st_length(line)*1000.0)::int, 2000) / 1000.0 / st_length(line) AS offset,
 		1.5*pi() AS winkel,
 		'KS_1026' AS  signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
-	FROM ks_sonstigesbauwerk o
-	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND bauwerksfunktion='3000'
+	FROM (
+		SELECT
+			gml_id,
+			(st_dump(st_multi(wkb_geometry))).geom AS line,
+			advstandardmodell||sonstigesmodell AS modell
+		FROM ks_sonstigesbauwerk
+		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND bauwerksfunktion='3000'
+	) AS o
 ) AS o WHERE NOT signaturnummer IS NULL;
 
 -- Flächen

@@ -53,12 +53,18 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
-		o.wkb_geometry AS line,
-		generate_series(125,trunc(st_length(wkb_geometry)*1000.0-125)::int,250) / 1000.0 / st_length(wkb_geometry) AS offset,
+		o.line AS line,
+		generate_series(125,trunc(st_length(o.line)*1000.0-125)::int,250) / 1000.0 / st_length(o.line) AS offset,
 		'KS_1003' AS signaturnummer,
-		advstandardmodell||sonstigesmodell AS modell
-	FROM ks_einrichtunginoeffentlichenbereichen o
-	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art='1300'
+		modell
+	FROM (
+		SELECT
+			gml_id
+			(st_dump(st_multi(wkb_geometry))).geom AS line,
+			advstandardmodell||sonstigesmodell AS modell
+		FROM ks_einrichtunginoeffentlichenbereichen
+		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art='1300'
+	) AS o
 ) AS o WHERE NOT signaturnummer IS NULL;
 
 

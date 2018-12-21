@@ -56,7 +56,7 @@ FROM (
 			bewuchs,
 			einzug,
 			abstand,
-			(st_dump(st_multi(st_collectionextract(line, 2)))).geom AS line,
+			(st_dump(st_multi(line))).geom AS line,
 			signaturnummer,
 			modell
 		FROM (
@@ -107,10 +107,18 @@ FROM (
 					WHEN bewuchs=1700 THEN ARRAY[3607]
 					END
 				) AS signaturnummer,
-				advstandardmodell||sonstigesmodell AS modell
-			FROM ax_vegetationsmerkmal o
-			WHERE o.endet IS NULL
-			AND geometrytype(o.wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+				modell
+			FROM (
+				SELECT
+					gml_id,
+					(st_dump(st_multi(wkb_geometry))).geom AS line,
+					signaturnummer,
+					bewuchs,
+					advstandardmodell||sonstigesmodell AS modell
+				FROM ax_vegetationsmerkmal
+				WHERE o.endet IS NULL
+				  AND geometrytype(o.wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+			) AS o
 		) AS a
 	) AS a
 ) AS a

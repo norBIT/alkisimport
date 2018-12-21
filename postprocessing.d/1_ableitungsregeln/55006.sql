@@ -46,23 +46,31 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
-		o.wkb_geometry AS line,
-		generate_series(0,trunc(st_length(wkb_geometry)*1000.0)::int,
+		line,
+		generate_series(0,trunc(st_length(line)*1000.0)::int,
 			CASE
 			WHEN bahnkategorie && ARRAY[1201,1300,1302]      THEN 16000
 			WHEN 1301 = ANY(bahnkategorie)                   THEN 8000
 			WHEN 1600 = ANY(bahnkategorie)                   THEN 20000
 			END
-		) / 1000.0 / st_length(wkb_geometry) AS offset,
+		) / 1000.0 / st_length(line) AS offset,
 		CASE
 		WHEN 1201 = ANY(bahnkategorie)         THEN 3646
 		WHEN bahnkategorie && ARRAY[1300,1301] THEN 3647
 		WHEN 1302 = ANY(bahnkategorie)         THEN 3648
 		WHEN 1600 = ANY(bahnkategorie)         THEN 3649
 		END AS signaturnummer,
-		advstandardmodell||sonstigesmodell AS modell
-	FROM ax_gleis o
-	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
+		modell
+	FROM (
+		SELECT
+			gml_id,
+			(st_dump(st_multi(wkb_geometry))).geom AS line,
+			bahnkategorie,
+			advstandardmodell||sonstigesmodell AS modell
+		FROM ax_gleis
+		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+		  AND endet IS NULL
+	) AS o
 ) AS o WHERE NOT signaturnummer IS NULL;
 
 -- Gleis, Linien

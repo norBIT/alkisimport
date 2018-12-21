@@ -30,23 +30,30 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
-		(st_dump(st_multi(st_collectionextract(wkb_geometry, 2)))).geom AS line,
-		generate_series( 0, trunc(st_length(wkb_geometry)*1000.0)::int,
+		line,
+		generate_series( 0, trunc(st_length(line)*1000.0)::int,
 			CASE
 			WHEN bahnkategorie IN (2100,2200,2300,2400,2600) THEN 16000
 			WHEN bahnkategorie=2500                          THEN 20000
 			END
-		) / 1000.0 / st_length(wkb_geometry) AS offset,
+		) / 1000.0 / st_length(line) AS offset,
 		CASE
 		WHEN bahnkategorie IN (2100,2200) THEN 3642
 		WHEN bahnkategorie IN (2300,2400) THEN 3643
 		WHEN bahnkategorie=2500           THEN 3644
 		WHEN bahnkategorie=2600           THEN 3645
 		END AS signaturnummer,
-		o.advstandardmodell||o.sonstigesmodell AS modell
-	FROM ax_seilbahnschwebebahn o
-	WHERE o.endet IS NULL
-	  AND geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+		modell
+	FROM (
+		SELECT
+			gml_id,
+			(st_dump(st_multi(wkb_geometry))).geom AS line,
+			bahnkategorie,
+			advstandardmodell||sonstigesmodell AS modell
+		FROM ax_seilbahnschwebebahn o
+		WHERE endet IS NULL
+		  AND geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+	) AS o
 ) AS o WHERE NOT signaturnummer IS NULL;
 
 -- Namen

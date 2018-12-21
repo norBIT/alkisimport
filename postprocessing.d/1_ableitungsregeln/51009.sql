@@ -53,7 +53,9 @@ FROM (
 		) AS polygon,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_sonstigesbauwerkodersonstigeeinrichtung o
-	WHERE bauwerksfunktion IN (1701,1702,1703,1721,1722,1723) AND geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
+	WHERE bauwerksfunktion IN (1701,1702,1703,1721,1722,1723)
+	  AND geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+	  AND endet IS NULL
 ) AS o;
 
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
@@ -111,15 +113,21 @@ FROM (
 	FROM (
 		SELECT
 			o.gml_id,
-			wkb_geometry AS line,
-			st_length(wkb_geometry) AS len,
-			generate_series(1,trunc(st_length(wkb_geometry))::int) AS offset,
-			advstandardmodell||sonstigesmodell AS modell
-		FROM ax_sonstigesbauwerkodersonstigeeinrichtung o
-		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
-		  AND endet IS NULL
-		  AND bauwerksfunktion=1740
-        ) AS o
+			line,
+			st_length(line) AS len,
+			generate_series(1,trunc(st_length(line))::int) AS offset,
+			modell
+		FROM (
+			SELECT
+				gml_id,
+			        (st_dump(st_multi(wkb_geometry))).geom AS line,
+			        advstandardmodell||sonstigesmodell AS modell
+			FROM ax_sonstigesbauwerkodersonstigeeinrichtung
+			WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+			  AND endet IS NULL
+			  AND bauwerksfunktion=1740
+		) AS o
+	) AS o
 ) AS o
 GROUP BY gml_id,modell;
 
