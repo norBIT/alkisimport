@@ -59,7 +59,7 @@ FROM (
 		modell
 	FROM (
 		SELECT
-			gml_id
+			gml_id,
 			(st_dump(st_multi(wkb_geometry))).geom AS line,
 			advstandardmodell||sonstigesmodell AS modell
 		FROM ks_einrichtunginoeffentlichenbereichen

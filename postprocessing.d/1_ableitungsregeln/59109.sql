@@ -65,7 +65,7 @@ FROM (
 		generate_series(2000, trunc(st_length(line)*1000.0)::int, 2000) / 1000.0 / st_length(line) AS offset,
 		1.5*pi() AS winkel,
 		'KS_1026' AS  signaturnummer,
-		advstandardmodell||sonstigesmodell AS modell
+		modell
 	FROM (
 		SELECT
 			gml_id,

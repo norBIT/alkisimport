@@ -111,11 +111,10 @@ FROM (
 			FROM (
 				SELECT
 					gml_id,
-					(st_dump(st_multi(wkb_geometry))).geom AS line,
-					signaturnummer,
+					(st_dump(st_multi(wkb_geometry))).geom AS wkb_geometry,
 					bewuchs,
 					advstandardmodell||sonstigesmodell AS modell
-				FROM ax_vegetationsmerkmal
+				FROM ax_vegetationsmerkmal o
 				WHERE o.endet IS NULL
 				  AND geometrytype(o.wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
 			) AS o

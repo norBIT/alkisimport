@@ -30,11 +30,10 @@ FROM (
 			gml_id,
 			(st_dump(st_multi(wkb_geometry))).geom AS line,
 			bauwerksfunktion,
-			signaturnummer,
 			advstandardmodell||sonstigesmodell AS modell
 		FROM
 			ax_bauwerkimgewaesserbereich
-		WHERE geometrytype(o.wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
 		  AND endet IS NULL
 	) AS o
 ) AS o WHERE NOT signaturnummer IS NULL;
