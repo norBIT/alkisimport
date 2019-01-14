@@ -21,6 +21,7 @@ package:
 osgeo4w: package
 	for i in x86 x86_64; do rsync setup.hint osgeo4w/$(PKG)-$(VERSION)-$(P).tar.bz2 upload.osgeo.org:osgeo4w/$$i/release/$(PKG)/; done
 	wget -O - http://upload.osgeo.org/cgi-bin/osgeo4w-regen.sh
+	wget -O - http://upload.osgeo.org/cgi-bin/osgeo4w-promote.sh
 	echo $$(( $(P) + 1 )) >.pkg-$(VERSION)
 
 archive:
