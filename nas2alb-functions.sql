@@ -74,3 +74,19 @@ BEGIN
 	RETURN to_char(st_x(g)*10::int,'fm00000000') ||' '|| to_char(st_y(g)*10::int,'fm00000000');
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
+
+CREATE OR REPLACE FUNCTION alkis_truncate(s varchar, l integer) RETURNS varchar AS $$
+BEGIN
+	s := trim(s);
+
+	IF length(s)>l THEN
+		IF l>3 THEN
+			RETURN substr(s, 1, l-3) || '...';
+		ELSE
+			RETURN substr(s, 1, l);
+		END IF;
+	ELSE
+		RETURN s;
+	END IF;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
