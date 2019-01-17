@@ -277,6 +277,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         lastDir = s.value("lastDir", ".")
 
         files = QFileDialog.getOpenFileNames(self, "NAS-Dateien wählen", lastDir, "NAS-Dateien (*.xml *.xml.gz *.zip)")
+        if isinstance(files, tuple):
+            files = files[0]
         if files is None:
             return
 
@@ -325,6 +327,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
     def saveList(self):
         fn = QFileDialog.getSaveFileName(self, "Liste wählen", ".", "Dateilisten (*.lst)")
+        if isinstance(fn, tuple):
+            fn = fn[0]
         if fn is None or fn == "":
             return
 
