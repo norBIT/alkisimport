@@ -1699,6 +1699,7 @@ BEGIN
 		CREATE INDEX alkis_5109b1e2_f0a8_4c0b_9620_18906c586cf8 ON ax_besondereflurstuecksgrenze USING gin (traegtbeizu);
 
 		ALTER TABLE ax_besonderegebaeudelinie ALTER beginnt SET NOT NULL;
+		UPDATE ax_besonderegebaeudelinie SET beschaffenheit=ARRAY[]::integer[] WHERE beschaffenheit IS NULL;
 		ALTER TABLE ax_besonderegebaeudelinie ALTER beschaffenheit SET NOT NULL;
 		ALTER TABLE ax_besonderegebaeudelinie ADD hatdirektunten character(16)[];
 		ALTER TABLE ax_besonderegebaeudelinie ADD istabgeleitetaus character(16)[];
@@ -2468,6 +2469,12 @@ BEGIN
 		CREATE INDEX alkis_0b881eae_9d3f_4a38_884b_c85652d95d60 ON ax_flugverkehrsanlage USING gin (istteilvon);
 		CREATE INDEX alkis_81881d87_9a91_4e81_8746_9325dbf1e361 ON ax_flugverkehrsanlage USING gin (traegtbeizu);
 
+		PERFORM alkis_dropobject('v_eigentuemer');
+		PERFORM alkis_dropobject('v_haeuser');
+		PERFORM alkis_dropobject('ax_flurstueck_flsnr');
+		PERFORM alkis_dropobject('alkis_flsnrk');
+		PERFORM alkis_dropobject('alkis_flsnr');
+
 		ALTER TABLE ax_flurstueck ALTER amtlicheflaeche SET NOT NULL;
 		ALTER TABLE ax_flurstueck ALTER beginnt SET NOT NULL;
 		-- ax_flurstueck.flurstueckskennzeichen => flurstueckskennzeichen: character(20) => character varying
@@ -2484,11 +2491,6 @@ BEGIN
 		-- ax_flurstueck.stelle => zustaendigestelle_stelle: character varying => character varying[]
 		ALTER TABLE ax_flurstueck ALTER zustaendigestelle_stelle TYPE character varying[] USING CASE WHEN zustaendigestelle_stelle IS NULL THEN NULL ELSE ARRAY[zustaendigestelle_stelle] END;
 		-- ax_flurstueck.zaehler => zaehler: integer => character varying
-		PERFORM alkis_dropobject('v_eigentuemer');
-		PERFORM alkis_dropobject('v_haeuser');
-		PERFORM alkis_dropobject('ax_flurstueck_flsnr');
-		PERFORM alkis_dropobject('alkis_flsnrk');
-		PERFORM alkis_dropobject('alkis_flsnr');
 		ALTER TABLE ax_flurstueck ALTER zaehler TYPE character varying USING zaehler::varchar;
 		ALTER TABLE ax_flurstueck ALTER zaehler SET NOT NULL;
 		-- ax_flurstueck.zeitpunktderentstehung => zeitpunktderentstehung: character varying => date
@@ -3004,11 +3006,13 @@ BEGIN
 		ALTER TABLE ax_grablochderbodenschaetzung RENAME art TO zeigtaufexternes_art;
 		-- ax_grablochderbodenschaetzung.art => zeigtaufexternes_art: character varying => character varying[]
 		ALTER TABLE ax_grablochderbodenschaetzung ALTER zeigtaufexternes_art TYPE character varying[] USING CASE WHEN zeigtaufexternes_art IS NULL THEN NULL ELSE ARRAY[zeigtaufexternes_art] END;
+		UPDATE ax_grablochderbodenschaetzung SET bedeutung=ARRAY[]::integer[] WHERE bedeutung IS NULL;
 		ALTER TABLE ax_grablochderbodenschaetzung ALTER bedeutung SET NOT NULL;
 		ALTER TABLE ax_grablochderbodenschaetzung ALTER beginnt SET NOT NULL;
 		ALTER TABLE ax_grablochderbodenschaetzung RENAME name TO zeigtaufexternes_name;
 		-- ax_grablochderbodenschaetzung.name => zeigtaufexternes_name: character varying => character varying[]
 		ALTER TABLE ax_grablochderbodenschaetzung ALTER zeigtaufexternes_name TYPE character varying[] USING CASE WHEN zeigtaufexternes_name IS NULL THEN NULL ELSE ARRAY[zeigtaufexternes_name] END;
+		UPDATE ax_grablochderbodenschaetzung SET nummerdesgrablochs='' WHERE nummerdesgrablochs='';
 		ALTER TABLE ax_grablochderbodenschaetzung ALTER nummerdesgrablochs SET NOT NULL;
 		ALTER TABLE ax_grablochderbodenschaetzung RENAME nummerierungsbezirk TO kennziffer_nummerierungsbezirk;
 		-- ax_grablochderbodenschaetzung.wkb_geometry => wkb_geometry: geometry(Point,25832) => geometry(Geometry,25832)
@@ -3206,6 +3210,7 @@ BEGIN
 		CREATE INDEX alkis_22296889_7275_4fa1_b628_8daf53775c42 ON ax_heide USING gin (istteilvon);
 		CREATE INDEX alkis_5ed93688_e3b8_46ca_9333_f741f26534f7 ON ax_heide USING gin (traegtbeizu);
 
+		UPDATE ax_heilquellegasquelle SET art=-1 WHERE art IS NULL;
 		ALTER TABLE ax_heilquellegasquelle ALTER art SET NOT NULL;
 		ALTER TABLE ax_heilquellegasquelle ALTER beginnt SET NOT NULL;
 		-- ax_heilquellegasquelle.wkb_geometry => wkb_geometry: geometry(Point,25832) => geometry(Geometry,25832)
@@ -3417,6 +3422,7 @@ BEGIN
 		CREATE INDEX alkis_895edadb_aa82_41cd_b6f4_e568925beb4e ON ax_historischesflurstueckohneraumbezug USING gist (objektkoordinaten);
 
 		ALTER TABLE ax_hoehenlinie ALTER beginnt SET NOT NULL;
+		UPDATE ax_hoehenlinie SET hoehevonhoehenlinie=0.0 WHERE hoehevonhoehenlinie IS NULL;
 		ALTER TABLE ax_hoehenlinie ALTER hoehevonhoehenlinie SET NOT NULL;
 		-- ax_hoehenlinie.wkb_geometry => wkb_geometry: geometry(LineString,25832) => geometry(Geometry,25832)
 		BEGIN
@@ -3631,6 +3637,7 @@ BEGIN
 
 		ALTER TABLE ax_kleinraeumigerlandschaftsteil ALTER beginnt SET NOT NULL;
 		ALTER TABLE ax_kleinraeumigerlandschaftsteil ALTER landschaftstyp SET NOT NULL;
+		UPDATE ax_kleinraeumigerlandschaftsteil SET name='' WHERE name IS NULL;
 		ALTER TABLE ax_kleinraeumigerlandschaftsteil ALTER name SET NOT NULL;
 		ALTER TABLE ax_kleinraeumigerlandschaftsteil ADD hatdirektunten character(16)[];
 		ALTER TABLE ax_kleinraeumigerlandschaftsteil ADD istabgeleitetaus character(16)[];
