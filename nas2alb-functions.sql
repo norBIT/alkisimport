@@ -75,10 +75,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
-CREATE OR REPLACE FUNCTION alkis_truncate(s varchar, l integer) RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION alkis_truncate(s0 varchar, l integer) RETURNS varchar AS $$
+DECLARE
+	s VARCHAR := trim(s0);
 BEGIN
-	s := trim(s);
-
 	IF length(s)>l THEN
 		IF l>3 THEN
 			RETURN substr(s, 1, l-3) || '...';
