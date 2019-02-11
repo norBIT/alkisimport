@@ -53,7 +53,7 @@ FROM (
 		WHEN art IN ('2011','2013') THEN alkis_safe_offsetcurve(o.line, 0.34,''::text)
 		ELSE o.line
 		END AS line,
-		generate_series( 3650, trunc(st_length(line)*1000.0)::int, 6000 ) / 1000.0 / st_length(line) AS offset,
+		generate_series(3650, trunc(st_length(line)*1000.0)::int, 6000) / 1000.0 / st_length(line) AS offset,
 		modell
 	FROM (
 		SELECT

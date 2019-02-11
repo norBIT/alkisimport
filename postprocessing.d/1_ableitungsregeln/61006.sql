@@ -47,8 +47,8 @@ FROM (
 		FROM (
 			SELECT
 				gml_id,
-				710 AS einzug,
-				800 AS abstand,
+				1710 AS einzug,
+				8000 AS abstand,
 				wkb_geometry AS line,
 				3634 AS signaturnummer,
 				advstandardmodell||sonstigesmodell AS modell
