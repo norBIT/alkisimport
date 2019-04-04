@@ -16,8 +16,8 @@
  ***************************************************************************/
 
 DELETE FROM alkis_punkte;
-INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (1,'3010',-0.121,-0.0148,1.1305,2.2361);
-INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (1,'3011',-0.121,-0.0148,1.1305,2.2361);
+INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (1,'3010',-1.2497,0,0,2.2433);
+INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (1,'3011',-1.2497,0,0,2.2433);
 INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (1,'3020',-0.8459,-0.8475,0.8524,0.852);
 INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (1,'3021',-0.8459,-0.8475,0.8524,0.852);
 INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (1,'3022',-0.8459,-0.8475,0.8524,0.852);
@@ -271,8 +271,8 @@ INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (1,'KS_1024'
 INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (1,'KS_1025',-1.1023,-0.0997,1.1087,4.2962);
 INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (1,'KS_1026',-0.09,0,0.09,0.6);
 INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (1,'KS_1027',-1.3586,-1.346,1.3651,1.3505);
-INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (2,'3010',-0.121,-0.0148,1.1305,2.2361);
-INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (2,'3011',-0.121,-0.0148,1.1305,2.2361);
+INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (2,'3010',-1.2497,0,0,2.2433);
+INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (2,'3011',-1.2497,0,0,2.2433);
 INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (2,'3020',-0.8459,-0.8475,0.8524,0.852);
 INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (2,'3021',-0.8459,-0.8475,0.8524,0.852);
 INSERT INTO alkis_punkte(katalog,signaturnummer,x0,y0,x1,y1) VALUES (2,'3022',-0.8459,-0.8475,0.8524,0.852);
