@@ -167,12 +167,12 @@ BEGIN
 	NEW.context := coalesce(lower(NEW.context),'delete');
 
 	IF NEW.anlass IS NULL THEN
-		NEW.anlass := '';
+		NEW.anlass := ARRAY[]::varchar[];
 	END IF;
 	featgml := substr(NEW.featureid, 1, 16); -- gml_id ohne Timestamp
 
 	IF length(NEW.featureid)=32 THEN
-		-- beginnt-Zeit der zu löschenden Vorgaenger-Version des Objektes
+		-- beginnt-Zeit der zu löschenden Vorgänger-Version des Objektes
 		vbeginnt := substr(NEW.featureid, 17, 4) || '-'
 			 || substr(NEW.featureid, 21, 2) || '-'
 			 || substr(NEW.featureid, 23, 2) || 'T'
@@ -192,30 +192,29 @@ BEGIN
 		RAISE EXCEPTION '%: Identifikator gescheitert.', NEW.featureid;
 	END IF;
 
-	IF NEW.context='delete' THEN
-	ELSIF NEW.context='update' THEN
-	ELSIF NEW.context='replace' THEN
+	IF NEW.context='replace' THEN
 		NEW.safetoignore := lower(NEW.safetoignore);
 		IF NEW.safetoignore IS NULL THEN
 			RAISE EXCEPTION '%: safeToIgnore nicht gesetzt.', NEW.featureid;
 		ELSIF NEW.safetoignore<>'true' AND NEW.safetoignore<>'false' THEN
 			RAISE EXCEPTION '%: safeToIgnore ''%'' ungültig (''true'' oder ''false'' erwartet).', NEW.featureid, NEW.safetoignore;
 		END IF;
-	ELSE
+	ELSIF NEW.context NOT IN ('delete', 'update') THEN
 		RAISE EXCEPTION '%: Ungültiger Kontext % (''delete'', ''replace'' oder ''update'' erwartet).', NEW.featureid, NEW.context;
 	END IF;
 
-	-- Vorgänger ALKIS-Objekt Loeschen
+	-- Vorgänger-ALKIS-Objekt löschen
 	s := 'DELETE FROM ' || NEW.typename || ' WHERE gml_id=''' || featgml || ''' AND beginnt=''' || vbeginnt || '''' ;
 	EXECUTE s;
 	GET DIAGNOSTICS n = ROW_COUNT;
 	-- RAISE NOTICE 'SQL[%]:%', n, s;
-	IF n<>1 THEN
-		RAISE EXCEPTION '%: % schlug fehl [%]', NEW.featureid, NEW.context, n;
-		-- dieser Satz kommt nicht in die delete-Tabelle?
+	IF n=1 THEN
+		NEW.ignored := false;
+	ELSE
+		RAISE NOTICE '%: % schlug fehl ignoriert [%]', NEW.featureid, NEW.context, n;
+		NEW.ignored := true;
 	END IF;
 
-	NEW.ignored := false;
 	RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
