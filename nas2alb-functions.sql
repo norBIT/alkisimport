@@ -75,6 +75,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
+SELECT alkis_dropobject('alkis_truncate');
 CREATE OR REPLACE FUNCTION alkis_truncate(s0 varchar, l integer) RETURNS varchar AS $$
 DECLARE
 	s VARCHAR := trim(s0);
