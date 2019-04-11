@@ -2,10 +2,10 @@ SET client_encoding TO 'UTF8';
 SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 --
--- Sonstiges Bauwerk (59109; NRW)
+-- Sonstiges Bauwerk (59109)
 --
 
-SELECT 'Sonstige Bauwerke (NRW) werden verarbeitet.';
+SELECT 'Sonstige Bauwerke werden verarbeitet (NWDKOMK/HBDKOM).';
 
 -- Punkte
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
@@ -74,7 +74,8 @@ FROM (
 		FROM ks_sonstigesbauwerk
 		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND bauwerksfunktion='3000'
 	) AS o
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 -- Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

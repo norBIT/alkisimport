@@ -41,4 +41,5 @@ FROM (
 	FROM ax_denkmalschutzrecht o
 	JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='ADF' AND t.endet IS NULL
 	WHERE o.endet IS NULL AND o.gml_id LIKE 'DERP%'
-) AS o WHERE NOT text IS NULL;
+) AS o
+WHERE NOT text IS NULL;

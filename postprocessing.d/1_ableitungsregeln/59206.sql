@@ -2,10 +2,10 @@ SET client_encoding TO 'UTF8';
 SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 --
--- Einrichtung im Bahnverkehr (59206; NRW)
+-- Einrichtung im Bahnverkehr (59206)
 --
 
-SELECT 'Einrichtungen im Bahnverkehr (NRW) werden verarbeitet.';
+SELECT 'Einrichtungen im Bahnverkehr werden verarbeitet (NWDKOMK).';
 
 -- Punkte
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

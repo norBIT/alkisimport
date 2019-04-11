@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Bau-, Raum- oder Bodenordnungsrecht (59401; NRW)
 --
 
-SELECT 'Bau-, Raum- oder Bodenordnungsrecht (NRW) wird verarbeitet.';
+SELECT 'Bau-, Raum- oder Bodenordnungsrecht wird verarbeitet (NWDKOMK).';
 
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 SELECT

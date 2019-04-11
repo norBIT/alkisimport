@@ -71,7 +71,8 @@ FROM (
 		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
 		  AND endet IS NULL
 	) AS o
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 -- Gleis, Linien
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
@@ -94,7 +95,8 @@ FROM (
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_gleis o
 	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 -- Namen
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)

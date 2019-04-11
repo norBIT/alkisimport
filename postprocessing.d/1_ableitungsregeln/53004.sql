@@ -130,4 +130,5 @@ FROM (
 	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='BKT' AND p.endet IS NULL
 	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='BKT' AND d.endet IS NULL
 	WHERE o.endet IS NULL
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;

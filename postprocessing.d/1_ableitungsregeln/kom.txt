@@ -1,0 +1,17 @@
+Kennung/Modelle	Elemente
+NWDKOMK	HWDKOM
+	51102	ks_bauwerkoderanlagefuerindustrieundgewerbe
+	51109	ks_sonstigesbauwerkodersonstigeeinrichtung
+	51110	ks_einrichtungenundanlageninoeffentlichenbereichen
+	53102	ks_strassenverkehrsanlage
+59102		ks_einrichtunginoeffentlichenbereichen
+59103	59103	ks_bauwerkanlagenfuerverundentsorgung
+59109		ks_sonstigesbauwerk
+59201	59201	ks_einrichtungimstrassenverkehr
+59202	59202	ks_verkehrszeichen
+59206		ks_einrichtungimbahnverkehr
+59207	59207	ks_bauwerkimgewaesserbereich
+59301	59301	ks_vegetationsmerkmal
+59401		ks_bauraumoderbodenordnungsrecht
+59402		ks_kommunalerbesitz
+	62241	ks_topographischeauspraegung

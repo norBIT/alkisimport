@@ -5,7 +5,7 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 -- Einrichtungen im öffentlichen Bereichen (59102; NRW)
 --
 
-SELECT 'Einrichtungen im öffentlichen Bereichen (NRW) werden verarbeitet.';
+SELECT 'Einrichtungen im öffentlichen Bereichen werden verarbeitet (NWDKOMK/HBDKOM).';
 
 -- Punkte
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
@@ -65,7 +65,8 @@ FROM (
 		FROM ks_einrichtunginoeffentlichenbereichen
 		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art='1300'
 	) AS o
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 
 -- Flächen

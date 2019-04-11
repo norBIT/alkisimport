@@ -65,7 +65,6 @@ FROM (
 WHERE NOT text IS NULL;
 
 -- Symbol, Sport-, Freizeit- und Erholungsfläche
--- TODO: 3413/5, 3421 + PNR 1100 v 1101
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	gml_id,
@@ -103,7 +102,8 @@ FROM (
 	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='FKT' AND p.endet IS NULL
 	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='FKT' AND d.endet IS NULL
 	WHERE o.endet IS NULL
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 -- Name, Sport-, Freizeit- und Erholungsfläche
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)

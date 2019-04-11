@@ -202,7 +202,8 @@ FROM (
 	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='GFK' AND t.endet IS NULL
 	LEFT OUTER JOIN ap_pto n ON ARRAY[o.gml_id] <@ n.dientzurdarstellungvon AND n.art='NAM' AND n.endet IS NULL
 	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art IN ('GFK','NAM') AND d.endet IS NULL
-) AS o WHERE NOT text IS NULL;
+) AS o
+WHERE NOT text IS NULL;
 
 -- Weitere Gebäudefunktion
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

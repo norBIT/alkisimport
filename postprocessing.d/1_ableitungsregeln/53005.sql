@@ -54,7 +54,8 @@ FROM (
 		WHERE endet IS NULL
 		  AND geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
 	) AS o
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 -- Namen
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)

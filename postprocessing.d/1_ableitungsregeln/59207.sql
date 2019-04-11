@@ -2,10 +2,10 @@ SET client_encoding TO 'UTF8';
 SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 --
--- Bauwerk im Gewässerbereich (59207; NRW)
+-- Bauwerk im Gewässerbereich (59207; NRW/HB)
 --
 
-SELECT 'Bauwerke im Gewässerbereich (NRW) werden verarbeitet.';
+SELECT 'Bauwerke im Gewässerbereich werden verarbeitet (NWDKOMK/HBDKOM).';
 
 -- Punkte
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

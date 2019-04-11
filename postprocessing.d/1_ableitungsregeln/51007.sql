@@ -42,7 +42,8 @@ FROM (
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_historischesbauwerkoderhistorischeeinrichtung
 	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 
 -- Historisches Bauwerk oder historische Einrichtung, Symbol
@@ -77,7 +78,8 @@ FROM (
 	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='ATP' AND p.endet IS NULL
 	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='ATP' AND d.endet IS NULL
 	WHERE o.endet IS NULL
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 -- Historisches Bauwerk oder historische Einrichtung, Texte
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
@@ -128,7 +130,8 @@ FROM (
 	LEFT OUTER JOIN ap_pto n ON ARRAY[o.gml_id] <@ n.dientzurdarstellungvon AND n.art='NAM' AND n.endet IS NULL
 	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art IN ('ATP','NAM') AND d.endet IS NULL
 	WHERE o.endet IS NULL
-) AS o WHERE NOT text IS NULL;
+) AS o
+WHERE NOT text IS NULL;
 
 -- Historisches Bauwerk oder historische Einrichtung, Name
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)

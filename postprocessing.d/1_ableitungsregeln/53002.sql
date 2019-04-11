@@ -28,7 +28,8 @@ FROM (
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_strassenverkehrsanlage o
 	WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 -- Linien
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
@@ -50,7 +51,8 @@ FROM (
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_strassenverkehrsanlage o
 	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 -- Bezeichnungen
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

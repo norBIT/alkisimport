@@ -41,7 +41,8 @@ FROM (
 	LEFT OUTER JOIN ax_schutzzone z ON ARRAY[o.gml_id] <@ z.istteilvon AND z.endet IS NULL
 	JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='ADF' AND t.endet IS NULL
 	WHERE o.endet IS NULL
-) AS o WHERE NOT text IS NULL;
+) AS o
+WHERE NOT text IS NULL;
 
 -- Namen
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)

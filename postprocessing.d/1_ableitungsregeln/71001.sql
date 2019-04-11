@@ -43,4 +43,5 @@ FROM (
 	FROM ax_klassifizierungnachstrassenrecht o
 	JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='BEZ' AND t.endet IS NULL
 	WHERE o.endet IS NULL
-) AS o WHERE NOT text IS NULL;
+) AS o
+WHERE NOT text IS NULL;

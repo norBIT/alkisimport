@@ -3,3 +3,4 @@ alkis-import.sh export-subst
 .gitattributes export-ignore
 .gitignore export-ignore
 oci export-ignore
+postprocessing.d/1_ableitungsregeln/kom.txt export-ignore

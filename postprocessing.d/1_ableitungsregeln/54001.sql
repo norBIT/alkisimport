@@ -22,16 +22,17 @@ FROM (
 		o.gml_id,
 		wkb_geometry AS point,
 		0 AS drehwinkel,
-		CASE
-		WHEN bewuchs=1011 THEN 3597
-		WHEN bewuchs=1012 THEN 3599
-		WHEN bewuchs=1400 THEN 3603
-		WHEN bewuchs=1700 THEN 3607
+		CASE bewuchs
+		WHEN 1011 THEN 3597
+		WHEN 1012 THEN 3599
+		WHEN 1400 THEN 3603
+		WHEN 1700 THEN 3607
 		END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_vegetationsmerkmal o
 	WHERE geometrytype(o.wkb_geometry) IN ('POINT','MULTIPOINT') AND endet IS NULL
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 -- Punktförmige Begleitsignaturen an Linien
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
@@ -143,7 +144,8 @@ FROM (
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_vegetationsmerkmal o
 	WHERE geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 -- Flächensymbole
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
@@ -184,7 +186,8 @@ FROM (
 	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='BWS' AND p.endet IS NULL
 	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='BWS' AND d.endet IS NULL
 	WHERE o.endet IS NULL AND geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON')
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 -- Zustand nass, Flächen
 INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)

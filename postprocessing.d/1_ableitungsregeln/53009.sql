@@ -36,7 +36,8 @@ FROM (
 		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
 		  AND endet IS NULL
 	) AS o
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 SELECT
@@ -62,7 +63,8 @@ FROM (
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_bauwerkimgewaesserbereich o
 	WHERE geometrytype(o.wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 -- TODO: Linienbegleitende Signaturen
 
@@ -93,7 +95,8 @@ FROM (
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_bauwerkimgewaesserbereich o
 	WHERE geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 -- Symbole
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
@@ -113,19 +116,27 @@ FROM (
 		coalesce(
 			p.signaturnummer,
 			CASE
-			WHEN bauwerksfunktion=2050 THEN '3653'
-			WHEN bauwerksfunktion=2060 THEN '3592'
-			WHEN bauwerksfunktion=2080 THEN '3593'
-			WHEN bauwerksfunktion=2090 THEN '3594'
-			WHEN bauwerksfunktion=2110 THEN '3595'
-			WHEN bauwerksfunktion=2131 THEN '3482'
+			WHEN o.gml_id LIKE 'DEHB%' THEN
+				CASE bauwerksfunktion
+				WHEN 1200 THEN '3529'
+				END
+			ELSE
+				CASE bauwerksfunktion
+				WHEN 2050 THEN '3653'
+				WHEN 2060 THEN '3592'
+				WHEN 2080 THEN '3593'
+				WHEN 2090 THEN '3594'
+				WHEN 2110 THEN '3595'
+				WHEN 2131 THEN '3482'
+				END
 			END
 		) AS signaturnummer,
 		coalesce(p.advstandardmodell||p.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 	FROM ax_bauwerkimgewaesserbereich o
 	JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='BWF' AND p.endet IS NULL
 	WHERE o.endet IS NULL AND geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON')
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE signaturnummer IS NOT NULL;
 
 -- Punkte
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
@@ -148,7 +159,8 @@ FROM (
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_bauwerkimgewaesserbereich o
 	WHERE geometrytype(o.wkb_geometry) IN ('POINT','MULTIPOINT') AND endet IS NULL
-) AS o WHERE NOT signaturnummer IS NULL;
+) AS o
+WHERE NOT signaturnummer IS NULL;
 
 -- Texte
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
