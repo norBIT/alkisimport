@@ -5634,7 +5634,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE aa_advstandardmodell IS 'Alias: "AA_AdVStandardModell", UML-Typ: Enumeration';
 		INSERT INTO aa_advstandardmodell (wert,beschreibung,dokumentation) VALUES
 		('Basis-DLM', 'BasisLandschaftsModell', ''),
@@ -5663,7 +5663,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE aa_nas_ausgabeform IS 'Alias: "AA_NAS_Ausgabeform", UML-Typ: Enumeration';
 		INSERT INTO aa_nas_ausgabeform (wert,beschreibung,dokumentation) VALUES
 		('application/xml', NULL, ''),
@@ -5675,7 +5675,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE nas_filter_capabilities IS 'Alias: "NAS_Filter_Capabilities", UML-Typ: Enumeration';
 		INSERT INTO nas_filter_capabilities (wert,beschreibung,dokumentation) VALUES
 		('PropertyIsOfType', NULL, ''),
@@ -5690,7 +5690,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE aa_themendimension IS 'Alias: "AA_Themendimension", UML-Typ: Enumeration';
 		INSERT INTO aa_themendimension (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Punkt-Linien-Thema (Dimension 1)', ''),
@@ -5701,7 +5701,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE aa_art_themendefinition IS 'Alias: "AA_Art_Themendefinition", UML-Typ: Enumeration';
 		INSERT INTO aa_art_themendefinition (wert,beschreibung,dokumentation) VALUES
 		('1000', 'alleObjekte', 'Diese Werteart bedeutet eine zwingende Themenbildung. Dabei sind alle in der Themendefinition genannten Objektarten Bestandteil des Themas und die Objektarten teilen sich stets die Geometrien.'),
@@ -5712,7 +5712,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE operation IS 'Alias: "Operation", UML-Typ: Enumeration';
 		INSERT INTO operation (wert,beschreibung,dokumentation) VALUES
 		('Lock', NULL, ''),
@@ -5728,7 +5728,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ap_horizontaleausrichtung IS 'Alias: "AP_HorizontaleAusrichtung", UML-Typ: Enumeration';
 		INSERT INTO ap_horizontaleausrichtung (wert,beschreibung,dokumentation) VALUES
 		('linksbündig', NULL, 'Text linksbündig am Textpunkt bzw. am ersten Punkt der Linie.'),
@@ -5740,7 +5740,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ap_vertikaleausrichtung IS 'Alias: "AP_VertikaleAusrichtung", UML-Typ: Enumeration';
 		INSERT INTO ap_vertikaleausrichtung (wert,beschreibung,dokumentation) VALUES
 		('Basis', NULL, 'Textgeometrie bezieht sich auf die Basis- bzw. Grundlinie der Buchstaben.'),
@@ -5752,7 +5752,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ap_dateityp_3d IS 'Alias: "AP_DateiTyp_3D", UML-Typ: Enumeration';
 		INSERT INTO ap_dateityp_3d (wert,beschreibung,dokumentation) VALUES
 		('1000', 'VRML97', ''),
@@ -5768,7 +5768,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artdesnullpunktes_nullpunkt IS 'Alias: "AX_ArtDesNullpunktes_Nullpunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_artdesnullpunktes_nullpunkt (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Zentraler Nullpunkt', 'Zentraler Nullpunkt ist die Bezeichnung für einen i. d. R. mit O gekennzeichneten Nullpunkt in einem Netzknoten.'),
@@ -5780,7 +5780,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_li_processstep_mitdatenerhebung_description IS 'Alias: "AX_LI_ProcessStep_MitDatenerhebung_Description", UML-Typ: Enumeration';
 		INSERT INTO ax_li_processstep_mitdatenerhebung_description (wert,beschreibung,dokumentation) VALUES
 		('Erhebung', NULL, '');
@@ -5790,7 +5790,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_datenerhebung IS 'Alias: "AX_Datenerhebung", UML-Typ: Enumeration';
 		INSERT INTO ax_datenerhebung (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Aus Katastervermessung ermittelt', ''),
@@ -5824,7 +5824,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_sportart_bauwerkoderanlagefuersportfreizeitunderholung IS 'Alias: "AX_Sportart_BauwerkOderAnlageFuerSportFreizeitUndErholung", UML-Typ: Enumeration';
 		INSERT INTO ax_sportart_bauwerkoderanlagefuersportfreizeitunderholung (wert,beschreibung,dokumentation) VALUES
 		('1010', 'Ballsport', 'Ballsport bedeutet, dass ein Spielfeld oder Stadion zur Ausübung des Ballsports genutzt wird.'),
@@ -5848,7 +5848,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_lagezurerdoberflaeche_transportanlage IS 'Alias: "AX_LageZurErdoberflaeche_Transportanlage", UML-Typ: Enumeration';
 		INSERT INTO ax_lagezurerdoberflaeche_transportanlage (wert,beschreibung,dokumentation) VALUES
 		('1200', 'Unter der Erdoberfläche', 'Unter der Erdoberfläche bedeutet, dass sich die Transportanlage unter der Erdoberfläche befindet.'),
@@ -5860,7 +5860,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_produkt_transportanlage IS 'Alias: "AX_Produkt_Transportanlage", UML-Typ: Enumeration';
 		INSERT INTO ax_produkt_transportanlage (wert,beschreibung,dokumentation) VALUES
 		('1110', 'Erdöl', 'Erdöl ist ein flüssiges und brennbares Kohlenwasserstoffgemisch, das gefördert oder transportiert wird.'),
@@ -5876,7 +5876,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bauwerksfunktion_turm IS 'Alias: "AX_Bauwerksfunktion_Turm", UML-Typ: Enumeration';
 		INSERT INTO ax_bauwerksfunktion_turm (wert,beschreibung,dokumentation) VALUES
 		('1001', 'Wasserturm', 'Wasserturm ist ein hochgelegenes Bauwerk mit einem Behälter, in dem Wasser für die Wasserversorgung und Konstanthaltung des Wasserdruckes gespeichert wird.'),
@@ -5899,7 +5899,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_hydrologischesmerkmal_sonstigesbauwerkodersonstigeeinri IS 'Alias: "AX_HydrologischesMerkmal_SonstigesBauwerkOderSonstigeEinrichtung", UML-Typ: Enumeration';
 		INSERT INTO ax_hydrologischesmerkmal_sonstigesbauwerkodersonstigeeinri (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Ständig Wasser führend', 'Ständig Wasser führend heißt, dass der Brunnen ganzjährig Wasser führt.'),
@@ -5911,7 +5911,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_turm IS 'Alias: "AX_Zustand_Turm", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_turm (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt; verlassen bedeutet, dass sich der Turm nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
@@ -5922,7 +5922,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_heilquellegasquelle IS 'Alias: "AX_Art_HeilquelleGasquelle", UML-Typ: Enumeration';
 		INSERT INTO ax_art_heilquellegasquelle (wert,beschreibung,dokumentation) VALUES
 		('4010', 'Heilquelle', ''),
@@ -5933,7 +5933,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bauwerksfunktion_transportanlage IS 'Alias: "AX_Bauwerksfunktion_Transportanlage", UML-Typ: Enumeration';
 		INSERT INTO ax_bauwerksfunktion_transportanlage (wert,beschreibung,dokumentation) VALUES
 		('1101', 'Rohrleitung, Pipeline', 'Rohrleitung, Pipeline ist ein langgestreckter Hohlkörper zum Transport von Flüssigkeiten und Gasen.'),
@@ -5945,7 +5945,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_lagezurerdoberflaeche_vorratsbehaelterspeicherbauwerk IS 'Alias: "AX_LageZurErdoberflaeche_VorratsbehaelterSpeicherbauwerk", UML-Typ: Enumeration';
 		INSERT INTO ax_lagezurerdoberflaeche_vorratsbehaelterspeicherbauwerk (wert,beschreibung,dokumentation) VALUES
 		('1200', 'Unter der Erdoberfläche', 'Unter der Erdoberfläche bedeutet, dass sich der Vorratsbehälter bzw. das Speicherbauwerk unter der Erdoberfläche befindet.'),
@@ -5956,7 +5956,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_speicherinhalt_vorratsbehaelterspeicherbauwerk IS 'Alias: "AX_Speicherinhalt_VorratsbehaelterSpeicherbauwerk", UML-Typ: Enumeration';
 		INSERT INTO ax_speicherinhalt_vorratsbehaelterspeicherbauwerk (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Erze', 'Erze bedeutet, dass die in der Natur vorkommenden, metallhaltigen Mineralien und Mineralgemische gelagert werden.'),
@@ -5977,7 +5977,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewer IS 'Alias: "AX_Bauwerksfunktion_BauwerkOderAnlageFuerIndustrieUndGewerbe", UML-Typ: Enumeration';
 		INSERT INTO ax_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewer (wert,beschreibung,dokumentation) VALUES
 		('1210', 'Klärbecken', 'Klärbecken ist ein künstlich errichtetes Becken oder eine Geländevertiefung, in der Feststoffe aus einer Flüssigkeit ausgefällt werden.'),
@@ -6014,7 +6014,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_einrichtunginoeffentlichenbereichen IS 'Alias: "AX_Art_EinrichtungInOeffentlichenBereichen", UML-Typ: Enumeration';
 		INSERT INTO ax_art_einrichtunginoeffentlichenbereichen (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Kommunikationseinrichtung', ''),
@@ -6058,7 +6058,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bauwerksfunktion_bauwerkoderanlagefuersportfreizeitunde IS 'Alias: "AX_Bauwerksfunktion_BauwerkOderAnlageFuerSportFreizeitUndErholung", UML-Typ: Enumeration';
 		INSERT INTO ax_bauwerksfunktion_bauwerkoderanlagefuersportfreizeitunde (wert,beschreibung,dokumentation) VALUES
 		('1410', 'Spielfeld', 'Spielfeld ist eine abgegrenzte, markierte Fläche, auf der die Sportart unmittelbar ausgeübt wird, z.B. die einzelnen  Fußballfelder (Hauptplatz und Trainingsplätze) einer größeren Anlage. Die zusammenhängenden Spielflächen innerhalb einer Tennisanlage werden zu einem Spielfeld  zusammengefasst'),
@@ -6082,7 +6082,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_archaeologischertyp_historischesbauwerkoderhistorischee IS 'Alias: "AX_ArchaeologischerTyp_HistorischesBauwerkOderHistorischeEinrichtung", UML-Typ: Enumeration';
 		INSERT INTO ax_archaeologischertyp_historischesbauwerkoderhistorischee (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Grab', 'Grab ist eine künstlich geschaffene Bestattungsstätte unter, auf oder über der  Erdoberfläche.'),
@@ -6107,7 +6107,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_hydrologischesmerkmal_heilquellegasquelle IS 'Alias: "AX_HydrologischesMerkmal_HeilquelleGasquelle", UML-Typ: Enumeration';
 		INSERT INTO ax_hydrologischesmerkmal_heilquellegasquelle (wert,beschreibung,dokumentation) VALUES
 		('4000', 'Ständig schüttend', ''),
@@ -6118,7 +6118,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_bauwerkoderanlagefuerindustrieundgewerbe IS 'Alias: "AX_Zustand_BauwerkOderAnlageFuerIndustrieUndGewerbe", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_bauwerkoderanlagefuerindustrieundgewerbe (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt, verlassen bedeutet, dass sich Bauwerk oder Anlage für Industrie und Gewerbe nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
@@ -6131,7 +6131,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bauwerksfunktion_sonstigesbauwerkodersonstigeeinrichtun IS 'Alias: "AX_Bauwerksfunktion_SonstigesBauwerkOderSonstigeEinrichtung", UML-Typ: Enumeration';
 		INSERT INTO ax_bauwerksfunktion_sonstigesbauwerkodersonstigeeinrichtun (wert,beschreibung,dokumentation) VALUES
 		('1610', 'Überdachung', ''),
@@ -6173,7 +6173,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_bauwerk IS 'Alias: "AX_Funktion_Bauwerk", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_bauwerk (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Hochwasser-, Sturmflutschutz', 'Hochwasser-, Sturmflutschutz bedeutet, dass das Bauwerk dem Schutz vor Hochwasser bzw. Sturmflut dient.'),
@@ -6184,7 +6184,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bauwerksfunktion_leitung IS 'Alias: "AX_Bauwerksfunktion_Leitung", UML-Typ: Enumeration';
 		INSERT INTO ax_bauwerksfunktion_leitung (wert,beschreibung,dokumentation) VALUES
 		('1110', 'Freileitung', 'Freileitung ist eine aus einem oder mehreren Drähten oder  Fasern hergestellte oberirdische Leitung zum Transport von  elektrischer Energie und zur Übertragung von elektrischen  Signalen.'),
@@ -6195,7 +6195,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bauwerksfunktion_vorratsbehaelterspeicherbauwerk IS 'Alias: "AX_Bauwerksfunktion_VorratsbehaelterSpeicherbauwerk", UML-Typ: Enumeration';
 		INSERT INTO ax_bauwerksfunktion_vorratsbehaelterspeicherbauwerk (wert,beschreibung,dokumentation) VALUES
 		('1201', 'Silo', 'Silo ist ein Großraumbehälter zum Speichern von Schüttgütern (Getreide, Erz, Zement, Sand) oder Gärfutter (gehäckseltes Grüngut).'),
@@ -6211,7 +6211,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_befestigung_wegpfadsteig IS 'Alias: "AX_Befestigung_WegPfadSteig", UML-Typ: Enumeration';
 		INSERT INTO ax_befestigung_wegpfadsteig (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Befestigt', 'Befestigt bedeutet, dass Weg, Pfad, Steig mit einem festen Unterbau versehen und ganzjährig befahrbar bzw. begehbar ist.'),
@@ -6222,7 +6222,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_oberflaechenmaterial_flugverkehrsanlage IS 'Alias: "AX_Oberflaechenmaterial_Flugverkehrsanlage", UML-Typ: Enumeration';
 		INSERT INTO ax_oberflaechenmaterial_flugverkehrsanlage (wert,beschreibung,dokumentation) VALUES
 		('1210', 'Gras, Rasen', 'Gras, Rasen bedeutet, dass die Oberfläche von Flugverkehrsanlage mit Gras bewachsen ist.'),
@@ -6234,7 +6234,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_gleis IS 'Alias: "AX_Art_Gleis", UML-Typ: Enumeration';
 		INSERT INTO ax_art_gleis (wert,beschreibung,dokumentation) VALUES
 		('1200', 'Drehscheibe', '');
@@ -6244,7 +6244,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bahnkategorie_gleis IS 'Alias: "AX_Bahnkategorie_Gleis", UML-Typ: Enumeration';
 		INSERT INTO ax_bahnkategorie_gleis (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Eisenbahn', ''),
@@ -6266,7 +6266,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_strassenverkehrsanlage IS 'Alias: "AX_Art_Strassenverkehrsanlage", UML-Typ: Enumeration';
 		INSERT INTO ax_art_strassenverkehrsanlage (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Fahrbahn', ''),
@@ -6287,7 +6287,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_markierung_wegpfadsteig IS 'Alias: "AX_Markierung_WegPfadSteig", UML-Typ: Enumeration';
 		INSERT INTO ax_markierung_wegpfadsteig (wert,beschreibung,dokumentation) VALUES
 		('1401', 'Gekennzeichneter Wanderweg', 'Gekennzeichneter Wanderweg ist ein als Wanderweg eindeutig markierter Weg.'),
@@ -6299,7 +6299,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bahnhofskategorie_bahnverkehrsanlage IS 'Alias: "AX_Bahnhofskategorie_Bahnverkehrsanlage", UML-Typ: Enumeration';
 		INSERT INTO ax_bahnhofskategorie_bahnverkehrsanlage (wert,beschreibung,dokumentation) VALUES
 		('1010', 'Bahnhof', 'Bahnhof ist eine Anlage im Netz der Schienenbahnen und der Seilbahnen (Bahnkategorie Schwebebahn) zur Abwicklung des Personen- und Güterverkehrs entsprechend der Angaben des Betreibers.'),
@@ -6311,7 +6311,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bahnkategorie_seilbahnschwebebahn IS 'Alias: "AX_Bahnkategorie_SeilbahnSchwebebahn", UML-Typ: Enumeration';
 		INSERT INTO ax_bahnkategorie_seilbahnschwebebahn (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Luftseilbahn, Großkabinenbahn', 'Luftseilbahn, Großkabinenbahn ist die Bezeichnung für eine Seilbahn, die Personen befördert und Güter transportiert. Die Kabinen und Transporteinrichtungen werden an einem Zugseil über ein Tragseil fortbewegt.'),
@@ -6326,7 +6326,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_bahnverkehrsanlage IS 'Alias: "AX_Zustand_Bahnverkehrsanlage", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_bahnverkehrsanlage (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt, verlassen bedeutet, dass sich die Bahnverkehrsanlage nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
@@ -6337,7 +6337,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_bauwerkimgewaesserbereich IS 'Alias: "AX_Zustand_BauwerkImGewaesserbereich", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_bauwerkimgewaesserbereich (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt; verlassen bedeutet, dass sich Bauwerk im Gewässerbereich nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
@@ -6348,7 +6348,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_wegpfadsteig IS 'Alias: "AX_Art_WegPfadSteig", UML-Typ: Enumeration';
 		INSERT INTO ax_art_wegpfadsteig (wert,beschreibung,dokumentation) VALUES
 		('1103', 'Fußweg', 'Fußweg ist ein Weg, der auf Grund seines Ausbauzustandes nur von Fußgängern zu begehen ist.'),
@@ -6365,7 +6365,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_lagezuroberflaeche_gleis IS 'Alias: "AX_LageZurOberflaeche_Gleis", UML-Typ: Enumeration';
 		INSERT INTO ax_lagezuroberflaeche_gleis (wert,beschreibung,dokumentation) VALUES
 		('1200', 'Unter der Erdoberfläche', ''),
@@ -6376,7 +6376,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_flugverkehrsanlage IS 'Alias: "AX_Art_Flugverkehrsanlage", UML-Typ: Enumeration';
 		INSERT INTO ax_art_flugverkehrsanlage (wert,beschreibung,dokumentation) VALUES
 		('1310', 'Startbahn, Landebahn', 'Startbahn, Landebahn ist eine Fläche, auf der Flugzeuge starten bzw. landen.'),
@@ -6392,7 +6392,7 @@ BEGIN
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bauwerksfunktion_bauwerkimverkehrsbereich IS 'Alias: "AX_Bauwerksfunktion_BauwerkImVerkehrsbereich", UML-Typ: Enumeration';
 		INSERT INTO ax_bauwerksfunktion_bauwerkimverkehrsbereich (wert,beschreibung,dokumentation) VALUES
 		('1800', 'Brücke', 'Brücke ist ein Bauwerk zum Zweck der Überführung eines Verkehrsweges über einen anderen Verkehrsweg  oder über ein Gewässer sowie zur Überführung über ein tieferliegendes Gelände.'),
@@ -6423,7 +6423,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bauwerksfunktion_bauwerkimgewaesserbereich IS 'Alias: "AX_Bauwerksfunktion_BauwerkImGewaesserbereich", UML-Typ: Enumeration';
 		INSERT INTO ax_bauwerksfunktion_bauwerkimgewaesserbereich (wert,beschreibung,dokumentation) VALUES
 		('2010', 'Durchlass', 'Durchlass ist ein Bauwerk, in dem ein Gewässer unter einem auf der Erdoberfläche liegenden Hindernis (Verkehrsweg, Siedlungsfläche) hindurchgeführt wird oder unter der Erdoberfläche in freier Feldlage oder abgedeckt (verdolt) auf der Erdoberfläche verläuft.'),
@@ -6453,7 +6453,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_einrichtungenfuerdenschiffsverkehr IS 'Alias: "AX_Art_EinrichtungenFuerDenSchiffsverkehr", UML-Typ: Enumeration';
 		INSERT INTO ax_art_einrichtungenfuerdenschiffsverkehr (wert,beschreibung,dokumentation) VALUES
 		('1410', 'Bake', 'Bake ist ein festgegründetes pfahl- oder gittermastartiges Schifffahrtszeichen mit Kennung durch Form oder Form und Farbe.'),
@@ -6469,7 +6469,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_bauwerkimverkehrsbereich IS 'Alias: "AX_Zustand_BauwerkImVerkehrsbereich", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_bauwerkimverkehrsbereich (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt, verlassen bedeutet, dass sich Bauwerk im Verkehrsbereich nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.');
@@ -6479,7 +6479,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artdergewaesserachse IS 'Alias: "AX_ArtDerGewaesserachse", UML-Typ: Enumeration';
 		INSERT INTO ax_artdergewaesserachse (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Gewässerachse der WSV', 'Gewässerachse der WSV ist eine Gewässerachse, deren Geometrie unverändert aus den Unterlagen der Wasser- und Schifffahrtsverwaltung übernommen wurde.'),
@@ -6492,7 +6492,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_schifffahrtsliniefaehrverkehr IS 'Alias: "AX_Art_SchifffahrtslinieFaehrverkehr", UML-Typ: Enumeration';
 		INSERT INTO ax_art_schifffahrtsliniefaehrverkehr (wert,beschreibung,dokumentation) VALUES
 		('1710', 'Autofährverkehr', 'Autofährverkehr ist ein in der Regel nach festem Fahrplan über Flüsse, Seen, Kanäle, Meerengen oder Meeresarme stattfindender Schiffsverkehr zwischen zwei Anlegestellen speziell für Fahrzeuge des Straßenverkehrs.'),
@@ -6505,7 +6505,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_schleuse IS 'Alias: "AX_Zustand_Schleuse", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_schleuse (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt, verlassen bedeutet, dass sich die Schleuse nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.');
@@ -6515,7 +6515,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_nutzung_hafen IS 'Alias: "AX_Nutzung_Hafen", UML-Typ: Enumeration';
 		INSERT INTO ax_nutzung_hafen (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Zivil', 'Zivil bedeutet, dass Hafen privaten oder öffentlichen Zwecken dient und nicht militärisch genutzt wird.'),
@@ -6527,7 +6527,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_konstruktionsmerkmalbauart_schleuse IS 'Alias: "AX_KonstruktionsmerkmalBauart_Schleuse", UML-Typ: Enumeration';
 		INSERT INTO ax_konstruktionsmerkmalbauart_schleuse (wert,beschreibung,dokumentation) VALUES
 		('1010', 'Schiffshebewerk', 'Schiffshebewerk ist ein Bauwerk zum Überwinden einer Fallstufe (in Binnenwasserstraßen und Kanälen) mit Förderung der Schiffe in einem Trog.'),
@@ -6538,7 +6538,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_hafenkategorie_hafen IS 'Alias: "AX_Hafenkategorie_Hafen", UML-Typ: Enumeration';
 		INSERT INTO ax_hafenkategorie_hafen (wert,beschreibung,dokumentation) VALUES
 		('1010', 'Containerhafen', 'Containerhafen ist ein Hafen mit speziellen Einrichtungen (z. B. Verladebrücken) für den Umschlag von genormten Containern.'),
@@ -6554,7 +6554,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_gewaessermerkmal IS 'Alias: "AX_Art_Gewaessermerkmal", UML-Typ: Enumeration';
 		INSERT INTO ax_art_gewaessermerkmal (wert,beschreibung,dokumentation) VALUES
 		('1610', 'Quelle', 'Quelle ist eine natürliche, örtlich begrenzte Austrittsstelle von Wasser.'),
@@ -6570,7 +6570,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_hydrologischesmerkmal_untergeordnetesgewaesser IS 'Alias: "AX_HydrologischesMerkmal_UntergeordnetesGewaesser", UML-Typ: Enumeration';
 		INSERT INTO ax_hydrologischesmerkmal_untergeordnetesgewaesser (wert,beschreibung,dokumentation) VALUES
 		('2000', 'Nicht ständig Wasser führend', ''),
@@ -6581,7 +6581,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_lagezurerdoberflaeche_untergeordnetesgewaesser IS 'Alias: "AX_LageZurErdoberflaeche_UntergeordnetesGewaesser", UML-Typ: Enumeration';
 		INSERT INTO ax_lagezurerdoberflaeche_untergeordnetesgewaesser (wert,beschreibung,dokumentation) VALUES
 		('1800', 'Verrohrt, unterirdisch, bedeckt', ''),
@@ -6592,7 +6592,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artdespolders IS 'Alias: "AX_ArtDesPolders", UML-Typ: Enumeration';
 		INSERT INTO ax_artdespolders (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Sommerpolder', 'Sommerpolder (auch Überlaufpolder) ist ein Polder, der durch einen Überlauf- oder Sommerdeich nur gegen niedrige Hochwasser geschützt ist. Der Deich ist so ausgelegt, dass er zeitweise überströmt werden kann.'),
@@ -6604,7 +6604,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_polder IS 'Alias: "AX_Funktion_Polder", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_polder (wert,beschreibung,dokumentation) VALUES
 		(' 7410', 'Gesteuert = 7410', ''),
@@ -6615,7 +6615,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_untergeordnetesgewaesser IS 'Alias: "AX_Funktion_UntergeordnetesGewaesser", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_untergeordnetesgewaesser (wert,beschreibung,dokumentation) VALUES
 		('1010', 'Graben', ''),
@@ -6631,7 +6631,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_hydrologischesmerkmal_gewaessermerkmal IS 'Alias: "AX_HydrologischesMerkmal_Gewaessermerkmal", UML-Typ: Enumeration';
 		INSERT INTO ax_hydrologischesmerkmal_gewaessermerkmal (wert,beschreibung,dokumentation) VALUES
 		('2000', 'Nicht ständig Wasser führend', 'Nicht ständig Wasser führend heißt, dass die Quelle nicht ganzjährig Wasser führt.');
@@ -6641,7 +6641,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_vegetationsmerkmal IS 'Alias: "AX_Funktion_Vegetationsmerkmal", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_vegetationsmerkmal (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Windschutz', '');
@@ -6651,7 +6651,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_vegetationsmerkmal IS 'Alias: "AX_Zustand_Vegetationsmerkmal", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_vegetationsmerkmal (wert,beschreibung,dokumentation) VALUES
 		('5000', 'Nass', 'Nass bezeichnet eine Vegetationsfläche, die aufgrund besonderer Bodenbeschaffenheit ganzjährig wassergesättigt ist, zeitweise auch unter Wasser stehen kann.');
@@ -6661,7 +6661,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bewuchs_vegetationsmerkmal IS 'Alias: "AX_Bewuchs_Vegetationsmerkmal", UML-Typ: Enumeration';
 		INSERT INTO ax_bewuchs_vegetationsmerkmal (wert,beschreibung,dokumentation) VALUES
 		('1011', 'Nadelbaum', 'Nadelbaum beschreibt die Zugehörigkeit eines einzeln stehenden Baumes zur Gruppe der Nadelhölzer.'),
@@ -6692,7 +6692,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_eigentuemerart_namensnummer IS 'Alias: "AX_Eigentuemerart_Namensnummer", UML-Typ: Enumeration';
 		INSERT INTO ax_eigentuemerart_namensnummer (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Natürliche Personen', ''),
@@ -6777,7 +6777,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_li_processstep_ohnedatenerhebung_description IS 'Alias: "AX_LI_ProcessStep_OhneDatenerhebung_Description", UML-Typ: Enumeration';
 		INSERT INTO ax_li_processstep_ohnedatenerhebung_description (wert,beschreibung,dokumentation) VALUES
 		('Erhebung', NULL, '');
@@ -6787,7 +6787,7 @@ Schutzgalerien sind einseitige Überbauungen an Verkehrswegen,  Einhausungen ums
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_blattart_buchungsblatt IS 'Alias: "AX_Blattart_Buchungsblatt", UML-Typ: Enumeration';
 		INSERT INTO ax_blattart_buchungsblatt (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Grundbuchblatt', 'Ein Grundbuchblatt ist ein Buchungsblatt, das die Buchung im Grundbuch enthält.'),
@@ -6802,7 +6802,7 @@ Pseudoblatt und Erwerberblatt werden nach Eintragung in das Grundbuch historisch
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_anrede_person IS 'Alias: "AX_Anrede_Person", UML-Typ: Enumeration';
 		INSERT INTO ax_anrede_person (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Frau', ''),
@@ -6814,7 +6814,7 @@ Pseudoblatt und Erwerberblatt werden nach Eintragung in das Grundbuch historisch
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderrechtsgemeinschaft_namensnummer IS 'Alias: "AX_ArtDerRechtsgemeinschaft_Namensnummer", UML-Typ: Enumeration';
 		INSERT INTO ax_artderrechtsgemeinschaft_namensnummer (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Erbengemeinschaft', ''),
@@ -6827,7 +6827,7 @@ Pseudoblatt und Erwerberblatt werden nach Eintragung in das Grundbuch historisch
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_buchungsart_buchungsstelle IS 'Alias: "AX_Buchungsart_Buchungsstelle", UML-Typ: Enumeration';
 		INSERT INTO ax_buchungsart_buchungsstelle (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Grundstück', 'Das Grundstück ist ein räumlich abgegrenzter Teil der Erdoberfläche, der auf einem besonderen Blatt, dem Grundbuchblatt, für sich allein oder auf einem gemeinschaftlichen Grundbuchblatt unter einer eindeutigen Nummer des Bestandsverzeichnisses eingetragen ist (Grundstück im Rechtssinn). Das Grundstück besteht aus einem oder mehreren Flurstücken.'),
@@ -6891,7 +6891,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_klassifikation_hierarchiestufe3d_lagefestpunkt IS 'Alias: "AX_Klassifikation_Hierarchiestufe3D_Lagefestpunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_klassifikation_hierarchiestufe3d_lagefestpunkt (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Hierarchiestufe A', ''),
@@ -6906,7 +6906,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_punktstabilitaet IS 'Alias: "AX_Punktstabilitaet", UML-Typ: Enumeration';
 		INSERT INTO ax_punktstabilitaet (wert,beschreibung,dokumentation) VALUES
 		('1000', 'sehr gut', ''),
@@ -6927,7 +6927,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_punktstabilitaet_hoehenfestpunkt_geologischestabilitaet IS 'Alias: "AX_Punktstabilitaet_Hoehenfestpunkt_GeologischeStabilitaet", UML-Typ: Enumeration';
 		INSERT INTO ax_punktstabilitaet_hoehenfestpunkt_geologischestabilitaet (wert,beschreibung,dokumentation) VALUES
 		('1000', 'sehr gute geologische Stabilität', ''),
@@ -6942,7 +6942,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_klassifikation_ordnung_lagefestpunkt IS 'Alias: "AX_Klassifikation_Ordnung_Lagefestpunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_klassifikation_ordnung_lagefestpunkt (wert,beschreibung,dokumentation) VALUES
 		('1000', 'TP (1) - Hauptdreieckspunkt, Zwischenpunkt 1. Ordnung', ''),
@@ -6960,7 +6960,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_punktstabilitaet_hoehenfestpunkt_guetedesvermarkungstra IS 'Alias: "AX_Punktstabilitaet_Hoehenfestpunkt_GueteDesVermarkungstraegers", UML-Typ: Enumeration';
 		INSERT INTO ax_punktstabilitaet_hoehenfestpunkt_guetedesvermarkungstra (wert,beschreibung,dokumentation) VALUES
 		('1000', 'sehr gut', ''),
@@ -6975,7 +6975,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_ordnung_schwerefestpunkt IS 'Alias: "AX_Ordnung_Schwerefestpunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_ordnung_schwerefestpunkt (wert,beschreibung,dokumentation) VALUES
 		('0500', 'SFP(0) - Schweregrundnetzpunkt', ''),
@@ -6991,7 +6991,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_referenzstationspunkt IS 'Alias: "AX_Funktion_Referenzstationspunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_referenzstationspunkt (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Zentrum', ''),
@@ -7002,7 +7002,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_lagefestpunkt IS 'Alias: "AX_Funktion_Lagefestpunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_lagefestpunkt (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Zentrum', ''),
@@ -7015,7 +7015,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_skizzenart_skizze IS 'Alias: "AX_Skizzenart_Skizze", UML-Typ: Enumeration';
 		INSERT INTO ax_skizzenart_skizze (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Lage-/Einmessungsskizze/Ansicht für die Standardausgabe', ''),
@@ -7032,7 +7032,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_schwerefestpunkt IS 'Alias: "AX_Funktion_Schwerefestpunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_schwerefestpunkt (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Zentrum', ''),
@@ -7043,7 +7043,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_punktstabilitaet_hoehenfestpunkt_hoehenstabilitaetauswi IS 'Alias: "AX_Punktstabilitaet_Hoehenfestpunkt_HoehenstabilitaetAusWiederholungsmessungen", UML-Typ: Enumeration';
 		INSERT INTO ax_punktstabilitaet_hoehenfestpunkt_hoehenstabilitaetauswi (wert,beschreibung,dokumentation) VALUES
 		('1000', 'sehr gut', ''),
@@ -7058,7 +7058,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_punktstabilitaet_hoehenfestpunkt_guetedesbaugrundes IS 'Alias: "AX_Punktstabilitaet_Hoehenfestpunkt_GueteDesBaugrundes", UML-Typ: Enumeration';
 		INSERT INTO ax_punktstabilitaet_hoehenfestpunkt_guetedesbaugrundes (wert,beschreibung,dokumentation) VALUES
 		('1000', 'sehr gute Stabilität des Baugrundes', ''),
@@ -7073,7 +7073,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_punktstabilitaet_hoehenfestpunkt_grundwasserschwankung IS 'Alias: "AX_Punktstabilitaet_Hoehenfestpunkt_Grundwasserschwankung", UML-Typ: Enumeration';
 		INSERT INTO ax_punktstabilitaet_hoehenfestpunkt_grundwasserschwankung (wert,beschreibung,dokumentation) VALUES
 		('1000', 'sehr geringe Grundwasserschwankung (kleiner gleich 0,5 m)', ''),
@@ -7088,7 +7088,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_punktstabilitaet_hoehenfestpunkt_topographieundumwelt IS 'Alias: "AX_Punktstabilitaet_Hoehenfestpunkt_TopographieUndUmwelt", UML-Typ: Enumeration';
 		INSERT INTO ax_punktstabilitaet_hoehenfestpunkt_topographieundumwelt (wert,beschreibung,dokumentation) VALUES
 		('1000', 'keine Topographie- und Umwelteinflüsse', ''),
@@ -7103,7 +7103,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_klassifikation_wertigkeit_lagefestpunkt IS 'Alias: "AX_Klassifikation_Wertigkeit_Lagefestpunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_klassifikation_wertigkeit_lagefestpunkt (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Fundamentalpunkt (Punkt auf dem die Position (3D), die schwerebezogene Höhe und die Schwere hoch genau bestimmt worden sind)', ''),
@@ -7119,7 +7119,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_gnsstauglichkeit IS 'Alias: "AX_GNSSTauglichkeit", UML-Typ: Enumeration';
 		INSERT INTO ax_gnsstauglichkeit (wert,beschreibung,dokumentation) VALUES
 		('1000', 'weitgehende Horizontfreiheit, Mehrwegeffekte nicht wahrscheinlich', ''),
@@ -7136,7 +7136,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_punktstabilitaet_hoehenfestpunkt_grundwasserstand IS 'Alias: "AX_Punktstabilitaet_Hoehenfestpunkt_Grundwasserstand", UML-Typ: Enumeration';
 		INSERT INTO ax_punktstabilitaet_hoehenfestpunkt_grundwasserstand (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Grundwasserstand sehr tief (groesser 10 m)', ''),
@@ -7152,7 +7152,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_punktstabilitaet_hoehenfestpunkt_vermutetehoehenstabili IS 'Alias: "AX_Punktstabilitaet_Hoehenfestpunkt_VermuteteHoehenstabilitaet", UML-Typ: Enumeration';
 		INSERT INTO ax_punktstabilitaet_hoehenfestpunkt_vermutetehoehenstabili (wert,beschreibung,dokumentation) VALUES
 		('1000', 'sehr gut', ''),
@@ -7167,7 +7167,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_ordnung_hoehenfestpunkt IS 'Alias: "AX_Ordnung_Hoehenfestpunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_ordnung_hoehenfestpunkt (wert,beschreibung,dokumentation) VALUES
 		('1000', 'NivP(1) - Haupthöhenpunkt, Zwischenlinienpunkt 1.Ordnung', ''),
@@ -7185,7 +7185,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_horizontfreiheit_grenzpunkt IS 'Alias: "AX_Horizontfreiheit_Grenzpunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_horizontfreiheit_grenzpunkt (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Uneingeschränkt', ''),
@@ -7197,7 +7197,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_gruendederausgesetztenabmarkung_grenzpunkt IS 'Alias: "AX_GruendeDerAusgesetztenAbmarkung_Grenzpunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_gruendederausgesetztenabmarkung_grenzpunkt (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Grenzpunkt durch bauliche Anlage ausreichend gekennzeichnet', ''),
@@ -7216,7 +7216,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bemerkungzurabmarkung_grenzpunkt IS 'Alias: "AX_BemerkungZurAbmarkung_Grenzpunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_bemerkungzurabmarkung_grenzpunkt (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Abmarkung unterirdisch gesichert', ''),
@@ -7229,7 +7229,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderflurstuecksgrenze_besondereflurstuecksgrenze IS 'Alias: "AX_ArtDerFlurstuecksgrenze_BesondereFlurstuecksgrenze", UML-Typ: Enumeration';
 		INSERT INTO ax_artderflurstuecksgrenze_besondereflurstuecksgrenze (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Strittige Grenze', ''),
@@ -7255,7 +7255,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_horizontfreiheit_netzpunkt IS 'Alias: "AX_Horizontfreiheit_Netzpunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_horizontfreiheit_netzpunkt (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Uneingeschränkt', ''),
@@ -7267,7 +7267,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_marke IS 'Alias: "AX_Marke", UML-Typ: Enumeration';
 		INSERT INTO ax_marke (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Marke, allgemein', ''),
@@ -7518,7 +7518,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_genauigkeitsstufe_punktort IS 'Alias: "AX_Genauigkeitsstufe_Punktort", UML-Typ: Enumeration';
 		INSERT INTO ax_genauigkeitsstufe_punktort (wert,beschreibung,dokumentation) VALUES
 		('0900', 'Standardabweichung S kleiner 1 mm', ''),
@@ -7542,7 +7542,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_messmethode_schwere IS 'Alias: "AX_Messmethode_Schwere", UML-Typ: Enumeration';
 		INSERT INTO ax_messmethode_schwere (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Aus Absolutgravimetermessung ermittelt', ''),
@@ -7553,7 +7553,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_koordinatenstatus_punktort IS 'Alias: "AX_Koordinatenstatus_Punktort", UML-Typ: Enumeration';
 		INSERT INTO ax_koordinatenstatus_punktort (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Amtliche Koordinaten bzw. amtliche Höhe', 'Gültiger Wert in einem amtlichen Bezugssystem'),
@@ -7568,7 +7568,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_datenerhebung_schwere IS 'Alias: "AX_Datenerhebung_Schwere", UML-Typ: Enumeration';
 		INSERT INTO ax_datenerhebung_schwere (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Schwerewert direkt gemessen oder mittels Freiluftreduktion über geringe Entfernung abgeleitet (Höhenunterschied bis 1 m, Horizontalabstand bis 5 m)', ''),
@@ -7584,7 +7584,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_vertrauenswuerdigkeit_schwere IS 'Alias: "AX_Vertrauenswuerdigkeit_Schwere", UML-Typ: Enumeration';
 		INSERT INTO ax_vertrauenswuerdigkeit_schwere (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Vertrauenswürdigkeitsstufe Ausgleichung', 'Die Identität der Anschlusspunkte ist überprüft. Die Zuverlässigkeitskriterien sind durch Ausgleichung und durch mathematisch-statistiche Testverfahren festgestellt.'),
@@ -7596,7 +7596,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_schwereanomalie_schwere_art IS 'Alias: "AX_Schwereanomalie_Schwere_Art", UML-Typ: Enumeration';
 		INSERT INTO ax_schwereanomalie_schwere_art (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Geländereduktion (Reliefkorrektion)', ''),
@@ -7613,7 +7613,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_vertrauenswuerdigkeit_punktort IS 'Alias: "AX_Vertrauenswuerdigkeit_Punktort", UML-Typ: Enumeration';
 		INSERT INTO ax_vertrauenswuerdigkeit_punktort (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Vertrauenswürdigkeitsstufe Ausgleichung', 'Vertrauenswürdigkeitsstufe Ausgleichung: Die Vertrauenswürdigkeit ist durch Ausgleichung und durch mathematisch-statistische Testverfahren festgestellt. Bei den örtlichen Ver-messungen sind die Anschlusspunkte auf Identität überprüft.'),
@@ -7626,7 +7626,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_schwerestatus_schwere IS 'Alias: "AX_Schwerestatus_Schwere", UML-Typ: Enumeration';
 		INSERT INTO ax_schwerestatus_schwere (wert,beschreibung,dokumentation) VALUES
 		('1000', 'amtlicher Schwerewert (gültiger Wert im amtlichen Schweresystem)', ''),
@@ -7641,7 +7641,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_li_processstep_punktort_description IS 'Alias: "AX_LI_ProcessStep_Punktort_Description", UML-Typ: Enumeration';
 		INSERT INTO ax_li_processstep_punktort_description (wert,beschreibung,dokumentation) VALUES
 		('Erhebung', NULL, 'Erhebung beschreibt den Erfassungszeitpunkt "dateTime", aus dem z.B. das Messjahr für Position, Lage oder Höhe der AFIS-Standardausgabe abgeleitet wird.'),
@@ -7652,7 +7652,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_genauigkeitsstufe_schwere IS 'Alias: "AX_Genauigkeitsstufe_Schwere", UML-Typ: Enumeration';
 		INSERT INTO ax_genauigkeitsstufe_schwere (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Standardabweichung S kleiner 20 10-8m s-2', ''),
@@ -7665,7 +7665,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_datenerhebung_punktort IS 'Alias: "AX_Datenerhebung_Punktort", UML-Typ: Enumeration';
 		INSERT INTO ax_datenerhebung_punktort (wert,beschreibung,dokumentation) VALUES
 		('0100', 'Aus GNSS-Messung', ''),
@@ -7757,7 +7757,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_schweresystem_schwere IS 'Alias: "AX_Schweresystem_Schwere", UML-Typ: Enumeration';
 		INSERT INTO ax_schweresystem_schwere (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Schwerewert im System des DHSN 82 (System der Landesvermessung)', ''),
@@ -7775,7 +7775,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_blattart_historischesflurstueck IS 'Alias: "AX_Blattart_HistorischesFlurstueck", UML-Typ: Enumeration';
 		INSERT INTO ax_blattart_historischesflurstueck (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Grundbuchblatt', ''),
@@ -7786,7 +7786,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_qualitaet_hauskoordinate IS 'Alias: "AX_Qualitaet_Hauskoordinate", UML-Typ: Enumeration';
 		INSERT INTO ax_qualitaet_hauskoordinate (wert,beschreibung,dokumentation) VALUES
 		('1000', 'gebaeudeumring (A)', ''),
@@ -7798,7 +7798,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_punktkennung IS 'Alias: "AX_Art_Punktkennung", UML-Typ: Enumeration';
 		INSERT INTO ax_art_punktkennung (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Punktkennung - allgemein', ''),
@@ -7815,7 +7815,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_reservierung IS 'Alias: "AX_Art_Reservierung", UML-Typ: Enumeration';
 		INSERT INTO ax_art_reservierung (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Punktkennung', ''),
@@ -7844,7 +7844,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_adressat_auszug IS 'Alias: "AX_Art_Adressat_Auszug", UML-Typ: Enumeration';
 		INSERT INTO ax_art_adressat_auszug (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Privat', ''),
@@ -7859,7 +7859,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_lagezurerdoberflaeche_bauteil IS 'Alias: "AX_LageZurErdoberflaeche_Bauteil", UML-Typ: Enumeration';
 		INSERT INTO ax_lagezurerdoberflaeche_bauteil (wert,beschreibung,dokumentation) VALUES
 		('1200', 'Unter der Erdoberfläche', 'Unter der Erdoberfläche bedeutet, dass sich das Bauteil unter der Erdoberfläche befindet. Diese Wertart darf nur mit den Bauarten Keller und Tiefgarage vorkommen.'),
@@ -7870,7 +7870,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_lagezurerdoberflaeche_gebaeude IS 'Alias: "AX_LageZurErdoberflaeche_Gebaeude", UML-Typ: Enumeration';
 		INSERT INTO ax_lagezurerdoberflaeche_gebaeude (wert,beschreibung,dokumentation) VALUES
 		('1200', 'Unter der Erdoberfläche', 'Unter der Erdoberfläche bedeutet, dass sich das Gebäude unter der Erdoberfläche befindet.'),
@@ -7881,7 +7881,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_gebaeude IS 'Alias: "AX_Zustand_Gebaeude", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_gebaeude (wert,beschreibung,dokumentation) VALUES
 		('1000', 'In behelfsmäßigem Zustand', ''),
@@ -7897,7 +7897,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_dachgeschossausbau_gebaeude IS 'Alias: "AX_Dachgeschossausbau_Gebaeude", UML-Typ: Enumeration';
 		INSERT INTO ax_dachgeschossausbau_gebaeude (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Nicht ausbaufähig', ''),
@@ -7910,7 +7910,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_dachform IS 'Alias: "AX_Dachform", UML-Typ: Enumeration';
 		INSERT INTO ax_dachform (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Flachdach', ''),
@@ -7934,7 +7934,7 @@ Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerliche
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bauweise_gebaeude IS 'Alias: "AX_Bauweise_Gebaeude", UML-Typ: Enumeration';
 		INSERT INTO ax_bauweise_gebaeude (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Freistehendes Einzelgebäude', ''),
@@ -7956,7 +7956,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_gebaeudefunktion IS 'Alias: "AX_Gebaeudefunktion", UML-Typ: Enumeration';
 		INSERT INTO ax_gebaeudefunktion (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Wohngebäude', 'Wohngebäude ist ein Gebäude, das zum Wohnen genutzt wird.'),
@@ -8197,7 +8197,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_gebaeudepunkt IS 'Alias: "AX_Art_Gebaeudepunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_art_gebaeudepunkt (wert,beschreibung,dokumentation) VALUES
 		('1100', 'First', ''),
@@ -8210,7 +8210,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_weitere_gebaeudefunktion IS 'Alias: "AX_Weitere_Gebaeudefunktion", UML-Typ: Enumeration';
 		INSERT INTO ax_weitere_gebaeudefunktion (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Bankfiliale', 'Bankfiliale ist eine Einrichtung in der Geldgeschäfte getätigt werden.'),
@@ -8244,7 +8244,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_beschaffenheit_besonderegebaeudelinie IS 'Alias: "AX_Beschaffenheit_BesondereGebaeudelinie", UML-Typ: Enumeration';
 		INSERT INTO ax_beschaffenheit_besonderegebaeudelinie (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Offene Gebäudelinie', ''),
@@ -8263,7 +8263,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bauart_bauteil IS 'Alias: "AX_Bauart_Bauteil", UML-Typ: Enumeration';
 		INSERT INTO ax_bauart_bauteil (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Geringergeschossiger Gebäudeteil', ''),
@@ -8289,7 +8289,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_nutzung IS 'Alias: "AX_Nutzung", UML-Typ: Enumeration';
 		INSERT INTO ax_nutzung (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Zivil', 'Zivil wird für ein Gebäude verwendet, das privaten, öffentlichen oder religiösen Zwecken dient und nicht militärisch genutzt wird.'),
@@ -8303,7 +8303,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_verbandsgemeinde IS 'Alias: "AX_Art_Verbandsgemeinde", UML-Typ: Enumeration';
 		INSERT INTO ax_art_verbandsgemeinde (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Samtgemeinde', 'Samtgemeinde umfasst in Niedersachsen das Gebiet einer Samtgemeinde.'),
@@ -8315,7 +8315,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_baublock IS 'Alias: "AX_Art_Baublock", UML-Typ: Enumeration';
 		INSERT INTO ax_art_baublock (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Nettobaublockfläche', ''),
@@ -8326,7 +8326,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artdergebietsgrenze_gebietsgrenze IS 'Alias: "AX_ArtDerGebietsgrenze_Gebietsgrenze", UML-Typ: Enumeration';
 		INSERT INTO ax_artdergebietsgrenze_gebietsgrenze (wert,beschreibung,dokumentation) VALUES
 		('7101', 'Grenze der Bundesrepublik Deutschland', 'Grenze der Bundesrepublik Deutschland begrenzt das Gebiet der Bundesrepublik Deutschland oder eines Kondominiums.'),
@@ -8342,7 +8342,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_sonstigeangaben_bodenschaetzung IS 'Alias: "AX_SonstigeAngaben_Bodenschaetzung", UML-Typ: Enumeration';
 		INSERT INTO ax_sonstigeangaben_bodenschaetzung (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Nass, zu viel Wasser (Wa+)', ''),
@@ -8365,7 +8365,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_kulturart_musterlandesmusterundvergleichsstueck IS 'Alias: "AX_Kulturart_MusterLandesmusterUndVergleichsstueck", UML-Typ: Enumeration';
 		INSERT INTO ax_kulturart_musterlandesmusterundvergleichsstueck (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Ackerland (A)', ''),
@@ -8378,7 +8378,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_entstehungsartoderklimastufewasserverhaeltnisse_bodensc IS 'Alias: "AX_EntstehungsartOderKlimastufeWasserverhaeltnisse_Bodenschaetzung", UML-Typ: Enumeration';
 		INSERT INTO ax_entstehungsartoderklimastufewasserverhaeltnisse_bodensc (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Diluvium (D)', ''),
@@ -8435,7 +8435,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_sonstigeangaben_musterlandesmusterundvergleichsstueck IS 'Alias: "AX_SonstigeAngaben_MusterLandesmusterUndVergleichsstueck", UML-Typ: Enumeration';
 		INSERT INTO ax_sonstigeangaben_musterlandesmusterundvergleichsstueck (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Nass, zu viel Wasser (Wa+)', ''),
@@ -8455,7 +8455,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_kulturart_bodenschaetzung IS 'Alias: "AX_Kulturart_Bodenschaetzung", UML-Typ: Enumeration';
 		INSERT INTO ax_kulturart_bodenschaetzung (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Ackerland (A)', ''),
@@ -8468,7 +8468,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_klassifizierung_bewertung IS 'Alias: "AX_Klassifizierung_Bewertung", UML-Typ: Enumeration';
 		INSERT INTO ax_klassifizierung_bewertung (wert,beschreibung,dokumentation) VALUES
 		('1110', 'Unbebautes Grundstück', ''),
@@ -8527,7 +8527,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_merkmal_musterlandesmusterundvergleichsstueck IS 'Alias: "AX_Merkmal_MusterLandesmusterUndVergleichsstueck", UML-Typ: Enumeration';
 		INSERT INTO ax_merkmal_musterlandesmusterundvergleichsstueck (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Musterstück (M)', ''),
@@ -8539,7 +8539,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustandsstufeoderbodenstufe_bodenschaetzung IS 'Alias: "AX_ZustandsstufeOderBodenstufe_Bodenschaetzung", UML-Typ: Enumeration';
 		INSERT INTO ax_zustandsstufeoderbodenstufe_bodenschaetzung (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Zustandsstufe (1)', ''),
@@ -8563,7 +8563,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bedeutung_grablochderbodenschaetzung IS 'Alias: "AX_Bedeutung_GrablochDerBodenschaetzung", UML-Typ: Enumeration';
 		INSERT INTO ax_bedeutung_grablochderbodenschaetzung (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Grabloch, bestimmend, lagerichtig (innerhalb der Fläche)', ''),
@@ -8577,7 +8577,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustandsstufeoderbodenstufe_musterlandesmusterundvergle IS 'Alias: "AX_ZustandsstufeOderBodenstufe_MusterLandesmusterUndVergleichsstueck", UML-Typ: Enumeration';
 		INSERT INTO ax_zustandsstufeoderbodenstufe_musterlandesmusterundvergle (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Zustandsstufe (1)', ''),
@@ -8598,7 +8598,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_entstehungsartoderklimastufewasserverhaeltnisse_musterl IS 'Alias: "AX_EntstehungsartOderKlimastufeWasserverhaeltnisse_MusterLandesmusterUndVergleichsstueck", UML-Typ: Enumeration';
 		INSERT INTO ax_entstehungsartoderklimastufewasserverhaeltnisse_musterl (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Diluvium (D)', ''),
@@ -8645,7 +8645,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bodenart_bodenschaetzung IS 'Alias: "AX_Bodenart_Bodenschaetzung", UML-Typ: Enumeration';
 		INSERT INTO ax_bodenart_bodenschaetzung (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Sand (S)', ''),
@@ -8729,7 +8729,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bodenart_musterlandesmusterundvergleichsstueck IS 'Alias: "AX_Bodenart_MusterLandesmusterUndVergleichsstueck", UML-Typ: Enumeration';
 		INSERT INTO ax_bodenart_musterlandesmusterundvergleichsstueck (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Sand (S)', ''),
@@ -8783,7 +8783,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_landschaftstyp IS 'Alias: "AX_Landschaftstyp", UML-Typ: Enumeration';
 		INSERT INTO ax_landschaftstyp (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Gebirge', 'Gebirge bezeichnet eine zusammenhängende größere Erhebung der Erdoberfläche. Es besteht aus einzelnen Bergen und Hochflächen, die durch Täler und Senken gegliedert sind.'),
@@ -8807,7 +8807,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_verband IS 'Alias: "AX_Art_Verband", UML-Typ: Enumeration';
 		INSERT INTO ax_art_verband (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Planungsverband', ''),
@@ -8819,7 +8819,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_behoerde IS 'Alias: "AX_Behoerde", UML-Typ: Enumeration';
 		INSERT INTO ax_behoerde (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Grundbuchamt', ''),
@@ -8844,7 +8844,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_administrative_funktion IS 'Alias: "AX_Administrative_Funktion", UML-Typ: Enumeration';
 		INSERT INTO ax_administrative_funktion (wert,beschreibung,dokumentation) VALUES
 		('1001', 'Bundesrepublik', ''),
@@ -8895,7 +8895,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bezeichnung_verwaltungsgemeinschaft IS 'Alias: "AX_Bezeichnung_Verwaltungsgemeinschaft", UML-Typ: Enumeration';
 		INSERT INTO ax_bezeichnung_verwaltungsgemeinschaft (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Samtgemeinde', 'Samtgemeinde umfasst in Niedersachsen das Gebiet einer Samtgemeinde.'),
@@ -8909,7 +8909,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_schutzgebietnachwasserrecht IS 'Alias: "AX_Funktion_SchutzgebietNachWasserrecht", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_schutzgebietnachwasserrecht (wert,beschreibung,dokumentation) VALUES
 		('2111', 'Öffentliche Wasserversorgung', 'Öffentliche Wasserversorgung ist die Aufgabe eines Wasserschutzgebietes. Ziel ist es, die Gewässer der öffentlichen Wasserversorgung vor nachteiligen Einwirkungen zu schützen.'),
@@ -8921,7 +8921,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderfestlegung_schutzgebietnachnaturumweltoderbodensc IS 'Alias: "AX_ArtDerFestlegung_SchutzgebietNachNaturUmweltOderBodenschutzrecht", UML-Typ: Enumeration';
 		INSERT INTO ax_artderfestlegung_schutzgebietnachnaturumweltoderbodensc (wert,beschreibung,dokumentation) VALUES
 		('1670', 'Nationalpark', 'Nationalpark ist ein rechtsverbindlich festgesetztes einheitlich zu schützendes Gebiet, das großräumig und von besonderer Eigenart ist, im überwiegenden Teil die Voraussetzungen eines Naturschutzgebietes erfüllt und sich in einem vom Menschen nicht oder nur wenig beeinflussten Zustand befindet.'),
@@ -8937,7 +8937,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderfestlegung_anderefestlegungnachstrassenrecht IS 'Alias: "AX_ArtDerFestlegung_AndereFestlegungNachStrassenrecht", UML-Typ: Enumeration';
 		INSERT INTO ax_artderfestlegung_anderefestlegungnachstrassenrecht (wert,beschreibung,dokumentation) VALUES
 		('1210', 'Bundesfernstraßengesetz', ''),
@@ -8958,7 +8958,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderfestlegung_schutzgebietnachwasserrecht IS 'Alias: "AX_ArtDerFestlegung_SchutzgebietNachWasserrecht", UML-Typ: Enumeration';
 		INSERT INTO ax_artderfestlegung_schutzgebietnachwasserrecht (wert,beschreibung,dokumentation) VALUES
 		('1510', 'Wasserschutzgebiet', 'Wasserschutzgebiet ist ein Schutzgebiet von Wassergewinnungsanlagen mit Nutzungsbeschränkungen, um ober- und unterirdisches Wasser vor Verunreinigungen zu schützen.'),
@@ -8969,7 +8969,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_besonderefunktion_forstrecht IS 'Alias: "AX_BesondereFunktion_Forstrecht", UML-Typ: Enumeration';
 		INSERT INTO ax_besonderefunktion_forstrecht (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Ohne besondere gesetzliche Bindung', ''),
@@ -8994,7 +8994,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zone_schutzzone IS 'Alias: "AX_Zone_Schutzzone", UML-Typ: Enumeration';
 		INSERT INTO ax_zone_schutzzone (wert,beschreibung,dokumentation) VALUES
 		('1010', 'Zone I', 'Zone I ist eine räumlich begrenzte Fläche eines Schutzgebiets, für die die Fachverwaltung besondere Schutzbestimmungen festgelegt hat.'),
@@ -9014,7 +9014,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderfestlegung_klassifizierungnachstrassenrecht IS 'Alias: "AX_ArtDerFestlegung_KlassifizierungNachStrassenrecht", UML-Typ: Enumeration';
 		INSERT INTO ax_artderfestlegung_klassifizierungnachstrassenrecht (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Klassifizierung nach Bundes- oder Landesstraßengesetz', ''),
@@ -9033,7 +9033,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderfestlegung_denkmalschutzrecht IS 'Alias: "AX_ArtDerFestlegung_Denkmalschutzrecht", UML-Typ: Enumeration';
 		INSERT INTO ax_artderfestlegung_denkmalschutzrecht (wert,beschreibung,dokumentation) VALUES
 		('2700', 'Kulturdenkmal', ''),
@@ -9114,7 +9114,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderfestlegung_klassifizierungnachwasserrecht IS 'Alias: "AX_ArtDerFestlegung_KlassifizierungNachWasserrecht", UML-Typ: Enumeration';
 		INSERT INTO ax_artderfestlegung_klassifizierungnachwasserrecht (wert,beschreibung,dokumentation) VALUES
 		('1300', 'Klassifizierung nach Bundes- oder Landeswassergesetz', ''),
@@ -9128,7 +9128,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_rechtszustand_schutzzone IS 'Alias: "AX_Rechtszustand_Schutzzone", UML-Typ: Enumeration';
 		INSERT INTO ax_rechtszustand_schutzzone (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Amtlich festgestellt', 'Amtlich festgestellt bedeutet, dass der Zustand von Schutzzone durch einen Verwaltungsstelle festgelegt wird.'),
@@ -9140,7 +9140,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderfestlegung_bauraumoderbodenordnungsrecht IS 'Alias: "AX_ArtDerFestlegung_BauRaumOderBodenordnungsrecht", UML-Typ: Enumeration';
 		INSERT INTO ax_artderfestlegung_bauraumoderbodenordnungsrecht (wert,beschreibung,dokumentation) VALUES
 		('1700', 'Festlegung nach Baugesetzbuch - Allgemeines Städtebaurecht', ''),
@@ -9202,7 +9202,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderfestlegung_anderefestlegungnachwasserrecht IS 'Alias: "AX_ArtDerFestlegung_AndereFestlegungNachWasserrecht", UML-Typ: Enumeration';
 		INSERT INTO ax_artderfestlegung_anderefestlegungnachwasserrecht (wert,beschreibung,dokumentation) VALUES
 		('1410', 'Wasserstraßengesetz', ''),
@@ -9222,7 +9222,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderfestlegung_forstrecht IS 'Alias: "AX_ArtDerFestlegung_Forstrecht", UML-Typ: Enumeration';
 		INSERT INTO ax_artderfestlegung_forstrecht (wert,beschreibung,dokumentation) VALUES
 		('3900', 'Klassifizierung nach Bundes- oder Landeswaldgesetz', ''),
@@ -9241,7 +9241,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_naturumweltoderbodenschutzrecht IS 'Alias: "AX_Zustand_NaturUmweltOderBodenschutzrecht", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_naturumweltoderbodenschutzrecht (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Amtlich festgestellt', 'Amtlich festgestellt bedeutet, dass der Zustand für eine dem Natur-, Umwelt- oder Bodenschutzrecht unterliegende Fläche durch eine Verwaltungsstelle festgelegt wird.'),
@@ -9252,7 +9252,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderfestlegung_sonstigesrecht IS 'Alias: "AX_ArtDerFestlegung_SonstigesRecht", UML-Typ: Enumeration';
 		INSERT INTO ax_artderfestlegung_sonstigesrecht (wert,beschreibung,dokumentation) VALUES
 		('4100', 'Luftverkehrsgesetz', ''),
@@ -9312,7 +9312,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderfestlegung_naturumweltoderbodenschutzrecht IS 'Alias: "AX_ArtDerFestlegung_NaturUmweltOderBodenschutzrecht", UML-Typ: Enumeration';
 		INSERT INTO ax_artderfestlegung_naturumweltoderbodenschutzrecht (wert,beschreibung,dokumentation) VALUES
 		('1610', 'Schutzfläche nach Europarecht', ''),
@@ -9348,7 +9348,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_liniendarstellung_topographischelinie IS 'Alias: "AX_Liniendarstellung_TopographischeLinie", UML-Typ: Enumeration';
 		INSERT INTO ax_liniendarstellung_topographischelinie (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Durchgezogen', ''),
@@ -9360,7 +9360,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_darstellung_gebaeudeausgestaltung IS 'Alias: "AX_Darstellung_Gebaeudeausgestaltung", UML-Typ: Enumeration';
 		INSERT INTO ax_darstellung_gebaeudeausgestaltung (wert,beschreibung,dokumentation) VALUES
 		('0251', 'Topographische Begrenzungslinie', ''),
@@ -9384,7 +9384,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_datenformat_benutzer IS 'Alias: "AX_Datenformat_Benutzer", UML-Typ: Enumeration';
 		INSERT INTO ax_datenformat_benutzer (wert,beschreibung,dokumentation) VALUES
 		('1000', 'NAS', ''),
@@ -9397,7 +9397,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_bereichzeitlich IS 'Alias: "AX_Art_BereichZeitlich", UML-Typ: Enumeration';
 		INSERT INTO ax_art_bereichzeitlich (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Stichtagsbezogen ohne Historie', ''),
@@ -9410,7 +9410,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_letzteabgabeart IS 'Alias: "AX_LetzteAbgabeArt", UML-Typ: Enumeration';
 		INSERT INTO ax_letzteabgabeart (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Zeitintervall', 'Standardabgabe: LAZ + Abgabeintervall'),
@@ -9424,7 +9424,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_ausgabemedium_benutzer IS 'Alias: "AX_Ausgabemedium_Benutzer", UML-Typ: Enumeration';
 		INSERT INTO ax_ausgabemedium_benutzer (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Analog', ''),
@@ -9437,7 +9437,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_identifikation IS 'Alias: "AX_Identifikation", UML-Typ: Enumeration';
 		INSERT INTO ax_identifikation (wert,beschreibung,dokumentation) VALUES
 		('5400', 'Sicher', ''),
@@ -9448,7 +9448,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_dqerfassungsmethodemarkantergelaendepunkt IS 'Alias: "AX_DQErfassungsmethodeMarkanterGelaendepunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_dqerfassungsmethodemarkantergelaendepunkt (wert,beschreibung,dokumentation) VALUES
 		('5000', 'Terrestrische Aufnahme', ''),
@@ -9461,7 +9461,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_dqerfassungsmethodestrukturiertegelaendepunkte IS 'Alias: "AX_DQErfassungsmethodeStrukturierteGelaendepunkte", UML-Typ: Enumeration';
 		INSERT INTO ax_dqerfassungsmethodestrukturiertegelaendepunkte (wert,beschreibung,dokumentation) VALUES
 		('5000', 'Terrestrische Aufnahme', ''),
@@ -9473,7 +9473,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_dqerfassungsmethode IS 'Alias: "AX_DQErfassungsmethode", UML-Typ: Enumeration';
 		INSERT INTO ax_dqerfassungsmethode (wert,beschreibung,dokumentation) VALUES
 		('5000', 'Terrestrische Aufnahme', ''),
@@ -9488,7 +9488,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_besonderebedeutung IS 'Alias: "AX_BesondereBedeutung", UML-Typ: Enumeration';
 		INSERT INTO ax_besonderebedeutung (wert,beschreibung,dokumentation) VALUES
 		('1600', 'Höhenpunkt auf Wasserfläche', ''),
@@ -9499,7 +9499,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_dqerfassungsmethodebesondererhoehenpunkt IS 'Alias: "AX_DQErfassungsmethodeBesondererHoehenpunkt", UML-Typ: Enumeration';
 		INSERT INTO ax_dqerfassungsmethodebesondererhoehenpunkt (wert,beschreibung,dokumentation) VALUES
 		('5000', 'Terrestrische Aufnahme', ''),
@@ -9513,7 +9513,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artdergeripplinie IS 'Alias: "AX_ArtDerGeripplinie", UML-Typ: Enumeration';
 		INSERT INTO ax_artdergeripplinie (wert,beschreibung,dokumentation) VALUES
 		('1300', 'Muldenlinie', ''),
@@ -9525,7 +9525,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artdergelaendekante IS 'Alias: "AX_ArtDerGelaendekante", UML-Typ: Enumeration';
 		INSERT INTO ax_artdergelaendekante (wert,beschreibung,dokumentation) VALUES
 		('1200', 'Allgemeine Geländekante', 'Allgemeine Geländekante ist die einzelne Kante unterschiedlich geneigter Geländeflächen und keine Obergruppe anderer Geländekanten.'),
@@ -9539,7 +9539,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderstrukturierung IS 'Alias: "AX_ArtDerStrukturierung", UML-Typ: Enumeration';
 		INSERT INTO ax_artderstrukturierung (wert,beschreibung,dokumentation) VALUES
 		('1700', 'Höhenlinien', ''),
@@ -9550,7 +9550,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_dqerfassungsmethodegewaesserbegrenzung IS 'Alias: "AX_DQErfassungsmethodeGewaesserbegrenzung", UML-Typ: Enumeration';
 		INSERT INTO ax_dqerfassungsmethodegewaesserbegrenzung (wert,beschreibung,dokumentation) VALUES
 		('5000', 'Terrestrische Aufnahme', ''),
@@ -9566,7 +9566,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artdernichtgelaendepunkte IS 'Alias: "AX_ArtDerNichtGelaendepunkte", UML-Typ: Enumeration';
 		INSERT INTO ax_artdernichtgelaendepunkte (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Brückenpunkte', ''),
@@ -9578,7 +9578,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artdesmarkantengelaendepunktes IS 'Alias: "AX_ArtDesMarkantenGelaendepunktes", UML-Typ: Enumeration';
 		INSERT INTO ax_artdesmarkantengelaendepunktes (wert,beschreibung,dokumentation) VALUES
 		('1400', 'Kuppenpunkt', ''),
@@ -9590,7 +9590,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderaussparung IS 'Alias: "AX_ArtDerAussparung", UML-Typ: Enumeration';
 		INSERT INTO ax_artderaussparung (wert,beschreibung,dokumentation) VALUES
 		('1500', 'DGM-Aussparung', ''),
@@ -9601,7 +9601,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_besondereartdergewaesserbegrenzung IS 'Alias: "AX_BesondereArtDerGewaesserbegrenzung", UML-Typ: Enumeration';
 		INSERT INTO ax_besondereartdergewaesserbegrenzung (wert,beschreibung,dokumentation) VALUES
 		('1350', 'Gleichzeitig Böschungsunterkante', '');
@@ -9611,7 +9611,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_ursprung IS 'Alias: "AX_Ursprung", UML-Typ: Enumeration';
 		INSERT INTO ax_ursprung (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Natürlich entstanden', ''),
@@ -9622,7 +9622,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_dammwalldeich IS 'Alias: "AX_Funktion_DammWallDeich", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_dammwalldeich (wert,beschreibung,dokumentation) VALUES
 		('3001', 'Hochwasserschutz, Sturmflutschutz', 'Hochwasserschutz, Sturmflutschutz bedeutet, dass Damm, Wall, Deich dem Schutz vor Hochwasser bzw. Sturmflut dient.'),
@@ -9635,7 +9635,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_dammwalldeich IS 'Alias: "AX_Art_DammWallDeich", UML-Typ: Enumeration';
 		INSERT INTO ax_art_dammwalldeich (wert,beschreibung,dokumentation) VALUES
 		('1910', 'Hochwasserdeich', 'Hochwasserdeich ist ein Deich an einem Fliessgewässer oder im Küstengebiet, der dem Schutz eines Gebietes vor Hochwasser oder gegen Sturmfluten dient.'),
@@ -9664,7 +9664,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_einschnitt IS 'Alias: "AX_Funktion_Einschnitt", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_einschnitt (wert,beschreibung,dokumentation) VALUES
 		('3002', 'Verkehrsführung', 'Verkehrsführung bedeutet, dass im Einschnitt ein Verkehrsweg verläuft.');
@@ -9674,7 +9674,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_boeschungkliff IS 'Alias: "AX_Zustand_BoeschungKliff", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_boeschungkliff (wert,beschreibung,dokumentation) VALUES
 		('2400', 'Befestigt', ''),
@@ -9685,7 +9685,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_hoehleneingang IS 'Alias: "AX_Zustand_Hoehleneingang", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_hoehleneingang (wert,beschreibung,dokumentation) VALUES
 		('2200', 'Verfallen, zerstört', 'Verfallen, zerstört bedeutet, dass sich der ursprüngliche Zustand von Höhleneingang durch menschliche oder zeitliche Einwirkungen so verändert hat, dass eine Nutzung nicht mehr möglich ist.'),
@@ -9697,7 +9697,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_berechnungsmethode IS 'Alias: "AX_Berechnungsmethode", UML-Typ: Enumeration';
 		INSERT INTO ax_berechnungsmethode (wert,beschreibung,dokumentation) VALUES
 		('5300', 'Einfache Mittelbildung', ''),
@@ -9713,7 +9713,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_verwendeteobjekte IS 'Alias: "AX_VerwendeteObjekte", UML-Typ: Enumeration';
 		INSERT INTO ax_verwendeteobjekte (wert,beschreibung,dokumentation) VALUES
 		('5111', 'Geländepunkte', ''),
@@ -9729,7 +9729,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_berechnungsmethodehoehenlinie IS 'Alias: "AX_BerechnungsmethodeHoehenlinie", UML-Typ: Enumeration';
 		INSERT INTO ax_berechnungsmethodehoehenlinie (wert,beschreibung,dokumentation) VALUES
 		('5211', 'Aus sekundärem DGM-Gitter', ''),
@@ -9740,7 +9740,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_dqerfassungsmethodesekundaeresdgm IS 'Alias: "AX_DQErfassungsmethodeSekundaeresDGM", UML-Typ: Enumeration';
 		INSERT INTO ax_dqerfassungsmethodesekundaeresdgm (wert,beschreibung,dokumentation) VALUES
 		('5000', 'Terrestrische Aufnahme', ''),
@@ -9756,7 +9756,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_kanal IS 'Alias: "AX_Zustand_Kanal", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_kanal (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt, verlassen bedeutet, dass sich der Kanal nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
@@ -9767,7 +9767,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_stehendesgewaesser IS 'Alias: "AX_Funktion_StehendesGewaesser", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_stehendesgewaesser (wert,beschreibung,dokumentation) VALUES
 		('8610', 'See', 'See ist eine natürliche oder künstlich angelegte, größere, stehende oder nahezu stehende Wasserfläche, die nach allgemeiner Verkehrsauffassung als See anzuse-hen ist.'),
@@ -9782,7 +9782,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_schifffahrtskategorie IS 'Alias: "AX_Schifffahrtskategorie", UML-Typ: Enumeration';
 		INSERT INTO ax_schifffahrtskategorie (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Binnenwasserstraße', 'Binnenwasserstraße ist ein oberirdisches Gewässer oder Küstengewässer, das gesetzlich für den Personen- und/oder Güterverkehr mit Schiffen bestimmt ist. Binnengewässer im Küstengebiet sind gegen das Küstengewässer gesetzlich abgegrenzt.'),
@@ -9794,7 +9794,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_hydrologischesmerkmal_fliessgewaesser IS 'Alias: "AX_HydrologischesMerkmal_Fliessgewaesser", UML-Typ: Enumeration';
 		INSERT INTO ax_hydrologischesmerkmal_fliessgewaesser (wert,beschreibung,dokumentation) VALUES
 		('2000', 'Nicht ständig Wasser führend', 'Nicht ständig Wasser führend heißt, dass ein Gewässer nicht ganzjährig Wasser führt.');
@@ -9804,7 +9804,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_schifffahrtskategorie_kanal IS 'Alias: "AX_Schifffahrtskategorie_Kanal", UML-Typ: Enumeration';
 		INSERT INTO ax_schifffahrtskategorie_kanal (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Binnenwasserstraße', 'Binnenwasserstraße ist ein oberirdisches Gewässer oder Küstengewässer, das gesetzlich für den Personen- und/oder Güterverkehr mit Schiffen bestimmt ist. Binnengewässer im Küstengebiet sind gegen das Küstengewässer gesetzlich abgegrenzt.'),
@@ -9816,7 +9816,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_fliessgewaesser IS 'Alias: "AX_Funktion_Fliessgewaesser", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_fliessgewaesser (wert,beschreibung,dokumentation) VALUES
 		('8200', 'Fluss', 'Fluss ist ein natürliches, fließendes Gewässer (ggf. auch mit begradigten, kanalisierten Teilstücken), das wegen seiner Größe und Bedeutung nach allgemeiner Verkehrsauffassung als Fluss angesprochen wird.'),
@@ -9833,7 +9833,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_widmung_wasserlauf IS 'Alias: "AX_Widmung_Wasserlauf", UML-Typ: Enumeration';
 		INSERT INTO ax_widmung_wasserlauf (wert,beschreibung,dokumentation) VALUES
 		('1310', 'Gewässer I. Ordnung - Bundeswasserstraße', 'Gewässer I. Ordnung - Bundeswasserstraße ist ein Gewässer, das der Zuständigkeit des Bundes obliegt.'),
@@ -9846,7 +9846,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_meer IS 'Alias: "AX_Funktion_Meer", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_meer (wert,beschreibung,dokumentation) VALUES
 		('8710', 'Küstengewässer', 'Küstengewässer ist die Fläche zwischen der Küstenlinie bei mittlerem Hochwasser oder der seewärtigen Begrenzung der oberirdischen Gewässer und der seewärtigen Begrenzung des deutschen Hoheitsgebietes. Dem mittleren Hochwasser ist der mittlere Wasserstand der Ostsee gleichzusetzen.');
@@ -9856,7 +9856,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_hydrologischesmerkmal_gewaesserachse IS 'Alias: "AX_HydrologischesMerkmal_Gewaesserachse", UML-Typ: Enumeration';
 		INSERT INTO ax_hydrologischesmerkmal_gewaesserachse (wert,beschreibung,dokumentation) VALUES
 		('2000', 'Nicht ständig Wasser führend', 'Nicht ständig Wasser führend heißt, dass ein Gewässer nicht ganzjährig Wasser führt.'),
@@ -9867,7 +9867,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_tidemerkmal_meer IS 'Alias: "AX_Tidemerkmal_Meer", UML-Typ: Enumeration';
 		INSERT INTO ax_tidemerkmal_meer (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Mit Tideeinfluss', 'Mit Tideeinfluss sind periodische Änderungen des Wasserspiegels und horizontale Bewegungen des Wassers, hervorgerufen durch die Massenanziehungs- und Fliehkräfte des Systems Sonne, Mond und Erde in Verbindung mit der Erdrotation.');
@@ -9877,7 +9877,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_nutzung_hafenbecken IS 'Alias: "AX_Nutzung_Hafenbecken", UML-Typ: Enumeration';
 		INSERT INTO ax_nutzung_hafenbecken (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Zivil', 'Zivil bedeutet, dass Hafenbecken privaten oder öffentlichen Zwecken dient und nicht militärisch genutzt wird.'),
@@ -9889,7 +9889,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_hydrologischesmerkmal_stehendesgewaesser IS 'Alias: "AX_HydrologischesMerkmal_StehendesGewaesser", UML-Typ: Enumeration';
 		INSERT INTO ax_hydrologischesmerkmal_stehendesgewaesser (wert,beschreibung,dokumentation) VALUES
 		('2000', 'Nicht ständig Wasser führend', 'Nicht ständig Wasser führend heißt, dass ein Gewässer nicht ganzjährig Wasser führt.');
@@ -9899,7 +9899,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_widmung_stehendesgewaesser IS 'Alias: "AX_Widmung_StehendesGewaesser", UML-Typ: Enumeration';
 		INSERT INTO ax_widmung_stehendesgewaesser (wert,beschreibung,dokumentation) VALUES
 		('1310', 'Gewässer I. Ordnung - Bundeswasserstraße', 'Gewässer I. Ordnung - Bundeswasserstraße ist ein Gewässer, das der Zuständigkeit  des Bundes obliegt.'),
@@ -9912,7 +9912,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_gewaesserachse IS 'Alias: "AX_Funktion_Gewaesserachse", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_gewaesserachse (wert,beschreibung,dokumentation) VALUES
 		('8300', 'Kanal', 'Kanal ist ein für die Schifffahrt angelegter künstlicher Wasserlauf.');
@@ -9922,7 +9922,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_hafenbecken IS 'Alias: "AX_Funktion_Hafenbecken", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_hafenbecken (wert,beschreibung,dokumentation) VALUES
 		('8810', 'Sportboothafenbecken', '');
@@ -9932,7 +9932,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_widmung_kanal IS 'Alias: "AX_Widmung_Kanal", UML-Typ: Enumeration';
 		INSERT INTO ax_widmung_kanal (wert,beschreibung,dokumentation) VALUES
 		('1310', 'Gewässer I. Ordnung - Bundeswasserstraße', 'Gewässer I. Ordnung -Bundeswasserstraße ist ein Gewässer, das der Zuständigkeit  des Bundes obliegt.'),
@@ -9945,7 +9945,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_wohnbauflaeche IS 'Alias: "AX_Zustand_Wohnbauflaeche", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_wohnbauflaeche (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt; verlassen bedeutet, dass sich die Fläche nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
@@ -9956,7 +9956,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderbebauung_wohnbauflaeche IS 'Alias: "AX_ArtDerBebauung_Wohnbauflaeche", UML-Typ: Enumeration';
 		INSERT INTO ax_artderbebauung_wohnbauflaeche (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Offen', 'Offen beschreibt die Bebauung von Wohnbaufläche, die vorwiegend durch einzelstehende Gebäude charakterisiert wird.'),
@@ -9967,7 +9967,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_flaechebesondererfunktionalerpraegung IS 'Alias: "AX_Zustand_FlaecheBesondererFunktionalerPraegung", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_flaechebesondererfunktionalerpraegung (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt; verlassen bedeutet, dass sich die Fläche funktionaler Prägung nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
@@ -9978,7 +9978,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_flaechegemischternutzung IS 'Alias: "AX_Funktion_FlaecheGemischterNutzung", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_flaechegemischternutzung (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Gebäude- und Freifläche, Mischnutzung mit Wohnen', ''),
@@ -10000,7 +10000,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_foerdergut_industrieundgewerbeflaeche IS 'Alias: "AX_Foerdergut_IndustrieUndGewerbeflaeche", UML-Typ: Enumeration';
 		INSERT INTO ax_foerdergut_industrieundgewerbeflaeche (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Erdöl', 'Erdöl ist ein flüssiges und brennbares Kohlenwasserstoffgemisch, das gefördert wird.'),
@@ -10014,7 +10014,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderbebauung_flaechegemischternutzung IS 'Alias: "AX_ArtDerBebauung_FlaecheGemischterNutzung", UML-Typ: Enumeration';
 		INSERT INTO ax_artderbebauung_flaechegemischternutzung (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Offen', 'Offen beschreibt die Bebauung von Fläche gemischter Nutzung, die vorwiegend durch einzelstehende Gebäude charakterisiert wird.'),
@@ -10025,7 +10025,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_sportfreizeitunderholungsflaeche IS 'Alias: "AX_Zustand_SportFreizeitUndErholungsflaeche", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_sportfreizeitunderholungsflaeche (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', ''),
@@ -10036,7 +10036,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_flaechebesondererfunktionalerpraegung IS 'Alias: "AX_Funktion_FlaecheBesondererFunktionalerPraegung", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_flaechebesondererfunktionalerpraegung (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Öffentliche Zwecke', 'Öffentliche Zwecke bezeichnet eine Fläche, die der Erfüllung öffentlicher Aufgaben und der Allgemeinheit dient.'),
@@ -10057,7 +10057,7 @@ Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_sportfreizeitunderholungsflaeche IS 'Alias: "AX_Funktion_SportFreizeitUndErholungsflaeche", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_sportfreizeitunderholungsflaeche (wert,beschreibung,dokumentation) VALUES
 		('4001', 'Gebäude- und Freifläche Sport, Freizeit und Erholung', 'Gebäude- und Freifläche Sport, Freizeit und Erholung ist eine bebaute Fläche, die dem Sport, der Freizeitgestaltung oder der Erholung dient.'),
@@ -10105,7 +10105,7 @@ Betriebsformen in ihrer natürlichen Umgebung im Freien dargestellt sind.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_lagergut_industrieundgewerbeflaeche IS 'Alias: "AX_Lagergut_IndustrieUndGewerbeflaeche", UML-Typ: Enumeration';
 		INSERT INTO ax_lagergut_industrieundgewerbeflaeche (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Baustoffe', ''),
@@ -10123,7 +10123,7 @@ Betriebsformen in ihrer natürlichen Umgebung im Freien dargestellt sind.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_halde IS 'Alias: "AX_Zustand_Halde", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_halde (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt; verlassen bedeutet, dass sich die Halde nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
@@ -10134,7 +10134,7 @@ Betriebsformen in ihrer natürlichen Umgebung im Freien dargestellt sind.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_bergbaubetrieb IS 'Alias: "AX_Zustand_Bergbaubetrieb", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_bergbaubetrieb (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt; verlassen bedeutet, dass sich der Bergbaubetrieb nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
@@ -10145,7 +10145,7 @@ Betriebsformen in ihrer natürlichen Umgebung im Freien dargestellt sind.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_abbaugut_tagebaugrubesteinbruch IS 'Alias: "AX_Abbaugut_TagebauGrubeSteinbruch", UML-Typ: Enumeration';
 		INSERT INTO ax_abbaugut_tagebaugrubesteinbruch (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Erden, Lockergestein', 'Erden, Lockergestein bedeutet, dass feinkörnige Gesteine abgebaut werden.'),
@@ -10204,7 +10204,7 @@ Betriebsformen in ihrer natürlichen Umgebung im Freien dargestellt sind.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_primaerenergie_industrieundgewerbeflaeche IS 'Alias: "AX_Primaerenergie_IndustrieUndGewerbeflaeche", UML-Typ: Enumeration';
 		INSERT INTO ax_primaerenergie_industrieundgewerbeflaeche (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Wasser', 'Wasser bedeutet, dass das Kraftwerk potentielle und kinetische Energie des Wasserkreislaufs in elektrische Energie umwandelt.'),
@@ -10224,7 +10224,7 @@ Betriebsformen in ihrer natürlichen Umgebung im Freien dargestellt sind.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_abbaugut_bergbaubetrieb IS 'Alias: "AX_Abbaugut_Bergbaubetrieb", UML-Typ: Enumeration';
 		INSERT INTO ax_abbaugut_bergbaubetrieb (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Erden, Lockergestein', 'Erden, Lockergestein bedeutet, dass feinkörnige Gesteine abgebaut werden.'),
@@ -10269,7 +10269,7 @@ Betriebsformen in ihrer natürlichen Umgebung im Freien dargestellt sind.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_flaechegemischternutzung IS 'Alias: "AX_Zustand_FlaecheGemischterNutzung", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_flaechegemischternutzung (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', ''),
@@ -10280,7 +10280,7 @@ Betriebsformen in ihrer natürlichen Umgebung im Freien dargestellt sind.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_industrieundgewerbeflaeche IS 'Alias: "AX_Zustand_IndustrieUndGewerbeflaeche", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_industrieundgewerbeflaeche (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt; verlassen bedeutet, dass sich die Fläche nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
@@ -10291,7 +10291,7 @@ Betriebsformen in ihrer natürlichen Umgebung im Freien dargestellt sind.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_friedhof IS 'Alias: "AX_Funktion_Friedhof", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_friedhof (wert,beschreibung,dokumentation) VALUES
 		('9401', 'Gebäude- und Freifläche Friedhof', ''),
@@ -10304,7 +10304,7 @@ Betriebsformen in ihrer natürlichen Umgebung im Freien dargestellt sind.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_friedhof IS 'Alias: "AX_Zustand_Friedhof", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_friedhof (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', ''),
@@ -10315,7 +10315,7 @@ Betriebsformen in ihrer natürlichen Umgebung im Freien dargestellt sind.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_lagergut_halde IS 'Alias: "AX_Lagergut_Halde", UML-Typ: Enumeration';
 		INSERT INTO ax_lagergut_halde (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Baustoffe', ''),
@@ -10332,7 +10332,7 @@ Betriebsformen in ihrer natürlichen Umgebung im Freien dargestellt sind.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_industrieundgewerbeflaeche IS 'Alias: "AX_Funktion_IndustrieUndGewerbeflaeche", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_industrieundgewerbeflaeche (wert,beschreibung,dokumentation) VALUES
 		('1400', 'Handel und Dienstleistung', 'Handel und Dienstleistung bezeichnet eine Fläche, auf der vorwiegend Gebäude stehen, in denen Handels- und/oder Dienstleistungsbetriebe ansässig sind.'),
@@ -10399,7 +10399,7 @@ Präsentation von Warenmustern.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_tagebaugrubesteinbruch IS 'Alias: "AX_Zustand_TagebauGrubeSteinbruch", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_tagebaugrubesteinbruch (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt; verlassen bedeutet, dass sich Tagebau, Grube, Steinbruch nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
@@ -10410,7 +10410,7 @@ Präsentation von Warenmustern.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderbebauung_siedlungsflaeche IS 'Alias: "AX_ArtDerBebauung_Siedlungsflaeche", UML-Typ: Enumeration';
 		INSERT INTO ax_artderbebauung_siedlungsflaeche (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Offen', 'Offen beschreibt die Bebauung von Fläche gemischter Nutzung, die vorwiegend durch einzelstehende Gebäude charakterisiert wird.'),
@@ -10421,7 +10421,7 @@ Präsentation von Warenmustern.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_artderbebauung_flaechebesondererfunktionalerpraegung IS 'Alias: "AX_ArtDerBebauung_FlaecheBesondererFunktionalerPraegung", UML-Typ: Enumeration';
 		INSERT INTO ax_artderbebauung_flaechebesondererfunktionalerpraegung (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Offen', 'Offen beschreibt die Bebauung von Fläche besonderer funktionaler Prägung, die vorwiegend durch einzelstehende Gebäude charakterisiert wird.'),
@@ -10432,7 +10432,7 @@ Präsentation von Warenmustern.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_vegetationsmerkmal_gehoelz IS 'Alias: "AX_Vegetationsmerkmal_Gehoelz", UML-Typ: Enumeration';
 		INSERT INTO ax_vegetationsmerkmal_gehoelz (wert,beschreibung,dokumentation) VALUES
 		('1400', 'Latschenkiefer', '');
@@ -10442,7 +10442,7 @@ Präsentation von Warenmustern.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_vegetationsmerkmal_wald IS 'Alias: "AX_Vegetationsmerkmal_Wald", UML-Typ: Enumeration';
 		INSERT INTO ax_vegetationsmerkmal_wald (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Laubholz', 'Laubholz beschreibt den Bewuchs einer Vegetationsfläche mit Laubbäumen.'),
@@ -10456,7 +10456,7 @@ Präsentation von Warenmustern.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_vegetationsmerkmal_landwirtschaft IS 'Alias: "AX_Vegetationsmerkmal_Landwirtschaft", UML-Typ: Enumeration';
 		INSERT INTO ax_vegetationsmerkmal_landwirtschaft (wert,beschreibung,dokumentation) VALUES
 		('1010', 'Ackerland', 'Ackerland ist eine Fläche für den Anbau von Feldfrüchten (z.B. Getreide, Hülsenfrüchte, Hackfrüchte) und Beerenfrüchten (z.B. Erdbeeren). 
@@ -10479,7 +10479,7 @@ Zum Ackerland gehören auch die Rotationsbrachen, Dauerbrachen sowie Flächen, d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_oberflaechenmaterial_unlandvegetationsloseflaeche IS 'Alias: "AX_Oberflaechenmaterial_UnlandVegetationsloseFlaeche", UML-Typ: Enumeration';
 		INSERT INTO ax_oberflaechenmaterial_unlandvegetationsloseflaeche (wert,beschreibung,dokumentation) VALUES
 		('1010', 'Fels', 'Fels bedeutet, dass die Erdoberfläche aus einer festen Gesteinsmasse besteht.'),
@@ -10494,7 +10494,7 @@ Zum Ackerland gehören auch die Rotationsbrachen, Dauerbrachen sowie Flächen, d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_unlandvegetationsloseflaeche IS 'Alias: "AX_Funktion_UnlandVegetationsloseFlaeche", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_unlandvegetationsloseflaeche (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Vegetationslose Fläche', 'Vegetationslose Fläche ist eine Fläche ohne nennenswerten Bewuchs aufgrund besonderer Bodenbeschaffenheit.'),
@@ -10509,7 +10509,7 @@ Zum Ackerland gehören auch die Rotationsbrachen, Dauerbrachen sowie Flächen, d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_gehoelz IS 'Alias: "AX_Funktion_Gehoelz", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_gehoelz (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Windschutz', '');
@@ -10519,7 +10519,7 @@ Zum Ackerland gehören auch die Rotationsbrachen, Dauerbrachen sowie Flächen, d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_bahnkategorie IS 'Alias: "AX_Bahnkategorie", UML-Typ: Enumeration';
 		INSERT INTO ax_bahnkategorie (wert,beschreibung,dokumentation) VALUES
 		('1100', 'Eisenbahn', 'Eisenbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem im Nah- und Fernverkehr Personen befördert und Güter transportiert werden.'),
@@ -10540,7 +10540,7 @@ Zum Ackerland gehören auch die Rotationsbrachen, Dauerbrachen sowie Flächen, d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_weg IS 'Alias: "AX_Funktion_Weg", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_weg (wert,beschreibung,dokumentation) VALUES
 		('5210', 'Fahrweg', ''),
@@ -10558,7 +10558,7 @@ Zum Ackerland gehören auch die Rotationsbrachen, Dauerbrachen sowie Flächen, d
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_bahnverkehr IS 'Alias: "AX_Funktion_Bahnverkehr", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_bahnverkehr (wert,beschreibung,dokumentation) VALUES
 		('2321', 'Gebäude- und Freifläche zu Verkehrsanlagen, Schiene', 'Gebäude- und Freifläche zu Verkehrsanlage, Schiene dient der Abwicklung und Sicherheit des Verkehrs sowie der Unterhaltung der Verkehrsfläche'),
@@ -10570,7 +10570,7 @@ angrenzende Fläche, die dem Schienenverkehr dient.');
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_verkehrsbedeutunginneroertlich IS 'Alias: "AX_VerkehrsbedeutungInneroertlich", UML-Typ: Enumeration';
 		INSERT INTO ax_verkehrsbedeutunginneroertlich (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Durchgangsverkehr', 'Durchgangsverkehr beschreibt den tatsächlich stattfindenden Verkehr auf einer innerörtlichen Straße (Durchgangsstraße), unabhängig von gesetzlichen Festlegungen (z.B. Landesstraßengesetz) Als Durchgangsstraße wird die Straße bezeichnet, auf der aufgrund des Ausbauzustandes und der örtlichen Verkehrsregelung der überörtliche Verkehr durch ein bebautes Gebiet geleitet wird. Der Durchgangsverkehr kann sowohl auf Gemeindestraßen als auch auf höherwertig klassifizierten Straßen liegen.'),
@@ -10583,7 +10583,7 @@ angrenzende Fläche, die dem Schienenverkehr dient.');
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_internationalebedeutung_strasse IS 'Alias: "AX_InternationaleBedeutung_Strasse", UML-Typ: Enumeration';
 		INSERT INTO ax_internationalebedeutung_strasse (wert,beschreibung,dokumentation) VALUES
 		('2001', 'Europastraße', 'Europastraßen sind Abschnitte von Bundesfernstraßen, die einen Teil des von der Europäischen Konferenz der Verkehrsminister beschlossenen internationalen europäischen Straßennetzes bilden.');
@@ -10593,7 +10593,7 @@ angrenzende Fläche, die dem Schienenverkehr dient.');
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_besonderefahrstreifen IS 'Alias: "AX_BesondereFahrstreifen", UML-Typ: Enumeration';
 		INSERT INTO ax_besonderefahrstreifen (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Mit Radweg', 'Mit Radweg bedeutet, dass parallel zur <Objektart> ein Radweg verläuft, der aber nicht als eigenständiges Objekt erfasst wird.'),
@@ -10605,7 +10605,7 @@ angrenzende Fläche, die dem Schienenverkehr dient.');
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_bahnverkehr IS 'Alias: "AX_Zustand_Bahnverkehr", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_bahnverkehr (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', ''),
@@ -10616,7 +10616,7 @@ angrenzende Fläche, die dem Schienenverkehr dient.');
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_befestigung_fahrwegachse IS 'Alias: "AX_Befestigung_Fahrwegachse", UML-Typ: Enumeration';
 		INSERT INTO ax_befestigung_fahrwegachse (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Befestigt', 'Befestigt bedeutet, dass Fahrwegachse mit einem festen Unterbau versehen und ganzjährig befahrbar bzw. begehbar ist.'),
@@ -10627,7 +10627,7 @@ angrenzende Fläche, die dem Schienenverkehr dient.');
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_spurweite IS 'Alias: "AX_Spurweite", UML-Typ: Enumeration';
 		INSERT INTO ax_spurweite (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Normalspur (Regelspur, Vollspur)', 'Normalspur (Regelspur, Vollspur) hat eine Spurweite von 1435 mm. Das ist das Innenmaß zwischen den Innenkanten der Schienenköpfe eines Gleises.'),
@@ -10639,7 +10639,7 @@ angrenzende Fläche, die dem Schienenverkehr dient.');
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_schiffsverkehr IS 'Alias: "AX_Zustand_Schiffsverkehr", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_schiffsverkehr (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt, verlassen bedeutet, dass sich Schiffsverkehr nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
@@ -10650,7 +10650,7 @@ angrenzende Fläche, die dem Schienenverkehr dient.');
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_platz IS 'Alias: "AX_Funktion_Platz", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_platz (wert,beschreibung,dokumentation) VALUES
 		('5130', 'Fußgängerzone', 'Fußgängerzone ist ein dem Fußgängerverkehr vorbehaltener Bereich, in dem ausnahmsweise öffentlicher Personenverkehr, Lieferverkehr oder Fahrradverkehr zulässig sein kann.'),
@@ -10666,7 +10666,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_art_flugverkehr IS 'Alias: "AX_Art_Flugverkehr", UML-Typ: Enumeration';
 		INSERT INTO ax_art_flugverkehr (wert,beschreibung,dokumentation) VALUES
 		('5510', 'Flughafen', 'Flughafen ist eine Anlage mit Gebäuden, Bauwerken, Start- und Landebahnen sowie sonstigen  flugtechnischen Einrichtungen zur Abwicklung des Flugverkehrs.'),
@@ -10682,7 +10682,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_elektrifizierung IS 'Alias: "AX_Elektrifizierung", UML-Typ: Enumeration';
 		INSERT INTO ax_elektrifizierung (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Elektrifiziert', 'Elektrifiziert bedeutet, dass den Schienenfahrzeugen über eine Oberleitung oder eine Stromschiene längs des Fahrweges elektrische Energie zugeführt wird.'),
@@ -10693,7 +10693,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand IS 'Alias: "AX_Zustand", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt, verlassen bedeutet, dass sich <Objektart> nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
@@ -10704,7 +10704,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_fahrbahntrennung_strasse IS 'Alias: "AX_Fahrbahntrennung_Strasse", UML-Typ: Enumeration';
 		INSERT INTO ax_fahrbahntrennung_strasse (wert,beschreibung,dokumentation) VALUES
 		('2000', 'Getrennt', 'Getrennt bedeutet, dass sich ein Grünstreifen, eine Leitplanke oder ein sonstiges Hindernis zwischen zwei Fahrbahnen befindet.');
@@ -10714,7 +10714,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_fahrbahnachse IS 'Alias: "AX_Funktion_Fahrbahnachse", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_fahrbahnachse (wert,beschreibung,dokumentation) VALUES
 		('1808', 'Fußgängerzone', 'Fußgängerzone ist ein dem Fußgängerverkehr vorbehaltener Bereich, in dem ausnahmsweise öffentlicher Personenverkehr, Lieferverkehr oder Fahrradverkehr zulässig sein kann.');
@@ -10724,7 +10724,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_oberflaechenmaterial_strasse IS 'Alias: "AX_Oberflaechenmaterial_Strasse", UML-Typ: Enumeration';
 		INSERT INTO ax_oberflaechenmaterial_strasse (wert,beschreibung,dokumentation) VALUES
 		('1220', 'Beton', 'Beton bedeutet, dass die Oberfläche von <Objektart> aus Beton besteht.'),
@@ -10737,7 +10737,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_flugverkehr IS 'Alias: "AX_Funktion_Flugverkehr", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_flugverkehr (wert,beschreibung,dokumentation) VALUES
 		('5501', 'Gebäude- und Freifläche zu Verkehrsanlagen, Luftfahrt', 'Gebäude- und Freifläche zu Verkehrsanlagen, Luftfahrt ist eine besondere Flugverkehrsfläche.');
@@ -10747,7 +10747,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_wegachse IS 'Alias: "AX_Funktion_Wegachse", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_wegachse (wert,beschreibung,dokumentation) VALUES
 		('5211', 'Hauptwirtschaftsweg', 'Hauptwirtschaftsweg ist ein Weg mit fester Fahrbahndecke zur Erschließung eines oder mehrerer Grundstücke, der für den Kraftverkehr zu jeder Jahreszeit befahrbar ist.'),
@@ -10758,7 +10758,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_strasse IS 'Alias: "AX_Zustand_Strasse", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_strasse (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', ''),
@@ -10769,7 +10769,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_markierung_wegachse IS 'Alias: "AX_Markierung_Wegachse", UML-Typ: Enumeration';
 		INSERT INTO ax_markierung_wegachse (wert,beschreibung,dokumentation) VALUES
 		('1401', 'Gekennzeichneter Wanderweg', 'Gekennzeichneter Wanderweg ist ein als Wanderweg eindeutig markierter Weg.'),
@@ -10781,7 +10781,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_zustand_flugverkehr IS 'Alias: "AX_Zustand_Flugverkehr", UML-Typ: Enumeration';
 		INSERT INTO ax_zustand_flugverkehr (wert,beschreibung,dokumentation) VALUES
 		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt; verlassen bedeutet, dass sich Flugverkehr nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
@@ -10792,7 +10792,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_strassenachse IS 'Alias: "AX_Funktion_Strassenachse", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_strassenachse (wert,beschreibung,dokumentation) VALUES
 		('1808', 'Fußgängerzone', 'Fußgängerzone ist ein dem Fußgängerverkehr vorbehaltener Bereich, in dem ausnahmsweise öffentlicher Personenverkehr, Lieferverkehr oder Fahrradverkehr zulässig sein kann.');
@@ -10802,7 +10802,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_verkehrsbedeutungueberoertlich IS 'Alias: "AX_VerkehrsbedeutungUeberoertlich", UML-Typ: Enumeration';
 		INSERT INTO ax_verkehrsbedeutungueberoertlich (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Überörtlicher Verkehr', 'Überörtlicher Verkehr umfasst die Verkehrswege des Fern-, Regional- und Nahverkehrs.'),
@@ -10815,7 +10815,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_nutzung_flugverkehr IS 'Alias: "AX_Nutzung_Flugverkehr", UML-Typ: Enumeration';
 		INSERT INTO ax_nutzung_flugverkehr (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Zivil', 'Zivil bedeutet, dass Flugverkehr privaten, öffentlichen oder religiösen Zwecken dient und nicht militärisch genutzt wird.'),
@@ -10827,7 +10827,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_schiffsverkehr IS 'Alias: "AX_Funktion_Schiffsverkehr", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_schiffsverkehr (wert,beschreibung,dokumentation) VALUES
 		('2341', 'Gebäude und Freifläche zu Verkehrsanlagen, Schifffahrt', 'Gebäude- und Freifläche zu Verkehrsanlagen, Schifffahrt ist eine Fläche, die dem Schiffsverkehr dient.'),
@@ -10841,7 +10841,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktion_strasse IS 'Alias: "AX_Funktion_Strasse", UML-Typ: Enumeration';
 		INSERT INTO ax_funktion_strasse (wert,beschreibung,dokumentation) VALUES
 		('2311', 'Gebäude- und Freifläche zu Verkehrsanlagen, Straße', 'Gebäude- und Freifläche zu Verkehrsanlagen, Straße ist eine Fläche. die der Abwicklung und Sicherheit des Verkehrs sowie der Unterhaltung der Verkehrsfläche dient.'),
@@ -10854,7 +10854,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_widmung_strasse IS 'Alias: "AX_Widmung_Strasse", UML-Typ: Enumeration';
 		INSERT INTO ax_widmung_strasse (wert,beschreibung,dokumentation) VALUES
 		('1301', 'Bundesautobahn', 'Bundesautobahn ist eine durch Verwaltungsakt zur Bundesautobahn gewidmete Bundesfernstraße.'),
@@ -10870,7 +10870,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_anzahlderstreckengleise IS 'Alias: "AX_AnzahlDerStreckengleise", UML-Typ: Enumeration';
 		INSERT INTO ax_anzahlderstreckengleise (wert,beschreibung,dokumentation) VALUES
 		('1000', 'Eingleisig', 'Eingleisig bedeutet, dass für Bahnstrecke nur ein Gleis für beide Fahrtrichtungen zur Verfügung steht.'),
@@ -10881,7 +10881,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktionoa_k_tngr_all IS 'Alias: "AX_FunktionOA_K_TNGR_all", UML-Typ: Enumeration';
 		INSERT INTO ax_funktionoa_k_tngr_all (wert,beschreibung,dokumentation) VALUES
 		('Wohnbaufläche', NULL, ''),
@@ -10916,7 +10916,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_klassifizierunggr_k_bewgr IS 'Alias: "AX_KlassifizierungGr_K_BEWGR", UML-Typ: Enumeration';
 		INSERT INTO ax_klassifizierunggr_k_bewgr (wert,beschreibung,dokumentation) VALUES
 		('Forstwirtschaftliche Nutzung', NULL, ''),
@@ -10936,7 +10936,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktionoa_k_tnfl IS 'Alias: "AX_FunktionOA_K_TNFL", UML-Typ: Enumeration';
 		INSERT INTO ax_funktionoa_k_tnfl (wert,beschreibung,dokumentation) VALUES
 		('Fließgewässer', NULL, ''),
@@ -10976,7 +10976,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_klassifizierungobg_k_bewfl IS 'Alias: "AX_KlassifizierungOBG_K_BEWFL", UML-Typ: Enumeration';
 		INSERT INTO ax_klassifizierungobg_k_bewfl (wert,beschreibung,dokumentation) VALUES
 		('Grünland-Acker', NULL, ''),
@@ -11017,7 +11017,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktionoa_k_tngrerweitert_all IS 'Alias: "AX_FunktionOA_K_TNGRerweitert_all", UML-Typ: Enumeration';
 		INSERT INTO ax_funktionoa_k_tngrerweitert_all (wert,beschreibung,dokumentation) VALUES
 		('Schleuse (Landfläche)', NULL, ''),
@@ -11242,7 +11242,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_funktionhgr_k_tnhgr IS 'Alias: "AX_FunktionHGr_K_TNHGR", UML-Typ: Enumeration';
 		INSERT INTO ax_funktionhgr_k_tnhgr (wert,beschreibung,dokumentation) VALUES
 		('Gewässer', NULL, ''),
@@ -11255,7 +11255,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_wirtschaftsart IS 'Alias: "AX_Wirtschaftsart", UML-Typ: Enumeration';
 		INSERT INTO ax_wirtschaftsart (wert,beschreibung,dokumentation) VALUES
 		('Friedhof', NULL, ''),
@@ -11275,7 +11275,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_punktart_k_punkte IS 'Alias: "AX_Punktart_K_PUNKTE", UML-Typ: Enumeration';
 		INSERT INTO ax_punktart_k_punkte (wert,beschreibung,dokumentation) VALUES
 		('Gebäudepunkt', NULL, ''),
@@ -11291,7 +11291,7 @@ Erholung von Reisenden.'),
 		  dokumentation character varying,
 		  PRIMARY KEY (wert)
 		);
-		
+
 		COMMENT ON TABLE ax_k_zeile_punktart IS 'Alias: "AX_K_ZEILE_Punktart", UML-Typ: Enumeration';
 		INSERT INTO ax_k_zeile_punktart (wert,beschreibung,dokumentation) VALUES
 		('Sonstiger Vermessungspunkt', NULL, ''),
@@ -11307,7 +11307,7 @@ Erholung von Reisenden.'),
 		  value text,
 		  PRIMARY KEY (id)
 		);
-		
+
 		COMMENT ON TABLE aa_besonderemeilensteinkategorie IS 'Alias: "AA_BesondereMeilensteinkategorie", UML-Typ: Code Liste';
 		CREATE TABLE aa_anlassart (
 		  codespace text,
@@ -11315,7 +11315,7 @@ Erholung von Reisenden.'),
 		  value text,
 		  PRIMARY KEY (id)
 		);
-		
+
 		COMMENT ON TABLE aa_anlassart IS 'Alias: "AA_Anlassart", UML-Typ: Code Liste';
 		CREATE TABLE aa_levelofdetail (
 		  codespace text,
@@ -11323,7 +11323,7 @@ Erholung von Reisenden.'),
 		  value text,
 		  PRIMARY KEY (id)
 		);
-		
+
 		COMMENT ON TABLE aa_levelofdetail IS 'Alias: "AA_LevelOfDetail", UML-Typ: Code Liste';
 		CREATE TABLE aa_anlassart_benutzungsauftrag (
 		  codespace text,
@@ -11331,7 +11331,7 @@ Erholung von Reisenden.'),
 		  value text,
 		  PRIMARY KEY (id)
 		);
-		
+
 		COMMENT ON TABLE aa_anlassart_benutzungsauftrag IS 'Alias: "AA_Anlassart_Benutzungsauftrag", UML-Typ: Code Liste';
 		CREATE TABLE aa_weiteremodellart (
 		  codespace text,
@@ -11339,7 +11339,7 @@ Erholung von Reisenden.'),
 		  value text,
 		  PRIMARY KEY (id)
 		);
-		
+
 		COMMENT ON TABLE aa_weiteremodellart IS 'Alias: "AA_WeitereModellart", UML-Typ: Code Liste';
 		CREATE TABLE aa_instanzenthemen (
 		  codespace text,
@@ -11347,9 +11347,9 @@ Erholung von Reisenden.'),
 		  value text,
 		  PRIMARY KEY (id)
 		);
-		
+
 		COMMENT ON TABLE aa_instanzenthemen IS 'Alias: "AA_Instanzenthemen", UML-Typ: Code Liste';
-		
+
 		INSERT INTO aa_anlassart (id, value) VALUES ('000000', 'Ersteinrichtung');
 		INSERT INTO aa_anlassart (id, value) VALUES ('010307', 'Eintragung des Flurstückes');
 		INSERT INTO aa_anlassart (id, value) VALUES ('010308', 'Löschen des Flurstückes');
@@ -11500,7 +11500,7 @@ Erholung von Reisenden.'),
 		INSERT INTO aa_anlassart (id, value) VALUES ('061100', 'Neufassung des Grundbuchs (§§ 33, 69 GBV)');
 		INSERT INTO aa_anlassart (id, value) VALUES ('061200', 'Erstbuchung eines Grundstücks');
 		INSERT INTO aa_anlassart (id, value) VALUES ('061400', 'Aufhebung von Anteilen am ungetrennten Hofraum');
-		
+
 		CREATE TABLE ax_benutzer (
 		  ogc_fid serial NOT NULL,
 		  gml_id character(16) NOT NULL,
@@ -11534,13 +11534,13 @@ Erholung von Reisenden.'),
 		  gehoertzu character(16) NOT NULL,
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_benutzer_gml ON ax_benutzer USING btree (gml_id,beginnt);
 		CREATE INDEX ax_benutzer_endet ON ax_benutzer USING btree (endet);
 		CREATE INDEX ax_benutzer_ist ON ax_benutzer USING btree (ist);
 		CREATE INDEX ax_benutzer_gehoertzu ON ax_benutzer USING btree (gehoertzu);
 		CREATE INDEX ax_benutzer_istteilvon ON ax_benutzer USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_benutzer IS 'FeatureType: "AX_Benutzer"';
 		COMMENT ON COLUMN ax_benutzer.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_benutzer.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -11593,12 +11593,12 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_benutzergruppemitzugriffskontrolle_gml ON ax_benutzergruppemitzugriffskontrolle USING btree (gml_id,beginnt);
 		CREATE INDEX ax_benutzergruppemitzugriffskontrolle_endet ON ax_benutzergruppemitzugriffskontrolle USING btree (endet);
 		CREATE INDEX ax_benutzergruppemitzugriffskontrolle_bestehtaus ON ax_benutzergruppemitzugriffskontrolle USING gin (bestehtaus);
 		CREATE INDEX ax_benutzergruppemitzugriffskontrolle_istteilvon ON ax_benutzergruppemitzugriffskontrolle USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_benutzergruppemitzugriffskontrolle IS 'FeatureType: "AX_BenutzergruppeMitZugriffskontrolle"';
 		COMMENT ON COLUMN ax_benutzergruppemitzugriffskontrolle.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_benutzergruppemitzugriffskontrolle.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -11642,12 +11642,12 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_benutzergruppenba_gml ON ax_benutzergruppenba USING btree (gml_id,beginnt);
 		CREATE INDEX ax_benutzergruppenba_endet ON ax_benutzergruppenba USING btree (endet);
 		CREATE INDEX ax_benutzergruppenba_bestehtaus ON ax_benutzergruppenba USING gin (bestehtaus);
 		CREATE INDEX ax_benutzergruppenba_istteilvon ON ax_benutzergruppenba USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_benutzergruppenba IS 'FeatureType: "AX_BenutzergruppeNBA"';
 		COMMENT ON COLUMN ax_benutzergruppenba.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_benutzergruppenba.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -11683,12 +11683,12 @@ Erholung von Reisenden.'),
 		  bestehtaus character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_personengruppe_gml ON ax_personengruppe USING btree (gml_id,beginnt);
 		CREATE INDEX ax_personengruppe_endet ON ax_personengruppe USING btree (endet);
 		CREATE INDEX ax_personengruppe_bestehtaus ON ax_personengruppe USING gin (bestehtaus);
 		CREATE INDEX ax_personengruppe_istteilvon ON ax_personengruppe USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_personengruppe IS 'FeatureType: "AX_Personengruppe"';
 		COMMENT ON COLUMN ax_personengruppe.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_personengruppe.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -11717,11 +11717,11 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_skizze_gml ON ax_skizze USING btree (gml_id,beginnt);
 		CREATE INDEX ax_skizze_endet ON ax_skizze USING btree (endet);
 		CREATE INDEX ax_skizze_istteilvon ON ax_skizze USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_skizze IS 'FeatureType: "AX_Skizze"';
 		COMMENT ON COLUMN ax_skizze.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_skizze.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -11762,11 +11762,11 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_schwere_gml ON ax_schwere USING btree (gml_id,beginnt);
 		CREATE INDEX ax_schwere_endet ON ax_schwere USING btree (endet);
 		CREATE INDEX ax_schwere_istteilvon ON ax_schwere USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_schwere IS 'FeatureType: "AX_Schwere"';
 		COMMENT ON COLUMN ax_schwere.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_schwere.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -11808,11 +11808,11 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_punktkennungvergleichend_gml ON ax_punktkennungvergleichend USING btree (gml_id,beginnt);
 		CREATE INDEX ax_punktkennungvergleichend_endet ON ax_punktkennungvergleichend USING btree (endet);
 		CREATE INDEX ax_punktkennungvergleichend_istteilvon ON ax_punktkennungvergleichend USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_punktkennungvergleichend IS 'FeatureType: "AX_PunktkennungVergleichend"';
 		COMMENT ON COLUMN ax_punktkennungvergleichend.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_punktkennungvergleichend.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -11849,11 +11849,11 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_verband_gml ON ax_verband USING btree (gml_id,beginnt);
 		CREATE INDEX ax_verband_endet ON ax_verband USING btree (endet);
 		CREATE INDEX ax_verband_istteilvon ON ax_verband USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_verband IS 'FeatureType: "AX_Verband"';
 		COMMENT ON COLUMN ax_verband.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_verband.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -11890,11 +11890,11 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_nationalstaat_gml ON ax_nationalstaat USING btree (gml_id,beginnt);
 		CREATE INDEX ax_nationalstaat_endet ON ax_nationalstaat USING btree (endet);
 		CREATE INDEX ax_nationalstaat_istteilvon ON ax_nationalstaat USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_nationalstaat IS 'FeatureType: "AX_Nationalstaat"';
 		COMMENT ON COLUMN ax_nationalstaat.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_nationalstaat.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -11947,12 +11947,12 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_netzknoten_gml ON ax_netzknoten USING btree (gml_id,beginnt);
 		CREATE INDEX ax_netzknoten_endet ON ax_netzknoten USING btree (endet);
 		CREATE INDEX ax_netzknoten_bestehtaus ON ax_netzknoten USING gin (bestehtaus);
 		CREATE INDEX ax_netzknoten_istteilvon ON ax_netzknoten USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_netzknoten IS 'FeatureType: "AX_Netzknoten"';
 		COMMENT ON COLUMN ax_netzknoten.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_netzknoten.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -12056,7 +12056,7 @@ Erholung von Reisenden.'),
 		  unterschiedlicherbezugspunktmitsfp character(16),
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_referenzstationspunkt_gml ON ax_referenzstationspunkt USING btree (gml_id,beginnt);
 		CREATE INDEX ax_referenzstationspunkt_endet ON ax_referenzstationspunkt USING btree (endet);
 		CREATE INDEX ax_referenzstationspunkt_istidentischmitlfp ON ax_referenzstationspunkt USING btree (istidentischmitlfp);
@@ -12064,7 +12064,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_r_unterschiedlicherbezugspunktmitsfp ON ax_referenzstationspunkt USING btree (unterschiedlicherbezugspunktmitsfp);
 		CREATE INDEX ax_referenzstationspunkt_bestehtaus ON ax_referenzstationspunkt USING gin (bestehtaus);
 		CREATE INDEX ax_referenzstationspunkt_istteilvon ON ax_referenzstationspunkt USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_referenzstationspunkt IS 'FeatureType: "AX_Referenzstationspunkt"';
 		COMMENT ON COLUMN ax_referenzstationspunkt.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_referenzstationspunkt.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -12185,7 +12185,7 @@ Erholung von Reisenden.'),
 		  istidentischmitsvp character(16),
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_lagefestpunkt_gml ON ax_lagefestpunkt USING btree (gml_id,beginnt);
 		CREATE INDEX ax_lagefestpunkt_endet ON ax_lagefestpunkt USING btree (endet);
 		CREATE INDEX ax_lagefestpunkt_istidentischmitrsp ON ax_lagefestpunkt USING btree (istidentischmitrsp);
@@ -12203,7 +12203,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_lagefestpunkt_istidentischmitsvp ON ax_lagefestpunkt USING btree (istidentischmitsvp);
 		CREATE INDEX ax_lagefestpunkt_bestehtaus ON ax_lagefestpunkt USING gin (bestehtaus);
 		CREATE INDEX ax_lagefestpunkt_istteilvon ON ax_lagefestpunkt USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_lagefestpunkt IS 'FeatureType: "AX_Lagefestpunkt"';
 		COMMENT ON COLUMN ax_lagefestpunkt.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_lagefestpunkt.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -12308,7 +12308,7 @@ Erholung von Reisenden.'),
 		  unterschiedlicherbezugspunktmitsp character(16),
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_hoehenfestpunkt_gml ON ax_hoehenfestpunkt USING btree (gml_id,beginnt);
 		CREATE INDEX ax_hoehenfestpunkt_endet ON ax_hoehenfestpunkt USING btree (endet);
 		CREATE INDEX ax_hoehenfestpunkt_istidentischmitrsp ON ax_hoehenfestpunkt USING btree (istidentischmitrsp);
@@ -12321,7 +12321,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_hoehenfestpunkt_unterschiedlicherbezugspunktmitsp ON ax_hoehenfestpunkt USING btree (unterschiedlicherbezugspunktmitsp);
 		CREATE INDEX ax_hoehenfestpunkt_bestehtaus ON ax_hoehenfestpunkt USING gin (bestehtaus);
 		CREATE INDEX ax_hoehenfestpunkt_istteilvon ON ax_hoehenfestpunkt USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_hoehenfestpunkt IS 'FeatureType: "AX_Hoehenfestpunkt"';
 		COMMENT ON COLUMN ax_hoehenfestpunkt.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_hoehenfestpunkt.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -12420,7 +12420,7 @@ Erholung von Reisenden.'),
 		  istidentischmitsp character(16),
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_schwerefestpunkt_gml ON ax_schwerefestpunkt USING btree (gml_id,beginnt);
 		CREATE INDEX ax_schwerefestpunkt_endet ON ax_schwerefestpunkt USING btree (endet);
 		CREATE INDEX ax_schwerefestpunkt_unterschiedlicherbezugspunktmitrsp ON ax_schwerefestpunkt USING btree (unterschiedlicherbezugspunktmitrsp);
@@ -12436,7 +12436,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_schwerefestpunkt_istidentischmitsp ON ax_schwerefestpunkt USING btree (istidentischmitsp);
 		CREATE INDEX ax_schwerefestpunkt_bestehtaus ON ax_schwerefestpunkt USING gin (bestehtaus);
 		CREATE INDEX ax_schwerefestpunkt_istteilvon ON ax_schwerefestpunkt USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_schwerefestpunkt IS 'FeatureType: "AX_Schwerefestpunkt"';
 		COMMENT ON COLUMN ax_schwerefestpunkt.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_schwerefestpunkt.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -12502,12 +12502,12 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_kanal_gml ON ax_kanal USING btree (gml_id,beginnt);
 		CREATE INDEX ax_kanal_endet ON ax_kanal USING btree (endet);
 		CREATE INDEX ax_kanal_bestehtaus ON ax_kanal USING gin (bestehtaus);
 		CREATE INDEX ax_kanal_istteilvon ON ax_kanal USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_kanal IS 'FeatureType: "AX_Kanal"';
 		COMMENT ON COLUMN ax_kanal.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_kanal.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -12544,12 +12544,12 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_wasserlauf_gml ON ax_wasserlauf USING btree (gml_id,beginnt);
 		CREATE INDEX ax_wasserlauf_endet ON ax_wasserlauf USING btree (endet);
 		CREATE INDEX ax_wasserlauf_bestehtaus ON ax_wasserlauf USING gin (bestehtaus);
 		CREATE INDEX ax_wasserlauf_istteilvon ON ax_wasserlauf USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_wasserlauf IS 'FeatureType: "AX_Wasserlauf"';
 		COMMENT ON COLUMN ax_wasserlauf.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_wasserlauf.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -12587,12 +12587,12 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_strasse_gml ON ax_strasse USING btree (gml_id,beginnt);
 		CREATE INDEX ax_strasse_endet ON ax_strasse USING btree (endet);
 		CREATE INDEX ax_strasse_bestehtaus ON ax_strasse USING gin (bestehtaus);
 		CREATE INDEX ax_strasse_istteilvon ON ax_strasse USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_strasse IS 'FeatureType: "AX_Strasse"';
 		COMMENT ON COLUMN ax_strasse.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_strasse.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -12630,7 +12630,7 @@ Erholung von Reisenden.'),
 		  dientzurdarstellungvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ap_fpo_gml ON ap_fpo USING btree (gml_id,beginnt);
 		CREATE INDEX ap_fpo_endet ON ap_fpo USING btree (endet);
 		PERFORM AddGeometryColumn('ap_fpo', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -12640,7 +12640,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ap_fpo_traegtbeizu ON ap_fpo USING gin (traegtbeizu);
 		CREATE INDEX ap_fpo_hatdirektunten ON ap_fpo USING gin (hatdirektunten);
 		CREATE INDEX ap_fpo_istteilvon ON ap_fpo USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ap_fpo IS 'FeatureType: "AP_FPO"';
 		COMMENT ON COLUMN ap_fpo.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ap_fpo.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -12698,7 +12698,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_polder_gml ON ax_polder USING btree (gml_id,beginnt);
 		CREATE INDEX ax_polder_endet ON ax_polder USING btree (endet);
 		PERFORM AddGeometryColumn('ax_polder', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -12707,7 +12707,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_polder_traegtbeizu ON ax_polder USING gin (traegtbeizu);
 		CREATE INDEX ax_polder_hatdirektunten ON ax_polder USING gin (hatdirektunten);
 		CREATE INDEX ax_polder_istteilvon ON ax_polder USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_polder IS 'FeatureType: "AX_Polder"';
 		COMMENT ON COLUMN ax_polder.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_polder.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -12761,7 +12761,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_kondominium_gml ON ax_kondominium USING btree (gml_id,beginnt);
 		CREATE INDEX ax_kondominium_endet ON ax_kondominium USING btree (endet);
 		PERFORM AddGeometryColumn('ax_kondominium', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -12770,7 +12770,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_kondominium_traegtbeizu ON ax_kondominium USING gin (traegtbeizu);
 		CREATE INDEX ax_kondominium_hatdirektunten ON ax_kondominium USING gin (hatdirektunten);
 		CREATE INDEX ax_kondominium_istteilvon ON ax_kondominium USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_kondominium IS 'FeatureType: "AX_Kondominium"';
 		COMMENT ON COLUMN ax_kondominium.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_kondominium.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -12799,7 +12799,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_aussparungsflaeche_gml ON ax_aussparungsflaeche USING btree (gml_id,beginnt);
 		CREATE INDEX ax_aussparungsflaeche_endet ON ax_aussparungsflaeche USING btree (endet);
 		PERFORM AddGeometryColumn('ax_aussparungsflaeche', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -12808,7 +12808,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_aussparungsflaeche_traegtbeizu ON ax_aussparungsflaeche USING gin (traegtbeizu);
 		CREATE INDEX ax_aussparungsflaeche_hatdirektunten ON ax_aussparungsflaeche USING gin (hatdirektunten);
 		CREATE INDEX ax_aussparungsflaeche_istteilvon ON ax_aussparungsflaeche USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_aussparungsflaeche IS 'FeatureType: "AX_Aussparungsflaeche"';
 		COMMENT ON COLUMN ax_aussparungsflaeche.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_aussparungsflaeche.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -12863,7 +12863,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_hafen_gml ON ax_hafen USING btree (gml_id,beginnt);
 		CREATE INDEX ax_hafen_endet ON ax_hafen USING btree (endet);
 		PERFORM AddGeometryColumn('ax_hafen', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -12872,7 +12872,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_hafen_traegtbeizu ON ax_hafen USING gin (traegtbeizu);
 		CREATE INDEX ax_hafen_hatdirektunten ON ax_hafen USING gin (hatdirektunten);
 		CREATE INDEX ax_hafen_istteilvon ON ax_hafen USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_hafen IS 'FeatureType: "AX_Hafen"';
 		COMMENT ON COLUMN ax_hafen.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_hafen.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -12950,7 +12950,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_testgelaende_gml ON ax_testgelaende USING btree (gml_id,beginnt);
 		CREATE INDEX ax_testgelaende_endet ON ax_testgelaende USING btree (endet);
 		PERFORM AddGeometryColumn('ax_testgelaende', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -12959,7 +12959,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_testgelaende_traegtbeizu ON ax_testgelaende USING gin (traegtbeizu);
 		CREATE INDEX ax_testgelaende_hatdirektunten ON ax_testgelaende USING gin (hatdirektunten);
 		CREATE INDEX ax_testgelaende_istteilvon ON ax_testgelaende USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_testgelaende IS 'FeatureType: "AX_Testgelaende"';
 		COMMENT ON COLUMN ax_testgelaende.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_testgelaende.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -13038,7 +13038,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_schleuse_gml ON ax_schleuse USING btree (gml_id,beginnt);
 		CREATE INDEX ax_schleuse_endet ON ax_schleuse USING btree (endet);
 		PERFORM AddGeometryColumn('ax_schleuse', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -13047,7 +13047,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_schleuse_traegtbeizu ON ax_schleuse USING gin (traegtbeizu);
 		CREATE INDEX ax_schleuse_hatdirektunten ON ax_schleuse USING gin (hatdirektunten);
 		CREATE INDEX ax_schleuse_istteilvon ON ax_schleuse USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_schleuse IS 'FeatureType: "AX_Schleuse"';
 		COMMENT ON COLUMN ax_schleuse.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_schleuse.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -13127,7 +13127,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_ortslage_gml ON ax_ortslage USING btree (gml_id,beginnt);
 		CREATE INDEX ax_ortslage_endet ON ax_ortslage USING btree (endet);
 		PERFORM AddGeometryColumn('ax_ortslage', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -13136,7 +13136,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_ortslage_traegtbeizu ON ax_ortslage USING gin (traegtbeizu);
 		CREATE INDEX ax_ortslage_hatdirektunten ON ax_ortslage USING gin (hatdirektunten);
 		CREATE INDEX ax_ortslage_istteilvon ON ax_ortslage USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_ortslage IS 'FeatureType: "AX_Ortslage"';
 		COMMENT ON COLUMN ax_ortslage.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_ortslage.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -13213,7 +13213,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_grenzuebergang_gml ON ax_grenzuebergang USING btree (gml_id,beginnt);
 		CREATE INDEX ax_grenzuebergang_endet ON ax_grenzuebergang USING btree (endet);
 		PERFORM AddGeometryColumn('ax_grenzuebergang', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -13222,7 +13222,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_grenzuebergang_traegtbeizu ON ax_grenzuebergang USING gin (traegtbeizu);
 		CREATE INDEX ax_grenzuebergang_hatdirektunten ON ax_grenzuebergang USING gin (hatdirektunten);
 		CREATE INDEX ax_grenzuebergang_istteilvon ON ax_grenzuebergang USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_grenzuebergang IS 'FeatureType: "AX_Grenzuebergang"';
 		COMMENT ON COLUMN ax_grenzuebergang.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_grenzuebergang.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -13275,7 +13275,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_insel_gml ON ax_insel USING btree (gml_id,beginnt);
 		CREATE INDEX ax_insel_endet ON ax_insel USING btree (endet);
 		PERFORM AddGeometryColumn('ax_insel', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -13284,7 +13284,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_insel_traegtbeizu ON ax_insel USING gin (traegtbeizu);
 		CREATE INDEX ax_insel_hatdirektunten ON ax_insel USING gin (hatdirektunten);
 		CREATE INDEX ax_insel_istteilvon ON ax_insel USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_insel IS 'FeatureType: "AX_Insel"';
 		COMMENT ON COLUMN ax_insel.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_insel.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -13314,7 +13314,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_gewann_gml ON ax_gewann USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gewann_endet ON ax_gewann USING btree (endet);
 		PERFORM AddGeometryColumn('ax_gewann', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -13323,7 +13323,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_gewann_traegtbeizu ON ax_gewann USING gin (traegtbeizu);
 		CREATE INDEX ax_gewann_hatdirektunten ON ax_gewann USING gin (hatdirektunten);
 		CREATE INDEX ax_gewann_istteilvon ON ax_gewann USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_gewann IS 'FeatureType: "AX_Gewann"';
 		COMMENT ON COLUMN ax_gewann.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_gewann.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -13376,7 +13376,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_abschnitt_gml ON ax_abschnitt USING btree (gml_id,beginnt);
 		CREATE INDEX ax_abschnitt_endet ON ax_abschnitt USING btree (endet);
 		PERFORM AddGeometryColumn('ax_abschnitt', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -13385,7 +13385,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_abschnitt_traegtbeizu ON ax_abschnitt USING gin (traegtbeizu);
 		CREATE INDEX ax_abschnitt_hatdirektunten ON ax_abschnitt USING gin (hatdirektunten);
 		CREATE INDEX ax_abschnitt_istteilvon ON ax_abschnitt USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_abschnitt IS 'FeatureType: "AX_Abschnitt"';
 		COMMENT ON COLUMN ax_abschnitt.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_abschnitt.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -13461,7 +13461,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_ast_gml ON ax_ast USING btree (gml_id,beginnt);
 		CREATE INDEX ax_ast_endet ON ax_ast USING btree (endet);
 		PERFORM AddGeometryColumn('ax_ast', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -13470,7 +13470,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_ast_traegtbeizu ON ax_ast USING gin (traegtbeizu);
 		CREATE INDEX ax_ast_hatdirektunten ON ax_ast USING gin (hatdirektunten);
 		CREATE INDEX ax_ast_istteilvon ON ax_ast USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_ast IS 'FeatureType: "AX_Ast"';
 		COMMENT ON COLUMN ax_ast.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_ast.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -13534,7 +13534,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_geripplinie_gml ON ax_geripplinie USING btree (gml_id,beginnt);
 		CREATE INDEX ax_geripplinie_endet ON ax_geripplinie USING btree (endet);
 		PERFORM AddGeometryColumn('ax_geripplinie', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -13543,7 +13543,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_geripplinie_traegtbeizu ON ax_geripplinie USING gin (traegtbeizu);
 		CREATE INDEX ax_geripplinie_hatdirektunten ON ax_geripplinie USING gin (hatdirektunten);
 		CREATE INDEX ax_geripplinie_istteilvon ON ax_geripplinie USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_geripplinie IS 'FeatureType: "AX_Geripplinie"';
 		COMMENT ON COLUMN ax_geripplinie.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_geripplinie.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -13596,7 +13596,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_gewaesserbegrenzung_gml ON ax_gewaesserbegrenzung USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gewaesserbegrenzung_endet ON ax_gewaesserbegrenzung USING btree (endet);
 		PERFORM AddGeometryColumn('ax_gewaesserbegrenzung', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -13605,7 +13605,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_gewaesserbegrenzung_traegtbeizu ON ax_gewaesserbegrenzung USING gin (traegtbeizu);
 		CREATE INDEX ax_gewaesserbegrenzung_hatdirektunten ON ax_gewaesserbegrenzung USING gin (hatdirektunten);
 		CREATE INDEX ax_gewaesserbegrenzung_istteilvon ON ax_gewaesserbegrenzung USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_gewaesserbegrenzung IS 'FeatureType: "AX_Gewaesserbegrenzung"';
 		COMMENT ON COLUMN ax_gewaesserbegrenzung.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_gewaesserbegrenzung.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -13659,7 +13659,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_strukturierterfasstegelaendepunkte_gml ON ax_strukturierterfasstegelaendepunkte USING btree (gml_id,beginnt);
 		CREATE INDEX ax_strukturierterfasstegelaendepunkte_endet ON ax_strukturierterfasstegelaendepunkte USING btree (endet);
 		PERFORM AddGeometryColumn('ax_strukturierterfasstegelaendepunkte', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -13668,7 +13668,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_strukturierterfasstegelaendepunkte_traegtbeizu ON ax_strukturierterfasstegelaendepunkte USING gin (traegtbeizu);
 		CREATE INDEX ax_strukturierterfasstegelaendepunkte_hatdirektunten ON ax_strukturierterfasstegelaendepunkte USING gin (hatdirektunten);
 		CREATE INDEX ax_strukturierterfasstegelaendepunkte_istteilvon ON ax_strukturierterfasstegelaendepunkte USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_strukturierterfasstegelaendepunkte IS 'FeatureType: "AX_StrukturiertErfassteGelaendepunkte"';
 		COMMENT ON COLUMN ax_strukturierterfasstegelaendepunkte.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_strukturierterfasstegelaendepunkte.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -13711,7 +13711,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_einschnitt_gml ON ax_einschnitt USING btree (gml_id,beginnt);
 		CREATE INDEX ax_einschnitt_endet ON ax_einschnitt USING btree (endet);
 		PERFORM AddGeometryColumn('ax_einschnitt', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -13720,7 +13720,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_einschnitt_traegtbeizu ON ax_einschnitt USING gin (traegtbeizu);
 		CREATE INDEX ax_einschnitt_hatdirektunten ON ax_einschnitt USING gin (hatdirektunten);
 		CREATE INDEX ax_einschnitt_istteilvon ON ax_einschnitt USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_einschnitt IS 'FeatureType: "AX_Einschnitt"';
 		COMMENT ON COLUMN ax_einschnitt.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_einschnitt.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -13755,7 +13755,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_abgeleitetehoehenlinie_gml ON ax_abgeleitetehoehenlinie USING btree (gml_id,beginnt);
 		CREATE INDEX ax_abgeleitetehoehenlinie_endet ON ax_abgeleitetehoehenlinie USING btree (endet);
 		PERFORM AddGeometryColumn('ax_abgeleitetehoehenlinie', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -13764,7 +13764,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_abgeleitetehoehenlinie_traegtbeizu ON ax_abgeleitetehoehenlinie USING gin (traegtbeizu);
 		CREATE INDEX ax_abgeleitetehoehenlinie_hatdirektunten ON ax_abgeleitetehoehenlinie USING gin (hatdirektunten);
 		CREATE INDEX ax_abgeleitetehoehenlinie_istteilvon ON ax_abgeleitetehoehenlinie USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_abgeleitetehoehenlinie IS 'FeatureType: "AX_AbgeleiteteHoehenlinie"';
 		COMMENT ON COLUMN ax_abgeleitetehoehenlinie.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_abgeleitetehoehenlinie.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -13822,7 +13822,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_nullpunkt_gml ON ax_nullpunkt USING btree (gml_id,beginnt);
 		CREATE INDEX ax_nullpunkt_endet ON ax_nullpunkt USING btree (endet);
 		PERFORM AddGeometryColumn('ax_nullpunkt', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -13831,7 +13831,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_nullpunkt_traegtbeizu ON ax_nullpunkt USING gin (traegtbeizu);
 		CREATE INDEX ax_nullpunkt_hatdirektunten ON ax_nullpunkt USING gin (hatdirektunten);
 		CREATE INDEX ax_nullpunkt_istteilvon ON ax_nullpunkt USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_nullpunkt IS 'FeatureType: "AX_Nullpunkt"';
 		COMMENT ON COLUMN ax_nullpunkt.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_nullpunkt.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -13895,7 +13895,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_markantergelaendepunkt_gml ON ax_markantergelaendepunkt USING btree (gml_id,beginnt);
 		CREATE INDEX ax_markantergelaendepunkt_endet ON ax_markantergelaendepunkt USING btree (endet);
 		PERFORM AddGeometryColumn('ax_markantergelaendepunkt', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -13904,7 +13904,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_markantergelaendepunkt_traegtbeizu ON ax_markantergelaendepunkt USING gin (traegtbeizu);
 		CREATE INDEX ax_markantergelaendepunkt_hatdirektunten ON ax_markantergelaendepunkt USING gin (hatdirektunten);
 		CREATE INDEX ax_markantergelaendepunkt_istteilvon ON ax_markantergelaendepunkt USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_markantergelaendepunkt IS 'FeatureType: "AX_MarkanterGelaendepunkt"';
 		COMMENT ON COLUMN ax_markantergelaendepunkt.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_markantergelaendepunkt.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -13969,7 +13969,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_sickerstrecke_gml ON ax_sickerstrecke USING btree (gml_id,beginnt);
 		CREATE INDEX ax_sickerstrecke_endet ON ax_sickerstrecke USING btree (endet);
 		PERFORM AddGeometryColumn('ax_sickerstrecke', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -13978,7 +13978,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_sickerstrecke_traegtbeizu ON ax_sickerstrecke USING gin (traegtbeizu);
 		CREATE INDEX ax_sickerstrecke_hatdirektunten ON ax_sickerstrecke USING gin (hatdirektunten);
 		CREATE INDEX ax_sickerstrecke_istteilvon ON ax_sickerstrecke USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_sickerstrecke IS 'FeatureType: "AX_Sickerstrecke"';
 		COMMENT ON COLUMN ax_sickerstrecke.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_sickerstrecke.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14059,7 +14059,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_anderefestlegungnachstrassenrecht_gml ON ax_anderefestlegungnachstrassenrecht USING btree (gml_id,beginnt);
 		CREATE INDEX ax_anderefestlegungnachstrassenrecht_endet ON ax_anderefestlegungnachstrassenrecht USING btree (endet);
 		PERFORM AddGeometryColumn('ax_anderefestlegungnachstrassenrecht', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14068,7 +14068,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_anderefestlegungnachstrassenrecht_traegtbeizu ON ax_anderefestlegungnachstrassenrecht USING gin (traegtbeizu);
 		CREATE INDEX ax_anderefestlegungnachstrassenrecht_hatdirektunten ON ax_anderefestlegungnachstrassenrecht USING gin (hatdirektunten);
 		CREATE INDEX ax_anderefestlegungnachstrassenrecht_istteilvon ON ax_anderefestlegungnachstrassenrecht USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_anderefestlegungnachstrassenrecht IS 'FeatureType: "AX_AndereFestlegungNachStrassenrecht"';
 		COMMENT ON COLUMN ax_anderefestlegungnachstrassenrecht.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_anderefestlegungnachstrassenrecht.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14127,7 +14127,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_gebiet_kreis_gml ON ax_gebiet_kreis USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gebiet_kreis_endet ON ax_gebiet_kreis USING btree (endet);
 		PERFORM AddGeometryColumn('ax_gebiet_kreis', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14136,7 +14136,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_gebiet_kreis_traegtbeizu ON ax_gebiet_kreis USING gin (traegtbeizu);
 		CREATE INDEX ax_gebiet_kreis_hatdirektunten ON ax_gebiet_kreis USING gin (hatdirektunten);
 		CREATE INDEX ax_gebiet_kreis_istteilvon ON ax_gebiet_kreis USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_gebiet_kreis IS 'FeatureType: "AX_Gebiet_Kreis"';
 		COMMENT ON COLUMN ax_gebiet_kreis.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_gebiet_kreis.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14170,7 +14170,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_gebiet_bundesland_gml ON ax_gebiet_bundesland USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gebiet_bundesland_endet ON ax_gebiet_bundesland USING btree (endet);
 		PERFORM AddGeometryColumn('ax_gebiet_bundesland', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14179,7 +14179,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_gebiet_bundesland_traegtbeizu ON ax_gebiet_bundesland USING gin (traegtbeizu);
 		CREATE INDEX ax_gebiet_bundesland_hatdirektunten ON ax_gebiet_bundesland USING gin (hatdirektunten);
 		CREATE INDEX ax_gebiet_bundesland_istteilvon ON ax_gebiet_bundesland USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_gebiet_bundesland IS 'FeatureType: "AX_Gebiet_Bundesland"';
 		COMMENT ON COLUMN ax_gebiet_bundesland.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_gebiet_bundesland.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14212,7 +14212,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_gebiet_regierungsbezirk_gml ON ax_gebiet_regierungsbezirk USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gebiet_regierungsbezirk_endet ON ax_gebiet_regierungsbezirk USING btree (endet);
 		PERFORM AddGeometryColumn('ax_gebiet_regierungsbezirk', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14221,7 +14221,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_gebiet_regierungsbezirk_traegtbeizu ON ax_gebiet_regierungsbezirk USING gin (traegtbeizu);
 		CREATE INDEX ax_gebiet_regierungsbezirk_hatdirektunten ON ax_gebiet_regierungsbezirk USING gin (hatdirektunten);
 		CREATE INDEX ax_gebiet_regierungsbezirk_istteilvon ON ax_gebiet_regierungsbezirk USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_gebiet_regierungsbezirk IS 'FeatureType: "AX_Gebiet_Regierungsbezirk"';
 		COMMENT ON COLUMN ax_gebiet_regierungsbezirk.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_gebiet_regierungsbezirk.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14254,7 +14254,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_gebiet_nationalstaat_gml ON ax_gebiet_nationalstaat USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gebiet_nationalstaat_endet ON ax_gebiet_nationalstaat USING btree (endet);
 		PERFORM AddGeometryColumn('ax_gebiet_nationalstaat', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14263,7 +14263,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_gebiet_nationalstaat_traegtbeizu ON ax_gebiet_nationalstaat USING gin (traegtbeizu);
 		CREATE INDEX ax_gebiet_nationalstaat_hatdirektunten ON ax_gebiet_nationalstaat USING gin (hatdirektunten);
 		CREATE INDEX ax_gebiet_nationalstaat_istteilvon ON ax_gebiet_nationalstaat USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_gebiet_nationalstaat IS 'FeatureType: "AX_Gebiet_Nationalstaat"';
 		COMMENT ON COLUMN ax_gebiet_nationalstaat.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_gebiet_nationalstaat.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14299,7 +14299,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_gebiet_verwaltungsgemeinschaft_gml ON ax_gebiet_verwaltungsgemeinschaft USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gebiet_verwaltungsgemeinschaft_endet ON ax_gebiet_verwaltungsgemeinschaft USING btree (endet);
 		PERFORM AddGeometryColumn('ax_gebiet_verwaltungsgemeinschaft', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14308,7 +14308,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_gebiet_verwaltungsgemeinschaft_traegtbeizu ON ax_gebiet_verwaltungsgemeinschaft USING gin (traegtbeizu);
 		CREATE INDEX ax_gebiet_verwaltungsgemeinschaft_hatdirektunten ON ax_gebiet_verwaltungsgemeinschaft USING gin (hatdirektunten);
 		CREATE INDEX ax_gebiet_verwaltungsgemeinschaft_istteilvon ON ax_gebiet_verwaltungsgemeinschaft USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_gebiet_verwaltungsgemeinschaft IS 'FeatureType: "AX_Gebiet_Verwaltungsgemeinschaft"';
 		COMMENT ON COLUMN ax_gebiet_verwaltungsgemeinschaft.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_gebiet_verwaltungsgemeinschaft.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14371,7 +14371,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_gewaesserstationierungsachse_gml ON ax_gewaesserstationierungsachse USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gewaesserstationierungsachse_endet ON ax_gewaesserstationierungsachse USING btree (endet);
 		PERFORM AddGeometryColumn('ax_gewaesserstationierungsachse', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14380,7 +14380,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_gewaesserstationierungsachse_traegtbeizu ON ax_gewaesserstationierungsachse USING gin (traegtbeizu);
 		CREATE INDEX ax_gewaesserstationierungsachse_hatdirektunten ON ax_gewaesserstationierungsachse USING gin (hatdirektunten);
 		CREATE INDEX ax_gewaesserstationierungsachse_istteilvon ON ax_gewaesserstationierungsachse USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_gewaesserstationierungsachse IS 'FeatureType: "AX_Gewaesserstationierungsachse"';
 		COMMENT ON COLUMN ax_gewaesserstationierungsachse.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_gewaesserstationierungsachse.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14438,7 +14438,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_gebietsgrenze_gml ON ax_gebietsgrenze USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gebietsgrenze_endet ON ax_gebietsgrenze USING btree (endet);
 		PERFORM AddGeometryColumn('ax_gebietsgrenze', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14447,7 +14447,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_gebietsgrenze_traegtbeizu ON ax_gebietsgrenze USING gin (traegtbeizu);
 		CREATE INDEX ax_gebietsgrenze_hatdirektunten ON ax_gebietsgrenze USING gin (hatdirektunten);
 		CREATE INDEX ax_gebietsgrenze_istteilvon ON ax_gebietsgrenze USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_gebietsgrenze IS 'FeatureType: "AX_Gebietsgrenze"';
 		COMMENT ON COLUMN ax_gebietsgrenze.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_gebietsgrenze.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14481,7 +14481,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_gewaesserachse_gml ON ax_gewaesserachse USING btree (gml_id,beginnt);
 		CREATE INDEX ax_gewaesserachse_endet ON ax_gewaesserachse USING btree (endet);
 		PERFORM AddGeometryColumn('ax_gewaesserachse', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14490,7 +14490,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_gewaesserachse_traegtbeizu ON ax_gewaesserachse USING gin (traegtbeizu);
 		CREATE INDEX ax_gewaesserachse_hatdirektunten ON ax_gewaesserachse USING gin (hatdirektunten);
 		CREATE INDEX ax_gewaesserachse_istteilvon ON ax_gewaesserachse USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_gewaesserachse IS 'FeatureType: "AX_Gewaesserachse"';
 		COMMENT ON COLUMN ax_gewaesserachse.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_gewaesserachse.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14532,7 +14532,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_strassenachse_gml ON ax_strassenachse USING btree (gml_id,beginnt);
 		CREATE INDEX ax_strassenachse_endet ON ax_strassenachse USING btree (endet);
 		PERFORM AddGeometryColumn('ax_strassenachse', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14541,7 +14541,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_strassenachse_traegtbeizu ON ax_strassenachse USING gin (traegtbeizu);
 		CREATE INDEX ax_strassenachse_hatdirektunten ON ax_strassenachse USING gin (hatdirektunten);
 		CREATE INDEX ax_strassenachse_istteilvon ON ax_strassenachse USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_strassenachse IS 'FeatureType: "AX_Strassenachse"';
 		COMMENT ON COLUMN ax_strassenachse.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_strassenachse.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14586,7 +14586,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_bahnstrecke_gml ON ax_bahnstrecke USING btree (gml_id,beginnt);
 		CREATE INDEX ax_bahnstrecke_endet ON ax_bahnstrecke USING btree (endet);
 		PERFORM AddGeometryColumn('ax_bahnstrecke', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14595,7 +14595,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_bahnstrecke_traegtbeizu ON ax_bahnstrecke USING gin (traegtbeizu);
 		CREATE INDEX ax_bahnstrecke_hatdirektunten ON ax_bahnstrecke USING gin (hatdirektunten);
 		CREATE INDEX ax_bahnstrecke_istteilvon ON ax_bahnstrecke USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_bahnstrecke IS 'FeatureType: "AX_Bahnstrecke"';
 		COMMENT ON COLUMN ax_bahnstrecke.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_bahnstrecke.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14638,7 +14638,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_fahrwegachse_gml ON ax_fahrwegachse USING btree (gml_id,beginnt);
 		CREATE INDEX ax_fahrwegachse_endet ON ax_fahrwegachse USING btree (endet);
 		PERFORM AddGeometryColumn('ax_fahrwegachse', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14647,7 +14647,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_fahrwegachse_traegtbeizu ON ax_fahrwegachse USING gin (traegtbeizu);
 		CREATE INDEX ax_fahrwegachse_hatdirektunten ON ax_fahrwegachse USING gin (hatdirektunten);
 		CREATE INDEX ax_fahrwegachse_istteilvon ON ax_fahrwegachse USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_fahrwegachse IS 'FeatureType: "AX_Fahrwegachse"';
 		COMMENT ON COLUMN ax_fahrwegachse.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_fahrwegachse.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14688,7 +14688,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_fahrbahnachse_gml ON ax_fahrbahnachse USING btree (gml_id,beginnt);
 		CREATE INDEX ax_fahrbahnachse_endet ON ax_fahrbahnachse USING btree (endet);
 		PERFORM AddGeometryColumn('ax_fahrbahnachse', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14697,7 +14697,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_fahrbahnachse_traegtbeizu ON ax_fahrbahnachse USING gin (traegtbeizu);
 		CREATE INDEX ax_fahrbahnachse_hatdirektunten ON ax_fahrbahnachse USING gin (hatdirektunten);
 		CREATE INDEX ax_fahrbahnachse_istteilvon ON ax_fahrbahnachse USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_fahrbahnachse IS 'FeatureType: "AX_Fahrbahnachse"';
 		COMMENT ON COLUMN ax_fahrbahnachse.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_fahrbahnachse.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14757,7 +14757,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_siedlungsflaeche_gml ON ax_siedlungsflaeche USING btree (gml_id,beginnt);
 		CREATE INDEX ax_siedlungsflaeche_endet ON ax_siedlungsflaeche USING btree (endet);
 		PERFORM AddGeometryColumn('ax_siedlungsflaeche', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14766,7 +14766,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_siedlungsflaeche_traegtbeizu ON ax_siedlungsflaeche USING gin (traegtbeizu);
 		CREATE INDEX ax_siedlungsflaeche_hatdirektunten ON ax_siedlungsflaeche USING gin (hatdirektunten);
 		CREATE INDEX ax_siedlungsflaeche_istteilvon ON ax_siedlungsflaeche USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_siedlungsflaeche IS 'FeatureType: "AX_Siedlungsflaeche"';
 		COMMENT ON COLUMN ax_siedlungsflaeche.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_siedlungsflaeche.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14844,7 +14844,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ax_flaechezurzeitunbestimmbar_gml ON ax_flaechezurzeitunbestimmbar USING btree (gml_id,beginnt);
 		CREATE INDEX ax_flaechezurzeitunbestimmbar_endet ON ax_flaechezurzeitunbestimmbar USING btree (endet);
 		PERFORM AddGeometryColumn('ax_flaechezurzeitunbestimmbar', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14853,7 +14853,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ax_flaechezurzeitunbestimmbar_traegtbeizu ON ax_flaechezurzeitunbestimmbar USING gin (traegtbeizu);
 		CREATE INDEX ax_flaechezurzeitunbestimmbar_hatdirektunten ON ax_flaechezurzeitunbestimmbar USING gin (hatdirektunten);
 		CREATE INDEX ax_flaechezurzeitunbestimmbar_istteilvon ON ax_flaechezurzeitunbestimmbar USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ax_flaechezurzeitunbestimmbar IS 'FeatureType: "AX_FlaecheZurZeitUnbestimmbar"';
 		COMMENT ON COLUMN ax_flaechezurzeitunbestimmbar.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ax_flaechezurzeitunbestimmbar.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14905,7 +14905,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ta_compositesolidcomponent_3d_gml ON ta_compositesolidcomponent_3d USING btree (gml_id,beginnt);
 		CREATE INDEX ta_compositesolidcomponent_3d_endet ON ta_compositesolidcomponent_3d USING btree (endet);
 		PERFORM AddGeometryColumn('ta_compositesolidcomponent_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14913,7 +14913,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ta_compositesolidcomponent_3d_detailliert ON ta_compositesolidcomponent_3d USING btree (detailliert);
 		CREATE INDEX ta_compositesolidcomponent_3d_generalisiert ON ta_compositesolidcomponent_3d USING btree (generalisiert);
 		CREATE INDEX ta_compositesolidcomponent_3d_istteilvon ON ta_compositesolidcomponent_3d USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ta_compositesolidcomponent_3d IS 'FeatureType: "TA_CompositeSolidComponent_3D"';
 		COMMENT ON COLUMN ta_compositesolidcomponent_3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ta_compositesolidcomponent_3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14942,7 +14942,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ta_surfacecomponent_3d_gml ON ta_surfacecomponent_3d USING btree (gml_id,beginnt);
 		CREATE INDEX ta_surfacecomponent_3d_endet ON ta_surfacecomponent_3d USING btree (endet);
 		PERFORM AddGeometryColumn('ta_surfacecomponent_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14950,7 +14950,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ta_surfacecomponent_3d_detailliert ON ta_surfacecomponent_3d USING btree (detailliert);
 		CREATE INDEX ta_surfacecomponent_3d_generalisiert ON ta_surfacecomponent_3d USING btree (generalisiert);
 		CREATE INDEX ta_surfacecomponent_3d_istteilvon ON ta_surfacecomponent_3d USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ta_surfacecomponent_3d IS 'FeatureType: "TA_SurfaceComponent_3D"';
 		COMMENT ON COLUMN ta_surfacecomponent_3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ta_surfacecomponent_3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -14979,7 +14979,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ta_curvecomponent_3d_gml ON ta_curvecomponent_3d USING btree (gml_id,beginnt);
 		CREATE INDEX ta_curvecomponent_3d_endet ON ta_curvecomponent_3d USING btree (endet);
 		PERFORM AddGeometryColumn('ta_curvecomponent_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -14987,7 +14987,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ta_curvecomponent_3d_detailliert ON ta_curvecomponent_3d USING btree (detailliert);
 		CREATE INDEX ta_curvecomponent_3d_generalisiert ON ta_curvecomponent_3d USING btree (generalisiert);
 		CREATE INDEX ta_curvecomponent_3d_istteilvon ON ta_curvecomponent_3d USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ta_curvecomponent_3d IS 'FeatureType: "TA_CurveComponent_3D"';
 		COMMENT ON COLUMN ta_curvecomponent_3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ta_curvecomponent_3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -15016,7 +15016,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ta_pointcomponent_3d_gml ON ta_pointcomponent_3d USING btree (gml_id,beginnt);
 		CREATE INDEX ta_pointcomponent_3d_endet ON ta_pointcomponent_3d USING btree (endet);
 		PERFORM AddGeometryColumn('ta_pointcomponent_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -15024,7 +15024,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ta_pointcomponent_3d_detailliert ON ta_pointcomponent_3d USING btree (detailliert);
 		CREATE INDEX ta_pointcomponent_3d_generalisiert ON ta_pointcomponent_3d USING btree (generalisiert);
 		CREATE INDEX ta_pointcomponent_3d_istteilvon ON ta_pointcomponent_3d USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ta_pointcomponent_3d IS 'FeatureType: "TA_PointComponent_3D"';
 		COMMENT ON COLUMN ta_pointcomponent_3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ta_pointcomponent_3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -15053,7 +15053,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX au_trianguliertesoberflaechenobjekt_3d_gml ON au_trianguliertesoberflaechenobjekt_3d USING btree (gml_id,beginnt);
 		CREATE INDEX au_trianguliertesoberflaechenobjekt_3d_endet ON au_trianguliertesoberflaechenobjekt_3d USING btree (endet);
 		PERFORM AddGeometryColumn('au_trianguliertesoberflaechenobjekt_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -15061,7 +15061,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX au_trianguliertesoberflaechenobjekt_3d_detailliert ON au_trianguliertesoberflaechenobjekt_3d USING btree (detailliert);
 		CREATE INDEX au_trianguliertesoberflaechenobjekt_3d_generalisiert ON au_trianguliertesoberflaechenobjekt_3d USING btree (generalisiert);
 		CREATE INDEX au_trianguliertesoberflaechenobjekt_3d_istteilvon ON au_trianguliertesoberflaechenobjekt_3d USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE au_trianguliertesoberflaechenobjekt_3d IS 'FeatureType: "AU_TrianguliertesOberflaechenObjekt_3D"';
 		COMMENT ON COLUMN au_trianguliertesoberflaechenobjekt_3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN au_trianguliertesoberflaechenobjekt_3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -15090,7 +15090,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX au_mehrfachflaechenobjekt_3d_gml ON au_mehrfachflaechenobjekt_3d USING btree (gml_id,beginnt);
 		CREATE INDEX au_mehrfachflaechenobjekt_3d_endet ON au_mehrfachflaechenobjekt_3d USING btree (endet);
 		PERFORM AddGeometryColumn('au_mehrfachflaechenobjekt_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -15098,7 +15098,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX au_mehrfachflaechenobjekt_3d_detailliert ON au_mehrfachflaechenobjekt_3d USING btree (detailliert);
 		CREATE INDEX au_mehrfachflaechenobjekt_3d_generalisiert ON au_mehrfachflaechenobjekt_3d USING btree (generalisiert);
 		CREATE INDEX au_mehrfachflaechenobjekt_3d_istteilvon ON au_mehrfachflaechenobjekt_3d USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE au_mehrfachflaechenobjekt_3d IS 'FeatureType: "AU_MehrfachFlaechenObjekt_3D"';
 		COMMENT ON COLUMN au_mehrfachflaechenobjekt_3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN au_mehrfachflaechenobjekt_3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -15127,7 +15127,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX au_mehrfachlinienobjekt_3d_gml ON au_mehrfachlinienobjekt_3d USING btree (gml_id,beginnt);
 		CREATE INDEX au_mehrfachlinienobjekt_3d_endet ON au_mehrfachlinienobjekt_3d USING btree (endet);
 		PERFORM AddGeometryColumn('au_mehrfachlinienobjekt_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -15135,7 +15135,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX au_mehrfachlinienobjekt_3d_detailliert ON au_mehrfachlinienobjekt_3d USING btree (detailliert);
 		CREATE INDEX au_mehrfachlinienobjekt_3d_generalisiert ON au_mehrfachlinienobjekt_3d USING btree (generalisiert);
 		CREATE INDEX au_mehrfachlinienobjekt_3d_istteilvon ON au_mehrfachlinienobjekt_3d USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE au_mehrfachlinienobjekt_3d IS 'FeatureType: "AU_MehrfachLinienObjekt_3D"';
 		COMMENT ON COLUMN au_mehrfachlinienobjekt_3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN au_mehrfachlinienobjekt_3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -15164,7 +15164,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX au_umringobjekt_3d_gml ON au_umringobjekt_3d USING btree (gml_id,beginnt);
 		CREATE INDEX au_umringobjekt_3d_endet ON au_umringobjekt_3d USING btree (endet);
 		PERFORM AddGeometryColumn('au_umringobjekt_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -15172,7 +15172,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX au_umringobjekt_3d_detailliert ON au_umringobjekt_3d USING btree (detailliert);
 		CREATE INDEX au_umringobjekt_3d_generalisiert ON au_umringobjekt_3d USING btree (generalisiert);
 		CREATE INDEX au_umringobjekt_3d_istteilvon ON au_umringobjekt_3d USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE au_umringobjekt_3d IS 'FeatureType: "AU_UmringObjekt_3D"';
 		COMMENT ON COLUMN au_umringobjekt_3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN au_umringobjekt_3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -15208,7 +15208,7 @@ Erholung von Reisenden.'),
 		  dientzurdarstellungvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX ap_kpo_3d_gml ON ap_kpo_3d USING btree (gml_id,beginnt);
 		CREATE INDEX ap_kpo_3d_endet ON ap_kpo_3d USING btree (endet);
 		PERFORM AddGeometryColumn('ap_kpo_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -15217,7 +15217,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX ap_kpo_3d_detailliert ON ap_kpo_3d USING btree (detailliert);
 		CREATE INDEX ap_kpo_3d_generalisiert ON ap_kpo_3d USING btree (generalisiert);
 		CREATE INDEX ap_kpo_3d_istteilvon ON ap_kpo_3d USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE ap_kpo_3d IS 'FeatureType: "AP_KPO_3D"';
 		COMMENT ON COLUMN ap_kpo_3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN ap_kpo_3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -15253,7 +15253,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX au_punkthaufenobjekt_3d_gml ON au_punkthaufenobjekt_3d USING btree (gml_id,beginnt);
 		CREATE INDEX au_punkthaufenobjekt_3d_endet ON au_punkthaufenobjekt_3d USING btree (endet);
 		PERFORM AddGeometryColumn('au_punkthaufenobjekt_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -15261,7 +15261,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX au_punkthaufenobjekt_3d_detailliert ON au_punkthaufenobjekt_3d USING btree (detailliert);
 		CREATE INDEX au_punkthaufenobjekt_3d_generalisiert ON au_punkthaufenobjekt_3d USING btree (generalisiert);
 		CREATE INDEX au_punkthaufenobjekt_3d_istteilvon ON au_punkthaufenobjekt_3d USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE au_punkthaufenobjekt_3d IS 'FeatureType: "AU_PunkthaufenObjekt_3D"';
 		COMMENT ON COLUMN au_punkthaufenobjekt_3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN au_punkthaufenobjekt_3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -15290,7 +15290,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX au_koerperobjekt_3d_gml ON au_koerperobjekt_3d USING btree (gml_id,beginnt);
 		CREATE INDEX au_koerperobjekt_3d_endet ON au_koerperobjekt_3d USING btree (endet);
 		PERFORM AddGeometryColumn('au_koerperobjekt_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -15298,7 +15298,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX au_koerperobjekt_3d_detailliert ON au_koerperobjekt_3d USING btree (detailliert);
 		CREATE INDEX au_koerperobjekt_3d_generalisiert ON au_koerperobjekt_3d USING btree (generalisiert);
 		CREATE INDEX au_koerperobjekt_3d_istteilvon ON au_koerperobjekt_3d USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE au_koerperobjekt_3d IS 'FeatureType: "AU_KoerperObjekt_3D"';
 		COMMENT ON COLUMN au_koerperobjekt_3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN au_koerperobjekt_3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -15327,7 +15327,7 @@ Erholung von Reisenden.'),
 		  istteilvon character(16)[],
 		  PRIMARY KEY (ogc_fid)
 		);
-		
+
 		CREATE UNIQUE INDEX au_geometrieobjekt_3d_gml ON au_geometrieobjekt_3d USING btree (gml_id,beginnt);
 		CREATE INDEX au_geometrieobjekt_3d_endet ON au_geometrieobjekt_3d USING btree (endet);
 		PERFORM AddGeometryColumn('au_geometrieobjekt_3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
@@ -15335,7 +15335,7 @@ Erholung von Reisenden.'),
 		CREATE INDEX au_geometrieobjekt_3d_detailliert ON au_geometrieobjekt_3d USING btree (detailliert);
 		CREATE INDEX au_geometrieobjekt_3d_generalisiert ON au_geometrieobjekt_3d USING btree (generalisiert);
 		CREATE INDEX au_geometrieobjekt_3d_istteilvon ON au_geometrieobjekt_3d USING gin (istteilvon);
-		
+
 		COMMENT ON TABLE au_geometrieobjekt_3d IS 'FeatureType: "AU_GeometrieObjekt_3D"';
 		COMMENT ON COLUMN au_geometrieobjekt_3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
 		COMMENT ON COLUMN au_geometrieobjekt_3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
@@ -16294,7 +16294,7 @@ Erholung von Reisenden.'),
 		  AND f_geometry_column='dummy'
 		  AND ( substr(f_table_name,1,3) IN ('ax_','ap_','ks_','aa_','au_','ta_')
 		        OR f_table_name IN ('alkis_beziehungen','delete','alkis_version','nas_filter_capabilities','operation') );
-		
+
 		CREATE TABLE ax_fortfuehrungsauftrag (
 			direkt boolean,
 			ausgabeform character varying,
@@ -16351,13 +16351,1048 @@ Erholung von Reisenden.'),
 
 		CREATE INDEX ax_dienststelle_sg ON ax_dienststelle(schluesselgesamt);
 
-		UPDATE alkis_version SET version=16;
+	END IF;
+
+	IF ver<17 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 17';
+
+		IF NOT EXISTS (SELECT * FROM information_schema.tables WHERE table_schema=current_schema AND table_name='ks_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewerbe') THEN
+			--
+			-- ks_bauwerkoderanlagefuerindustrieundgewerbe
+			--
+
+			CREATE TABLE ks_bauwerkoderanlagefuerindustrieundgewerbe (
+				ogc_fid serial NOT NULL,
+				gml_id character(16) NOT NULL,
+				anlass character varying[],
+				beginnt character(20) NOT NULL,
+				endet character(20),
+				advstandardmodell character varying[],
+				sonstigesmodell character varying[],
+				zeigtaufexternes_art character varying[],
+				zeigtaufexternes_name character varying[],
+				zeigtaufexternes_uri character varying[],
+				istabgeleitetaus character(16)[],
+				traegtbeizu character(16)[],
+				hatdirektunten character(16)[],
+				istteilvon character(16)[],
+
+				bauwerksfunktion integer NOT NULL,
+
+				PRIMARY KEY (ogc_fid)
+			);
+
+			CREATE UNIQUE INDEX ks_bauwerkoderanlagefuerindustrieundgewerbe_gml ON ks_bauwerkoderanlagefuerindustrieundgewerbe USING btree (gml_id,beginnt);
+			CREATE INDEX ks_bauwerkoderanlagefuerindustrieundgewerbe_endet ON ks_bauwerkoderanlagefuerindustrieundgewerbe USING btree (endet);
+			PERFORM AddGeometryColumn('ks_bauwerkoderanlagefuerindustrieundgewerbe', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+			CREATE INDEX ks_bauwerkoderanlagefuerindustrieundgewerbe_wkb_geometry_idx ON ks_bauwerkoderanlagefuerindustrieundgewerbe USING gist (wkb_geometry);
+			CREATE INDEX ks_bauwerkoderanlagefuerindustrieundgewerbe_istabgeleitetaus ON ks_bauwerkoderanlagefuerindustrieundgewerbe USING gin (istabgeleitetaus);
+			CREATE INDEX ks_bauwerkoderanlagefuerindustrieundgewerbe_traegtbeizu ON ks_bauwerkoderanlagefuerindustrieundgewerbe USING gin (traegtbeizu);
+			CREATE INDEX ks_bauwerkoderanlagefuerindustrieundgewerbe_hatdirektunten ON ks_bauwerkoderanlagefuerindustrieundgewerbe USING gin (hatdirektunten);
+			CREATE INDEX ks_bauwerkoderanlagefuerindustrieundgewerbe_istteilvon ON ks_bauwerkoderanlagefuerindustrieundgewerbe USING gin (istteilvon);
+
+			COMMENT ON TABLE ks_bauwerkoderanlagefuerindustrieundgewerbe IS 'FeatureType: "KS_BauwerkOderAnlageFuerIndustrieUndGewerbe"';
+			COMMENT ON COLUMN ks_bauwerkoderanlagefuerindustrieundgewerbe.anlass IS 'anlass codelist AA_Anlassart 0..*';
+			COMMENT ON COLUMN ks_bauwerkoderanlagefuerindustrieundgewerbe.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+			COMMENT ON COLUMN ks_bauwerkoderanlagefuerindustrieundgewerbe.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+			COMMENT ON COLUMN ks_bauwerkoderanlagefuerindustrieundgewerbe.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+			COMMENT ON COLUMN ks_bauwerkoderanlagefuerindustrieundgewerbe.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+			COMMENT ON COLUMN ks_bauwerkoderanlagefuerindustrieundgewerbe.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+			COMMENT ON COLUMN ks_bauwerkoderanlagefuerindustrieundgewerbe.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name   0..1';
+			COMMENT ON COLUMN ks_bauwerkoderanlagefuerindustrieundgewerbe.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+			COMMENT ON COLUMN ks_bauwerkoderanlagefuerindustrieundgewerbe.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+			COMMENT ON COLUMN ks_bauwerkoderanlagefuerindustrieundgewerbe.bauwerksfunktion IS 'bauwerksfunktion  KS_Bauwerksfunktion_BauwerkOderAnlageFuerIndustrieUndGewerbe 1';
+
+			--
+			-- ks_einrichtungenundanlageninoeffentlichenbereichen
+			--
+
+			CREATE TABLE ks_einrichtungenundanlageninoeffentlichenbereichen (
+				ogc_fid serial NOT NULL,
+				gml_id character(16) NOT NULL,
+				anlass character varying[],
+				beginnt character(20) NOT NULL,
+				endet character(20),
+				advstandardmodell character varying[],
+				sonstigesmodell character varying[],
+				zeigtaufexternes_art character varying[],
+				zeigtaufexternes_name character varying[],
+				zeigtaufexternes_uri character varying[],
+				istabgeleitetaus character(16)[],
+				traegtbeizu character(16)[],
+				hatdirektunten character(16)[],
+				istteilvon character(16)[],
+
+				art integer NOT NULL,
+
+				PRIMARY KEY (ogc_fid)
+			);
+
+			CREATE UNIQUE INDEX ks_euaiob_gml ON ks_einrichtungenundanlageninoeffentlichenbereichen USING btree (gml_id,beginnt);
+			CREATE INDEX ks_euaiob_endet ON ks_einrichtungenundanlageninoeffentlichenbereichen USING btree (endet);
+			PERFORM AddGeometryColumn('ks_einrichtungenundanlageninoeffentlichenbereichen', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+			CREATE INDEX ks_euaiob_wkb_geometry_idx ON ks_einrichtungenundanlageninoeffentlichenbereichen USING gist (wkb_geometry);
+			CREATE INDEX ks_euaiob_istabgeleitetaus ON ks_einrichtungenundanlageninoeffentlichenbereichen USING gin (istabgeleitetaus);
+			CREATE INDEX ks_euaiob_traegtbeizu ON ks_einrichtungenundanlageninoeffentlichenbereichen USING gin (traegtbeizu);
+			CREATE INDEX ks_euaiob_hatdirektunten ON ks_einrichtungenundanlageninoeffentlichenbereichen USING gin (hatdirektunten);
+			CREATE INDEX ks_euaiob_istteilvon ON ks_einrichtungenundanlageninoeffentlichenbereichen USING gin (istteilvon);
+
+			COMMENT ON TABLE ks_einrichtungenundanlageninoeffentlichenbereichen IS 'FeatureType: "KS_EinrichtungenUndAnlagenInOeffentlichenBereichen"';
+			COMMENT ON COLUMN ks_einrichtungenundanlageninoeffentlichenbereichen.anlass IS 'anlass codelist AA_Anlassart 0..*';
+			COMMENT ON COLUMN ks_einrichtungenundanlageninoeffentlichenbereichen.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+			COMMENT ON COLUMN ks_einrichtungenundanlageninoeffentlichenbereichen.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+			COMMENT ON COLUMN ks_einrichtungenundanlageninoeffentlichenbereichen.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+			COMMENT ON COLUMN ks_einrichtungenundanlageninoeffentlichenbereichen.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+			COMMENT ON COLUMN ks_einrichtungenundanlageninoeffentlichenbereichen.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+			COMMENT ON COLUMN ks_einrichtungenundanlageninoeffentlichenbereichen.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name   0..1';
+			COMMENT ON COLUMN ks_einrichtungenundanlageninoeffentlichenbereichen.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+			COMMENT ON COLUMN ks_einrichtungenundanlageninoeffentlichenbereichen.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+			COMMENT ON COLUMN ks_einrichtungenundanlageninoeffentlichenbereichen.art IS 'art  KS_Art_EinrichtungenUndAnlagenInOeffentlichenBereichen 1';
+
+			--
+			-- ks_sonstigesbauwerkodersonstigeeinrichtung
+			--
+
+			CREATE TABLE ks_sonstigesbauwerkodersonstigeeinrichtung (
+				ogc_fid serial NOT NULL,
+				gml_id character(16) NOT NULL,
+				anlass character varying[],
+				beginnt character(20) NOT NULL,
+				endet character(20),
+				advstandardmodell character varying[],
+				sonstigesmodell character varying[],
+				zeigtaufexternes_art character varying[],
+				zeigtaufexternes_name character varying[],
+				zeigtaufexternes_uri character varying[],
+				istabgeleitetaus character(16)[],
+				traegtbeizu character(16)[],
+				hatdirektunten character(16)[],
+				istteilvon character(16)[],
+
+				bauwerksfunktion integer NOT NULL,
+
+				PRIMARY KEY (ogc_fid)
+			);
+
+			CREATE UNIQUE INDEX ks_sonstigesbauwerkodersonstigeeinrichtung_gml ON ks_sonstigesbauwerkodersonstigeeinrichtung USING btree (gml_id,beginnt);
+			CREATE INDEX ks_sonstigesbauwerkodersonstigeeinrichtung_endet ON ks_sonstigesbauwerkodersonstigeeinrichtung USING btree (endet);
+			PERFORM AddGeometryColumn('ks_sonstigesbauwerkodersonstigeeinrichtung', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+			CREATE INDEX ks_sonstigesbauwerkodersonstigeeinrichtung_wkb_geometry_idx ON ks_sonstigesbauwerkodersonstigeeinrichtung USING gist (wkb_geometry);
+			CREATE INDEX ks_sonstigesbauwerkodersonstigeeinrichtung_istabgeleitetaus ON ks_sonstigesbauwerkodersonstigeeinrichtung USING gin (istabgeleitetaus);
+			CREATE INDEX ks_sonstigesbauwerkodersonstigeeinrichtung_traegtbeizu ON ks_sonstigesbauwerkodersonstigeeinrichtung USING gin (traegtbeizu);
+			CREATE INDEX ks_sonstigesbauwerkodersonstigeeinrichtung_hatdirektunten ON ks_sonstigesbauwerkodersonstigeeinrichtung USING gin (hatdirektunten);
+			CREATE INDEX ks_sonstigesbauwerkodersonstigeeinrichtung_istteilvon ON ks_sonstigesbauwerkodersonstigeeinrichtung USING gin (istteilvon);
+
+			COMMENT ON TABLE ks_sonstigesbauwerkodersonstigeeinrichtung IS 'FeatureType: "KS_SonstigesBauwerkOderSonstigeEinrichtung"';
+			COMMENT ON COLUMN ks_sonstigesbauwerkodersonstigeeinrichtung.anlass IS 'anlass codelist AA_Anlassart 0..*';
+			COMMENT ON COLUMN ks_sonstigesbauwerkodersonstigeeinrichtung.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+			COMMENT ON COLUMN ks_sonstigesbauwerkodersonstigeeinrichtung.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+			COMMENT ON COLUMN ks_sonstigesbauwerkodersonstigeeinrichtung.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+			COMMENT ON COLUMN ks_sonstigesbauwerkodersonstigeeinrichtung.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+			COMMENT ON COLUMN ks_sonstigesbauwerkodersonstigeeinrichtung.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+			COMMENT ON COLUMN ks_sonstigesbauwerkodersonstigeeinrichtung.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name   0..1';
+			COMMENT ON COLUMN ks_sonstigesbauwerkodersonstigeeinrichtung.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+			COMMENT ON COLUMN ks_sonstigesbauwerkodersonstigeeinrichtung.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+			COMMENT ON COLUMN ks_sonstigesbauwerkodersonstigeeinrichtung.bauwerksfunktion IS 'bauwerksfunktion  KS_Bauwerksfunktion_SonstigesBauwerkOderSonstigeEinrichtung 1';
+
+			--
+			-- ks_topographischeauspraegung
+			--
+
+			CREATE TABLE ks_topographischeauspraegung (
+				ogc_fid serial NOT NULL,
+				gml_id character(16) NOT NULL,
+				anlass character varying[],
+				beginnt character(20) NOT NULL,
+				endet character(20),
+				advstandardmodell character varying[],
+				sonstigesmodell character varying[],
+				zeigtaufexternes_art character varying[],
+				zeigtaufexternes_name character varying[],
+				zeigtaufexternes_uri character varying[],
+				istabgeleitetaus character(16)[],
+				traegtbeizu character(16)[],
+				hatdirektunten character(16)[],
+				istteilvon character(16)[],
+
+				objektart integer NOT NULL,
+
+				PRIMARY KEY (ogc_fid)
+			);
+
+			CREATE UNIQUE INDEX ks_topographischeauspraegung_gml ON ks_topographischeauspraegung USING btree (gml_id,beginnt);
+			CREATE INDEX ks_topographischeauspraegung_endet ON ks_topographischeauspraegung USING btree (endet);
+			PERFORM AddGeometryColumn('ks_topographischeauspraegung', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+			CREATE INDEX ks_topographischeauspraegung_wkb_geometry_idx ON ks_topographischeauspraegung USING gist (wkb_geometry);
+			CREATE INDEX ks_topographischeauspraegung_istabgeleitetaus ON ks_topographischeauspraegung USING gin (istabgeleitetaus);
+			CREATE INDEX ks_topographischeauspraegung_traegtbeizu ON ks_topographischeauspraegung USING gin (traegtbeizu);
+			CREATE INDEX ks_topographischeauspraegung_hatdirektunten ON ks_topographischeauspraegung USING gin (hatdirektunten);
+			CREATE INDEX ks_topographischeauspraegung_istteilvon ON ks_topographischeauspraegung USING gin (istteilvon);
+
+			COMMENT ON TABLE ks_topographischeauspraegung IS 'FeatureType: "KS_TopographischeAuspraegung"';
+			COMMENT ON COLUMN ks_topographischeauspraegung.anlass IS 'anlass codelist AA_Anlassart 0..*';
+			COMMENT ON COLUMN ks_topographischeauspraegung.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+			COMMENT ON COLUMN ks_topographischeauspraegung.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+			COMMENT ON COLUMN ks_topographischeauspraegung.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+			COMMENT ON COLUMN ks_topographischeauspraegung.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+			COMMENT ON COLUMN ks_topographischeauspraegung.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+			COMMENT ON COLUMN ks_topographischeauspraegung.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name   0..1';
+			COMMENT ON COLUMN ks_topographischeauspraegung.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+			COMMENT ON COLUMN ks_topographischeauspraegung.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+			COMMENT ON COLUMN ks_topographischeauspraegung.objektart IS 'objektart  KS_Objektart_TopographischeAuspraegung 1';
+
+			--
+			-- ks_strassenverkehrsanlage
+			--
+
+			CREATE TABLE ks_strassenverkehrsanlage (
+				ogc_fid serial NOT NULL,
+				gml_id character(16) NOT NULL,
+				anlass character varying[],
+				beginnt character(20) NOT NULL,
+				endet character(20),
+				advstandardmodell character varying[],
+				sonstigesmodell character varying[],
+				zeigtaufexternes_art character varying[],
+				zeigtaufexternes_name character varying[],
+				zeigtaufexternes_uri character varying[],
+				istabgeleitetaus character(16)[],
+				traegtbeizu character(16)[],
+				hatdirektunten character(16)[],
+				istteilvon character(16)[],
+
+				art integer NOT NULL,
+
+				PRIMARY KEY (ogc_fid)
+			);
+
+			CREATE UNIQUE INDEX ks_strassenverkehrsanlage_gml ON ks_strassenverkehrsanlage USING btree (gml_id,beginnt);
+			CREATE INDEX ks_strassenverkehrsanlage_endet ON ks_strassenverkehrsanlage USING btree (endet);
+			PERFORM AddGeometryColumn('ks_strassenverkehrsanlage', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+			CREATE INDEX ks_strassenverkehrsanlage_wkb_geometry_idx ON ks_strassenverkehrsanlage USING gist (wkb_geometry);
+			CREATE INDEX ks_strassenverkehrsanlage_istabgeleitetaus ON ks_strassenverkehrsanlage USING gin (istabgeleitetaus);
+			CREATE INDEX ks_strassenverkehrsanlage_traegtbeizu ON ks_strassenverkehrsanlage USING gin (traegtbeizu);
+			CREATE INDEX ks_strassenverkehrsanlage_hatdirektunten ON ks_strassenverkehrsanlage USING gin (hatdirektunten);
+			CREATE INDEX ks_strassenverkehrsanlage_istteilvon ON ks_strassenverkehrsanlage USING gin (istteilvon);
+
+			COMMENT ON TABLE ks_strassenverkehrsanlage IS 'FeatureType: "KS_Strassenverkehrsanlage"';
+			COMMENT ON COLUMN ks_strassenverkehrsanlage.anlass IS 'anlass codelist AA_Anlassart 0..*';
+			COMMENT ON COLUMN ks_strassenverkehrsanlage.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+			COMMENT ON COLUMN ks_strassenverkehrsanlage.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+			COMMENT ON COLUMN ks_strassenverkehrsanlage.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+			COMMENT ON COLUMN ks_strassenverkehrsanlage.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+			COMMENT ON COLUMN ks_strassenverkehrsanlage.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+			COMMENT ON COLUMN ks_strassenverkehrsanlage.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name   0..1';
+			COMMENT ON COLUMN ks_strassenverkehrsanlage.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+			COMMENT ON COLUMN ks_strassenverkehrsanlage.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+			COMMENT ON COLUMN ks_strassenverkehrsanlage.art IS 'art  KS_Art_Strassenverkehrsanlage 1';
+
+			--
+			-- ks_einrichtunginoeffentlichenbereichen
+			--
+
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ALTER beginnt SET NOT NULL;
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen RENAME art TO art_;
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD art integer NOT NULL;
+			UPDATE ks_einrichtunginoeffentlichenbereichen SET art=art_::int;
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen DROP art_;
+
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen RENAME material TO material_;
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD material integer;
+			UPDATE ks_einrichtunginoeffentlichenbereichen SET material=material_[1];
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen DROP material_;
+
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD zeigtaufexternes_art character varying[];
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD zeigtaufexternes_name character varying[];
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD zeigtaufexternes_uri character varying[];
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD istabgeleitetaus character(16)[];
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD traegtbeizu character(16)[];
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD hatdirektunten character(16)[];
+			ALTER TABLE ks_einrichtunginoeffentlichenbereichen ADD istteilvon character(16)[];
+
+			CREATE UNIQUE INDEX ks_einrichtunginoeffentlichenbereichen_gml ON ks_einrichtunginoeffentlichenbereichen USING btree (gml_id,beginnt);
+			CREATE INDEX ks_einrichtunginoeffentlichenbereichen_endet ON ks_einrichtunginoeffentlichenbereichen USING btree (endet);
+			CREATE INDEX ks_einrichtunginoeffentlichenbereichen_istabgeleitetaus ON ks_einrichtunginoeffentlichenbereichen USING gin (istabgeleitetaus);
+			CREATE INDEX ks_einrichtunginoeffentlichenbereichen_traegtbeizu ON ks_einrichtunginoeffentlichenbereichen USING gin (traegtbeizu);
+			CREATE INDEX ks_einrichtunginoeffentlichenbereichen_hatdirektunten ON ks_einrichtunginoeffentlichenbereichen USING gin (hatdirektunten);
+			CREATE INDEX ks_einrichtunginoeffentlichenbereichen_istteilvon ON ks_einrichtunginoeffentlichenbereichen USING gin (istteilvon);
+
+			COMMENT ON TABLE ks_einrichtunginoeffentlichenbereichen IS 'FeatureType: "KS_EinrichtungInOeffentlichenBereichen"';
+			COMMENT ON COLUMN ks_einrichtunginoeffentlichenbereichen.anlass IS 'anlass codelist AA_Anlassart 0..*';
+			COMMENT ON COLUMN ks_einrichtunginoeffentlichenbereichen.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+			COMMENT ON COLUMN ks_einrichtunginoeffentlichenbereichen.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+			COMMENT ON COLUMN ks_einrichtunginoeffentlichenbereichen.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+			COMMENT ON COLUMN ks_einrichtunginoeffentlichenbereichen.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+			COMMENT ON COLUMN ks_einrichtunginoeffentlichenbereichen.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+			COMMENT ON COLUMN ks_einrichtunginoeffentlichenbereichen.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name   0..1';
+			COMMENT ON COLUMN ks_einrichtunginoeffentlichenbereichen.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+			COMMENT ON COLUMN ks_einrichtunginoeffentlichenbereichen.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+			COMMENT ON COLUMN ks_einrichtunginoeffentlichenbereichen.art IS 'art  KS_Art_EinrichtungInOeffentlichenBereichen 1';
+			COMMENT ON COLUMN ks_einrichtunginoeffentlichenbereichen.oberflaechenmaterial IS 'oberflaechenmaterial  KS_Oberflaechenmaterial_KommunaleBauwerkeEinrichtungen 0..1';
+			COMMENT ON COLUMN ks_einrichtunginoeffentlichenbereichen.material IS 'material  KS_Material_EinrichtungInOeffentlichenBereichen 0..1';
+			COMMENT ON COLUMN ks_einrichtunginoeffentlichenbereichen.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+			COMMENT ON COLUMN ks_einrichtunginoeffentlichenbereichen.zustand IS 'zustand  KS_Zustand_KommunaleBauwerkeEinrichtungen 0..1';
+
+			--
+			-- ks_bauwerkanlagenfuerverundentsorgung
+			--
+
+			BEGIN
+				ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung DROP CONSTRAINT enforce_geotype_wkb_geometry;
+			EXCEPTION WHEN OTHERS THEN
+				ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung RENAME wkb_geometry TO wkb_geometry_;
+				PERFORM AddGeometryColumn('ks_bauwerkanlagenfuerverundentsorgung','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+				UPDATE ks_bauwerkanlagenfuerverundentsorgung SET wkb_geometry=wkb_geometry_;
+				ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung DROP wkb_geometry_ CASCADE;
+
+				CREATE INDEX ks_bauwerkanlagenfuerverundentsorgung_geom_idx ON ks_bauwerkanlagenfuerverundentsorgung USING gist(wkb_geometry);
+			END;
+
+			ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung ALTER beginnt SET NOT NULL;
+			ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung RENAME art TO art_;
+			ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung ADD art integer NOT NULL;
+			UPDATE ks_bauwerkanlagenfuerverundentsorgung SET art=art_::int;
+			ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung DROP art_;
+
+			ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung ADD zeigtaufexternes_art character varying[];
+			ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung ADD zeigtaufexternes_name character varying[];
+			ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung ADD zeigtaufexternes_uri character varying[];
+			ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung ADD istabgeleitetaus character(16)[];
+			ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung ADD traegtbeizu character(16)[];
+			ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung ADD hatdirektunten character(16)[];
+			ALTER TABLE ks_bauwerkanlagenfuerverundentsorgung ADD istteilvon character(16)[];
+
+			CREATE UNIQUE INDEX ks_bauwerkanlagenfuerverundentsorgung_gml ON ks_bauwerkanlagenfuerverundentsorgung USING btree (gml_id,beginnt);
+			CREATE INDEX ks_bauwerkanlagenfuerverundentsorgung_endet ON ks_bauwerkanlagenfuerverundentsorgung USING btree (endet);
+			CREATE INDEX ks_bauwerkanlagenfuerverundentsorgung_istabgeleitetaus ON ks_bauwerkanlagenfuerverundentsorgung USING gin (istabgeleitetaus);
+			CREATE INDEX ks_bauwerkanlagenfuerverundentsorgung_traegtbeizu ON ks_bauwerkanlagenfuerverundentsorgung USING gin (traegtbeizu);
+			CREATE INDEX ks_bauwerkanlagenfuerverundentsorgung_hatdirektunten ON ks_bauwerkanlagenfuerverundentsorgung USING gin (hatdirektunten);
+			CREATE INDEX ks_bauwerkanlagenfuerverundentsorgung_istteilvon ON ks_bauwerkanlagenfuerverundentsorgung USING gin (istteilvon);
+
+			COMMENT ON TABLE ks_bauwerkanlagenfuerverundentsorgung IS 'FeatureType: "KS_BauwerkAnlagenFuerVerUndEntsorgung"';
+			COMMENT ON COLUMN ks_bauwerkanlagenfuerverundentsorgung.anlass IS 'anlass codelist AA_Anlassart 0..*';
+			COMMENT ON COLUMN ks_bauwerkanlagenfuerverundentsorgung.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+			COMMENT ON COLUMN ks_bauwerkanlagenfuerverundentsorgung.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+			COMMENT ON COLUMN ks_bauwerkanlagenfuerverundentsorgung.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+			COMMENT ON COLUMN ks_bauwerkanlagenfuerverundentsorgung.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+			COMMENT ON COLUMN ks_bauwerkanlagenfuerverundentsorgung.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+			COMMENT ON COLUMN ks_bauwerkanlagenfuerverundentsorgung.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name   0..1';
+			COMMENT ON COLUMN ks_bauwerkanlagenfuerverundentsorgung.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+			COMMENT ON COLUMN ks_bauwerkanlagenfuerverundentsorgung.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+			COMMENT ON COLUMN ks_bauwerkanlagenfuerverundentsorgung.art IS 'art  KS_Art_BauwerkAnlagenFuerVerUndEntsorgung 1';
+			COMMENT ON COLUMN ks_bauwerkanlagenfuerverundentsorgung.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+			COMMENT ON COLUMN ks_bauwerkanlagenfuerverundentsorgung.zustand IS 'zustand  KS_Zustand_BauwerkOderAnlageFuerVerUndEntsorgung 0..1';
+
+			--
+			-- ks_sonstigesbauwerk
+			--
+
+			ALTER TABLE ks_sonstigesbauwerk ALTER beginnt SET NOT NULL;
+			ALTER TABLE ks_sonstigesbauwerk ALTER bauwerksfunktion SET NOT NULL;
+
+			ALTER TABLE ks_sonstigesbauwerk ADD zeigtaufexternes_art character varying[];
+			ALTER TABLE ks_sonstigesbauwerk ADD zeigtaufexternes_name character varying[];
+			ALTER TABLE ks_sonstigesbauwerk ADD zeigtaufexternes_uri character varying[];
+			ALTER TABLE ks_sonstigesbauwerk ADD istabgeleitetaus character(16)[];
+			ALTER TABLE ks_sonstigesbauwerk ADD traegtbeizu character(16)[];
+			ALTER TABLE ks_sonstigesbauwerk ADD hatdirektunten character(16)[];
+			ALTER TABLE ks_sonstigesbauwerk ADD istteilvon character(16)[];
+
+			CREATE UNIQUE INDEX ks_sonstigesbauwerk_gml ON ks_sonstigesbauwerk USING btree (gml_id,beginnt);
+			CREATE INDEX ks_sonstigesbauwerk_endet ON ks_sonstigesbauwerk USING btree (endet);
+			CREATE INDEX ks_sonstigesbauwerk_istabgeleitetaus ON ks_sonstigesbauwerk USING gin (istabgeleitetaus);
+			CREATE INDEX ks_sonstigesbauwerk_traegtbeizu ON ks_sonstigesbauwerk USING gin (traegtbeizu);
+			CREATE INDEX ks_sonstigesbauwerk_hatdirektunten ON ks_sonstigesbauwerk USING gin (hatdirektunten);
+			CREATE INDEX ks_sonstigesbauwerk_istteilvon ON ks_sonstigesbauwerk USING gin (istteilvon);
+
+			COMMENT ON TABLE ks_sonstigesbauwerk IS 'FeatureType: "KS_SonstigesBauwerk"';
+			COMMENT ON COLUMN ks_sonstigesbauwerk.anlass IS 'anlass codelist AA_Anlassart 0..*';
+			COMMENT ON COLUMN ks_sonstigesbauwerk.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+			COMMENT ON COLUMN ks_sonstigesbauwerk.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+			COMMENT ON COLUMN ks_sonstigesbauwerk.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+			COMMENT ON COLUMN ks_sonstigesbauwerk.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+			COMMENT ON COLUMN ks_sonstigesbauwerk.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+			COMMENT ON COLUMN ks_sonstigesbauwerk.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name   0..1';
+			COMMENT ON COLUMN ks_sonstigesbauwerk.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+			COMMENT ON COLUMN ks_sonstigesbauwerk.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+			COMMENT ON COLUMN ks_sonstigesbauwerk.bauwerksfunktion IS 'bauwerksfunktion  KS_Bauwerksfunktion_SonstigesBauwerk 1';
+			COMMENT ON COLUMN ks_sonstigesbauwerk.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+
+			--
+			-- ks_einrichtungimstrassenverkehr
+			--
+
+			ALTER TABLE ks_einrichtungimstrassenverkehr ALTER beginnt SET NOT NULL;
+			ALTER TABLE ks_einrichtungimstrassenverkehr ALTER art SET NOT NULL;
+
+			ALTER TABLE ks_einrichtungimstrassenverkehr ADD zeigtaufexternes_art character varying[];
+			ALTER TABLE ks_einrichtungimstrassenverkehr ADD zeigtaufexternes_name character varying[];
+			ALTER TABLE ks_einrichtungimstrassenverkehr ADD zeigtaufexternes_uri character varying[];
+			ALTER TABLE ks_einrichtungimstrassenverkehr ADD istabgeleitetaus character(16)[];
+			ALTER TABLE ks_einrichtungimstrassenverkehr ADD traegtbeizu character(16)[];
+			ALTER TABLE ks_einrichtungimstrassenverkehr ADD hatdirektunten character(16)[];
+			ALTER TABLE ks_einrichtungimstrassenverkehr ADD istteilvon character(16)[];
+
+			CREATE UNIQUE INDEX ks_einrichtungimstrassenverkehr_gml ON ks_einrichtungimstrassenverkehr USING btree (gml_id,beginnt);
+			CREATE INDEX ks_einrichtungimstrassenverkehr_endet ON ks_einrichtungimstrassenverkehr USING btree (endet);
+			CREATE INDEX ks_einrichtungimstrassenverkehr_istabgeleitetaus ON ks_einrichtungimstrassenverkehr USING gin (istabgeleitetaus);
+			CREATE INDEX ks_einrichtungimstrassenverkehr_traegtbeizu ON ks_einrichtungimstrassenverkehr USING gin (traegtbeizu);
+			CREATE INDEX ks_einrichtungimstrassenverkehr_hatdirektunten ON ks_einrichtungimstrassenverkehr USING gin (hatdirektunten);
+			CREATE INDEX ks_einrichtungimstrassenverkehr_istteilvon ON ks_einrichtungimstrassenverkehr USING gin (istteilvon);
+
+			COMMENT ON TABLE ks_einrichtungimstrassenverkehr IS 'FeatureType: "KS_EinrichtungImStrassenverkehr"';
+			COMMENT ON COLUMN ks_einrichtungimstrassenverkehr.anlass IS 'anlass codelist AA_Anlassart 0..*';
+			COMMENT ON COLUMN ks_einrichtungimstrassenverkehr.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+			COMMENT ON COLUMN ks_einrichtungimstrassenverkehr.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+			COMMENT ON COLUMN ks_einrichtungimstrassenverkehr.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+			COMMENT ON COLUMN ks_einrichtungimstrassenverkehr.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+			COMMENT ON COLUMN ks_einrichtungimstrassenverkehr.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+			COMMENT ON COLUMN ks_einrichtungimstrassenverkehr.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name   0..1';
+			COMMENT ON COLUMN ks_einrichtungimstrassenverkehr.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+			COMMENT ON COLUMN ks_einrichtungimstrassenverkehr.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+			COMMENT ON COLUMN ks_einrichtungimstrassenverkehr.art IS 'art  KS_Art_EinrichtungImStrassenverkehr 1';
+			COMMENT ON COLUMN ks_einrichtungimstrassenverkehr.oberflaechenmaterial IS 'oberflaechenmaterial  KS_Oberflaechenmaterial_KommunaleBauwerkeEinrichtungen 0..1';
+			COMMENT ON COLUMN ks_einrichtungimstrassenverkehr.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+			COMMENT ON COLUMN ks_einrichtungimstrassenverkehr.zustand IS 'zustand  KS_Zustand_KommunaleBauwerkeEinrichtungen 0..1';
+
+			--
+			-- ks_verkehrszeichen
+			--
+
+			BEGIN
+				ALTER TABLE ks_verkehrszeichen DROP CONSTRAINT enforce_geotype_wkb_geometry;
+			EXCEPTION WHEN OTHERS THEN
+				ALTER TABLE ks_verkehrszeichen RENAME wkb_geometry TO wkb_geometry_;
+				PERFORM AddGeometryColumn('ks_verkehrszeichen','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+				UPDATE ks_verkehrszeichen SET wkb_geometry=wkb_geometry_;
+				ALTER TABLE ks_verkehrszeichen DROP wkb_geometry_ CASCADE;
+
+				CREATE INDEX ks_verkehrszeichen_geom_idx ON ks_verkehrszeichen USING gist(wkb_geometry);
+			END;
+
+			ALTER TABLE ks_verkehrszeichen ALTER beginnt SET NOT NULL;
+
+			ALTER TABLE ks_verkehrszeichen ADD zeigtaufexternes_art character varying[];
+			ALTER TABLE ks_verkehrszeichen ADD zeigtaufexternes_name character varying[];
+			ALTER TABLE ks_verkehrszeichen ADD zeigtaufexternes_uri character varying[];
+			ALTER TABLE ks_verkehrszeichen ADD istabgeleitetaus character(16)[];
+			ALTER TABLE ks_verkehrszeichen ADD traegtbeizu character(16)[];
+			ALTER TABLE ks_verkehrszeichen ADD hatdirektunten character(16)[];
+			ALTER TABLE ks_verkehrszeichen ADD istteilvon character(16)[];
+
+			CREATE UNIQUE INDEX ks_verkehrszeichen_gml ON ks_verkehrszeichen USING btree (gml_id,beginnt);
+			CREATE INDEX ks_verkehrszeichen_endet ON ks_verkehrszeichen USING btree (endet);
+			CREATE INDEX ks_verkehrszeichen_istabgeleitetaus ON ks_verkehrszeichen USING gin (istabgeleitetaus);
+			CREATE INDEX ks_verkehrszeichen_traegtbeizu ON ks_verkehrszeichen USING gin (traegtbeizu);
+			CREATE INDEX ks_verkehrszeichen_hatdirektunten ON ks_verkehrszeichen USING gin (hatdirektunten);
+			CREATE INDEX ks_verkehrszeichen_istteilvon ON ks_verkehrszeichen USING gin (istteilvon);
+
+			COMMENT ON TABLE ks_verkehrszeichen IS 'FeatureType: "KS_Verkehrszeichen"';
+			COMMENT ON COLUMN ks_verkehrszeichen.anlass IS 'anlass codelist AA_Anlassart 0..*';
+			COMMENT ON COLUMN ks_verkehrszeichen.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+			COMMENT ON COLUMN ks_verkehrszeichen.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+			COMMENT ON COLUMN ks_verkehrszeichen.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+			COMMENT ON COLUMN ks_verkehrszeichen.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+			COMMENT ON COLUMN ks_verkehrszeichen.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+			COMMENT ON COLUMN ks_verkehrszeichen.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name   0..1';
+			COMMENT ON COLUMN ks_verkehrszeichen.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+			COMMENT ON COLUMN ks_verkehrszeichen.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+			COMMENT ON COLUMN ks_verkehrszeichen.gefahrzeichen IS 'gefahrzeichen  KS_Gefahrzeichen_Verkehrszeichen 0..*';
+			COMMENT ON COLUMN ks_verkehrszeichen.vorschriftzeichen IS 'vorschriftzeichen  KS_Vorschriftzeichen_Verkehrszeichen 0..*';
+			COMMENT ON COLUMN ks_verkehrszeichen.richtzeichen IS 'richtzeichen  KS_Richtzeichen_Verkehrszeichen 0..*';
+			COMMENT ON COLUMN ks_verkehrszeichen.verkehrseinrichtung IS 'verkehrseinrichtung  KS_Verkehrseinrichtung_Verkehrszeichen 0..*';
+			COMMENT ON COLUMN ks_verkehrszeichen.zusatzzeichen IS 'zusatzzeichen  KS_Zusatzzeichen_Verkehrszeichen 0..*';
+			COMMENT ON COLUMN ks_verkehrszeichen.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+
+			--
+			-- ks_einrichtungimbahnverkehr
+			--
+
+			ALTER TABLE ks_einrichtungimbahnverkehr ALTER beginnt SET NOT NULL;
+			ALTER TABLE ks_einrichtungimbahnverkehr ALTER art SET NOT NULL;
+
+			ALTER TABLE ks_einrichtungimbahnverkehr ADD zeigtaufexternes_art character varying[];
+			ALTER TABLE ks_einrichtungimbahnverkehr ADD zeigtaufexternes_name character varying[];
+			ALTER TABLE ks_einrichtungimbahnverkehr ADD zeigtaufexternes_uri character varying[];
+			ALTER TABLE ks_einrichtungimbahnverkehr ADD istabgeleitetaus character(16)[];
+			ALTER TABLE ks_einrichtungimbahnverkehr ADD traegtbeizu character(16)[];
+			ALTER TABLE ks_einrichtungimbahnverkehr ADD hatdirektunten character(16)[];
+			ALTER TABLE ks_einrichtungimbahnverkehr ADD istteilvon character(16)[];
+
+			CREATE UNIQUE INDEX ks_einrichtungimbahnverkehr_gml ON ks_einrichtungimbahnverkehr USING btree (gml_id,beginnt);
+			CREATE INDEX ks_einrichtungimbahnverkehr_endet ON ks_einrichtungimbahnverkehr USING btree (endet);
+			CREATE INDEX ks_einrichtungimbahnverkehr_istabgeleitetaus ON ks_einrichtungimbahnverkehr USING gin (istabgeleitetaus);
+			CREATE INDEX ks_einrichtungimbahnverkehr_traegtbeizu ON ks_einrichtungimbahnverkehr USING gin (traegtbeizu);
+			CREATE INDEX ks_einrichtungimbahnverkehr_hatdirektunten ON ks_einrichtungimbahnverkehr USING gin (hatdirektunten);
+			CREATE INDEX ks_einrichtungimbahnverkehr_istteilvon ON ks_einrichtungimbahnverkehr USING gin (istteilvon);
+
+			COMMENT ON TABLE ks_einrichtungimbahnverkehr IS 'FeatureType: "KS_EinrichtungImBahnverkehr"';
+			COMMENT ON COLUMN ks_einrichtungimbahnverkehr.anlass IS 'anlass codelist AA_Anlassart 0..*';
+			COMMENT ON COLUMN ks_einrichtungimbahnverkehr.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+			COMMENT ON COLUMN ks_einrichtungimbahnverkehr.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+			COMMENT ON COLUMN ks_einrichtungimbahnverkehr.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+			COMMENT ON COLUMN ks_einrichtungimbahnverkehr.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+			COMMENT ON COLUMN ks_einrichtungimbahnverkehr.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+			COMMENT ON COLUMN ks_einrichtungimbahnverkehr.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name   0..1';
+			COMMENT ON COLUMN ks_einrichtungimbahnverkehr.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+			COMMENT ON COLUMN ks_einrichtungimbahnverkehr.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+			COMMENT ON COLUMN ks_einrichtungimbahnverkehr.art IS 'art  KS_Art_EinrichtungImBahnverkehr 1';
+			COMMENT ON COLUMN ks_einrichtungimbahnverkehr.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+
+			--
+			-- ks_bauwerkimgewaesserbereich
+			--
+
+			BEGIN
+				ALTER TABLE ks_bauwerkimgewaesserbereich DROP CONSTRAINT enforce_geotype_wkb_geometry;
+			EXCEPTION WHEN OTHERS THEN
+				ALTER TABLE ks_bauwerkimgewaesserbereich RENAME wkb_geometry TO wkb_geometry_;
+				PERFORM AddGeometryColumn('ks_bauwerkimgewaesserbereich','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',2);
+				UPDATE ks_bauwerkimgewaesserbereich SET wkb_geometry=wkb_geometry_;
+				ALTER TABLE ks_bauwerkimgewaesserbereich DROP wkb_geometry_ CASCADE;
+
+				CREATE INDEX ks_bauwerkimgewaesserbereich_geom_idx ON ks_bauwerkimgewaesserbereich USING gist(wkb_geometry);
+			END;
+
+			ALTER TABLE ks_bauwerkimgewaesserbereich ALTER beginnt SET NOT NULL;
+			ALTER TABLE ks_bauwerkimgewaesserbereich ALTER bauwerksfunktion SET NOT NULL;
+
+			ALTER TABLE ks_bauwerkimgewaesserbereich ADD zeigtaufexternes_art character varying[];
+			ALTER TABLE ks_bauwerkimgewaesserbereich ADD zeigtaufexternes_name character varying[];
+			ALTER TABLE ks_bauwerkimgewaesserbereich ADD zeigtaufexternes_uri character varying[];
+			ALTER TABLE ks_bauwerkimgewaesserbereich ADD istabgeleitetaus character(16)[];
+			ALTER TABLE ks_bauwerkimgewaesserbereich ADD traegtbeizu character(16)[];
+			ALTER TABLE ks_bauwerkimgewaesserbereich ADD hatdirektunten character(16)[];
+			ALTER TABLE ks_bauwerkimgewaesserbereich ADD istteilvon character(16)[];
+
+			CREATE UNIQUE INDEX ks_bauwerkimgewaesserbereich_gml ON ks_bauwerkimgewaesserbereich USING btree (gml_id,beginnt);
+			CREATE INDEX ks_bauwerkimgewaesserbereich_endet ON ks_bauwerkimgewaesserbereich USING btree (endet);
+			CREATE INDEX ks_bauwerkimgewaesserbereich_istabgeleitetaus ON ks_bauwerkimgewaesserbereich USING gin (istabgeleitetaus);
+			CREATE INDEX ks_bauwerkimgewaesserbereich_traegtbeizu ON ks_bauwerkimgewaesserbereich USING gin (traegtbeizu);
+			CREATE INDEX ks_bauwerkimgewaesserbereich_hatdirektunten ON ks_bauwerkimgewaesserbereich USING gin (hatdirektunten);
+			CREATE INDEX ks_bauwerkimgewaesserbereich_istteilvon ON ks_bauwerkimgewaesserbereich USING gin (istteilvon);
+
+			COMMENT ON TABLE ks_bauwerkimgewaesserbereich IS 'FeatureType: "KS_BauwerkImGewaesserbereich"';
+			COMMENT ON COLUMN ks_bauwerkimgewaesserbereich.anlass IS 'anlass codelist AA_Anlassart 0..*';
+			COMMENT ON COLUMN ks_bauwerkimgewaesserbereich.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+			COMMENT ON COLUMN ks_bauwerkimgewaesserbereich.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+			COMMENT ON COLUMN ks_bauwerkimgewaesserbereich.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+			COMMENT ON COLUMN ks_bauwerkimgewaesserbereich.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+			COMMENT ON COLUMN ks_bauwerkimgewaesserbereich.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+			COMMENT ON COLUMN ks_bauwerkimgewaesserbereich.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name   0..1';
+			COMMENT ON COLUMN ks_bauwerkimgewaesserbereich.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+			COMMENT ON COLUMN ks_bauwerkimgewaesserbereich.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+			COMMENT ON COLUMN ks_bauwerkimgewaesserbereich.bauwerksfunktion IS 'bauwerksfunktion  KS_Bauwerksfunktion_BauwerkImGewaesserbereich 1';
+			COMMENT ON COLUMN ks_bauwerkimgewaesserbereich.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+			COMMENT ON COLUMN ks_bauwerkimgewaesserbereich.zustand IS 'zustand  KS_Zustand_BauwerkImGewaesserbereich 0..1';
+
+			--
+			-- ks_vegetationsmerkmal
+			--
+
+			ALTER TABLE ks_vegetationsmerkmal ALTER beginnt SET NOT NULL;
+
+			ALTER TABLE ks_vegetationsmerkmal ADD zeigtaufexternes_art character varying[];
+			ALTER TABLE ks_vegetationsmerkmal ADD zeigtaufexternes_name character varying[];
+			ALTER TABLE ks_vegetationsmerkmal ADD zeigtaufexternes_uri character varying[];
+			ALTER TABLE ks_vegetationsmerkmal ADD istabgeleitetaus character(16)[];
+			ALTER TABLE ks_vegetationsmerkmal ADD traegtbeizu character(16)[];
+			ALTER TABLE ks_vegetationsmerkmal ADD hatdirektunten character(16)[];
+			ALTER TABLE ks_vegetationsmerkmal ADD istteilvon character(16)[];
+
+			CREATE UNIQUE INDEX ks_vegetationsmerkmal_gml ON ks_vegetationsmerkmal USING btree (gml_id,beginnt);
+			CREATE INDEX ks_vegetationsmerkmal_endet ON ks_vegetationsmerkmal USING btree (endet);
+			CREATE INDEX ks_vegetationsmerkmal_istabgeleitetaus ON ks_vegetationsmerkmal USING gin (istabgeleitetaus);
+			CREATE INDEX ks_vegetationsmerkmal_traegtbeizu ON ks_vegetationsmerkmal USING gin (traegtbeizu);
+			CREATE INDEX ks_vegetationsmerkmal_hatdirektunten ON ks_vegetationsmerkmal USING gin (hatdirektunten);
+			CREATE INDEX ks_vegetationsmerkmal_istteilvon ON ks_vegetationsmerkmal USING gin (istteilvon);
+
+			COMMENT ON TABLE ks_vegetationsmerkmal IS 'FeatureType: "KS_Vegetationsmerkmal"';
+			COMMENT ON COLUMN ks_vegetationsmerkmal.anlass IS 'anlass codelist AA_Anlassart 0..*';
+			COMMENT ON COLUMN ks_vegetationsmerkmal.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+			COMMENT ON COLUMN ks_vegetationsmerkmal.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+			COMMENT ON COLUMN ks_vegetationsmerkmal.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+			COMMENT ON COLUMN ks_vegetationsmerkmal.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+			COMMENT ON COLUMN ks_vegetationsmerkmal.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+			COMMENT ON COLUMN ks_vegetationsmerkmal.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name   0..1';
+			COMMENT ON COLUMN ks_vegetationsmerkmal.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+			COMMENT ON COLUMN ks_vegetationsmerkmal.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+			COMMENT ON COLUMN ks_vegetationsmerkmal.bewuchs IS 'bewuchs  KS_Bewuchs_Vegetationsmerkmal 0..1';
+			COMMENT ON COLUMN ks_vegetationsmerkmal.zustand IS 'zustand  KS_Zustand_Vegetationsmerkmal 0..1';
+			COMMENT ON COLUMN ks_vegetationsmerkmal.breitedesobjekts IS 'breiteDesObjekts  Length 0..1';
+			COMMENT ON COLUMN ks_vegetationsmerkmal.name IS 'name  CharacterString 0..1';
+			COMMENT ON COLUMN ks_vegetationsmerkmal.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+
+			--
+			-- ks_bauraumoderbodenordnungsrecht
+			--
+
+			ALTER TABLE ks_bauraumoderbodenordnungsrecht ALTER beginnt SET NOT NULL;
+
+			ALTER TABLE ks_bauraumoderbodenordnungsrecht ADD zeigtaufexternes_art character varying[];
+			ALTER TABLE ks_bauraumoderbodenordnungsrecht ADD zeigtaufexternes_name character varying[];
+			ALTER TABLE ks_bauraumoderbodenordnungsrecht ADD zeigtaufexternes_uri character varying[];
+			ALTER TABLE ks_bauraumoderbodenordnungsrecht ADD istabgeleitetaus character(16)[];
+			ALTER TABLE ks_bauraumoderbodenordnungsrecht ADD traegtbeizu character(16)[];
+			ALTER TABLE ks_bauraumoderbodenordnungsrecht ADD hatdirektunten character(16)[];
+			ALTER TABLE ks_bauraumoderbodenordnungsrecht ADD istteilvon character(16)[];
+
+			CREATE UNIQUE INDEX ks_bauraumoderbodenordnungsrecht_gml ON ks_bauraumoderbodenordnungsrecht USING btree (gml_id,beginnt);
+			CREATE INDEX ks_bauraumoderbodenordnungsrecht_endet ON ks_bauraumoderbodenordnungsrecht USING btree (endet);
+			CREATE INDEX ks_bauraumoderbodenordnungsrecht_istabgeleitetaus ON ks_bauraumoderbodenordnungsrecht USING gin (istabgeleitetaus);
+			CREATE INDEX ks_bauraumoderbodenordnungsrecht_traegtbeizu ON ks_bauraumoderbodenordnungsrecht USING gin (traegtbeizu);
+			CREATE INDEX ks_bauraumoderbodenordnungsrecht_hatdirektunten ON ks_bauraumoderbodenordnungsrecht USING gin (hatdirektunten);
+			CREATE INDEX ks_bauraumoderbodenordnungsrecht_istteilvon ON ks_bauraumoderbodenordnungsrecht USING gin (istteilvon);
+
+			COMMENT ON TABLE ks_bauraumoderbodenordnungsrecht IS 'FeatureType: "KS_BauRaumOderBodenordnungsrecht"';
+			COMMENT ON COLUMN ks_bauraumoderbodenordnungsrecht.anlass IS 'anlass codelist AA_Anlassart 0..*';
+			COMMENT ON COLUMN ks_bauraumoderbodenordnungsrecht.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+			COMMENT ON COLUMN ks_bauraumoderbodenordnungsrecht.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+			COMMENT ON COLUMN ks_bauraumoderbodenordnungsrecht.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+			COMMENT ON COLUMN ks_bauraumoderbodenordnungsrecht.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+			COMMENT ON COLUMN ks_bauraumoderbodenordnungsrecht.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+			COMMENT ON COLUMN ks_bauraumoderbodenordnungsrecht.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name   0..1';
+			COMMENT ON COLUMN ks_bauraumoderbodenordnungsrecht.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+			COMMENT ON COLUMN ks_bauraumoderbodenordnungsrecht.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+			COMMENT ON COLUMN ks_bauraumoderbodenordnungsrecht.artderfestlegung IS 'artDerFestlegung  KS_ArtDerFestlegung_BauRaumOderBauordnungsrecht 0..1';
+			COMMENT ON COLUMN ks_bauraumoderbodenordnungsrecht.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+
+			--
+			-- ks_kommunalerbesitz
+			--
+
+			ALTER TABLE ks_kommunalerbesitz ALTER beginnt SET NOT NULL;
+
+			ALTER TABLE ks_kommunalerbesitz ADD zeigtaufexternes_art character varying[];
+			ALTER TABLE ks_kommunalerbesitz ADD zeigtaufexternes_name character varying[];
+			ALTER TABLE ks_kommunalerbesitz ADD zeigtaufexternes_uri character varying[];
+			ALTER TABLE ks_kommunalerbesitz ADD istabgeleitetaus character(16)[];
+			ALTER TABLE ks_kommunalerbesitz ADD traegtbeizu character(16)[];
+			ALTER TABLE ks_kommunalerbesitz ADD hatdirektunten character(16)[];
+			ALTER TABLE ks_kommunalerbesitz ADD istteilvon character(16)[];
+
+			CREATE UNIQUE INDEX ks_kommunalerbesitz_gml ON ks_kommunalerbesitz USING btree (gml_id,beginnt);
+			CREATE INDEX ks_kommunalerbesitz_endet ON ks_kommunalerbesitz USING btree (endet);
+			CREATE INDEX ks_kommunalerbesitz_wkb_geometry_idx ON ks_kommunalerbesitz USING gist (wkb_geometry);
+			CREATE INDEX ks_kommunalerbesitz_istabgeleitetaus ON ks_kommunalerbesitz USING gin (istabgeleitetaus);
+			CREATE INDEX ks_kommunalerbesitz_traegtbeizu ON ks_kommunalerbesitz USING gin (traegtbeizu);
+			CREATE INDEX ks_kommunalerbesitz_hatdirektunten ON ks_kommunalerbesitz USING gin (hatdirektunten);
+			CREATE INDEX ks_kommunalerbesitz_istteilvon ON ks_kommunalerbesitz USING gin (istteilvon);
+
+
+			--
+			-- Kataloge
+			--
+
+			CREATE TABLE ks_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewerbe (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewerbe IS 'Alias: "KS_Bauwerksfunktion_BauwerkOderAnlageFuerIndustrieUndGewerbe", UML-Typ: Enumeration';
+			INSERT INTO ks_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewerbe (wert,beschreibung,dokumentation) VALUES
+			('1380', 'Schieberkappe', ''),
+			('1390', 'Einsteigeschacht', ''),
+			('1372', 'Unterflurhydrant', ''),
+			('1250', 'Mast', ''),
+			('1371', 'Oberflurhydrant', '');
+
+			CREATE TABLE ks_bauwerksfunktion_bauwerkimgewaesserbereich (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_bauwerksfunktion_bauwerkimgewaesserbereich IS 'Alias: "KS_Bauwerksfunktion_BauwerkImGewaesserbereich", UML-Typ: Enumeration';
+			INSERT INTO ks_bauwerksfunktion_bauwerkimgewaesserbereich (wert,beschreibung,dokumentation) VALUES
+			('1200', 'Einlass/Auslass', ''),
+			('1100', 'Rohrdurchlass', '');
+
+			CREATE TABLE ks_art_strassenverkehrsanlage (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_art_strassenverkehrsanlage IS 'Alias: "KS_Art_Strassenverkehrsanlage", UML-Typ: Enumeration';
+			INSERT INTO ks_art_strassenverkehrsanlage (wert,beschreibung,dokumentation) VALUES
+			('1010', 'Fahrbahnbegrenzungslinie', '');
+
+			CREATE TABLE ks_bewuchs_vegetationsmerkmal (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_bewuchs_vegetationsmerkmal IS 'Alias: "KS_Bewuchs_Vegetationsmerkmal", UML-Typ: Enumeration';
+			INSERT INTO ks_bewuchs_vegetationsmerkmal (wert,beschreibung,dokumentation) VALUES
+			('1013', 'Solitärstrauch', ''),
+			('1102', 'Heckenkante, links', ''),
+			('1012', 'Laubbaum', ''),
+			('1103', 'Heckenmitte', ''),
+			('2200', 'erhw. Nadelbaum', '''erhw.Nadelbaum'' beschreibt die Zugehörigkeit eines einzeln stehenden, erhaltungswürdigen Baumes zur Gruppe der Nadelhölzer.'),
+			('3100', 'Beet', ''),
+			('1100', 'Rasen', 'Rasen bezeichnet eine Vegetationsdecke aus Gräsern, die feste verwurzelt, durch Wurzeln und Ausläufer mit der Vegetationstrageschicht verbunden ist und nicht landwirtschaftlich genutzt wird. Rasen findet Verwendung in Gärten oder Grünanlagen (z.B. Sportplatz, Golfplatz) und wird meist kurz geschnitten.'),
+			('1101', 'Heckenkante, rechts', ''),
+			('2100', 'erhw. Laubbaum', '''erhw.Laubbaum'' beschreibt die Zugehörigkeit eines einzeln stehenden, erhaltungswürdigen Baumes zur Gruppe der Laubhölzer.'),
+			('1011', 'Nadelbaum', '');
+
+			CREATE TABLE ks_bauwerksfunktion_sonstigesbauwerkodersonstigeeinrichtung (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_bauwerksfunktion_sonstigesbauwerkodersonstigeeinrichtung IS 'Alias: "KS_Bauwerksfunktion_SonstigesBauwerkOderSonstigeEinrichtung", UML-Typ: Enumeration';
+			INSERT INTO ks_bauwerksfunktion_sonstigesbauwerkodersonstigeeinrichtung (wert,beschreibung,dokumentation) VALUES
+			('1655', 'Rampe, Barrierefreiheit', ''),
+			('1721', 'Stützmauer, rechts', ''),
+			('1740', 'Zaun', ''),
+			('1701', 'Mauerkante, rechts', ''),
+			('1782', 'Springbrunnen, Zierbrunnen ', ''),
+			('1630', 'Treppenunterkante', ''),
+			('1780', 'Brunnen', ''),
+			('1702', 'Mauerkante, links', ''),
+			('1781', 'Brunnen (Trinkwasserversorgung)', ''),
+			('1703', 'Mauermitte', ''),
+			('1723', 'Stützmauermitte', ''),
+			('1722', 'Stützmauer, links', ''),
+			('1620', 'Treppe', ''),
+			('1640', 'Kellereingang', ''),
+			('1660', 'Kellerschacht', '');
+
+			CREATE TABLE ks_art_bauwerkanlagenfuerverundentsorgung (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_art_bauwerkanlagenfuerverundentsorgung IS 'Alias: "KS_Art_BauwerkAnlagenFuerVerUndEntsorgung", UML-Typ: Enumeration';
+			INSERT INTO ks_art_bauwerkanlagenfuerverundentsorgung (wert,beschreibung,dokumentation) VALUES
+			('2200', 'Schieberkappe Wasser', ''),
+			('3100', 'Stahlgittermast ohne Sockel', ''),
+			('1200', 'Peilrohr', '''Peilrohr'' ist ein Rohr zum Messen des Wasserstandes'),
+			('3300', 'Hochspannungsmast', ''),
+			('1300', 'Wasserhahn', '''Wasserhahn'' ist eine Vorrichtung zum Öffnen und Schließen von Wasserleitungen'),
+			('3200', 'Sockel für Gittermast', ''),
+			('2100', 'Schieberkappe Gas', ''),
+			('1100', 'städtischer Entwässerungsgraben', '''städtischer Entwässerungsgraben'' ist eine längere schmale Vertiefung im Erdboden zu dessen Entwässerung'),
+			('1500', 'Kanaldeckel', ''),
+			('3400', 'Stahlgittermast mit Sockel', ''),
+			('1400', 'Wasserschieber', '');
+
+			CREATE TABLE ks_art_einrichtungimstrassenverkehr (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_art_einrichtungimstrassenverkehr IS 'Alias: "KS_Art_EinrichtungImStrassenverkehr", UML-Typ: Enumeration';
+			INSERT INTO ks_art_einrichtungimstrassenverkehr (wert,beschreibung,dokumentation) VALUES
+			('2000', 'ruhender Verkehr', ''),
+			('9999', 'Sonstiges', ''),
+			('3100', 'Radweg', ''),
+			('3300', 'Öffentlicher Platz', ''),
+			('3200', 'Parkplatz', ''),
+			('4100', 'Radarkontrolle', ''),
+			('1100', 'ruhender Verkehr', ''),
+			('3120', 'Fußweg', ''),
+			('3600', 'Furt', ''),
+			('3140', 'Rad- und Fußweg', ''),
+			('3150', 'Wirtschaftsweg', ''),
+			('3000', 'Fahrbahn', ''),
+			('3500', 'Fahrbahnteiler, Mittelinsel', ''),
+			('2200', 'Rinne', ''),
+			('2100', 'Bordstein', '');
+
+			CREATE TABLE ks_objektart_topographischeauspraegung (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_objektart_topographischeauspraegung IS 'Alias: "KS_Objektart_TopographischeAuspraegung", UML-Typ: Enumeration';
+			INSERT INTO ks_objektart_topographischeauspraegung (wert,beschreibung,dokumentation) VALUES
+			('9000', 'sonstige topographische Linie', '');
+
+			CREATE TABLE ks_art_einrichtungenundanlageninoeffentlichenbereichen (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_art_einrichtungenundanlageninoeffentlichenbereichen IS 'Alias: "KS_Art_EinrichtungenUndAnlagenInOeffentlichenBereichen", UML-Typ: Enumeration';
+			INSERT INTO ks_art_einrichtungenundanlageninoeffentlichenbereichen (wert,beschreibung,dokumentation) VALUES
+			('3100', 'Bank', ''),
+			('1160', 'Postdepot', ''),
+			('1140', 'Feuermelder', ''),
+			('1360', 'Haltestelle, Wartestand', ''),
+			('1340', 'Freistehende Warntafel', ''),
+			('1100', 'Kommunikationseinrichtung', ''),
+			('1300', 'Verkehrszeichen', ''),
+			('9001', 'sonstiges Schild', ''),
+			('1510', 'Tor', ''),
+			('1710', 'Leuchtsäule', ''),
+			('1910', 'Fahnenmast', ''),
+			('1700', 'Säule, Werbefläche', ''),
+			('2600', 'Flutlichtmast', ''),
+			('2101', 'Straßensinkkasten, seitlich - an Bordsteinkante', ''),
+			('1500', 'Bahnübergang, Schranke', ''),
+			('2100', 'Straßensinkkasten', ''),
+			('1130', 'Notrufeinrichtung', ''),
+			('1310', 'Verkehrsampel', ''),
+			('1110', 'Fernsprechhäuschen', ''),
+			('3310', 'Fahrradständer', ''),
+			('1200', 'Kabelkasten, Schaltkasten', ''),
+			('1120', 'Briefkasten', ''),
+			('1410', 'Kilometerstein, -tafel', ''),
+			('1320', 'Freistehende Hinweistafel, -zeichen', ''),
+			('1620', 'Laterne, elektrisch', ''),
+			('3200', 'Spielgerät', ''),
+			('3120', 'Blumenkübel', ''),
+			('2102', 'Straßensinkkasten, mittig', ''),
+			('2210', 'Abfalleimer', ''),
+			('9999', 'Sonstiges', ''),
+			('2400', 'Uhr', ''),
+			('2200', 'Müllbox', ''),
+			('2105', 'Kastenrinne', ''),
+			('1150', 'Polizeirufsäule', ''),
+			('1400', 'Markierungshinweise, -steine', '');
+
+			CREATE TABLE ks_art_einrichtunginoeffentlichenbereichen (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_art_einrichtunginoeffentlichenbereichen IS 'Alias: "KS_Art_EinrichtungInOeffentlichenBereichen", UML-Typ: Enumeration';
+			INSERT INTO ks_art_einrichtunginoeffentlichenbereichen (wert,beschreibung,dokumentation) VALUES
+			('1400', 'Abfalleimer', ''),
+			('1700', 'Tisch', ''),
+			('5200', 'Sport-/Spielflächen', ''),
+			('5300', 'Grab', ''),
+			('1500', 'Postdepot', ''),
+			('5100', 'sonstige Flächen', ''),
+			('5000', 'Weg (nicht in Verkehrsanlagen)', ''),
+			('1600', 'Blumenkübel', ''),
+			('1200', 'Spielgerät', 'Ein ''Spielgerät'' dient dem Erwerb von Wahrnehmungsleistungen, motorischen Fähigkeiten und Intelligenzleistungen des Kindes auf Spielplätzen o.ä.'),
+			('1100', 'Bank', 'Bank ist eine Sitzgelegenheit aus Holz, Stein o.ä., die mehreren Personen Platz bietet'),
+			('1300', 'Fahrradständer', ''),
+			('5500', 'Randbefestigung, Einfassung', '');
+
+			CREATE TABLE ks_oberflaechenmaterial_kommunalebauwerkeeinrichtungen (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_oberflaechenmaterial_kommunalebauwerkeeinrichtungen IS 'Alias: "KS_Oberflaechenmaterial_KommunaleBauwerkeEinrichtungen", UML-Typ: Enumeration';
+			INSERT INTO ks_oberflaechenmaterial_kommunalebauwerkeeinrichtungen (wert,beschreibung,dokumentation) VALUES
+			('2010', 'Kunststoff', '''Kunststoff'' bedeutet, dass die Oberfläche aus Kunststoff besteht.'),
+			('1060', 'Gehwegplatten', '''Gehwegplatten'' bedeutet, dass es sich um eine mit Gehwegplatten ausgelegte Oberfläche handelt.'),
+			('1020', 'Bituminöser Belag', '''Bituminöser Belag'' bedeutet, dass die Oberfläche aus einem bituminösen Belag besteht.'),
+			('1040', 'Wassergebundener Belag', '''Wassergebundener Belag'' bedeutet, dass die Oberfläche aus einem wassergebundenem Belag besteht.'),
+			('3020', 'Rindenmulch', '''Rindenmulch'' bedeutet, dass die Oberfläche mit Rindenmulch bedeckt ist.'),
+			('4010', 'Schotterrasen', '''Schotterrasen'' bedeutet, dass die Oberfläche aus Schotterrasen besteht.'),
+			('1010', 'Asphalt', '''Asphalt'' bedeutet, dass die Oberfläche aus Asphalt besteht.'),
+			('1050', 'Pflaster', '''Pflaster'' bedeutet, dass es sich um eine gepflasterte Oberfläche handelt.'),
+			('3010', 'Sand', '''Sand'' bedeutet, dass die Oberfläche mit Sand bedeckt ist.'),
+			('9999', 'Sonstiges', ''),
+			('1030', 'Beton', '''Beton'' bedeutet, dass die Oberfläche aus Beton besteht.');
+
+			CREATE TABLE ks_material_einrichtunginoeffentlichenbereichen (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_material_einrichtunginoeffentlichenbereichen IS 'Alias: "KS_Material_EinrichtungInOeffentlichenBereichen", UML-Typ: Enumeration';
+			INSERT INTO ks_material_einrichtunginoeffentlichenbereichen (wert,beschreibung,dokumentation) VALUES
+			('9999', 'Sonstiges', ''),
+			('3000', 'Holz', '''Holz'' bedeutet, dass ''KS_EinrichtungInOeffentlichenBereichen'' aus Holz besteht.'),
+			('1000', 'Stein', '''Stein'' bedeutet, dass ''KS_EinrichtungInOeffentlichenBereichen'' aus Stein besteht.'),
+			('2000', 'Metall', '''Metall'' bedeutet, dass ''KS_EinrichtungInOeffentlichenBereichen'' aus Metall besteht.'),
+			('4000', 'Kunststoff', '''Kunststoff'' bedeutet, dass ''KS_EinrichtungInOeffentlichenBereichen'' aus Kunststoff besteht.');
+
+			CREATE TABLE ks_zustand_kommunalebauwerkeeinrichtungen (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_zustand_kommunalebauwerkeeinrichtungen IS 'Alias: "KS_Zustand_KommunaleBauwerkeEinrichtungen", UML-Typ: Enumeration';
+			INSERT INTO ks_zustand_kommunalebauwerkeeinrichtungen (wert,beschreibung,dokumentation) VALUES
+			('1100', 'unbefestigt', '');
+
+			CREATE TABLE ks_zustand_bauwerkoderanlagefuerverundentsorgung (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_zustand_bauwerkoderanlagefuerverundentsorgung IS 'Alias: "KS_Zustand_BauwerkOderAnlageFuerVerUndEntsorgung", UML-Typ: Enumeration';
+			INSERT INTO ks_zustand_bauwerkoderanlagefuerverundentsorgung (wert,beschreibung,dokumentation) VALUES
+			('4100', 'Offen', '''Offen'' bedeutet, dass ''Bauwerk oder Anlage für Ver- und Entsorgung'' allgemein zugänglich ist.'),
+			('2100', 'Außer Betrieb, stillgelegt, verlassen', '''Außer Betrieb, stillgelegt, verlassen'' bedeutet, dass sich ''Bauwerk oder Anlage für Ver- und Entsorgung'' nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
+			('4200', 'Verschlossen', '''Verschlossen'' bedeutet, dass ''Bauwerk oder Anlage für Ver- und Entsorgung'' nicht allgemein zugänglich ist.'),
+			('2200', 'Verfallen, zerstört', '''Verfallen, zerstört'' bedeutet, dass sich der ursprüngliche Zustand von ''Bauwerk oder Anlage für Ver- und Entsorgung'' durch menschliche oder zeitliche Einwirkungen so verändert hat, dass eine Nutzung nicht mehr möglich ist.');
+
+			CREATE TABLE ks_bauwerksfunktion_sonstigesbauwerk (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_bauwerksfunktion_sonstigesbauwerk IS 'Alias: "KS_Bauwerksfunktion_SonstigesBauwerk", UML-Typ: Enumeration';
+			INSERT INTO ks_bauwerksfunktion_sonstigesbauwerk (wert,beschreibung,dokumentation) VALUES
+			('4000', 'Schwengelpumpe', 'Wetterschutzüberdachung5000'),
+			('1100', 'Balkon', ''),
+			('3000', 'einzelner Zaun', '');
+
+			CREATE TABLE ks_gefahrzeichen_verkehrszeichen (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_gefahrzeichen_verkehrszeichen IS 'Alias: "KS_Gefahrzeichen_Verkehrszeichen", UML-Typ: Enumeration';
+			INSERT INTO ks_gefahrzeichen_verkehrszeichen (wert,beschreibung,dokumentation) VALUES
+			('1100', 'Kinder', 'Zeichen 136 STVO, Kinder');
+
+			CREATE TABLE ks_vorschriftzeichen_verkehrszeichen (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_vorschriftzeichen_verkehrszeichen IS 'Alias: "KS_Vorschriftzeichen_Verkehrszeichen", UML-Typ: Enumeration';
+			INSERT INTO ks_vorschriftzeichen_verkehrszeichen (wert,beschreibung,dokumentation) VALUES
+			('1222', 'Pfeil geradeaus/rechts', '''Pfeil rechts/geradeaus'' ist ein auf der Fahrbahnoberfläche einer Straße angebrachtes Vorschriftzeichen. Sie schreiben die Fahrtrichtung vor.'),
+			('1223', 'Pfeil links', '''Pfeil links'' ist ein auf der Fahrbahnoberfläche einer Straße angebrachtes Vorschriftzeichen. Sie schreiben die Fahrtrichtung vor.'),
+			('1210', 'Tempo 30 Zone', '''Tempo 30 Zone'' ist ein Schild oder ein auf der Fahrbahnoberfläche einer Straße angebrachtes Zeichen zur Bestimmung der Tempo 30 Zone.'),
+			('1230', 'Haltelinie', '''Haltelinie'' ist ein auf der Fahrbahnoberfläche einer Straße angebrachtes Vorschriftzeichen. Ergänzend zu Halt- und Wartegeboten, die durch Zeichen, durch Polizeibeamte oder Lichtzeichen gegeben werden, ordnet sie an ''Hier halten''. Dasselbe gilt vor Bahnübergängen, für den der warten muss.'),
+			('1224', 'Pfeil geradeaus/links', '''Pfeil geradeaus/links'' ist ein auf der Fahrbahnoberfläche einer Straße angebrachtes Vorschriftzeichen. Sie schreiben die Fahrtrichtung vor.'),
+			('1225', 'Pfeil geradeaus', '''Pfeil geradeaus'' ist ein auf der Fahrbahnoberfläche einer Straße angebrachtes Vorschriftzeichen. Sie schreiben die Fahrtrichtung vor.'),
+			('1240', 'Sperrfläche', '''Sperrfläche'' ist ein auf der Fahrbahnoberfläche einer Straße angebrachtes Vorschriftzeichen. Eine Sperrfläche darf von Fahrzeugen nicht benutzt werden.'),
+			('1221', 'Pfeil rechts', '''Pfeil rechts'' ist ein auf der Fahrbahnoberfläche einer Straße angebrachtes Vorschriftzeichen. Sie schreiben die Fahrtrichtung vor.'),
+			('1100', 'Andreaskreuz', 'Vorschriftzeichen unmittelbar vor einem Bahnübergang mit der Bedeutung ''Dem Schienenverkehr Vorrang gewähren''.'),
+			('1300', 'Ver-/Gebotsschild', '');
+
+			CREATE TABLE ks_richtzeichen_verkehrszeichen (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_richtzeichen_verkehrszeichen IS 'Alias: "KS_Richtzeichen_Verkehrszeichen", UML-Typ: Enumeration';
+			INSERT INTO ks_richtzeichen_verkehrszeichen (wert,beschreibung,dokumentation) VALUES
+			('1200', 'Leitpfosten', ''),
+			('1111', 'Leitmarkierung durchgezogen', '''Leitmarkierung'' ist ein auf der Fahrbahnoberfläche einer Straße angebrachtes Richtzeichen.'),
+			('1110', 'Leitmarkierung unterbrochen', '''Leitmarkierung'' ist ein auf der Fahrbahnoberfläche einer Straße angebrachtes Richtzeichen. Sie besteht in der Regel aus gleich langen Strichen mit regelmäßigen Abständen. Eine Leitlinie kann auch als Warnlinie ausgeführt werden; bei der Warnlinie sind die Striche länger als die Lücken.');
+
+			CREATE TABLE ks_verkehrseinrichtung_verkehrszeichen (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_verkehrseinrichtung_verkehrszeichen IS 'Alias: "KS_Verkehrseinrichtung_Verkehrszeichen", UML-Typ: Enumeration';
+			INSERT INTO ks_verkehrseinrichtung_verkehrszeichen (wert,beschreibung,dokumentation) VALUES
+			('1400', 'Warnleuchte', ''),
+			('1210', 'Parkscheinautomat', 'Ein ''Parkscheinautomat'' ist eine Einrichtung zur Überwachung der Parkzeit.'),
+			('1199', 'sonstige Absperrung', ''),
+			('1110', 'Barriere', ''),
+			('1220', 'Parkuhr', 'Eine ''Parkuhr'' ist eine Einrichtung zur Überwachung der Parkzeit.'),
+			('1100', 'Sperrpfahl, Poller', '''Sperrpfahl, Poller'' Ein Sperrpfahl ist ein starker Pfahl aus Holz, Metall oder auch Stein. Ein Poller ist kürzer und stärker als ein Sperrpfahl'),
+			('1600', 'Leitplanke', '');
+
+			CREATE TABLE ks_zusatzzeichen_verkehrszeichen (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_zusatzzeichen_verkehrszeichen IS 'Alias: "KS_Zusatzzeichen_Verkehrszeichen", UML-Typ: Enumeration';
+			INSERT INTO ks_zusatzzeichen_verkehrszeichen (wert,beschreibung,dokumentation) VALUES
+			('1110', 'Schwerbehinderte', '''Schwerbehinderte'' Ist ein Schild oder auf der Fahrbahnoberfläche einer Straße angebrachtes Verkehrszeichen.'),
+			('1120', 'Kraftomnibus', '''Kraftomnibus frei'' Ist ein Schild oder auf der Fahrbahnoberfläche einer Straße angebrachtes Verkehrszeichen.');
+
+			CREATE TABLE ks_art_einrichtungimbahnverkehr (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_art_einrichtungimbahnverkehr IS 'Alias: "KS_Art_EinrichtungImBahnverkehr", UML-Typ: Enumeration';
+			INSERT INTO ks_art_einrichtungimbahnverkehr (wert,beschreibung,dokumentation) VALUES
+			('1200', 'Bahn-Kilometerstein', ''),
+			('1100', 'Gleisende, Prellbock', '''Gleisende, Prellbock'' ist der Abschluss eines Gleises einer Strecke für den Schienenverkehr. Ein Prellbock verhindert, dass ein Zug oder Waggon über das Schienenende hinausrollen kann.');
+
+			CREATE TABLE ks_zustand_bauwerkimgewaesserbereich (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_zustand_bauwerkimgewaesserbereich IS 'Alias: "KS_Zustand_BauwerkImGewaesserbereich", UML-Typ: Enumeration';
+			INSERT INTO ks_zustand_bauwerkimgewaesserbereich (wert,beschreibung,dokumentation) VALUES
+			('4000', 'Im Bau', '''Im Bau'' bedeutet, dass ''Bauwerk im Gewässerbereich'' noch nicht fertiggestellt ist. ***** Objektartengruppe: Besondere kommunale Vegetationsmerkmale ***** Definition: Die Objektartengruppe mit der Bezeichnung ''Besondere kommunale Vegetationsmerkmale'' und der Kennung ''59300'' beschreibt den flächen-, linien- oder punktförmigen zusätzlichen Bewuchs einer Grundfläche. Die Objektartengruppe umfasst die Objektart Kennung Name 59301 ''Vegetationsmerkmal''. Kennung: 59300'),
+			('2100', 'Außer Betrieb, stillgelegt, verlassen', '''Außer Betrieb, stillgelegt; verlassen'' bedeutet, dass sich ''Bauwerk im Gewässerbereich'' nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.');
+
+			CREATE TABLE ks_zustand_vegetationsmerkmal (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_zustand_vegetationsmerkmal IS 'Alias: "KS_Zustand_Vegetationsmerkmal", UML-Typ: Enumeration';
+			INSERT INTO ks_zustand_vegetationsmerkmal (wert,beschreibung,dokumentation) VALUES
+			('1100', 'Nass', '''Nass'' bezeichnet eine Vegetationsfläche, die aufgrund besonderer Bodenbeschaffenheit ganzjährig wassergesättigt ist, zeitweise auch unter Wasser stehen kann, aus kommunaler Sicht.');
+
+			CREATE TABLE ks_artderfestlegung_bauraumoderbauordnungsrecht (
+			  wert integer,
+			  beschreibung character varying,
+			  dokumentation character varying,
+			  PRIMARY KEY (wert)
+			);
+
+			COMMENT ON TABLE ks_artderfestlegung_bauraumoderbauordnungsrecht IS 'Alias: "KS_ArtDerFestlegung_BauRaumOderBauordnungsrecht", UML-Typ: Enumeration';
+			INSERT INTO ks_artderfestlegung_bauraumoderbauordnungsrecht (wert,beschreibung,dokumentation) VALUES
+			('1715', 'Bebauungsplan, einleitender Beschluss', ''),
+			('1821', 'Gestaltungssatzung', '');
+		END IF;
+
+		UPDATE alkis_version SET version=17;
 
 		r := alkis_string_append(r, 'ALKIS-Schema migriert');
 	END IF;
 
-	IF ver>16 THEN
-		RAISE EXCEPTION 'ALKIS-Schema % nicht unterstützt (bis 16).', ver;
+	IF ver>17 THEN
+		RAISE EXCEPTION 'ALKIS-Schema % nicht unterstützt (bis 17).', ver;
 	END IF;
 
 	--
