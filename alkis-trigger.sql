@@ -141,10 +141,35 @@ BEGIN
 	GET DIAGNOSTICS n = ROW_COUNT;
 	-- RAISE NOTICE 'SQL[%]:%', n, s;
 	IF n<>1 THEN
-		RAISE EXCEPTION '%: % schlug fehl [%]', NEW.featureid, NEW.context, n;
-		-- RAISE NOTICE '%: % schlug fehl [%]', NEW.featureid, NEW.context, n;
-		-- NEW.ignored=true;
-		-- RETURN NEW;
+		IF n=0 THEN
+			s := 'SELECT count(*),min(beginnt) FROM ' || NEW.typename || ' WHERE gml_id=''' || substr(NEW.featureid, 1, 16) || ''' AND endet IS NULL';
+			EXECUTE s INTO n, beginnt;
+			IF n=1 OR (n=0 AND NEW.context='delete') THEN
+				RAISE NOTICE '%: Kein Objekt gefunden [%:%]', NEW.featureid, NEW.context, n;
+				NEW.ignored=true;
+				RETURN NEW;
+			ELSIF n=2 AND beginnt IS NOT NULL THEN
+				s := 'UPDATE ' || NEW.typename || ' a SET endet=''' || NEW.endet || '''';
+
+				IF NEW.anlass IS NOT NULL THEN
+					s := s || ',anlass=array_cat(anlass,''{' || array_to_string(NEW.anlass,',') || '}'')';
+				END IF;
+
+				s := s || ' WHERE gml_id=''' || substr(NEW.featureid, 1, 16) || ''''
+				       || ' AND beginnt=''' || beginnt || ''''
+				       ;
+				EXECUTE s;
+				GET DIAGNOSTICS n = ROW_COUNT;
+				-- RAISE NOTICE 'SQL[%]:%', n, s;
+				IF n<>1 THEN
+					RAISE EXCEPTION '%: Aktualisierung des Vorgängerobjekts von % schlug fehl [%:%]', NEW.featureid, beginnt, NEW.context, n;
+				END IF;
+			ELSE
+				RAISE EXCEPTION '%: Kein eindeutiges Vorgängerobjekt gefunden [%:%]', NEW.featureid, NEW.context, n;
+			END IF;
+		ELSE
+			RAISE EXCEPTION '%: % schlug fehl [%]', NEW.featureid, NEW.context, n;
+		END IF;
 	END IF;
 
 	NEW.ignored := false;
