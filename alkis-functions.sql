@@ -190,7 +190,7 @@ BEGIN
 		  AND NOT EXISTS (
 			SELECT *
 			FROM pg_catalog.pg_class c1
-			JOIN pg_catalog.pg_namespace n1 ON n1.oid=c1.relnamespace AND n1.nspname=current_schema
+			JOIN pg_catalog.pg_namespace n1 ON n1.oid=c1.relnamespace AND n1.nspname=current_schema()
 			WHERE c1.relname=c.relname
 		  )
 	LOOP
@@ -338,7 +338,7 @@ BEGIN
 	FOR c IN
 		SELECT table_name
 		FROM information_schema.columns a
-		WHERE a.column_name='endet' AND a.is_updatable='YES'
+		WHERE a.column_name='endet' AND a.is_updatable='YES' AND table_schema=current_schema()
 		ORDER BY table_name
 	LOOP
 		EXECUTE 'DELETE FROM ' || c.table_name || ' WHERE NOT endet IS NULL';
@@ -16356,7 +16356,7 @@ Erholung von Reisenden.'),
 	IF ver<17 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 17';
 
-		IF NOT EXISTS (SELECT * FROM information_schema.tables WHERE table_schema=current_schema AND table_name='ks_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewerbe') THEN
+		IF NOT EXISTS (SELECT * FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='ks_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewerbe') THEN
 			--
 			-- ks_bauwerkoderanlagefuerindustrieundgewerbe
 			--

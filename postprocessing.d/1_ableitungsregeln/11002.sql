@@ -206,7 +206,7 @@ CREATE TEMPORARY TABLE po_joinlines(
 	modell varchar[],
 	adf integer[]
 );
-SELECT AddGeometryColumn('po_joinlines','line',(SELECT srid FROM geometry_columns WHERE f_table_schema=current_schema AND f_table_name='po_lines' AND f_geometry_column='line'),'LINESTRING',2);
+SELECT AddGeometryColumn('po_joinlines','line',(SELECT srid FROM geometry_columns WHERE f_table_schema=current_schema() AND f_table_name='po_lines' AND f_geometry_column='line'),'LINESTRING',2);
 CREATE INDEX po_joinlines_line ON po_joinlines USING GIST (line);
 CREATE INDEX po_joinlines_visited ON po_joinlines(visited);
 
