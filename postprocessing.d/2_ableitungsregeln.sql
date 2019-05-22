@@ -74,10 +74,10 @@ DROP SEQUENCE rnstricharteni_seq;
 DROP SEQUENCE rnlinie_seq;
 
 -- Array -> Set
-UPDATE po_points   SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo),drehwinkel_grad=degrees(drehwinkel);
-UPDATE po_lines    SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo);
-UPDATE po_polygons SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo);
-UPDATE po_labels   SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo),drehwinkel_grad=degrees(drehwinkel);
+UPDATE po_points   SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo WHERE modell IS NOT NULL),drehwinkel_grad=degrees(drehwinkel);
+UPDATE po_lines    SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo WHERE modell IS NOT NULL);
+UPDATE po_polygons SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo WHERE modell IS NOT NULL);
+UPDATE po_labels   SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo WHERE modell IS NOT NULL),drehwinkel_grad=degrees(drehwinkel);
 
 SELECT
 	modell AS "ALKIS-Modellart",
