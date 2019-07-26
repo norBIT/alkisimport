@@ -224,6 +224,12 @@ BEGIN
 		ELSIF NEW.safetoignore<>'true' AND NEW.safetoignore<>'false' THEN
 			RAISE EXCEPTION '%: safeToIgnore ''%'' ungültig (''true'' oder ''false'' erwartet).', NEW.featureid, NEW.safetoignore;
 		END IF;
+
+		IF NEW.featureid=NEW.replacedby THEN
+			NEW.ignored := true;
+			RETURN NEW;
+		END IF;
+
 	ELSIF NEW.context NOT IN ('delete', 'update') THEN
 		RAISE EXCEPTION '%: Ungültiger Kontext % (''delete'', ''replace'' oder ''update'' erwartet).', NEW.featureid, NEW.context;
 	END IF;
