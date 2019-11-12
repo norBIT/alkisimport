@@ -52,13 +52,17 @@ SELECT
 		WHEN o.art=9999                THEN '3585'
 		END
 	) AS signaturnummer,
-	coalesce(p.advstandardmodell||p.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
+	coalesce(
+		p.advstandardmodell||p.sonstigesmodell,
+		d.advstandardmodell||d.sonstigesmodell,
+		o.advstandardmodell||o.sonstigesmodell
+	) AS modell
 FROM ks_einrichtungenundanlageninoeffentlichenbereichen o
 LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='ART' AND p.endet IS NULL
 LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='ART' AND d.endet IS NULL
 WHERE geometrytype(coalesce(p.wkb_geometry,o.wkb_geometry)) IN ('POINT','MULTIPOINT')
   AND o.endet IS NULL
-  AND 'HBDKOM' = ANY(o.sonstigesmodell||p.sonstigesmodell);
+  AND 'HBDKOM' = ANY(o.sonstigesmodell||p.sonstigesmodell||d.sonstigesmodell);
 
 
 -- Flächen (Haltestelle/Müllbox)
@@ -110,7 +114,11 @@ FROM (
 			p.signaturnummer,
 			'3567'
 		) AS signaturnummer,
-		coalesce(p.advstandardmodell||p.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
+		coalesce(
+			p.advstandardmodell||p.sonstigesmodell,
+			d.advstandardmodell||d.sonstigesmodell,
+			o.advstandardmodell||o.sonstigesmodell
+		) AS modell
 	FROM ks_einrichtungenundanlageninoeffentlichenbereichen o
 	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='ART' AND p.endet IS NULL
 	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='ART' AND d.endet IS NULL

@@ -45,7 +45,11 @@ FROM (
 				END
 			END
 		) AS signaturnummer,
-		coalesce(p.advstandardmodell||p.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
+		coalesce(
+			p.advstandardmodell||p.sonstigesmodell,
+			d.advstandardmodell||d.sonstigesmodell,
+			o.advstandardmodell||o.sonstigesmodell
+		) AS modell
 	FROM ks_bauwerkanlagenfuerverundentsorgung o
 	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='ART' AND p.endet IS NULL
 	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='ART' AND d.endet IS NULL
@@ -70,14 +74,18 @@ SELECT
 	) AS text,
         coalesce(d.signaturnummer,t.signaturnummer,'4070') AS signaturnummer,
         drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-        coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
+        coalesce(
+		t.advstandardmodell||t.sonstigesmodell,
+		d.advstandardmodell||d.sonstigesmodell,
+		o.advstandardmodell||o.sonstigesmodell
+	) AS modell
 FROM ks_bauwerkanlagenfuerverundentsorgung o
 LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='ART' AND t.endet IS NULL
 LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='ART' AND d.endet IS NULL
 WHERE o.endet IS NULL
   AND o.art IN (2100,2200)
   AND geometrytype(o.wkb_geometry) IN ('POINT','MULTIPOINT')
-  AND 'HBDKOM' = ANY(o.sonstigesmodell);
+  AND 'HBDKOM' = ANY(o.sonstigesmodell||t.sonstigesmodell||d.sonstigesmodell);
 
 -- Linien
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
