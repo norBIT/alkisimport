@@ -12983,12 +12983,12 @@ CREATE TABLE ax_punktortau (
   processstep_hoursofservice character varying[],
   processstep_contactinstructions character varying[],
   processstep_role character varying[],
-  processstep_description character varying[],
+  processstep_ax_datenerhebung_punktort character varying[],
   processstep_scaledenominator character varying[],
   processstep_sourcereferencesystem character varying[],
   processstep_sourceextent character varying[],
   processstep_sourcestep character varying[],
-  herkunft_source_source_description character varying[],
+  herkunft_source_source_ax_datenerhebung_punktort character varying[],
   herkunft_source_source_scaledenominator character varying[],
   herkunft_source_source_sourcereferencesystem character varying[],
   herkunft_source_source_sourceextent character varying[],
@@ -13047,12 +13047,12 @@ COMMENT ON COLUMN ax_punktortau.processstep_onlineresource IS 'qualitaetsangaben
 COMMENT ON COLUMN ax_punktortau.processstep_hoursofservice IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|hoursOfService  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortau.processstep_contactinstructions IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|contactInstructions  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortau.processstep_role IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|role enumeration CI_RoleCode 1';
-COMMENT ON COLUMN ax_punktortau.processstep_description IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description  CharacterString 0..1';
+COMMENT ON COLUMN ax_punktortau.processstep_ax_datenerhebung_punktort IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortau.processstep_scaledenominator IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|scaleDenominator  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortau.processstep_sourcereferencesystem IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceReferenceSystem  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortau.processstep_sourceextent IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceExtent  CharacterString 0..*';
 COMMENT ON COLUMN ax_punktortau.processstep_sourcestep IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceStep  CharacterString 0..*';
-COMMENT ON COLUMN ax_punktortau.herkunft_source_source_description IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description  CharacterString 0..1';
+COMMENT ON COLUMN ax_punktortau.herkunft_source_source_ax_datenerhebung_punktort IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortau.herkunft_source_source_scaledenominator IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|scaleDenominator  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortau.herkunft_source_source_sourcereferencesystem IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|sourceReferenceSystem  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortau.herkunft_source_source_sourceextent IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|sourceExtent  CharacterString 0..*';
@@ -15512,12 +15512,12 @@ CREATE TABLE ax_punktortag (
   processstep_hoursofservice character varying[],
   processstep_contactinstructions character varying[],
   processstep_role character varying[],
-  processstep_description character varying[],
+  processstep_ax_datenerhebung_punktort character varying[],
   processstep_scaledenominator character varying[],
   processstep_sourcereferencesystem character varying[],
   processstep_sourceextent character varying[],
   processstep_sourcestep character varying[],
-  herkunft_source_source_description character varying[],
+  herkunft_source_source_ax_datenerhebung_punktort character varying[],
   herkunft_source_source_scaledenominator character varying[],
   herkunft_source_source_sourcereferencesystem character varying[],
   herkunft_source_source_sourceextent character varying[],
@@ -15576,12 +15576,12 @@ COMMENT ON COLUMN ax_punktortag.processstep_onlineresource IS 'qualitaetsangaben
 COMMENT ON COLUMN ax_punktortag.processstep_hoursofservice IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|hoursOfService  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortag.processstep_contactinstructions IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|contactInstructions  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortag.processstep_role IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|role enumeration CI_RoleCode 1';
-COMMENT ON COLUMN ax_punktortag.processstep_description IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description  CharacterString 0..1';
+COMMENT ON COLUMN ax_punktortag.processstep_ax_datenerhebung_punktort IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortag.processstep_scaledenominator IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|scaleDenominator  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortag.processstep_sourcereferencesystem IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceReferenceSystem  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortag.processstep_sourceextent IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceExtent  CharacterString 0..*';
 COMMENT ON COLUMN ax_punktortag.processstep_sourcestep IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceStep  CharacterString 0..*';
-COMMENT ON COLUMN ax_punktortag.herkunft_source_source_description IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description  CharacterString 0..1';
+COMMENT ON COLUMN ax_punktortag.herkunft_source_source_ax_datenerhebung_punktort IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortag.herkunft_source_source_scaledenominator IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|scaleDenominator  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortag.herkunft_source_source_sourcereferencesystem IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|sourceReferenceSystem  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortag.herkunft_source_source_sourceextent IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|sourceExtent  CharacterString 0..*';
@@ -17158,12 +17158,12 @@ CREATE TABLE ax_punktortta (
   processstep_hoursofservice character varying[],
   processstep_contactinstructions character varying[],
   processstep_role character varying[],
-  processstep_description character varying[],
+  processstep_ax_datenerhebung_punktort character varying[],
   processstep_scaledenominator character varying[],
   processstep_sourcereferencesystem character varying[],
   processstep_sourceextent character varying[],
   processstep_sourcestep character varying[],
-  herkunft_source_source_description character varying[],
+  herkunft_source_source_ax_datenerhebung_punktort character varying[],
   herkunft_source_source_scaledenominator character varying[],
   herkunft_source_source_sourcereferencesystem character varying[],
   herkunft_source_source_sourceextent character varying[],
@@ -17222,12 +17222,12 @@ COMMENT ON COLUMN ax_punktortta.processstep_onlineresource IS 'qualitaetsangaben
 COMMENT ON COLUMN ax_punktortta.processstep_hoursofservice IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|hoursOfService  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortta.processstep_contactinstructions IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|contactInstructions  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortta.processstep_role IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|role enumeration CI_RoleCode 1';
-COMMENT ON COLUMN ax_punktortta.processstep_description IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description  CharacterString 0..1';
+COMMENT ON COLUMN ax_punktortta.processstep_ax_datenerhebung_punktort IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortta.processstep_scaledenominator IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|scaleDenominator  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortta.processstep_sourcereferencesystem IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceReferenceSystem  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortta.processstep_sourceextent IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceExtent  CharacterString 0..*';
 COMMENT ON COLUMN ax_punktortta.processstep_sourcestep IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceStep  CharacterString 0..*';
-COMMENT ON COLUMN ax_punktortta.herkunft_source_source_description IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description  CharacterString 0..1';
+COMMENT ON COLUMN ax_punktortta.herkunft_source_source_ax_datenerhebung_punktort IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortta.herkunft_source_source_scaledenominator IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|scaleDenominator  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortta.herkunft_source_source_sourcereferencesystem IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|sourceReferenceSystem  CharacterString 0..1';
 COMMENT ON COLUMN ax_punktortta.herkunft_source_source_sourceextent IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|sourceExtent  CharacterString 0..*';
@@ -21333,14 +21333,14 @@ CREATE TABLE ax_fortfuehrungsauftrag (
 	updated_at timestamp without time zone NOT NULL DEFAULT now(),
 	user_name character varying NOT NULL
 );
-CREATE INDEX ap_lpo_art ON ap_lpo USING btree (art);
 CREATE INDEX ap_ppo_art ON ap_ppo USING btree (art);
+CREATE INDEX ap_lpo_art ON ap_lpo USING btree (art);
 CREATE INDEX ap_pto_art ON ap_pto USING btree (art);
 CREATE INDEX ap_lto_art ON ap_lto USING btree (art);
 CREATE INDEX ap_darstellung_art ON ap_darstellung USING btree (art);
 
-CREATE INDEX ap_lpo_sn ON ap_lpo USING btree (signaturnummer);
 CREATE INDEX ap_ppo_sn ON ap_ppo USING btree (signaturnummer);
+CREATE INDEX ap_lpo_sn ON ap_lpo USING btree (signaturnummer);
 CREATE INDEX ap_pto_sn ON ap_pto USING btree (signaturnummer);
 CREATE INDEX ap_lto_sn ON ap_lto USING btree (signaturnummer);
 CREATE INDEX ap_darstellung_sn ON ap_darstellung USING btree (signaturnummer);

@@ -17386,13 +17386,36 @@ Erholung von Reisenden.'),
 			('1821', 'Gestaltungssatzung', '');
 		END IF;
 
-		UPDATE alkis_version SET version=17;
+	END IF;
+
+	IF ver<18 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 18';
+
+		ALTER TABLE ax_punktortau RENAME processstep_description TO processstep_ax_datenerhebung_punktort;
+		ALTER TABLE ax_punktortau RENAME herkunft_source_source_description TO herkunft_source_source_ax_datenerhebung_punktort;
+
+		COMMENT ON COLUMN ax_punktortau.processstep_ax_datenerhebung_punktort IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktortau.herkunft_source_source_ax_datenerhebung_punktort IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description  CharacterString 0..1';
+
+		ALTER TABLE ax_punktortag RENAME processstep_description TO processstep_ax_datenerhebung_punktort;
+		ALTER TABLE ax_punktortag RENAME herkunft_source_source_description TO herkunft_source_source_ax_datenerhebung_punktort;
+
+		COMMENT ON COLUMN ax_punktortag.processstep_ax_datenerhebung_punktort IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktortag.herkunft_source_source_ax_datenerhebung_punktort IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description  CharacterString 0..1';
+
+		ALTER TABLE ax_punktortta RENAME processstep_description TO processstep_ax_datenerhebung_punktort;
+		ALTER TABLE ax_punktortta RENAME herkunft_source_source_description TO herkunft_source_source_ax_datenerhebung_punktort;
+
+		COMMENT ON COLUMN ax_punktortta.processstep_ax_datenerhebung_punktort IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktortta.herkunft_source_source_ax_datenerhebung_punktort IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description  CharacterString 0..1';
+
+		UPDATE alkis_version SET version=18;
 
 		r := alkis_string_append(r, 'ALKIS-Schema migriert');
 	END IF;
 
-	IF ver>17 THEN
-		RAISE EXCEPTION 'ALKIS-Schema % nicht unterstützt (bis 17).', ver;
+	IF ver>18 THEN
+		RAISE EXCEPTION 'ALKIS-Schema % nicht unterstützt (bis 18).', ver;
 	END IF;
 
 	--

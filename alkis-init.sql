@@ -31,7 +31,7 @@ SET search_path = :"alkis_schema", public;
 SELECT alkis_drop();
 
 CREATE TABLE alkis_version(version integer);
-INSERT INTO alkis_version(version) VALUES (17);
+INSERT INTO alkis_version(version) VALUES (18);
 COMMENT ON TABLE alkis_version IS 'ALKIS: Schemaversion';
 
 -- BW/BY-Koordinatensystem anlegen

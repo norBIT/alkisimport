@@ -2,11 +2,6 @@
   <GMLFeatureClass>
     <Name>ax_benutzer</Name>
     <ElementPath>AX_Benutzer</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -157,11 +152,6 @@
   <GMLFeatureClass>
     <Name>ax_benutzergruppemitzugriffskontrolle</Name>
     <ElementPath>AX_BenutzergruppeMitZugriffskontrolle</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -267,11 +257,6 @@
   <GMLFeatureClass>
     <Name>ax_benutzergruppenba</Name>
     <ElementPath>AX_BenutzergruppeNBA</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -382,11 +367,6 @@
   <GMLFeatureClass>
     <Name>ap_darstellung</Name>
     <ElementPath>AP_Darstellung</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -467,11 +447,6 @@
   <GMLFeatureClass>
     <Name>aa_projektsteuerung</Name>
     <ElementPath>AA_Projektsteuerung</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -547,11 +522,6 @@
   <GMLFeatureClass>
     <Name>aa_meilenstein</Name>
     <ElementPath>AA_Meilenstein</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -657,11 +627,6 @@
   <GMLFeatureClass>
     <Name>aa_antrag</Name>
     <ElementPath>AA_Antrag</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -752,11 +717,6 @@
   <GMLFeatureClass>
     <Name>aa_aktivitaet</Name>
     <ElementPath>AA_Aktivitaet</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -827,11 +787,6 @@
   <GMLFeatureClass>
     <Name>aa_vorgang</Name>
     <ElementPath>AA_Vorgang</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -917,11 +872,6 @@
   <GMLFeatureClass>
     <Name>ax_person</Name>
     <ElementPath>AX_Person</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -1015,7 +965,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>ax_li_processstep_ohnedatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_OhneDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -1075,7 +1025,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -1100,7 +1050,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -1187,11 +1137,6 @@
   <GMLFeatureClass>
     <Name>ax_namensnummer</Name>
     <ElementPath>AX_Namensnummer</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -1307,11 +1252,6 @@
   <GMLFeatureClass>
     <Name>ax_anschrift</Name>
     <ElementPath>AX_Anschrift</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -1410,7 +1350,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>ax_li_processstep_ohnedatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_OhneDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -1470,7 +1410,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -1495,7 +1435,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -1552,11 +1492,6 @@
   <GMLFeatureClass>
     <Name>ax_verwaltung</Name>
     <ElementPath>AX_Verwaltung</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -1635,7 +1570,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>ax_li_processstep_ohnedatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_OhneDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -1695,7 +1630,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -1720,7 +1655,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQOhneDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -1762,11 +1697,6 @@
   <GMLFeatureClass>
     <Name>ax_buchungsstelle</Name>
     <ElementPath>AX_Buchungsstelle</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -1912,11 +1842,6 @@
   <GMLFeatureClass>
     <Name>ax_personengruppe</Name>
     <ElementPath>AX_Personengruppe</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -1982,11 +1907,6 @@
   <GMLFeatureClass>
     <Name>ax_buchungsblatt</Name>
     <ElementPath>AX_Buchungsblatt</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -2072,11 +1992,6 @@
   <GMLFeatureClass>
     <Name>ax_vertretung</Name>
     <ElementPath>AX_Vertretung</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -2167,11 +2082,6 @@
   <GMLFeatureClass>
     <Name>ax_skizze</Name>
     <ElementPath>AX_Skizze</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -2242,11 +2152,6 @@
   <GMLFeatureClass>
     <Name>ax_schwere</Name>
     <ElementPath>AX_Schwere</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -2373,14 +2278,9 @@
     <Name>ax_historischesflurstueckalb</Name>
     <ElementPath>AX_HistorischesFlurstueckALB</ElementPath>
     <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
-    <GeomPropertyDefn>
       <Name>objektkoordinaten</Name>
       <ElementPath>objektkoordinaten</ElementPath>
-      <GeometryType>100</GeometryType>
+      <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
@@ -2538,14 +2438,9 @@
     <Name>ax_historischesflurstueckohneraumbezug</Name>
     <ElementPath>AX_HistorischesFlurstueckOhneRaumbezug</ElementPath>
     <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
-    <GeomPropertyDefn>
       <Name>objektkoordinaten</Name>
       <ElementPath>objektkoordinaten</ElementPath>
-      <GeometryType>100</GeometryType>
+      <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
@@ -2747,11 +2642,6 @@
   <GMLFeatureClass>
     <Name>ax_lagebezeichnungohnehausnummer</Name>
     <ElementPath>AX_LagebezeichnungOhneHausnummer</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -2857,11 +2747,6 @@
   <GMLFeatureClass>
     <Name>ax_lagebezeichnungmithausnummer</Name>
     <ElementPath>AX_LagebezeichnungMitHausnummer</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -2982,11 +2867,6 @@
   <GMLFeatureClass>
     <Name>ax_lagebezeichnungmitpseudonummer</Name>
     <ElementPath>AX_LagebezeichnungMitPseudonummer</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -3092,11 +2972,6 @@
   <GMLFeatureClass>
     <Name>ax_reservierung</Name>
     <ElementPath>AX_Reservierung</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -3227,11 +3102,6 @@
   <GMLFeatureClass>
     <Name>ax_punktkennunguntergegangen</Name>
     <ElementPath>AX_PunktkennungUntergegangen</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -3297,11 +3167,6 @@
   <GMLFeatureClass>
     <Name>ax_punktkennungvergleichend</Name>
     <ElementPath>AX_PunktkennungVergleichend</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -3377,11 +3242,6 @@
   <GMLFeatureClass>
     <Name>ax_fortfuehrungsnachweisdeckblatt</Name>
     <ElementPath>AX_FortfuehrungsnachweisDeckblatt</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -3587,11 +3447,6 @@
   <GMLFeatureClass>
     <Name>ax_fortfuehrungsfall</Name>
     <ElementPath>AX_Fortfuehrungsfall</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -3737,11 +3592,6 @@
   <GMLFeatureClass>
     <Name>ax_gemeinde</Name>
     <ElementPath>AX_Gemeinde</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -3847,11 +3697,6 @@
   <GMLFeatureClass>
     <Name>ax_buchungsblattbezirk</Name>
     <ElementPath>AX_Buchungsblattbezirk</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -3942,11 +3787,6 @@
   <GMLFeatureClass>
     <Name>ax_gemarkungsteilflur</Name>
     <ElementPath>AX_GemarkungsteilFlur</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -4042,11 +3882,6 @@
   <GMLFeatureClass>
     <Name>ax_kreisregion</Name>
     <ElementPath>AX_KreisRegion</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -4142,11 +3977,6 @@
   <GMLFeatureClass>
     <Name>ax_bundesland</Name>
     <ElementPath>AX_Bundesland</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -4232,11 +4062,6 @@
   <GMLFeatureClass>
     <Name>ax_regierungsbezirk</Name>
     <ElementPath>AX_Regierungsbezirk</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -4317,11 +4142,6 @@
   <GMLFeatureClass>
     <Name>ax_gemeindeteil</Name>
     <ElementPath>AX_Gemeindeteil</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -4417,11 +4237,6 @@
   <GMLFeatureClass>
     <Name>ax_lagebezeichnungkatalogeintrag</Name>
     <ElementPath>AX_LagebezeichnungKatalogeintrag</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -4522,11 +4337,6 @@
   <GMLFeatureClass>
     <Name>ax_gemarkung</Name>
     <ElementPath>AX_Gemarkung</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -4617,11 +4427,6 @@
   <GMLFeatureClass>
     <Name>ax_dienststelle</Name>
     <ElementPath>AX_Dienststelle</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -4717,11 +4522,6 @@
   <GMLFeatureClass>
     <Name>ax_verband</Name>
     <ElementPath>AX_Verband</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -4822,11 +4622,6 @@
   <GMLFeatureClass>
     <Name>ax_nationalstaat</Name>
     <ElementPath>AX_Nationalstaat</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -4902,11 +4697,6 @@
   <GMLFeatureClass>
     <Name>ax_besondererbauwerkspunkt</Name>
     <ElementPath>AX_BesondererBauwerkspunkt</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -4987,11 +4777,6 @@
   <GMLFeatureClass>
     <Name>ax_netzknoten</Name>
     <ElementPath>AX_Netzknoten</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -5050,7 +4835,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -5110,7 +4895,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -5135,7 +4920,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -5172,11 +4957,6 @@
   <GMLFeatureClass>
     <Name>ax_referenzstationspunkt</Name>
     <ElementPath>AX_Referenzstationspunkt</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -5512,11 +5292,6 @@
   <GMLFeatureClass>
     <Name>ax_lagefestpunkt</Name>
     <ElementPath>AX_Lagefestpunkt</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -5782,11 +5557,6 @@
   <GMLFeatureClass>
     <Name>ax_hoehenfestpunkt</Name>
     <ElementPath>AX_Hoehenfestpunkt</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -6042,11 +5812,6 @@
   <GMLFeatureClass>
     <Name>ax_schwerefestpunkt</Name>
     <ElementPath>AX_Schwerefestpunkt</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -6282,11 +6047,6 @@
   <GMLFeatureClass>
     <Name>ax_grenzpunkt</Name>
     <ElementPath>AX_Grenzpunkt</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -6437,11 +6197,6 @@
   <GMLFeatureClass>
     <Name>ax_aufnahmepunkt</Name>
     <ElementPath>AX_Aufnahmepunkt</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -6562,11 +6317,6 @@
   <GMLFeatureClass>
     <Name>ax_sonstigervermessungspunkt</Name>
     <ElementPath>AX_SonstigerVermessungspunkt</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -6687,11 +6437,6 @@
   <GMLFeatureClass>
     <Name>ax_sicherungspunkt</Name>
     <ElementPath>AX_Sicherungspunkt</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -6802,11 +6547,6 @@
   <GMLFeatureClass>
     <Name>ax_besonderergebaeudepunkt</Name>
     <ElementPath>AX_BesondererGebaeudepunkt</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -6892,11 +6632,6 @@
   <GMLFeatureClass>
     <Name>ax_wirtschaftlicheeinheit</Name>
     <ElementPath>AX_WirtschaftlicheEinheit</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -6957,11 +6692,6 @@
   <GMLFeatureClass>
     <Name>ax_verwaltungsgemeinschaft</Name>
     <ElementPath>AX_Verwaltungsgemeinschaft</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -7062,11 +6792,6 @@
   <GMLFeatureClass>
     <Name>ax_schutzgebietnachnaturumweltoderbodenschutzrecht</Name>
     <ElementPath>AX_SchutzgebietNachNaturUmweltOderBodenschutzrecht</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -7145,7 +6870,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -7205,7 +6930,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -7230,7 +6955,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -7267,11 +6992,6 @@
   <GMLFeatureClass>
     <Name>ax_schutzgebietnachwasserrecht</Name>
     <ElementPath>AX_SchutzgebietNachWasserrecht</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -7355,7 +7075,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -7415,7 +7135,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -7440,7 +7160,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -7477,11 +7197,6 @@
   <GMLFeatureClass>
     <Name>ax_boeschungkliff</Name>
     <ElementPath>AX_BoeschungKliff</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -7545,7 +7260,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -7605,7 +7320,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -7630,7 +7345,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -7672,11 +7387,6 @@
   <GMLFeatureClass>
     <Name>ax_besonderertopographischerpunkt</Name>
     <ElementPath>AX_BesondererTopographischerPunkt</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -7757,11 +7467,6 @@
   <GMLFeatureClass>
     <Name>ax_kanal</Name>
     <ElementPath>AX_Kanal</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -7852,11 +7557,6 @@
   <GMLFeatureClass>
     <Name>ax_wasserlauf</Name>
     <ElementPath>AX_Wasserlauf</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -7947,11 +7647,6 @@
   <GMLFeatureClass>
     <Name>ax_strasse</Name>
     <ElementPath>AX_Strasse</ElementPath>
-    <GeomPropertyDefn>
-      <Name>wkb_geometry</Name>
-      <ElementPath>position</ElementPath>
-      <GeometryType>100</GeometryType>
-    </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
       <ElementPath>gml_id</ElementPath>
@@ -8290,7 +7985,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -8350,7 +8045,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -8375,7 +8070,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -8430,7 +8125,7 @@
     <GeomPropertyDefn>
       <Name>objektkoordinaten</Name>
       <ElementPath>objektkoordinaten</ElementPath>
-      <GeometryType>100</GeometryType>
+      <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
@@ -8965,7 +8660,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -9025,7 +8720,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -9050,7 +8745,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -9160,7 +8855,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -9220,7 +8915,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -9245,7 +8940,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -9365,7 +9060,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -9425,7 +9120,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -9450,7 +9145,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -9585,7 +9280,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -9645,7 +9340,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -9670,7 +9365,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -9805,7 +9500,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -9865,7 +9560,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -9890,7 +9585,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -10015,7 +9710,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -10075,7 +9770,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -10100,7 +9795,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -10225,7 +9920,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -10285,7 +9980,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -10310,7 +10005,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -10445,7 +10140,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -10505,7 +10200,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -10530,7 +10225,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -10660,7 +10355,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -10720,7 +10415,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -10745,7 +10440,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -10865,7 +10560,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -10925,7 +10620,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -10950,7 +10645,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -11060,7 +10755,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -11120,7 +10815,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -11145,7 +10840,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -11265,7 +10960,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -11325,7 +11020,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -11350,7 +11045,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -11465,7 +11160,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -11525,7 +11220,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -11550,7 +11245,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -11665,7 +11360,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -11725,7 +11420,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -11750,7 +11445,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -11880,7 +11575,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -11940,7 +11635,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -11965,7 +11660,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -12090,7 +11785,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -12150,7 +11845,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -12175,7 +11870,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -12305,7 +12000,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -12365,7 +12060,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -12390,7 +12085,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -12535,7 +12230,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -12595,7 +12290,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -12620,7 +12315,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -13080,7 +12775,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -13140,7 +12835,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -13165,7 +12860,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -13405,7 +13100,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -13465,7 +13160,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -13490,7 +13185,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -13605,7 +13300,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -13665,7 +13360,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -13690,7 +13385,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -13800,7 +13495,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -13860,7 +13555,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -13885,7 +13580,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -14095,7 +13790,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -14155,7 +13850,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -14180,7 +13875,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -14960,7 +14655,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -15020,7 +14715,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -15045,7 +14740,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -15395,7 +15090,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -15455,7 +15150,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -15480,7 +15175,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -15590,7 +15285,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -15650,7 +15345,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -15675,7 +15370,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -15790,7 +15485,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -15850,7 +15545,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -15875,7 +15570,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -16040,7 +15735,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_punktort_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_Punktort_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -16099,8 +15794,8 @@
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
-      <Name>processstep_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <Name>processstep_ax_datenerhebung_punktort</Name>
+      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung_Punktort</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -16124,8 +15819,8 @@
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
-      <Name>herkunft_source_source_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <Name>herkunft_source_source_ax_datenerhebung_punktort</Name>
+      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung_Punktort</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -16435,7 +16130,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -16495,7 +16190,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -16520,7 +16215,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -16730,7 +16425,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>ax_dqerfassungsmethodemarkantergelaendepunkt</Name>
-      <ElementPath>erfassungMarkanterGelaendepunkt|AX_ErfassungMarkanterGelaendepunkt|description|AX_DQErfassungsmethodeMarkanterGelaendepunkt</ElementPath>
+      <ElementPath>erfassungMarkanterGelaendepunkt|AX_ErfassungMarkanterGelaendepunkt|description</ElementPath>
       <Type>Integer</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -16990,7 +16685,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -17050,7 +16745,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -17075,7 +16770,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -17300,7 +16995,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -17360,7 +17055,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -17385,7 +17080,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -17820,7 +17515,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -17880,7 +17575,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -17905,7 +17600,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -18210,7 +17905,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -18270,7 +17965,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -18295,7 +17990,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -18425,7 +18120,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -18485,7 +18180,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -18510,7 +18205,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -18630,7 +18325,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -18690,7 +18385,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -18715,7 +18410,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -18830,7 +18525,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -18890,7 +18585,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -18915,7 +18610,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -19035,7 +18730,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -19095,7 +18790,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -19120,7 +18815,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -19255,7 +18950,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -19315,7 +19010,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -19340,7 +19035,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -19465,7 +19160,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -19525,7 +19220,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -19550,7 +19245,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -19685,7 +19380,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -19745,7 +19440,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -19770,7 +19465,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -19890,7 +19585,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -19950,7 +19645,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -19975,7 +19670,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -20165,7 +19860,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -20225,7 +19920,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -20250,7 +19945,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -20415,7 +20110,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -20475,7 +20170,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -20500,7 +20195,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -20630,7 +20325,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -20690,7 +20385,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -20715,7 +20410,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -20845,7 +20540,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -20905,7 +20600,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -20930,7 +20625,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -21060,7 +20755,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -21120,7 +20815,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -21145,7 +20840,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -21275,7 +20970,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -21335,7 +21030,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -21360,7 +21055,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -21490,7 +21185,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -21550,7 +21245,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -21575,7 +21270,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -21740,7 +21435,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_punktort_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_Punktort_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -21799,8 +21494,8 @@
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
-      <Name>processstep_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <Name>processstep_ax_datenerhebung_punktort</Name>
+      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung_Punktort</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -21824,8 +21519,8 @@
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
-      <Name>herkunft_source_source_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <Name>herkunft_source_source_ax_datenerhebung_punktort</Name>
+      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung_Punktort</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -22135,7 +21830,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -22195,7 +21890,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -22220,7 +21915,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -22345,7 +22040,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -22405,7 +22100,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -22430,7 +22125,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -22555,7 +22250,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -22615,7 +22310,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -22640,7 +22335,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -22770,7 +22465,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -22830,7 +22525,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -22855,7 +22550,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -23005,7 +22700,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -23065,7 +22760,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -23090,7 +22785,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -23315,7 +23010,7 @@
     <GeomPropertyDefn>
       <Name>objektkoordinaten</Name>
       <ElementPath>objektkoordinaten</ElementPath>
-      <GeometryType>100</GeometryType>
+      <GeometryType>1</GeometryType>
     </GeomPropertyDefn>
     <PropertyDefn>
       <Name>gml_id</Name>
@@ -24195,7 +23890,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -24255,7 +23950,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -24280,7 +23975,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -24420,7 +24115,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -24480,7 +24175,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -24505,7 +24200,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -25385,7 +25080,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_punktort_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_Punktort_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -25444,8 +25139,8 @@
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
-      <Name>processstep_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <Name>processstep_ax_datenerhebung_punktort</Name>
+      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung_Punktort</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -25469,8 +25164,8 @@
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
-      <Name>herkunft_source_source_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <Name>herkunft_source_source_ax_datenerhebung_punktort</Name>
+      <ElementPath>qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung_Punktort</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -25595,7 +25290,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -25655,7 +25350,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -25680,7 +25375,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -25850,7 +25545,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -25910,7 +25605,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -25935,7 +25630,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -26095,7 +25790,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -26155,7 +25850,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -26180,7 +25875,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -26335,7 +26030,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -26395,7 +26090,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -26420,7 +26115,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -26570,7 +26265,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -26630,7 +26325,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -26655,7 +26350,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -26785,7 +26480,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -26845,7 +26540,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -26870,7 +26565,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -26995,7 +26690,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -27055,7 +26750,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -27080,7 +26775,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -27210,7 +26905,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -27270,7 +26965,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -27295,7 +26990,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -27425,7 +27120,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -27485,7 +27180,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -27510,7 +27205,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -27640,7 +27335,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -27700,7 +27395,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -27725,7 +27420,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -27870,7 +27565,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -27930,7 +27625,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -27955,7 +27650,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -28075,7 +27770,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -28135,7 +27830,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -28160,7 +27855,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -28290,7 +27985,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -28350,7 +28045,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -28375,7 +28070,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -28505,7 +28200,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -28565,7 +28260,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -28590,7 +28285,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -28715,7 +28410,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -28775,7 +28470,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -28800,7 +28495,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -28910,7 +28605,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -28970,7 +28665,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -28995,7 +28690,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -29110,7 +28805,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -29170,7 +28865,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -29195,7 +28890,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -29320,7 +29015,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -29380,7 +29075,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -29405,7 +29100,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -29530,7 +29225,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -29590,7 +29285,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -29615,7 +29310,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -29740,7 +29435,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -29800,7 +29495,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -29825,7 +29520,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -29940,7 +29635,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -30000,7 +29695,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -30025,7 +29720,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -30140,7 +29835,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -30200,7 +29895,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -30225,7 +29920,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -30345,7 +30040,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -30405,7 +30100,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -30430,7 +30125,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -30595,7 +30290,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -30655,7 +30350,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -30680,7 +30375,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -30830,7 +30525,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -30890,7 +30585,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -30915,7 +30610,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -31065,7 +30760,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -31125,7 +30820,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -31150,7 +30845,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -31315,7 +31010,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -31375,7 +31070,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -31400,7 +31095,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -31555,7 +31250,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_li_processstep_mitdatenerhebung_description</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -31615,7 +31310,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>processstep_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -31640,7 +31335,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>herkunft_source_source_ax_datenerhebung</Name>
-      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|CharacterString</ElementPath>
+      <ElementPath>qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>

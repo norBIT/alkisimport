@@ -35,7 +35,7 @@
         <item row="2" column="1">
          <widget class="QLineEdit" name="lePORT">
           <property name="inputMask">
-           <string>99999; </string>
+           <string>99999</string>
           </property>
           <property name="text">
            <string/>
