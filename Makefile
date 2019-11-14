@@ -6,9 +6,6 @@ O4W=osgeo4w/apps/$(PKG)
 
 all:
 
-%.py: %.qrc
-	pyrcc4 -o $@ $^
-
 package:
 	mkdir -p osgeo4w/apps/$(PKG)/postprocessing.d osgeo4w/bin osgeo4w/etc/postinstall osgeo4w/etc/preremove
 	git archive --format=tar --prefix=$(O4W)/ HEAD | tar -xf -

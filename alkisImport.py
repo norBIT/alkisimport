@@ -50,10 +50,10 @@ except ImportError:
     from PyQt5.QtSql import QSqlDatabase, QSqlQuery
     from PyQt5 import uic
 
-d = os.path.dirname(__file__)
-sys.path.insert(0, d)
-alkisImportDlgBase = uic.loadUiType(os.path.join(d, 'alkisImportDlg.ui'))[0]
-aboutDlgBase = uic.loadUiType(os.path.join(d, 'about.ui'))[0]
+BASEDIR = os.path.dirname(__file__)
+sys.path.insert(0, BASEDIR)
+alkisImportDlgBase = uic.loadUiType(os.path.join(BASEDIR, 'alkisImportDlg.ui'))[0]
+aboutDlgBase = uic.loadUiType(os.path.join(BASEDIR, 'about.ui'))[0]
 sys.path.pop(0)
 
 # Felder als String interpretieren (d.h. führende Nullen nicht abschneiden)
@@ -73,7 +73,7 @@ os.putenv("NAS_INDICATOR", "NAS-Operationen;AAA-Fachschema;aaa.xsd;aaa-suite")
 
 os.putenv("PGCLIENTENCODING", "UTF8")
 
-os.putenv("NAS_GFS_TEMPLATE", os.path.join(d, "alkis-schema.gfs"))
+os.putenv("NAS_GFS_TEMPLATE", os.path.join(BASEDIR, "alkis-schema.gfs"))
 
 os.putenv("NAS_NO_RELATION_LAYER", "YES")
 os.putenv("NAS_SKIP_CORRUPTED_FEATURES", "YES")
@@ -172,10 +172,10 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         self.cbEPSG.addItem("UTM32N", "25832")
         self.cbEPSG.addItem("UTM33N", "25833")
-        self.cbEPSG.addItem("3GK2 (BW)", "131466")
+        self.cbEPSG.addItem("3GK2 (BW/SL)", "131466")
         self.cbEPSG.addItem("3GK3 (BW)", "131467")
         self.cbEPSG.addItem("3GK4 (BY)", "131468")
-        self.cbEPSG.addItem("DHDN GK2 (BW)", "31466")
+        self.cbEPSG.addItem("DHDN GK2 (BW/SL)", "31466")
         self.cbEPSG.addItem("DHDN GK3 (BW)", "31467")
         self.cbEPSG.addItem("DHDN GK4 (BY)", "31468")
         self.cbEPSG.addItem("Soldner-Berlin (vortransformiert)", "3068")
@@ -858,6 +858,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.log("Mindestens GDAL 2.3 erforderlich")
                 break
 
+            GDAL_MAJOR = int(m.group(1))
+
             self.psql = which("psql")
             if not self.psql:
                 self.psql = which("psql.exe")
@@ -1069,7 +1071,26 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     if int(self.leGT.text() or '0') >= 1:
                         args.extend(["-gt", self.leGT.text()])
 
-                    if self.epsg == 131466 or self.epsg == 131467 or self.epsg == 131468:
+                    if GDAL_MAJOR >= 3:
+                        if self.epsg == 131466 or self.epsg == 131467 or self.epsg == 131468:
+                            args.extend(["-a_srs", os.path.join(BASEDIR, "{}.wkt2".format(self.epsg))])
+
+                        elif self.epsg == 31466 or self.epsg == 31467 or self.epsg == 31468:
+                            args.extend([
+                                "-s_srs", os.path.join(BASEDIR, "1{}.wkt2".format(self.epsg)),
+                                "-t_srs", "EPSG:{}".format(self.epsg)
+                            ])
+
+                        elif self.epsg == 13068:
+                            args.extend([
+                                "-ct", "+proj=pipeline +step +inv +proj=utm +zone=33 +ellps=GRS80 +step +inv +proj=hgridshift +grids=ntv2berlin20130508.GSB +step +proj=cass +lat_0=52.4186482777778 +lon_0=13.6272036666667 +x_0=40000 +y_0=10000 +ellps=bessel +step +proj=axisswap +order=2",
+                                "-a_srs", "EPSG:3068"
+                            ])
+
+                        else:
+                            args.extend(["-a_srs", "EPSG:{}".format(self.epsg)])
+
+                    elif self.epsg == 131466 or self.epsg == 131467 or self.epsg == 131468:
                         args.extend(["-a_srs", "+init=custom:{}".format(self.epsg)])
                         os.putenv("PROJ_LIB", ".")
 
