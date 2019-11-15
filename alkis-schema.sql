@@ -16260,7 +16260,7 @@ CREATE TABLE ax_flurstueck (
   traegtbeizu character(16)[],
   hatdirektunten character(16)[],
   istteilvon character(16)[],
-  istgebucht character(16) NOT NULL,
+  istgebucht character(16) /* NOT NULL -- außer bei eigentümerlosen Daten aus BW */,
   beziehtsichaufflurstueck character(16)[],
   gehoertanteiligzu character(16)[],
   zeigtauf character(16)[],

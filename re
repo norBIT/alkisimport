@@ -30,10 +30,8 @@
 ^ERROR:  relation "alkis_importlog" already exist\s*s
 ^psql:alkis-compat.sql:.*: ERROR:  function ".*" already exists with same argument types\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Funktion .* existiert bereits mit den selben Argumenttypen\s*$
-^psql:alkis-compat.sql:.*: ERROR:  function geom_accum\(geometry\[\], geometry\) does not exist\s*$
-^psql:alkis-compat.sql:.*: FEHLER:  Funktion geom_accum\(geometry\[\], geometry\) existiert nicht\s*$
-^psql:alkis-compat.sql:.*: FEHLER:  Funktion combine_bbox\(box2d, geometry\) existiert nicht\s*$
-^psql:alkis-compat.sql:.*: ERROR:  function combine_bbox\(box2d, geometry\) does not exist\s*$
+^psql:alkis-compat.sql:.*: ERROR:  function .* does not exist\s*$
+^psql:alkis-compat.sql:.*: FEHLER:  Funktion .* existiert nicht\s*$
 ^psql:alkis-compat.sql:.*: FEHLER:  Berechtigung nur f\S+r Eigent\S+mer der Funktion st_dump\s*$
 ^psql:alkis-compat.sql:.*: ERROR:  aggregate ([^.]+\.)?array_agg\(any(element|array)\) does not exist
 ^psql:alkis-compat.sql:.*: ERROR:  must be owner of function array_agg
