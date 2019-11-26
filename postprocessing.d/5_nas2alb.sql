@@ -49,7 +49,7 @@ INSERT INTO gem_shl(gemshl,gemname)
 	FROM (
 		SELECT to_char(alkis_toint(land),'fm00')||gemeindezugehoerigkeit_regierungsbezirk||to_char(alkis_toint(gemeindezugehoerigkeit_kreis),'fm00')||to_char(alkis_toint(gemeindezugehoerigkeit_gemeinde),'fm000') AS gemshl FROM ax_flurstueck
 	) AS a
-	WHERE NOT EXISTS (SELECT * FROM gem_shl b WHERE a.gemshl=b.gemshl)
+	WHERE gemshl IS NOT NULL AND NOT EXISTS (SELECT * FROM gem_shl b WHERE a.gemshl=b.gemshl)
 	GROUP BY gemshl;
 
 UPDATE gema_shl SET gemshl=(SELECT gemshl FROM flurst WHERE flurst.gemashl=gema_shl.gemashl LIMIT 1);

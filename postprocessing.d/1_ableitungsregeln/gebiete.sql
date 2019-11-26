@@ -28,11 +28,11 @@ INSERT INTO alkis_linie(id,i,katalog,signaturnummer,strichart,abschluss,scheitel
 		/* abschluss */ 'Abgeschnitten',
 		/* scheitel */ 'Spitz',
 		CASE signaturnummer
-	        WHEN 'pg-flur' THEN -40
-	        WHEN 'pg-gemarkung' THEN -60
-	        WHEN 'pg-gemeinde' THEN -80
-	        WHEN 'pg-kreis' THEN -100
-	        END AS grad_pt,
+		WHEN 'pg-flur' THEN -40
+		WHEN 'pg-gemarkung' THEN -60
+		WHEN 'pg-gemeinde' THEN -80
+		WHEN 'pg-kreis' THEN -100
+		END AS grad_pt,
 		NULL AS pfeilhoehe,
 		NULL AS pfeillaenge,
 		(SELECT farbe FROM alkis_linie WHERE katalog=1 AND signaturnummer='2012' AND i=0) AS farbe, -- Farbe aus Flurgrenze 2028
@@ -45,20 +45,20 @@ INSERT INTO alkis_schriften(katalog,signaturnummer,darstellungsprioritaet,name,s
 		signaturnummer,
 		'450' AS darstellungsprioritaet,
 		ARRAY['norGIS: ' || CASE signaturnummer
-	        WHEN 'pg-flur' THEN 'Flurgrenze'
-	        WHEN 'pg-gemarkung' THEN 'Gemarkungsgrenze'
-	        WHEN 'pg-gemeinde' THEN 'Gemeindegrenze'
-	        WHEN 'pg-kreis' THEN 'Kreisgrenze'
-	        END] AS name,
+		WHEN 'pg-flur' THEN 'Flurgrenze'
+		WHEN 'pg-gemarkung' THEN 'Gemarkungsgrenze'
+		WHEN 'pg-gemeinde' THEN 'Gemeindegrenze'
+		WHEN 'pg-kreis' THEN 'Kreisgrenze'
+		END] AS name,
 		NULL AS seite,
 		'Arial' AS art,
 		'Normal' AS stil,
 		CASE signaturnummer
-	        WHEN 'pg-flur' THEN -6
-	        WHEN 'pg-gemarkung' THEN -10
-	        WHEN 'pg-gemeinde' THEN -12
-	        WHEN 'pg-kreis' THEN -14
-	        END AS grad_pt,
+		WHEN 'pg-flur' THEN -6
+		WHEN 'pg-gemarkung' THEN -10
+		WHEN 'pg-gemeinde' THEN -12
+		WHEN 'pg-kreis' THEN -14
+		END AS grad_pt,
 		'zentrisch' AS horizontaleausrichtung,
 		'Mitte' AS vertikaleausrichtung,
 		(SELECT farbe FROM alkis_linie WHERE katalog=1 AND signaturnummer='2012' and i=0) AS farbe, -- Farbe wie Grenze
@@ -75,7 +75,7 @@ DELETE FROM po_labels WHERE signaturnummer IN ('pg-flur','pg-gemarkung','pg-geme
 CREATE TEMPORARY TABLE pp_gemarkungen AS
 	SELECT
 		gemeindezugehoerigkeit_land,
-		gemeindezugehoerigkeit_regierungsbezirk,
+		coalesce(gemeindezugehoerigkeit_regierungsbezirk,'') AS gemeindezugehoerigkeit_regierungsbezirk,
 		gemeindezugehoerigkeit_kreis,
 		gemeindezugehoerigkeit_gemeinde,
 		gemarkungsnummer,
@@ -97,10 +97,13 @@ CREATE INDEX ax_flurstueck_lgf ON ax_flurstueck(gemeindezugehoerigkeit_land,gema
 
 CREATE TEMPORARY TABLE pp_gemeinden AS
 	SELECT
-		gemeindezugehoerigkeit_land, gemeindezugehoerigkeit_regierungsbezirk, gemeindezugehoerigkeit_kreis, gemeindezugehoerigkeit_gemeinde,
+		gemeindezugehoerigkeit_land,
+		coalesce(gemeindezugehoerigkeit_regierungsbezirk,'') AS gemeindezugehoerigkeit_regierungsbezirk,
+		gemeindezugehoerigkeit_kreis,
+		gemeindezugehoerigkeit_gemeinde,
 		coalesce(
-			(SELECT bezeichnung FROM ax_gemeinde b WHERE a.gemeindezugehoerigkeit_land=b.land AND a.gemeindezugehoerigkeit_regierungsbezirk=b.regierungsbezirk AND a.gemeindezugehoerigkeit_kreis=b.kreis AND a.gemeindezugehoerigkeit_gemeinde=b.gemeinde AND b.endet IS NULL LIMIT 1),
-			'(Gemeinde '||gemeindezugehoerigkeit_land||gemeindezugehoerigkeit_regierungsbezirk||gemeindezugehoerigkeit_kreis||gemeindezugehoerigkeit_gemeinde||')'
+			(SELECT bezeichnung FROM ax_gemeinde b WHERE a.gemeindezugehoerigkeit_land=b.land AND coalesce(a.gemeindezugehoerigkeit_regierungsbezirk,'')=coalesce(b.regierungsbezirk,'') AND a.gemeindezugehoerigkeit_kreis=b.kreis AND a.gemeindezugehoerigkeit_gemeinde=b.gemeinde AND b.endet IS NULL LIMIT 1),
+			'(Gemeinde '||gemeindezugehoerigkeit_land||coalesce(gemeindezugehoerigkeit_regierungsbezirk,'')||gemeindezugehoerigkeit_kreis||gemeindezugehoerigkeit_gemeinde||')'
 		) AS gemeindename
 	FROM pg_temp.pp_gemarkungen a
 	GROUP BY gemeindezugehoerigkeit_land, gemeindezugehoerigkeit_regierungsbezirk, gemeindezugehoerigkeit_kreis, gemeindezugehoerigkeit_gemeinde
@@ -111,10 +114,12 @@ ANALYZE pp_gemeinden;
 
 CREATE TEMPORARY TABLE pp_kreise AS
 	SELECT
-		gemeindezugehoerigkeit_land, gemeindezugehoerigkeit_regierungsbezirk, gemeindezugehoerigkeit_kreis,
+		gemeindezugehoerigkeit_land,
+		coalesce(gemeindezugehoerigkeit_regierungsbezirk,'') AS gemeindezugehoerigkeit_regierungsbezirk,
+		gemeindezugehoerigkeit_kreis,
 		coalesce(
-			(SELECT bezeichnung FROM ax_kreisregion b WHERE a.gemeindezugehoerigkeit_land=b.land AND a.gemeindezugehoerigkeit_regierungsbezirk=b.regierungsbezirk AND a.gemeindezugehoerigkeit_kreis=b.kreis AND b.endet IS NULL LIMIT 1),
-			'(Kreis '||gemeindezugehoerigkeit_land||gemeindezugehoerigkeit_regierungsbezirk||gemeindezugehoerigkeit_kreis||')'
+			(SELECT bezeichnung FROM ax_kreisregion b WHERE a.gemeindezugehoerigkeit_land=b.land AND coalesce(a.gemeindezugehoerigkeit_regierungsbezirk,'')=coalesce(b.regierungsbezirk,'') AND a.gemeindezugehoerigkeit_kreis=b.kreis AND b.endet IS NULL LIMIT 1),
+			'(Kreis '||gemeindezugehoerigkeit_land||coalesce(gemeindezugehoerigkeit_regierungsbezirk,'')||gemeindezugehoerigkeit_kreis||')'
 		) AS kreisname
 	FROM pg_temp.pp_gemeinden a
 	GROUP BY gemeindezugehoerigkeit_land, gemeindezugehoerigkeit_regierungsbezirk, gemeindezugehoerigkeit_kreis
@@ -131,15 +136,15 @@ ANALYZE pp_kreise;
 
 CREATE FUNCTION pg_temp.pointonsurface(polygon GEOMETRY) RETURNS GEOMETRY AS $$
 BEGIN
-        BEGIN
-                RETURN st_pointonsurface(polygon);
-        EXCEPTION WHEN OTHERS THEN
-                BEGIN
-                        RETURN st_centroid(polygon);
-                EXCEPTION WHEN OTHERS THEN
-                        RETURN NULL;
-                END;
-        END;
+	BEGIN
+		RETURN st_pointonsurface(polygon);
+	EXCEPTION WHEN OTHERS THEN
+		BEGIN
+			RETURN st_centroid(polygon);
+		EXCEPTION WHEN OTHERS THEN
+			RETURN NULL;
+		END;
+	END;
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
