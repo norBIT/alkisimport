@@ -105,7 +105,7 @@ timeunits() {
 export -f timeunits
 
 log() {
-	tee $1 | python $B/refilter.py
+	tee $1 | python3 $B/refilter.py
 }
 export -f log
 
@@ -503,7 +503,7 @@ do
 			tee $1 |
 			(
 				IFS=
-				exec 5> >(python $B/refilter.py >&3)
+				exec 5> >(python3 $B/refilter.py >&3)
 				while read m; do
 					echo "$m" >&5
 					m=${m//\'/\'\'}

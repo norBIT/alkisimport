@@ -1,5 +1,5 @@
-#!/usr/bin/python
-# -*- coding: utf8 -*-
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 
 """
 ***************************************************************************
@@ -28,7 +28,7 @@ from itertools import islice
 
 patterns = []
 
-f = open(os.path.join(os.path.dirname(__file__), "re"), "rU")
+f = open(os.path.join(os.path.dirname(__file__), "re"), "r", encoding="utf-8")
 while True:
     line = list(islice(f, 50))
     if not line:
@@ -42,9 +42,9 @@ if len(sys.argv) > 2:
 
 try:
     if len(sys.argv) == 2:
-        f = open(sys.argv[1], "rbU")
+        f = open(sys.argv[1], "r", encoding="utf-8")
     else:
-        f = os.fdopen(0, "rbU")
+        f = os.fdopen(0, "r", encoding="utf-8")
 except IOError:
     print("%s: could not open %s" % (sys.argv[0], sys.argv[1]))
     exit(1)

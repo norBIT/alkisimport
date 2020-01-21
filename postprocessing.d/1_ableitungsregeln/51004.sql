@@ -47,7 +47,7 @@ FROM (
 		END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_transportanlage
-	WHERE bauwerksfunktion=1101 AND endet IS NULL
+	WHERE bauwerksfunktion=1101 AND endet IS NULL AND geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
 ) AS t WHERE signaturnummer IS NOT NULL;
 
 -- Transportanlage, Symbole

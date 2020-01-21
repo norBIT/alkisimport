@@ -16,7 +16,7 @@ SELECT
 	'1704' AS signaturnummer,
 	advstandardmodell||sonstigesmodell
 FROM ax_denkmalschutzrecht o
-WHERE endet IS NULL AND gml_id LIKE 'DERP%';
+WHERE endet IS NULL AND gml_id LIKE 'DERP%' AND geometrytype(wkb_geometry) IN ('POLYGON', 'MULTIPOLYGON');
 
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
