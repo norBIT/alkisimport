@@ -1,4 +1,9 @@
 ^\s*$
+^\/\*+\s*$
+^\s+\*(\s+.*\s+|\*+)\*\s*$
+^.* ERROR:  recognized configuration parameter "application_name"\\r\s*$
+^.*SET application_name='.*';\s*$
+^psql:.*\s+STATEMENT:\s+\/\*+\s*$
 ^PG: Primary key name \(FID\): ogc_fid(, type : int4)?\s*$
 ^PG: Using column 'ogc_fid' as FID for table '.*'\s*$
 ^PG: Layer '.*' geometry type: (LINESTRING:Line String|MULTILINESTRING:Multi Line String|POLYGON:Polygon|MULTIPOINT:Multi Point|POINT:Point|GEOMETRY:Unknown \(any\)), Dim=2\s*$
@@ -19,7 +24,8 @@
 ^psql:.*: (NOTICE|HINWEIS):  Dropping (table|view|sequence) 
 ^psql:.*: (NOTICE|HINWEIS):  gserialized_gist_joinsel: jointype 4 not supported\s*$
 ^psql:.*: (NOTICE|HINWEIS):  (geometry|LWGEOM)_gist_joinsel called with incorrect join type\s*$
-^psql:.*: (NOTICE|HINWEIS):  no non-null\/empty features, unable to compute statistics$
+^psql:.*: (NOTICE|HINWEIS):  no non-null\/empty features, unable to compute statistics\s*$
+^psql:.*: (NOTICE|HINWEIS):  no notnull values, invalid stats\*$
 ^CONTEXT:  PL\/pgSQL-Funktion (pg_temp_\d+\.)?(alkis|alb)_.* Zeile \d+ bei RAISE
 ^CONTEXT:  SQL statement in PL\/PgSQL function "alkis_(update_schema|set_comments)" near line \d+\s*$
 ^CONTEXT:  SQL statement "ALTER TABLE alkis_(flaechen|linien|schriften) ADD PRIMARY KEY \(katalog,signaturnummer\)"
@@ -39,6 +45,14 @@
 ^psql:alkis-compat.sql:.*: FEHLER:  Aggregatfunktion ([^.]\.)?array_agg\(any(element|array)\) existiert nicht
 ^psql:alkis-compat.sql:.*: ERROR:  cannot drop function array_agg\(anyelement\) because it is required by the database system
 ^psql:alkis-compat.sql:.*: FEHLER:  kann .* nicht löschen, wird vom Datenbanksystem benötigt
+^LINE 2:   SELECT buffer\(\$1,\$2\);\s*$
+^LINE 2:   SELECT line_interpolate_point\(\$1,\$2\);\s*$
+^LINE 2:   SELECT force_2d\(\$1\);\s*$
+^LINE 2:   SELECT st_force_2d\(\$1\);\s*$
+^LINE 2:   SELECT st_force_collection\(\$1\);\s*$
+^LINE 2:   SELECT force_collection\(\$1\);\s*$
+^               \^\\r\s*$
+^HINT:  Keine Funktion stimmt mit dem angegebenen Namen und den Argumenttypen .*berein. Sie m.*ssen m.*glicherweise ausdr.*ckliche Typumwandlungen hinzuf.*gen.\s*$
 ^psql:alkis-update.sql:.*: NOTICE:  ALTER TABLE \/ ADD PRIMARY KEY will create implicit index "alkis_(flaechen|linien|schriften)_pkey" for table "alkis_(flaechen|linien|schriften)"
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*gel\S+scht\..*$
 ^\s+(addgeometrycolumn|alkis_clean|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|alkis_fixareas|alkis_inherit|version|postgis_version|\?column\?|alkis_set_schema|create_trigger)\s*$
@@ -64,7 +78,7 @@ ERROR:  table "alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie
 ERROR:  sequence "alkis_(farben|konturen|linie|randlinie|strichart|stricharten|stricharten_i)_id_seq" does not exist
 SQL( statement|-Anweisung) \S+SELECT\s+alkis_dropobject\('alkis_konturen'\)
 ^.*(ERROR|FEHLER):.*application_name
-^\s+(alkis_createklassifizierung|alkis_createnutzung|alkis_checkflurstueck|alkis_createausfuehrendestellen|ax_besondereflurstuecksgrenze|alkis_create_bcrs|alkis_boeschung|alb_update_schema)\s*$
+^\s+(alkis_createklassifizierung|alkis_createnutzung|alkis_checkflurstueck|alkis_createausfuehrendestellen|ax_besondereflurstuecksgrenze|alkis_create_bcrs|alkis_boeschung|alb_update_schema|deletehist)\s*$
 ^ ax_klassifizierung und ax_klassifizierungsschluessel erzeugt\.\s*$
 ^ ax_tatsaechlichenutzung und ax_tatsaechlichenutzungsschluessel erzeugt\.\s*$
 ^ ax_ausfuehrendestellen erzeugt\.\s*$

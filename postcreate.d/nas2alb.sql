@@ -66,8 +66,9 @@ CREATE TABLE flurst (
 	ff_entst integer NOT NULL,
 	ff_stand integer,
 	ff_datum character(8),
+	oid SERIAL,
 	primary key (flsnr)
-) WITH OIDS;
+) WITHOUT OIDS;
 COMMENT ON TABLE flurst IS 'BASE: Flurstücke';
 
 SELECT alkis_dropobject('ax_flurstueck_flsnr');
