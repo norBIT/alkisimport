@@ -1022,7 +1022,14 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         self.logDb("{} wurde entpackt.".format(fn))
 
                     elif fn.lower().endswith(".zip"):
-                        src = fn[:-4] + ".xml"
+                        src = fn[:-4]
+                        if not src.endswith(".xml"):
+                            src += ".xml"
+
+                        if src not in sizes:
+                            logDb("Größe der Datei {} nicht gefunden.".format(src))
+                            break
+
                         size = sizes[src]
 
                         self.status("{} wird extrahiert.".format(fn))
