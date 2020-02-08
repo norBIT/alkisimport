@@ -21,8 +21,7 @@ SET client_min_messages TO notice;
 
 SET search_path = :"alkis_schema", :"postgis_schema", public;
 
-SELECT alkis_dropobject('alb_update_schema');
-CREATE FUNCTION alb_update_schema() RETURNS varchar AS $$
+CREATE FUNCTION pg_temp.alb_update_schema() RETURNS varchar AS $$
 DECLARE
 	v INTEGER;
 	r TEXT;
@@ -99,4 +98,4 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT alb_update_schema();
+SELECT pg_temp.alb_update_schema();
