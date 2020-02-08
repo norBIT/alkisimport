@@ -44,7 +44,7 @@ BEGIN
 			to_char(alkis_toint(f.zaehler),'fm00000') || '/' || to_char(coalesce(mod(alkis_toint(f.nenner),1000)::int,0),'fm000')
 		END;
 END;
-$$ LANGUAGE plpgsql IMMUTABLE STRICT;
+$$ LANGUAGE plpgsql IMMUTABLE STRICT SET search_path = :"alkis_schema", :"postgis_schema", public;
 
 CREATE OR REPLACE FUNCTION alkis_flsnr(f ax_flurstueck) RETURNS varchar AS $$
 BEGIN
@@ -53,7 +53,7 @@ BEGIN
 		'-' || to_char(coalesce(f.flurnummer,0),'fm000') ||
 		'-' || alkis_flsnrk(f);
 END;
-$$ LANGUAGE plpgsql IMMUTABLE STRICT;
+$$ LANGUAGE plpgsql IMMUTABLE STRICT SET search_path = :"alkis_schema", :"postgis_schema", public;
 
 CREATE OR REPLACE FUNCTION alkis_flskoord(f ax_flurstueck) RETURNS varchar AS $$
 DECLARE

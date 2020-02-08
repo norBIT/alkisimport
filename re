@@ -1,6 +1,6 @@
 ^\s*$
 ^\/\*+\s*$
-^\s+\*(\s+.*\s+|\*+)\*\s*$
+^\s+\*(\s+.*\s+|\*+)\*\/?\s*$
 ^.* ERROR:  recognized configuration parameter "application_name"\\r\s*$
 ^.*SET application_name='.*';\s*$
 ^psql:.*\s+STATEMENT:\s+\/\*+\s*$

@@ -175,7 +175,7 @@ BEGIN
 	NEW.ignored := false;
 	RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = :"alkis_schema", public;
 
 -- Abwandlung der Hist-Version als Kill-Version.
 -- Die "gml_id" muss in der Datenbank das Format character(16) haben.
@@ -248,7 +248,7 @@ BEGIN
 
 	RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = :"alkis_schema", public;
 
 CREATE FUNCTION pg_temp.create_trigger(hist BOOLEAN) RETURNS void AS $$
 BEGIN
@@ -291,7 +291,7 @@ BEGIN
         DELETE FROM alkis_beziehungen WHERE ogc_fid<NEW.ogc_fid AND beziehung_von=NEW.beziehung_von AND beziehungsart=NEW.beziehungsart AND beziehung_zu=NEW.beziehung_zu;
         RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = :"alkis_schema", public;
 
 CREATE TRIGGER insert_beziehung_trigger
 	AFTER INSERT ON alkis_beziehungen
