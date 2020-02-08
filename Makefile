@@ -13,6 +13,7 @@ package:
 	cp postinstall.bat osgeo4w/etc/postinstall/$(PKG).cmd
 	cp preremove.bat osgeo4w/etc/preremove/$(PKG).cmd
 	perl -i -pe 's/#VERSION#/$(VERSION)-$(P)/' osgeo4w/apps/$(PKG)/about.ui osgeo4w/apps/$(PKG)/alkisImportDlg.ui
+	! [ -f osgeo4w/$(PKG)-$(VERSION)-$(P).tar.bz2 ]
 	tar -C osgeo4w --remove-files -cjf osgeo4w/$(PKG)-$(VERSION)-$(P).tar.bz2 apps bin etc
 
 osgeo4w: package
@@ -23,6 +24,7 @@ osgeo4w: package
 
 archive:
 	mkdir -p archive
+	! [ -f archive/$(PKG)-$(VERSION)-$(P).tar.bz2 ]
 	git archive --format=tar --prefix=$(PKG)/ HEAD | bzip2 >archive/$(PKG)-$(VERSION)-$(P).tar.bz2
 
 .PHONY: osgeo4w archive package
