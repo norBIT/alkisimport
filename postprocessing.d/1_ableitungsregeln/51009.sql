@@ -83,6 +83,7 @@ FROM (
 ) AS o
 WHERE NOT signaturnummer IS NULL;
 
+/*
 -- Zaun
 INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 SELECT
@@ -132,6 +133,46 @@ FROM (
 	) AS o
 ) AS o
 GROUP BY gml_id,modell;
+*/
+
+-- Zaun
+INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+SELECT
+	gml_id,
+	'Gebäude' AS thema,
+	'ax_sonstigesbauwerkodersonstigeeinrichtung' AS layer,
+	st_multi(point) AS point,
+	drehwinkel,
+	3580 AS signaturnummer,
+	modell
+FROM (
+	SELECT
+		gml_id,
+		st_lineinterpolatepoint(line,o.offset/len) AS point,
+		0.5*pi()-st_azimuth(
+                        st_lineinterpolatepoint(line, o.offset/len*0.999),
+                        st_lineinterpolatepoint(line, o.offset/len)
+                )+pi()*CASE WHEN o.offset%2=0 THEN -1 ELSE 0 END AS drehwinkel,
+		modell
+	FROM (
+		SELECT
+			o.gml_id,
+			line,
+			st_length(line) AS len,
+			generate_series(1,trunc(st_length(line))::int) AS offset,
+			modell
+		FROM (
+			SELECT
+				gml_id,
+			        (st_dump(st_multi(wkb_geometry))).geom AS line,
+			        advstandardmodell||sonstigesmodell AS modell
+			FROM ax_sonstigesbauwerkodersonstigeeinrichtung
+			WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+			  AND endet IS NULL
+			  AND bauwerksfunktion=1740
+		) AS o
+	) AS o
+) AS o;
 
 -- Symbole
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
