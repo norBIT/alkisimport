@@ -17014,12 +17014,21 @@ Erholung von Reisenden.'),
 		COMMENT ON COLUMN ax_punktortta.herkunft_source_source_ax_datenerhebung_punktort IS 'qualitaetsangaben|AX_DQPunktort|herkunft|LI_Lineage|source|LI_Source|description  CharacterString 0..1';
 
 		UPDATE alkis_version SET version=18;
+	END IF;
+
+	IF ver<19 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 19';
+
+		-- OpenData, NW, Märkischer Kreis/Kleve
+		ALTER TABLE ax_markantergelaendepunkt ALTER ax_dqerfassungsmethodemarkantergelaendepunkt DROP NOT NULL;
+
+		UPDATE alkis_version SET version=19;
 
 		r := alkis_string_append(r, 'ALKIS-Schema migriert');
 	END IF;
 
-	IF ver>18 THEN
-		RAISE EXCEPTION 'ALKIS-Schema % nicht unterstützt (bis 18).', ver;
+	IF ver>19 THEN
+		RAISE EXCEPTION 'ALKIS-Schema % nicht unterstützt (bis 19).', ver;
 	END IF;
 
 	--

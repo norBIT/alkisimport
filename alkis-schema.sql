@@ -13288,7 +13288,7 @@ CREATE TABLE ax_markantergelaendepunkt (
   zeigtaufexternes_uri character varying[],
   artdesmarkantenpunktes integer,
   erfassungmarkantergelaendepunkt_datetime character(20),
-  ax_dqerfassungsmethodemarkantergelaendepunkt integer NOT NULL,
+  ax_dqerfassungsmethodemarkantergelaendepunkt integer /* NOT NULL -- OpenData, NW, Märkischer Kreis/Kleve */,
   hoehengenauigkeit_nameofmeasure character varying[],
   hoehengenauigkeit_measureidentification character varying,
   hoehengenauigkeit_measuredescription character varying,
