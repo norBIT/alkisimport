@@ -29,6 +29,7 @@
 ^CONTEXT:  PL\/pgSQL-Funktion (pg_temp_\d+\.)?(alkis|alb)_.* Zeile \d+ bei RAISE
 ^CONTEXT:  SQL statement in PL\/PgSQL function "alkis_(update_schema|set_comments)" near line \d+\s*$
 ^CONTEXT:  SQL statement "ALTER TABLE alkis_(flaechen|linien|schriften) ADD PRIMARY KEY \(katalog,signaturnummer\)"
+^CONTEXT:  COPY (ax_[a-z]+|ap_pto|ap_lpo|ap_ppo|ap_darstellung), line 1\s*$
 ^\s+\^\s*$
 ^.*: (NOTICE|HINWEIS):  CREATE TABLE
 ^NOTICE:  CREATE TABLE
@@ -54,7 +55,7 @@
 ^               \^\\r\s*$
 ^HINT:  Keine Funktion stimmt mit dem angegebenen Namen und den Argumenttypen .*berein. Sie m.*ssen m.*glicherweise ausdr.*ckliche Typumwandlungen hinzuf.*gen.\s*$
 ^psql:alkis-update.sql:.*: NOTICE:  ALTER TABLE \/ ADD PRIMARY KEY will create implicit index "alkis_(flaechen|linien|schriften)_pkey" for table "alkis_(flaechen|linien|schriften)"
-^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*gel\S+scht\..*$
+^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*(gel\S+scht|geleert)\..*$
 ^\s+(addgeometrycolumn|alkis_clean|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|alkis_fixareas|alkis_inherit|version|postgis_version|\?column\?|alkis_set_schema|create_trigger)\s*$
 ^-+\s*$
 ^\s+[^.]+\..*\.(wkb_geometry|dummy|objektkoordinaten|line) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$
@@ -96,14 +97,16 @@ SQL( statement|-Anweisung) \S+SELECT\s+alkis_dropobject\('alkis_konturen'\)
 ^NAS: Overwriting existing property AX_PunktortAU\.qualitaetsangaben\|AX_DQPunktort\|herkunft\|LI_Lineage\|processStep\|LI_ProcessStep\|dateTime\|DateTime of value '.*' with '.*' \(gml_id: .*\)\.
 ^NAS: Overwriting existing property .* of value '(?P<overwrittenvalue>[^']+)' with '(?P=overwrittenvalue)' \(gml_id: .*\)\.$
 ^NAS: Failed to translate srsName='urn:adv:crs:ETRS89_UTM33'
-^DETAIL:  (Schl\S+ssel \S+|Key )\(gml_id, beginnt\)=(.*) (already exists|existiert bereits)\.\s*$
+#^DETAIL:  (Schl\S+ssel \S+|Key )\(gml_id, beginnt\)=(.*) (already exists|existiert bereits)\.\s*$
 ^PG: PQexecParams\(INSERT INTO "(ax_bundesland|ax_dienststelle|ax_buchungsblattbezirk|ax_kreisregion|ax_regierungsbezirk|ax_lagebezeichnungohnehausnummer)" \(
 ^PG: Truncated (alkis_beziehungen\.beziehung_(von|zu)|.*\.gml_id) field value '.*' to 16 characters\.
 ^More than 1000 errors or warnings have been reported\. No more will be reported from now\.\s*$
 ^ERROR 1: INSERT command for new feature failed\.\s*$
+.*ERROR:  current transaction is aborted, commands ignored until end of transaction block\s*$
 .*L.+schvorgang l.+scht ebenfalls .*$
 ^Command: INSERT INTO "(ax_[a-z]+|ap_pto|ap_lpo|ap_ppo|ap_darstellung)" \("
-.*(FEHLER:  doppelter Schl\S+sselwert verletzt Unique-Constraint \S+|ERROR:  duplicate key value violates unique constraint ")(ax_[a-z]+|ap_pto|ap_lpo|ap_ppo|ap_darstellung)_gml\S+\s*$
+#.*(FEHLER:  doppelter Schl\S+sselwert verletzt Unique-Constraint \S+|ERROR:  duplicate key value violates unique constraint ")(ax_[a-z]+|ap_pto|ap_lpo|ap_ppo|ap_darstellung)_gml\S+\s*$
+^ERROR 1: COPY statement failed\.\s*$
 ^(OGR2OGR|GDALVectorTranslate): \d+ features written in layer '.*'\s*$
 (OGR2OGR|Warning 1|GDALVectorTranslate): Skipping field '(LI_Source|datumDerLetztenUeberpruefung|CI_RoleCode|AX_LI_ProcessStep_Punktort_Description|AX_Datenerhebung_Punktort|CI_RoleCode|AX_LI_ProcessStep_OhneDatenerhebung_Description|AX_LI_ProcessStep_MitDatenerhebung_Description|AX_Datenerhebung)' not found in destination layer 'ax_.*'\.
 (OGR2OGR|Warning 1|GDALVectorTranslate): Skipping field 'CharacterString' not found in destination layer 'ax_(anschrift|bahnverkehr|bauraumoderbodenordnungsrecht|bauwerkimgewaesserbereich|bauwerkimverkehrsbereich|bauwerkoderanlagefuerindustrieundgewerbe|bauwerkoderanlagefuersportfreizeitunderholung|bewertung|bodenschaetzung|denkmalschutzrecht|flaechebesondererfunktionalerpraegung|flaechegemischternutzung|fliessgewaesser|friedhof|gebaeude|gehoelz|grablochderbodenschaetzung|halde|heide|industrieundgewerbeflaeche|klassifizierungnachstrassenrecht|klassifizierungnachwasserrecht|landwirtschaft|leitung|musterlandesmusterundvergleichsstueck|naturumweltoderbodenschutzrecht|person|platz|punktortag|punktortau|punktortta|schutzgebietnachwasserrecht|sonstigesbauwerkodersonstigeeinrichtung|sportfreizeitunderholungsflaeche|stehendesgewaesser|strassenverkehr|sumpf|tagebaugrubesteinbruch|transportanlage|turm|unlandvegetationsloseflaeche|wald|weg|wohnbauflaeche|anderefestlegungnachwasserrecht|moor|vorratsbehaelterspeicherbauwerk|schiffsverkehr|flugverkehr|hafenbecken|untergeordnetesgewaesser|strassenverkehrsanlage|boeschungkliff)'\.

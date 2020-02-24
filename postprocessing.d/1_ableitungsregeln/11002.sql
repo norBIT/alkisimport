@@ -7,7 +7,49 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 SELECT 'Besondere Flurstücksgrenzen werden verarbeitet.';
 
-SELECT alkis_dropobject('alkis_politischegrenzen');
+SELECT 'Strittige Flurstücksgrenzen werden verarbeitet.';
+
+-- Strittige Grenze
+INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+SELECT
+	o.gml_id AS gml_id,
+	'Flurstücke' AS thema,
+	'ax_besondereflurstuecksgrenze' AS layer,
+	st_multi(o.wkb_geometry) AS line,
+	CASE
+	WHEN a.abweichenderrechtszustand='true' AND b.abweichenderrechtszustand='true' THEN 2007
+	ELSE 2006 END AS signaturnummer,
+	coalesce(
+		o.advstandardmodell||o.sonstigesmodell,
+		a.advstandardmodell||a.sonstigesmodell||b.advstandardmodell||b.sonstigesmodell
+	) AS modell
+FROM ax_besondereflurstuecksgrenze o
+JOIN ax_flurstueck a ON o.wkb_geometry && a.wkb_geometry AND st_intersects(o.wkb_geometry,a.wkb_geometry) AND a.endet IS NULL
+JOIN ax_flurstueck b ON o.wkb_geometry && b.wkb_geometry AND st_intersects(o.wkb_geometry,b.wkb_geometry) AND b.endet IS NULL
+WHERE ARRAY[1000] <@ artderflurstuecksgrenze AND a.ogc_fid<b.ogc_fid AND o.endet IS NULL;
+
+-- Nicht festgestellte Grenze
+INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+SELECT
+	o.gml_id AS gml_id,
+	'Flurstücke' AS thema,
+	'ax_besondereflurstuecksgrenze' AS layer,
+	st_multi(o.wkb_geometry) AS line,
+	CASE
+	WHEN a.abweichenderrechtszustand='true' AND b.abweichenderrechtszustand='true' THEN 2009
+	ELSE 2008
+	END AS signaturnummer,
+	coalesce(
+		o.advstandardmodell||o.sonstigesmodell,
+		a.advstandardmodell||a.sonstigesmodell||b.advstandardmodell||b.sonstigesmodell
+	) AS modell
+FROM ax_besondereflurstuecksgrenze o
+JOIN ax_flurstueck a ON o.wkb_geometry && a.wkb_geometry AND st_intersects(o.wkb_geometry,a.wkb_geometry) AND a.endet IS NULL
+JOIN ax_flurstueck b ON o.wkb_geometry && b.wkb_geometry AND st_intersects(o.wkb_geometry,b.wkb_geometry) AND b.endet IS NULL
+WHERE ARRAY[2001,2003,2004] && artderflurstuecksgrenze AND a.ogc_fid<b.ogc_fid AND o.endet IS NULL;
+
+SELECT 'Politische Grenze werden verschmolzen';
+
 CREATE TEMPORARY TABLE alkis_politischegrenzen(i INTEGER, sn VARCHAR, adfs INTEGER[]);
 INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (1, '2016', ARRAY[7101]);
 INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (2, '2018', ARRAY[7102]);
@@ -29,10 +71,35 @@ CREATE TEMPORARY TABLE po_besondereflurstuecksgrenze (
 
 SELECT AddGeometryColumn('po_besondereflurstuecksgrenze','wkb_geometry',:alkis_epsg,'LINESTRING',2);
 
+INSERT INTO po_besondereflurstuecksgrenze(ogc_fid,gml_id,modell,artderflurstuecksgrenze,wkb_geometry)
+	SELECT
+		min(ogc_fid),
+		min(gml_id),
+		ARRAY(SELECT DISTINCT unnest(alkis_accum(advstandardmodell||sonstigesmodell)) AS modell ORDER BY modell) AS modell,
+		ARRAY(SELECT DISTINCT unnest(alkis_accum(artderflurstuecksgrenze)) AS artderflurstuecksgrenze ORDER BY artderflurstuecksgrenze) AS artderflurstuecksgrenze,
+		wkb_geometry
+	FROM ax_besondereflurstuecksgrenze
+	WHERE endet IS NULL AND (st_numpoints(wkb_geometry)>3 OR NOT st_equals(st_startpoint(wkb_geometry),st_endpoint(wkb_geometry)))
+	GROUP BY wkb_geometry,st_asbinary(wkb_geometry);
+
 CREATE INDEX po_besondereflurstuecksgrenze_geom_idx ON po_besondereflurstuecksgrenze USING gist (wkb_geometry);
 CREATE INDEX po_besondereflurstuecksgrenze_adfg     ON po_besondereflurstuecksgrenze USING gin (artderflurstuecksgrenze);
 
-SELECT alkis_dropobject('alkis_besondereflurstuecksgrenze');
+ANALYZE po_besondereflurstuecksgrenze;
+
+CREATE TEMPORARY TABLE po_joinlines(
+	ogc_fid integer PRIMARY KEY,
+	gml_id character(16),
+	visited boolean,
+	modell varchar[],
+	adf integer[]
+);
+SELECT AddGeometryColumn('po_joinlines','line',:alkis_epsg,'LINESTRING',2);
+CREATE INDEX po_joinlines_line ON po_joinlines USING GIST (line);
+CREATE INDEX po_joinlines_visited ON po_joinlines(visited);
+
+ANALYZE po_joinlines;
+
 CREATE OR REPLACE FUNCTION pg_temp.alkis_besondereflurstuecksgrenze(verdraengen BOOLEAN) RETURNS varchar AS $$
 DECLARE
 	r0 RECORD;
@@ -156,73 +223,5 @@ BEGIN
 	RETURN 'Politische Grenze verschmolzen';
 END;
 $$ LANGUAGE plpgsql;
-
-SELECT 'Strittige Flurstücksgrenzen werden verarbeitet.';
-
--- Strittige Grenze
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
-SELECT
-	o.gml_id AS gml_id,
-	'Flurstücke' AS thema,
-	'ax_besondereflurstuecksgrenze' AS layer,
-	st_multi(o.wkb_geometry) AS line,
-	CASE
-	WHEN a.abweichenderrechtszustand='true' AND b.abweichenderrechtszustand='true' THEN 2007
-	ELSE 2006 END AS signaturnummer,
-	coalesce(
-		o.advstandardmodell||o.sonstigesmodell,
-		a.advstandardmodell||a.sonstigesmodell||b.advstandardmodell||b.sonstigesmodell
-	) AS modell
-FROM ax_besondereflurstuecksgrenze o
-JOIN ax_flurstueck a ON o.wkb_geometry && a.wkb_geometry AND st_intersects(o.wkb_geometry,a.wkb_geometry) AND a.endet IS NULL
-JOIN ax_flurstueck b ON o.wkb_geometry && b.wkb_geometry AND st_intersects(o.wkb_geometry,b.wkb_geometry) AND b.endet IS NULL
-WHERE ARRAY[1000] <@ artderflurstuecksgrenze AND a.ogc_fid<b.ogc_fid AND o.endet IS NULL;
-
--- Nicht festgestellte Grenze
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
-SELECT
-	o.gml_id AS gml_id,
-	'Flurstücke' AS thema,
-	'ax_besondereflurstuecksgrenze' AS layer,
-	st_multi(o.wkb_geometry) AS line,
-	CASE
-	WHEN a.abweichenderrechtszustand='true' AND b.abweichenderrechtszustand='true' THEN 2009
-	ELSE 2008
-	END AS signaturnummer,
-	coalesce(
-		o.advstandardmodell||o.sonstigesmodell,
-		a.advstandardmodell||a.sonstigesmodell||b.advstandardmodell||b.sonstigesmodell
-	) AS modell
-FROM ax_besondereflurstuecksgrenze o
-JOIN ax_flurstueck a ON o.wkb_geometry && a.wkb_geometry AND st_intersects(o.wkb_geometry,a.wkb_geometry) AND a.endet IS NULL
-JOIN ax_flurstueck b ON o.wkb_geometry && b.wkb_geometry AND st_intersects(o.wkb_geometry,b.wkb_geometry) AND b.endet IS NULL
-WHERE ARRAY[2001,2003,2004] && artderflurstuecksgrenze AND a.ogc_fid<b.ogc_fid AND o.endet IS NULL;
-
-SELECT alkis_dropobject('po_joinlines');
-CREATE TEMPORARY TABLE po_joinlines(
-	ogc_fid integer PRIMARY KEY,
-	gml_id character(16),
-	visited boolean,
-	modell varchar[],
-	adf integer[]
-);
-SELECT AddGeometryColumn('po_joinlines','line',(SELECT srid FROM geometry_columns WHERE f_table_schema=current_schema() AND f_table_name='po_lines' AND f_geometry_column='line'),'LINESTRING',2);
-CREATE INDEX po_joinlines_line ON po_joinlines USING GIST (line);
-CREATE INDEX po_joinlines_visited ON po_joinlines(visited);
-
-SELECT 'Politische Grenze werden verschmolzen';
-
-INSERT INTO po_besondereflurstuecksgrenze(ogc_fid,gml_id,modell,artderflurstuecksgrenze,wkb_geometry)
-	SELECT
-		min(ogc_fid),
-		min(gml_id),
-		ARRAY(SELECT DISTINCT unnest(alkis_accum(advstandardmodell||sonstigesmodell)) AS modell ORDER BY modell) AS modell,
-		ARRAY(SELECT DISTINCT unnest(alkis_accum(artderflurstuecksgrenze)) AS artderflurstuecksgrenze ORDER BY artderflurstuecksgrenze) AS artderflurstuecksgrenze,
-		wkb_geometry
-	FROM ax_besondereflurstuecksgrenze
-	WHERE endet IS NULL
-	GROUP BY wkb_geometry,st_asbinary(wkb_geometry);
-
-ANALYZE po_besondereflurstuecksgrenze;
 
 SELECT pg_temp.alkis_besondereflurstuecksgrenze(:alkis_pgverdraengen);

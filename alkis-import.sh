@@ -53,7 +53,7 @@ if [ "$0" = "$B" ]; then
 	B=.
 fi
 case "$MACHTYPE" in
-*-cygwin)
+*-cygwin|*msys)
        B=$(cygpath -m "$B")
        ;;
 esac
@@ -61,7 +61,6 @@ export P=${0##*/}  # PROGNAME
 
 export NAS_GFS_TEMPLATE=$B/alkis-schema.gfs
 export NAS_NO_RELATION_LAYER=YES
-
 
 bdate() {
 	local t=${1:-+%F %T}
@@ -87,10 +86,10 @@ timeunits() {
 
 	if [ -n "$t1" ]; then t=$(( t1 - t )); fi
 
-	s=$(( t % 60 ))
-	m=$(( (t / 60) % 60 ))
-	h=$(( (t / 60 / 60) % 24 ))
-	d=$(( t / 60 / 60 / 24 ))
+	local s=$(( t % 60 ))
+	local m=$(( (t / 60) % 60 ))
+	local h=$(( (t / 60 / 60) % 24 ))
+	local d=$(( t / 60 / 60 / 24 ))
 
 	local r=
 	if (( d > 0 )); then r="$r${d}d"; fi
@@ -113,9 +112,9 @@ rund() {
 	local dir=$1
 
 	if [ -d "$dir.d" ]; then
-		for i in $(ls -1d ${dir}.d/* | sort); do
+		for i in $(ls -1d ${dir}.d/* 2>/dev/null | sort); do
 			if [ -d "$i" ]; then
-				ls -1 $i/*.sql | sort | parallel --ungroup --jobs=$JOBS sql
+				ls -1 $i/*.sql 2>/dev/null | sort | parallel --line-buffer --halt soon,fail=1 --jobs=$JOBS sql
 			elif [ -f "$i" -a -r "$i" ]; then
 				sql $i
 			else
@@ -141,8 +140,13 @@ import() {
 
 	case $src in
 	*.zip)
-		dst="$tmpdir/$(basename "$src" .zip).xml"
+		dst=${src%.zip}.xml
+		dst="$tmpdir/${dst//\//_}"
 		echo "DECOMPRESS $(bdate): $src"
+		if [ -e "$dst" ]; then
+			echo "$P: $dst bereits vorhanden." >&2
+			return 1
+		fi
 		if ! zcat "$src" >"$dst"; then
 			rm -v "$dst"
 			echo "$P: $src konnte nicht extrahiert werden." >&2
@@ -157,8 +161,13 @@ import() {
 			return 1
 		fi
 
-		dst="$tmpdir/$(basename "$src" .gz)"
+		dst=${src%.gz}
+		dst="$tmpdir/${dst//\//_}"
 		echo "DECOMPRESS $(bdate): $src"
+		if [ -e "$dst" ]; then
+			echo "$P: $dst bereits vorhanden." >&2
+			return 1
+		fi
 		if ! zcat "$src" >"$dst"; then
 			rm -v "$dst"
 			echo "$P: $src konnte nicht extrahiert werden." >&2
@@ -201,7 +210,7 @@ import() {
 	opt="$opt -ds_transaction --config PG_USE_COPY YES -nlt CONVERT_TO_LINEAR"
 
 	case "$MACHTYPE" in
-	*-cygwin)
+	*-cygwin|*msys)
 		dst1=$(cygpath -m "$dst")
 		;;
 	*)
@@ -214,9 +223,9 @@ import() {
 	local r=$?
 	t1=$(bdate +%s)
 
-	progress "$dst" $s $t0 $t1
+	progress "$dst" $s $t0 $t1 $r
 
-	[ $rm == 1 ] && rm -v "$dst"
+	[ $rm == 1 ] && rm -fv "$dst"
 	trap "" EXIT
 
 	return $r
@@ -244,7 +253,7 @@ process() {
 
 		export job
 		export progress
-		parallel --ungroup --jobs=$JOBS import <$job
+		parallel --line-buffer --halt soon,fail=1 --jobs=$JOBS import <$job
 		r=$?
 		rm $job
 	fi
@@ -256,10 +265,12 @@ progress() {
 	local size=$2
 	local t0=$3
 	local t1=$4
+	local r=$5
 	local elapsed
 	local total_elapsed
 	local total_size
 	local remaining_size
+	local errors=0
 
 	lockfile $lock
 	[ -f $progress ] && . $progress
@@ -271,6 +282,11 @@ progress() {
 	done_size=$(( total_size - remaining_size ))
 	remaining_time=$(( remaining_size * total_elapsed / done_size ))
 	eta=$(( t1 + remaining_time ))
+
+	if [ $r -ne 0 ]; then
+		(( errors++ )) || true
+		echo "ERROR: Ergebnis $r bei $file (bislang $errors Fehler)"
+	fi
 
 	if (( elapsed > 0 )); then
 		throughput=$(( size / elapsed ))
@@ -291,6 +307,7 @@ start_time=$start_time
 total_size=$total_size
 remaining_size=$remaining_size
 last_time=$t1
+errors=$errors
 EOF
 
 	rm -f $lock
@@ -301,7 +318,7 @@ final() {
 	lockfile $lock
 	start_time=0
 	last_time=0
-	. $progress
+	! [ -f $progress ] || . $progress
 	total_elapsed=$(( last_time - start_time ))
 	if (( total_elapsed > 0 )); then
 		echo "FINAL: $(memunits $total_size) in $(timeunits $start_time $last_time) ($(memunits $(( total_size / total_elapsed )))/s)"
@@ -358,57 +375,12 @@ log=
 preprocessed=0
 sfre=
 
-S=0
-while read src
-do
-	if ! [ -f "$src" -a -r "$src" ]; then
-		continue
-	fi
-
-	case "$src" in
-	*.xml.zip)
-		if ! s=$(zcat "$src" | wc -c); then
-			s=0
-		fi
-		;;
-
-	*.zip)
-		if ! s=$(zcat "$src" | wc -c); then
-			s=0
-		fi
-		;;
-
-	*.xml.gz)
-		if ! s=$(gzip -ql "$src" | tr -s " " | cut -d" " -f3); then
-			s=0
-		fi
-		;;
-
-	*.xml)
-		if ! s=$(stat -c %s "$src"); then
-			s=0
-		fi
-		;;
-
-	*)
-		echo "$P: Nicht unterstützte Datei $src" >&2
-		continue
-		;;
-	esac
-
-	(( S += s )) || true
-done <"$F"
-
 export job=
 export tmpdir=$(mktemp -d)
+[ -d "$tmpdir" ] && trap "rm -rf '$tmpdir'" EXIT
 export lock=$tmpdir/nas.lock
 export progress=$tmpdir/nas.progress
 export jobi=0
-
-cat <<EOF >$progress
-total_size=$S
-remaining_size=$S
-EOF
 
 rm -f $lock
 while read src
@@ -421,12 +393,63 @@ do
 
 	*.zip|*.xml.gz|*.xml)
 		if [ -z "$job" ]; then
+			echo "$P: Bestimme unkomprimierte Gesamtgröße"
+
+			S=0
+			while read file
+			do
+				if [ "$file" = "exit" ]; then
+					break
+				elif ! [ -f "$file" -a -r "$file" ]; then
+					continue
+				fi
+
+				case "$file" in
+				*.xml.zip)
+					if ! s=$(zcat "$file" | wc -c); then
+						s=0
+					fi
+					;;
+
+				*.zip)
+					if ! s=$(zcat "$file" | wc -c); then
+						s=0
+					fi
+					;;
+
+				*.xml.gz)
+					if ! s=$(gzip -ql "$file" | tr -s " " | cut -d" " -f3); then
+						s=0
+					fi
+					;;
+
+				*.xml)
+					if ! s=$(stat -c %s "$file"); then
+						s=0
+					fi
+					;;
+
+				*)
+					echo "$P: Nicht unterstützte Datei $file" >&2
+					continue
+					;;
+				esac
+
+				(( S += s )) || true
+			done <"$F"
+
+			cat <<EOF >$progress
+total_size=$S
+remaining_size=$S
+EOF
+
 			if (( S > 0 )); then
 				echo "$P: Unkomprimierte Gesamtgröße: $(memunits $S)"
 			fi
 
 			export job=$tmpdir/$(( ++jobi )).lst
 		fi
+
 		echo $src >>$job
 		continue
 		;;
@@ -466,18 +489,29 @@ do
 		}
 		export -f sql
 		runsql() {
-			psql -X -P pager=off -c "$1" "$DB"
+			psql -X -P pager=off \
+				-v alkis_pgverdraengen=$PGVERDRAENGEN \
+				-v alkis_fnbruch=$FNBRUCH \
+				-v alkis_hist=$HISTORIE \
+				-v alkis_epsg=$EPSG \
+				-v alkis_schema=$SCHEMA \
+				-v postgis_schema=$PGSCHEMA \
+				-v parent_schema=${PARENTSCHEMA:-$SCHEMA} \
+				-v ON_ERROR_STOP=1 \
+				-v ECHO=errors \
+				-c "$1" \
+				"$DB"
 		}
 		export -f runsql
 		dump() {
-			pg_dump -Fc -f "$1.cpgdmp" "$DB"
+			pg_dump -Fc -f "$1.backup" "$DB"
 		}
 		restore() {
-			if ! [ -f "$1.cpgdmp" -a -r "$1.cpgdmp" ]; then
-				echo "$P: $1.cpgdmp nicht gefunden oder nicht lesbar." >&2
+			if ! [ -f "$1.backup" -a -r "$1.backup" ]; then
+				echo "$P: $1.backup nicht gefunden oder nicht lesbar." >&2
 				return 1
 			fi
-			pg_restore -Fc -c "$1.cpgdmp" | psql -X "$DB"
+			pg_restore -Fc -c "$1.backup" | psql -X "$DB"
 		}
 		export DB
 		log() {
@@ -852,7 +886,9 @@ process
 
 final
 
-if [ "$src" != "exit" -a "$src" != "error" ]; then
+if [ "$src" = "error" ]; then
+	echo "FEHLER BEIM IMPORT"
+elif [ "$src" != "exit" ]; then
 	pushd "$B" >/dev/null
 
 	if (( preprocessed == 0 )); then
@@ -881,5 +917,7 @@ if [ -n "$log" ]; then
 fi
 
 if [ "$src" == "error" ]; then
+	trap "" EXIT
+	echo "WARNUNG: VERZEICHNIS $tmpdir WIRD NACH FEHLER NICHT GELÖSCHT."
 	exit 1
 fi

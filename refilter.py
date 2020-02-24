@@ -50,7 +50,11 @@ except IOError:
     exit(1)
 
 while True:
-    line = f.readline()
+    try:
+        line = f.readline()
+    except UnicodeDecodeError:
+        continue
+
     if line == "":
         break
 
