@@ -35,7 +35,6 @@ import gzip
 import re
 
 from zipfile import ZipFile
-from tempfile import gettempdir
 from itertools import islice
 
 try:
@@ -647,7 +646,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.db = QSqlDatabase.addDatabase("QPSQL")
         self.db.setConnectOptions(conn)
         if not self.db.open():
-            self.log("Konnte Datenbankverbindung nicht aufbauen!")
+            self.log("Konnte Datenbankverbindung nicht aufbauen! [{}]".format(self.db.lastError().text()))
             return None
 
         self.db.exec_("SET STANDARD_CONFORMING_STRINGS TO ON")
@@ -886,6 +885,10 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     item = self.lstFiles.item(i)
                     fn = item.text()
 
+                    if not os.path.isfile(fn):
+                        self.log("{} nicht gefunden.".format(fn))
+                        continue
+
                     if fn.lower().endswith(".xml"):
                         s = os.path.getsize(fn)
                         sizes[fn] = s
@@ -997,6 +1000,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
                     fn = item.text()
 
+                    if not os.path.isfile(fn):
+                        continue
+
                     src = ""
                     if fn.lower().endswith(".xml.gz"):
                         src = fn[:-3]
@@ -1005,7 +1011,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         self.status("{} wird extrahiert.".format(fn))
                         app.processEvents()
 
-                        src = os.path.join(gettempdir(), os.path.basename(src))
+                        src = os.path.join(os.getenv("TEMP"), os.path.basename(src))
 
                         f_in = gzip.open(fn)
                         f_out = open(src, "wb")
@@ -1035,7 +1041,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         self.status("{} wird extrahiert.".format(fn))
                         app.processEvents()
 
-                        src = os.path.join(gettempdir(), os.path.basename(src))
+                        src = os.path.join(os.getenv("TEMP"), os.path.basename(src))
 
                         zipf = ZipFile(fn, "r")
                         f_in = zipf.open(zipf.infolist()[0].filename)
