@@ -67,18 +67,44 @@ WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alki
 SELECT 'Erzeuge Flurstückszähler...';
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
-	o.gml_id,
+	gml_id,
 	'Flurstücke' AS thema,
 	'ax_flurstueck_nummer' AS layer,
-	st_translate(coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)), 0, 0.40) AS point,
-	coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',1),o.zaehler::text) AS text,
-	coalesce(d.signaturnummer,t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4123' ELSE '4115' END) AS signaturnummer,
-	t.drehwinkel, 'zentrisch'::text AS horizontaleausrichtung, 'Basis'::text AS vertikaleausrichtung, t.skalierung, t.fontsperrung,
-	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell)
-FROM ax_flurstueck o
-LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
-LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
-WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123') AND coalesce(o.nenner,'0')<>'0');
+	CASE
+	WHEN horizontaleausrichtung='rechtsbündig' THEN st_translate(point, -len, 0.0)
+	WHEN horizontaleausrichtung='linksbündig' THEN st_translate(point, len, 0.0)
+	ELSE point
+	END AS point,
+	text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell
+FROM (
+	SELECT
+		gml_id,
+		point,
+		CASE WHEN lenn>lenz THEN lenn ELSE lenz END AS len,
+		text,
+		signaturnummer,
+		drehwinkel,
+		horizontaleausrichtung,
+		vertikaleausrichtung,
+		skalierung,
+		fontsperrung,
+		modell
+	FROM (
+		SELECT
+			o.gml_id,
+			st_translate(coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)), 0, 0.40) AS point,
+			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',1),o.zaehler::text)) AS lenz,
+			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2),o.nenner::text)) AS lenn,
+			coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',1),o.zaehler::text) AS text,
+			coalesce(d.signaturnummer,t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4123' ELSE '4115' END) AS signaturnummer,
+			t.drehwinkel, t.horizontaleausrichtung, 'Basis'::text AS vertikaleausrichtung, t.skalierung, t.fontsperrung,
+			coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
+		FROM ax_flurstueck o
+		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
+		LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
+		WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123') AND coalesce(o.nenner,'0')<>'0')
+	) AS foo
+) AS foo;
 
 -- Nenner
 -- Bruchdarstellung
@@ -88,21 +114,42 @@ SELECT
 	gml_id,
 	'Flurstücke' AS thema,
 	'ax_flurstueck_nummer' AS layer,
-	point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell
+	CASE
+	WHEN horizontaleausrichtung='rechtsbündig' THEN st_translate(point, -len, 0.0)
+	WHEN horizontaleausrichtung='linksbündig' THEN st_translate(point, len, 0.0)
+	ELSE point
+	END AS point,
+	text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell
 FROM (
 	SELECT
-		o.gml_id,
-		st_translate(coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)), 0, -0.40) AS point,
-		coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2)::text,o.nenner::text) AS text,
-		coalesce(d.signaturnummer,t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4123' ELSE '4115' END) AS signaturnummer,
-		t.drehwinkel, 'zentrisch'::text AS horizontaleausrichtung, 'oben'::text AS vertikaleausrichtung, t.skalierung, t.fontsperrung,
-		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-	FROM ax_flurstueck o
-	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
-	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
-	WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123') AND coalesce(o.nenner,'0')<>'0')
-) AS foo
-WHERE NOT text IS NULL;
+		gml_id,
+		point,
+		CASE WHEN lenn>lenz THEN lenn ELSE lenz END AS len,
+		text,
+		signaturnummer,
+		drehwinkel,
+		horizontaleausrichtung,
+		vertikaleausrichtung,
+		skalierung,
+		fontsperrung,
+		modell
+	FROM (
+		SELECT
+			o.gml_id,
+			st_translate(coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)), 0, -0.40) AS point,
+			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',1),o.zaehler::text)) AS lenz,
+			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2),o.nenner::text)) AS lenn,
+			coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2)::text,o.nenner::text) AS text,
+			coalesce(d.signaturnummer,t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4123' ELSE '4115' END) AS signaturnummer,
+			t.drehwinkel, t.horizontaleausrichtung, 'oben'::text AS vertikaleausrichtung, t.skalierung, t.fontsperrung,
+			coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
+		FROM ax_flurstueck o
+		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
+		LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
+		WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123') AND coalesce(o.nenner,'0')<>'0')
+	) AS foo
+	WHERE NOT text IS NULL
+) AS foo;
 
 -- Bruchstrich
 SELECT 'Erzeuge Flurstücksbruchstriche...';
@@ -111,7 +158,11 @@ SELECT
 	gml_id,
 	'Flurstücke' AS thema,
 	'ax_flurstueck_nummer' AS layer,
-	st_multi(st_rotate(st_makeline(st_translate(point, -len, 0.0), st_translate(point, len, 0.0)),drehwinkel,st_x(point),st_y(point))) AS line,
+	CASE
+	WHEN horizontaleausrichtung='rechtsbündig' THEN st_multi(st_rotate(st_makeline(st_translate(point, -(2*len), 0.0), st_translate(point, 0.0, 0.0)),drehwinkel,st_x(point),st_y(point)))
+	WHEN horizontaleausrichtung='linksbündig' THEN st_multi(st_rotate(st_makeline(st_translate(point, 0.0, 0.0), st_translate(point, 2*len, 0.0)),drehwinkel,st_x(point),st_y(point)))
+	ELSE st_multi(st_rotate(st_makeline(st_translate(point, -len, 0.0), st_translate(point, len, 0.0)),drehwinkel,st_x(point),st_y(point)))
+	END AS line,
 	signaturnummer,
 	modell
 FROM (
@@ -121,7 +172,8 @@ FROM (
 		CASE WHEN lenn>lenz THEN lenn ELSE lenz END AS len,
 		signaturnummer,
 		modell,
-		drehwinkel
+		drehwinkel,
+		horizontaleausrichtung
 	FROM (
 		SELECT
 			o.gml_id,
@@ -130,7 +182,8 @@ FROM (
 			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2),o.nenner::text)) AS lenz,
 			coalesce(d.signaturnummer,'2001') AS signaturnummer,
 			coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell,
-			coalesce(t.drehwinkel,0) AS drehwinkel
+			coalesce(t.drehwinkel,0) AS drehwinkel,
+			t.horizontaleausrichtung
 		FROM ax_flurstueck o
 		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
 		LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
@@ -167,4 +220,3 @@ SELECT
 FROM ax_flurstueck o
 JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='Haken' AND p.endet IS NULL
 WHERE o.endet IS NULL;
-

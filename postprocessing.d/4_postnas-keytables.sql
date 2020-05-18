@@ -86,6 +86,14 @@ CREATE VIEW v_bschaetz_zustandsstufe AS
 		,beschreibung AS bezeichner
 	FROM ax_zustandsstufeoderbodenstufe_bodenschaetzung;
 
+SELECT alkis_dropobject('v_bschaetz_entsteh_klima');
+CREATE VIEW v_bschaetz_entsteh_klima AS
+	SELECT
+		wert::int AS wert
+		,regexp_replace( beschreibung, E'^.*\\((.*)\\)$', E'\\1') AS kurz
+		,beschreibung AS bezeichner
+	FROM ax_entstehungsartoderklimastufewasserverhaeltnisse_bodensc;
+
 SELECT alkis_dropobject('v_muster_merkmal');
 CREATE VIEW v_muster_merkmal AS
 	SELECT
