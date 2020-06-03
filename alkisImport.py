@@ -820,7 +820,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
             if not self.cbxCreate.isChecked():
                 if int(qry.value(0)) == 0:
-                    self.cbxCreate.setChecked(True)
                     self.log("Keine ALKIS-Daten vorhanden - Datenbestand muß angelegt werden.")
                     break
 
