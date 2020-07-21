@@ -54,11 +54,12 @@
 ^LINE 2:   SELECT force_collection\(\$1\);\s*$
 ^               \^\\r\s*$
 ^HINT:  Keine Funktion stimmt mit dem angegebenen Namen und den Argumenttypen .*berein. Sie m.*ssen m.*glicherweise ausdr.*ckliche Typumwandlungen hinzuf.*gen.\s*$
+^HINT:  No function matches the given name and argument types. You might need to add explicit type casts\.$
 ^psql:alkis-update.sql:.*: NOTICE:  ALTER TABLE \/ ADD PRIMARY KEY will create implicit index "alkis_(flaechen|linien|schriften)_pkey" for table "alkis_(flaechen|linien|schriften)"
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*(gel\S+scht|geleert)\..*$
 ^\s+(addgeometrycolumn|alkis_clean|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|alkis_fixareas|alkis_inherit|version|postgis_version|\?column\?|alkis_set_schema|create_trigger)\s*$
 ^-+\s*$
-^\s+[^.]+\..*\.(wkb_geometry|dummy|objektkoordinaten|line) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:2\+?\s*$
+^\s+[^.]+\..*\.(wkb_geometry|dummy|objektkoordinaten|line) SRID:\d+ TYPE:(GEOMETRY|LINESTRING|POINT|MULTIPOINT|POLYGON) DIMS:[23]\+?\s*$
 ^\s+[^.]+\.ax_punktortau\.wkb_geometry SRID:\d+ TYPE:(POINT|GEOMETRY) DIMS:3\+?\s*$
 ^\s+[^.]+\.po_points\.point SRID:\d+ TYPE:MULTIPOINT DIMS:2\+?\s*$
 ^\s+[^.]+\.po_lines\.line SRID:\d+ TYPE:MULTILINESTRING DIMS:2\+?\s*$

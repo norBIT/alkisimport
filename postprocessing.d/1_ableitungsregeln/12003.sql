@@ -27,7 +27,7 @@ FROM (
 		horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
 		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 	FROM ax_lagebezeichnungmitpseudonummer o
-	JOIN ax_gebaeude g ON g.gehoertzu=o.gml_id AND g.endet IS NULL
+	JOIN ax_gebaeude g ON ARRAY[o.gml_id] <@ g.gehoertzu AND g.endet IS NULL
 	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art='PNR'
 	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL AND d.art='PNR'
 	WHERE o.endet IS NULL

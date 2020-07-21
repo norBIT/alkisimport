@@ -5,7 +5,7 @@
  * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
  *                                                                         *
  ***************************************************************************
- * Copyright (c) 2012-2018, Jürgen E. Fischer <jef@norbit.de>              *
+ * Copyright (c) 2012-2020, Jürgen E. Fischer <jef@norbit.de>              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -123,7 +123,7 @@ BEGIN
 	-- drop tables & views
 	FOR c IN SELECT table_type,table_name FROM information_schema.tables
 		   WHERE table_schema=current_schema()
-		     AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_','au_','ta_')
+		     AND ( substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_','au_','ta_','ln_','lb_','ci_')
 			   OR table_name IN ('alkis_beziehungen','alkis_wertearten','delete','alkis_version','nas_filter_capabilities','operation') )
 		   ORDER BY table_type DESC LOOP
 		IF c.table_type = 'VIEW' THEN

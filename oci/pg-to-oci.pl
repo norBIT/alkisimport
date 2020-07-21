@@ -4,7 +4,7 @@
 #    pg-to-oci.pl - ALKIS-PostgreSQL-Schema für Oracle vorbereiten
 #    ---------------------
 #    begin                : 2013-01-18
-#    copyright            : (C) 2013 by Juergen Fischer, norBIT GmbH
+#    copyright            : (C) 2013 by Jürgen E. Fischer, norBIT GmbH
 #    email                : jef at norbit dot de
 #############################################################################
 #                                                                         

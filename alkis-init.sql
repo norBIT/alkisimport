@@ -5,7 +5,7 @@
  * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
  *                                                                         *
  ***************************************************************************
- * Copyright (c) 2012-2018, Jürgen E. Fischer <jef@norbit.de>              *
+ * Copyright (c) 2012-2020, Jürgen E. Fischer <jef@norbit.de>              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -31,7 +31,7 @@ SET search_path = :"alkis_schema", public;
 SELECT alkis_drop();
 
 CREATE TABLE alkis_version(version integer);
-INSERT INTO alkis_version(version) VALUES (19);
+INSERT INTO alkis_version(version) VALUES (100);
 COMMENT ON TABLE alkis_version IS 'ALKIS: Schemaversion';
 
 -- BW/BY-Koordinatensystem anlegen

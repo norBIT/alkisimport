@@ -5,7 +5,7 @@
  * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
  *                                                                         *
  ***************************************************************************
- * Copyright (c) 2014-2018, Jürgen E. Fischer <jef@norbit.de>              *
+ * Copyright (c) 2014-2020, Jürgen E. Fischer <jef@norbit.de>              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -68,7 +68,7 @@ CREATE VIEW v_bschaetz_kulturart AS
 		wert::int AS wert
 		,regexp_replace( beschreibung, E'^.*\\((.*)\\)$', E'\\1') AS kurz
 		,beschreibung AS bezeichner
-	FROM ax_kulturart_bodenschaetzung;
+	FROM ax_nutzungsart_bodenschaetzung;
 
 SELECT alkis_dropobject('v_bschaetz_bodenart');
 CREATE VIEW v_bschaetz_bodenart AS
@@ -84,7 +84,7 @@ CREATE VIEW v_bschaetz_zustandsstufe AS
 		wert::int AS wert
 		,regexp_replace( beschreibung, E'^.*\\((.*)\\)$', E'\\1') AS kurz
 		,beschreibung AS bezeichner
-	FROM ax_zustandsstufeoderbodenstufe_bodenschaetzung;
+	FROM ax_zustandsstufe;
 
 SELECT alkis_dropobject('v_bschaetz_entsteh_klima');
 CREATE VIEW v_bschaetz_entsteh_klima AS
@@ -92,7 +92,7 @@ CREATE VIEW v_bschaetz_entsteh_klima AS
 		wert::int AS wert
 		,regexp_replace( beschreibung, E'^.*\\((.*)\\)$', E'\\1') AS kurz
 		,beschreibung AS bezeichner
-	FROM ax_entstehungsartoderklimastufewasserverhaeltnisse_bodensc;
+	FROM ax_bodenart_bodenschaetzung;
 
 SELECT alkis_dropobject('v_muster_merkmal');
 CREATE VIEW v_muster_merkmal AS
@@ -100,7 +100,7 @@ CREATE VIEW v_muster_merkmal AS
 		wert::int AS wert
 		,regexp_replace( beschreibung, E'^.*\\((.*)\\)$', E'\\1') AS kurz
 		,beschreibung AS bezeichner
-	FROM ax_merkmal_musterlandesmusterundvergleichsstueck;
+	FROM ax_merkmal_musterundvergleichsstueck;
 
 SELECT alkis_dropobject('v_grabloch_bedeutg');
 CREATE VIEW v_grabloch_bedeutg AS

@@ -48,12 +48,12 @@ BEGIN
 		n := n + 1;
 		-- RAISE NOTICE 'gml_id:% %', r0.gml_id, n;
 
-		SELECT st_linemerge(st_collect(wkb_geometry)) INTO uk FROM ax_gelaendekante WHERE ARRAY[r0.gml_id] <@ istteilvon AND artdergelaendekante=1230 AND endet IS NULL;
+		SELECT st_linemerge(st_collect(wkb_geometry)) INTO uk FROM ax_strukturlinie3d WHERE ARRAY[r0.gml_id] <@ istteilvon AND art=1230 AND endet IS NULL;
 
 		-- RAISE NOTICE 'Unterkante:%', st_astext(uk);
 
 		-- Alle Kanten sind Schnittkanten
-		SELECT st_union(wkb_geometry) INTO sk FROM ax_gelaendekante WHERE ARRAY[r0.gml_id] <@ istteilvon AND endet IS NULL;
+		SELECT st_union(wkb_geometry) INTO sk FROM ax_strukturlinie3d WHERE ARRAY[r0.gml_id] <@ istteilvon AND endet IS NULL;
 		IF sk IS NULL THEN
 			kskn := kskn + 1;
 			-- RAISE NOTICE '%: Keine Schnittkante', r0.gml_id;
@@ -65,9 +65,9 @@ BEGIN
 		-- Oberkante(n) iterieren (MULTILINESTRINGs ggf. zerlegen)
 		FOR r1 IN
 			SELECT (st_dump(st_multi(st_linemerge(st_collect(wkb_geometry))))).geom
-			FROM ax_gelaendekante
+			FROM ax_strukturlinie3d
 			WHERE ARRAY[r0.gml_id] <@ istteilvon
-			  AND artdergelaendekante=1220
+			  AND art=1220
 			  AND endet IS NULL
 		LOOP
 			ok := r1.geom;

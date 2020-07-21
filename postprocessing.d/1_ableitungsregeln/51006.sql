@@ -151,10 +151,18 @@ FROM (
 		coalesce(d.signaturnummer,t.signaturnummer,'4100') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
 		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-	FROM ax_bauwerkoderanlagefuersportfreizeitunderholung o
+	FROM (
+		SELECT
+			gml_id,
+			unnest(sportart) AS sportart,
+			wkb_geometry,
+			advstandardmodell,
+			sonstigesmodell
+		FROM ax_bauwerkoderanlagefuersportfreizeitunderholung o
+		WHERE endet IS NULL AND sportart IS NOT NULL
+        ) AS o
 	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='SPO' AND t.endet IS NULL
 	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='SPO' AND d.endet IS NULL
-	WHERE o.endet IS NULL AND NOT sportart IS NULL
 ) AS n WHERE NOT text IS NULL;
 
 -- Bauwerk oder Anlage für Sport, Freizeit und Erholung, Symbole
@@ -170,4 +178,4 @@ SELECT
 FROM ax_bauwerkoderanlagefuersportfreizeitunderholung o
 LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='SPO' AND p.endet IS NULL
 LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='SPO' AND d.endet IS NULL
-WHERE o.endet IS NULL AND sportart=1080;
+WHERE o.endet IS NULL AND 1080=ANY(sportart);

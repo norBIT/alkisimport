@@ -5,7 +5,7 @@
  * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
  *                                                                         *
  ***************************************************************************
- * Copyright (c) 2012-2018, Jürgen E. Fischer <jef@norbit.de>              *
+ * Copyright (c) 2012-2020, Jürgen E. Fischer <jef@norbit.de>              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -17023,12 +17023,6604 @@ Erholung von Reisenden.'),
 		ALTER TABLE ax_markantergelaendepunkt ALTER ax_dqerfassungsmethodemarkantergelaendepunkt DROP NOT NULL;
 
 		UPDATE alkis_version SET version=19;
+	END IF;
+
+	IF ver<100 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 100 (GID7)';
+
+		DROP VIEW ax_klassifizierungsschluessel;
+		DROP VIEW ax_klassifizierung;
+		DROP VIEW alkis_wertearten;
+		DROP VIEW v_bschaetz_entsteh_klima;
+		DROP VIEW v_bschaetz_kulturart;
+		DROP VIEW v_bschaetz_zustandsstufe;
+		DROP VIEW v_muster_merkmal;
+
+		ALTER TABLE aa_aktivitaet ADD quellobjektid character varying;
+		ALTER TABLE aa_antrag ADD quellobjektid character varying;
+		ALTER TABLE aa_antragsgebiet ADD quellobjektid character varying;
+		ALTER TABLE aa_meilenstein ADD quellobjektid character varying;
+
+		-- aa_projektsteuerung.parameterwert -> parameterwert: character varying => character varying[]
+
+		ALTER TABLE aa_projektsteuerung ALTER parameterwert TYPE character varying[] USING CASE WHEN parameterwert IS NULL THEN NULL ELSE ARRAY[parameterwert] END;
+		ALTER TABLE aa_projektsteuerung ADD quellobjektid character varying;
+		ALTER TABLE aa_vorgang ADD quellobjektid character varying;
+		ALTER TABLE ap_darstellung ADD quellobjektid character varying;
+		ALTER TABLE ap_fpo ADD quellobjektid character varying;
+
+		ALTER TABLE ap_kpo_3d ALTER dateityp SET NOT NULL;
+		ALTER TABLE ap_kpo_3d DROP detailliert;
+		ALTER TABLE ap_kpo_3d DROP generalisiert;
+		ALTER TABLE ap_kpo_3d DROP levelofdetail;
+
+		-- ap_kpo_3d.parameter -> parameter: double precision[] => character varying[]
+
+		ALTER TABLE ap_kpo_3d RENAME parameter TO parameter_;
+		ALTER TABLE ap_kpo_3d ADD parameter character varying[];
+		UPDATE ap_kpo_3d SET parameter=ARRAY(SELECT unnest(parameter_)::text);
+		ALTER TABLE ap_kpo_3d DROP parameter_;
+
+		ALTER TABLE ap_kpo_3d ALTER referenzzumfremdobjekt SET NOT NULL;
+
+		-- ap_kpo_3d.wkb_geometry -> wkb_geometry: geometry(Geometry,25832) => geometry(GeometryZ,25832)
+		BEGIN
+			ALTER TABLE ap_kpo_3d DROP CONSTRAINT enforce_geotype_wkb_geometry;
+		EXCEPTION WHEN OTHERS THEN
+			ALTER TABLE ap_kpo_3d RENAME wkb_geometry TO wkb_geometry_;
+			PERFORM AddGeometryColumn('ap_kpo_3d','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',3);
+			UPDATE ap_kpo_3d SET wkb_geometry=st_force3d(wkb_geometry_);
+			ALTER TABLE ap_kpo_3d DROP wkb_geometry_;
+			CREATE INDEX ap_kpo_3d_wkb_geometry_idx ON ap_kpo_3d USING gist(wkb_geometry);
+		END;
+		ALTER TABLE ap_kpo_3d ADD hatdirektunten character(16)[];
+		ALTER TABLE ap_kpo_3d ADD istabgeleitetaus character(16)[];
+		ALTER TABLE ap_kpo_3d ADD quellobjektid character varying;
+		ALTER TABLE ap_kpo_3d ADD traegtbeizu character(16)[];
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='ap_kpo_3d' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON ap_kpo_3d USING btree (detailliert)';
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='ap_kpo_3d' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON ap_kpo_3d USING btree (generalisiert)';
+
+		CREATE INDEX alkis_d6b7a61e_6156_4ba8_8156_60e222ebd41b ON ap_kpo_3d USING gin (hatdirektunten);
+
+		CREATE INDEX alkis_342110d9_51cf_495d_8fc4_d1e9766c655f ON ap_kpo_3d USING gin (istabgeleitetaus);
+
+		CREATE INDEX alkis_924cfe98_346b_404b_be60_abe877ba56b9 ON ap_kpo_3d USING gin (traegtbeizu);
+		ALTER TABLE ap_lpo ADD quellobjektid character varying;
+		ALTER TABLE ap_lto ADD quellobjektid character varying;
+		ALTER TABLE ap_ppo ADD quellobjektid character varying;
+		ALTER TABLE ap_pto ADD quellobjektid character varying;
+		ALTER TABLE au_koerperobjekt_3d DROP detailliert;
+		ALTER TABLE au_koerperobjekt_3d DROP generalisiert;
+		ALTER TABLE au_koerperobjekt_3d DROP levelofdetail;
+
+		-- au_koerperobjekt_3d.wkb_geometry -> wkb_geometry: geometry(Geometry,25832) => geometry(GeometryZ,25832)
+		BEGIN
+			ALTER TABLE au_koerperobjekt_3d DROP CONSTRAINT enforce_geotype_wkb_geometry;
+		EXCEPTION WHEN OTHERS THEN
+			ALTER TABLE au_koerperobjekt_3d RENAME wkb_geometry TO wkb_geometry_;
+			PERFORM AddGeometryColumn('au_koerperobjekt_3d','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',3);
+			UPDATE au_koerperobjekt_3d SET wkb_geometry=st_force3d(wkb_geometry_);
+			ALTER TABLE au_koerperobjekt_3d DROP wkb_geometry_;
+			CREATE INDEX au_koerperobjekt_3d_wkb_geometry_idx ON au_koerperobjekt_3d USING gist(wkb_geometry);
+		END;
+		ALTER TABLE au_koerperobjekt_3d ADD hatdirektunten character(16)[];
+		ALTER TABLE au_koerperobjekt_3d ADD istabgeleitetaus character(16)[];
+		ALTER TABLE au_koerperobjekt_3d ADD quellobjektid character varying;
+		ALTER TABLE au_koerperobjekt_3d ADD traegtbeizu character(16)[];
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='au_koerperobjekt_3d' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON au_koerperobjekt_3d USING btree (detailliert)';
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='au_koerperobjekt_3d' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON au_koerperobjekt_3d USING btree (generalisiert)';
+
+		CREATE INDEX alkis_b2a32041_99be_44be_8cdc_8fd8409a3d7c ON au_koerperobjekt_3d USING gin (hatdirektunten);
+
+		CREATE INDEX alkis_78e416f4_4069_47b7_a2f4_5c8fd3265af4 ON au_koerperobjekt_3d USING gin (istabgeleitetaus);
+
+		CREATE INDEX alkis_7790900a_79f6_4251_bfa2_761edaea12f9 ON au_koerperobjekt_3d USING gin (traegtbeizu);
+		ALTER TABLE au_mehrfachlinienobjekt_3d DROP detailliert;
+		ALTER TABLE au_mehrfachlinienobjekt_3d DROP generalisiert;
+		ALTER TABLE au_mehrfachlinienobjekt_3d DROP levelofdetail;
+
+		-- au_mehrfachlinienobjekt_3d.wkb_geometry -> wkb_geometry: geometry(Geometry,25832) => geometry(GeometryZ,25832)
+		BEGIN
+			ALTER TABLE au_mehrfachlinienobjekt_3d DROP CONSTRAINT enforce_geotype_wkb_geometry;
+		EXCEPTION WHEN OTHERS THEN
+			ALTER TABLE au_mehrfachlinienobjekt_3d RENAME wkb_geometry TO wkb_geometry_;
+			PERFORM AddGeometryColumn('au_mehrfachlinienobjekt_3d','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',3);
+			UPDATE au_mehrfachlinienobjekt_3d SET wkb_geometry=st_force3d(wkb_geometry_);
+			ALTER TABLE au_mehrfachlinienobjekt_3d DROP wkb_geometry_;
+			CREATE INDEX au_mehrfachlinienobjekt_3d_wkb_geometry_idx ON au_mehrfachlinienobjekt_3d USING gist(wkb_geometry);
+		END;
+		ALTER TABLE au_mehrfachlinienobjekt_3d ADD hatdirektunten character(16)[];
+		ALTER TABLE au_mehrfachlinienobjekt_3d ADD istabgeleitetaus character(16)[];
+		ALTER TABLE au_mehrfachlinienobjekt_3d ADD quellobjektid character varying;
+		ALTER TABLE au_mehrfachlinienobjekt_3d ADD traegtbeizu character(16)[];
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='au_mehrfachlinienobjekt_3d' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON au_mehrfachlinienobjekt_3d USING btree (detailliert)';
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='au_mehrfachlinienobjekt_3d' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON au_mehrfachlinienobjekt_3d USING btree (generalisiert)';
+
+		CREATE INDEX alkis_e652a830_9051_45ce_9898_61e60861c9d8 ON au_mehrfachlinienobjekt_3d USING gin (hatdirektunten);
+
+		CREATE INDEX alkis_b4aab48f_af9a_486d_be45_fc6afd239658 ON au_mehrfachlinienobjekt_3d USING gin (istabgeleitetaus);
+
+		CREATE INDEX alkis_37313be5_cf09_47ea_a903_b4dc1aa3c3cb ON au_mehrfachlinienobjekt_3d USING gin (traegtbeizu);
+		ALTER TABLE au_punkthaufenobjekt_3d DROP detailliert;
+		ALTER TABLE au_punkthaufenobjekt_3d DROP generalisiert;
+		ALTER TABLE au_punkthaufenobjekt_3d DROP levelofdetail;
+
+		-- au_punkthaufenobjekt_3d.wkb_geometry -> wkb_geometry: geometry(Geometry,25832) => geometry(GeometryZ,25832)
+		BEGIN
+			ALTER TABLE au_punkthaufenobjekt_3d DROP CONSTRAINT enforce_geotype_wkb_geometry;
+		EXCEPTION WHEN OTHERS THEN
+			ALTER TABLE au_punkthaufenobjekt_3d RENAME wkb_geometry TO wkb_geometry_;
+			PERFORM AddGeometryColumn('au_punkthaufenobjekt_3d','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',3);
+			UPDATE au_punkthaufenobjekt_3d SET wkb_geometry=st_force3d(wkb_geometry_);
+			ALTER TABLE au_punkthaufenobjekt_3d DROP wkb_geometry_;
+			CREATE INDEX au_punkthaufenobjekt_3d_wkb_geometry_idx ON au_punkthaufenobjekt_3d USING gist(wkb_geometry);
+		END;
+		ALTER TABLE au_punkthaufenobjekt_3d ADD hatdirektunten character(16)[];
+		ALTER TABLE au_punkthaufenobjekt_3d ADD istabgeleitetaus character(16)[];
+		ALTER TABLE au_punkthaufenobjekt_3d ADD quellobjektid character varying;
+		ALTER TABLE au_punkthaufenobjekt_3d ADD traegtbeizu character(16)[];
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='au_punkthaufenobjekt_3d' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON au_punkthaufenobjekt_3d USING btree (detailliert)';
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='au_punkthaufenobjekt_3d' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON au_punkthaufenobjekt_3d USING btree (generalisiert)';
+
+		CREATE INDEX alkis_36153ea9_e3e7_480a_9655_2e33df4968ac ON au_punkthaufenobjekt_3d USING gin (hatdirektunten);
+
+		CREATE INDEX alkis_c23ebe80_c01a_4148_9d6e_56cca40019b5 ON au_punkthaufenobjekt_3d USING gin (istabgeleitetaus);
+
+		CREATE INDEX alkis_3b941314_8677_430e_9a0e_5162a93c6d3a ON au_punkthaufenobjekt_3d USING gin (traegtbeizu);
+		ALTER TABLE au_trianguliertesoberflaechenobjekt_3d DROP detailliert;
+		ALTER TABLE au_trianguliertesoberflaechenobjekt_3d DROP generalisiert;
+		ALTER TABLE au_trianguliertesoberflaechenobjekt_3d DROP levelofdetail;
+
+		-- au_trianguliertesoberflaechenobjekt_3d.wkb_geometry -> wkb_geometry: geometry(Geometry,25832) => geometry(GeometryZ,25832)
+		BEGIN
+			ALTER TABLE au_trianguliertesoberflaechenobjekt_3d DROP CONSTRAINT enforce_geotype_wkb_geometry;
+		EXCEPTION WHEN OTHERS THEN
+			ALTER TABLE au_trianguliertesoberflaechenobjekt_3d RENAME wkb_geometry TO wkb_geometry_;
+			PERFORM AddGeometryColumn('au_trianguliertesoberflaechenobjekt_3d','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',3);
+			UPDATE au_trianguliertesoberflaechenobjekt_3d SET wkb_geometry=st_force3d(wkb_geometry_);
+			ALTER TABLE au_trianguliertesoberflaechenobjekt_3d DROP wkb_geometry_;
+			CREATE INDEX au_trianguliertesoberflaechenobjekt_3d_wkb_geometry_idx ON au_trianguliertesoberflaechenobjekt_3d USING gist(wkb_geometry);
+		END;
+		ALTER TABLE au_trianguliertesoberflaechenobjekt_3d ADD hatdirektunten character(16)[];
+		ALTER TABLE au_trianguliertesoberflaechenobjekt_3d ADD istabgeleitetaus character(16)[];
+		ALTER TABLE au_trianguliertesoberflaechenobjekt_3d ADD quellobjektid character varying;
+		ALTER TABLE au_trianguliertesoberflaechenobjekt_3d ADD traegtbeizu character(16)[];
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='au_trianguliertesoberflaechenobjekt_3d' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON au_trianguliertesoberflaechenobjekt_3d USING btree (detailliert)';
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='au_trianguliertesoberflaechenobjekt_3d' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON au_trianguliertesoberflaechenobjekt_3d USING btree (generalisiert)';
+
+		CREATE INDEX alkis_c9493b33_a294_4596_ae6e_f5773fec57fb ON au_trianguliertesoberflaechenobjekt_3d USING gin (hatdirektunten);
+
+		CREATE INDEX alkis_382a224e_42a9_49b5_b8be_bfa0425f9668 ON au_trianguliertesoberflaechenobjekt_3d USING gin (istabgeleitetaus);
+
+		CREATE INDEX alkis_8cb5c81f_8c54_4e3f_88f5_f6ac068879b0 ON au_trianguliertesoberflaechenobjekt_3d USING gin (traegtbeizu);
+		ALTER TABLE au_umringobjekt_3d DROP detailliert;
+		ALTER TABLE au_umringobjekt_3d DROP generalisiert;
+		ALTER TABLE au_umringobjekt_3d DROP levelofdetail;
+
+		-- au_umringobjekt_3d.wkb_geometry -> wkb_geometry: geometry(Geometry,25832) => geometry(GeometryZ,25832)
+		BEGIN
+			ALTER TABLE au_umringobjekt_3d DROP CONSTRAINT enforce_geotype_wkb_geometry;
+		EXCEPTION WHEN OTHERS THEN
+			ALTER TABLE au_umringobjekt_3d RENAME wkb_geometry TO wkb_geometry_;
+			PERFORM AddGeometryColumn('au_umringobjekt_3d','wkb_geometry',find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'),'GEOMETRY',3);
+			UPDATE au_umringobjekt_3d SET wkb_geometry=st_force3d(wkb_geometry_);
+			ALTER TABLE au_umringobjekt_3d DROP wkb_geometry_;
+			CREATE INDEX au_umringobjekt_3d_wkb_geometry_idx ON au_umringobjekt_3d USING gist(wkb_geometry);
+		END;
+		ALTER TABLE au_umringobjekt_3d ADD hatdirektunten character(16)[];
+		ALTER TABLE au_umringobjekt_3d ADD istabgeleitetaus character(16)[];
+		ALTER TABLE au_umringobjekt_3d ADD quellobjektid character varying;
+		ALTER TABLE au_umringobjekt_3d ADD traegtbeizu character(16)[];
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='au_umringobjekt_3d' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON au_umringobjekt_3d USING btree (detailliert)';
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='au_umringobjekt_3d' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON au_umringobjekt_3d USING btree (generalisiert)';
+
+		CREATE INDEX alkis_ce2dc276_1f5e_4781_88f0_1240fa00b6fe ON au_umringobjekt_3d USING gin (hatdirektunten);
+
+		CREATE INDEX alkis_e62b483c_ab1b_4889_bb59_a8671c9a94a1 ON au_umringobjekt_3d USING gin (istabgeleitetaus);
+
+		CREATE INDEX alkis_66fc5c78_98f5_4f15_be2f_d86146d8c6db ON au_umringobjekt_3d USING gin (traegtbeizu);
+		ALTER TABLE ax_abgeleitetehoehenlinie DROP aktualitaetsstand;
+		ALTER TABLE ax_abgeleitetehoehenlinie DROP berechnungsdatum;
+		ALTER TABLE ax_abgeleitetehoehenlinie DROP berechnungsmethodehoehenlinie;
+		ALTER TABLE ax_abgeleitetehoehenlinie ADD aktualisierungsdatum date;
+		ALTER TABLE ax_abgeleitetehoehenlinie ADD datetime character(20)[];
+		ALTER TABLE ax_abgeleitetehoehenlinie ADD erfassungsdatum date NOT NULL;
+		ALTER TABLE ax_abgeleitetehoehenlinie ADD evaluationmethoddescription character varying;
+		ALTER TABLE ax_abgeleitetehoehenlinie ADD evaluationmethodtype character varying;
+		ALTER TABLE ax_abgeleitetehoehenlinie ADD evaluationprocedure character varying;
+		ALTER TABLE ax_abgeleitetehoehenlinie ADD massstabszahl integer NOT NULL;
+		ALTER TABLE ax_abgeleitetehoehenlinie ADD measuredescription character varying;
+		ALTER TABLE ax_abgeleitetehoehenlinie ADD measureidentification character varying;
+		ALTER TABLE ax_abgeleitetehoehenlinie ADD nameofmeasure character varying[];
+		ALTER TABLE ax_abgeleitetehoehenlinie ADD quellobjektid character varying;
+		ALTER TABLE ax_abgeleitetehoehenlinie ADD result character varying[];
+		ALTER TABLE ax_abschnitt ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_abschnitt ADD hat3d character(16)[];
+		ALTER TABLE ax_abschnitt ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_f6e012ce_85b9_4fa7_b943_543ae79e7144 ON ax_abschnitt USING gin (hat3d);
+		ALTER TABLE ax_anderefestlegungnachstrassenrecht ADD quellobjektid character varying;
+		ALTER TABLE ax_anderefestlegungnachwasserrecht ADD quellobjektid character varying;
+		ALTER TABLE ax_anschrift ADD quellobjektid character varying;
+		ALTER TABLE ax_ast ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_ast ADD hat3d character(16)[];
+		ALTER TABLE ax_ast ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_5abd68a6_e0b1_425a_a253_da4e9999e1bf ON ax_ast USING gin (hat3d);
+		ALTER TABLE ax_aufnahmepunkt ADD quellobjektid character varying;
+
+		-- ax_bahnstrecke.spurweite -> spurweite: integer => integer[]
+
+		ALTER TABLE ax_bahnstrecke ALTER spurweite TYPE integer[] USING CASE WHEN spurweite IS NULL THEN NULL ELSE ARRAY[spurweite] END;
+
+		-- ax_bahnstrecke.zweitname -> zweitname: character varying => character varying[]
+
+		ALTER TABLE ax_bahnstrecke ALTER zweitname TYPE character varying[] USING CASE WHEN zweitname IS NULL THEN NULL ELSE ARRAY[zweitname] END;
+		ALTER TABLE ax_bahnstrecke ADD nummerderlinie character varying[];
+		ALTER TABLE ax_bahnstrecke ADD quellobjektid character varying;
+		ALTER TABLE ax_bahnstrecke ADD verkehrsdienst integer;
+		ALTER TABLE ax_bahnverkehr ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_bahnverkehr ADD istweiterenutzung integer;
+		ALTER TABLE ax_bahnverkehr ADD quellobjektid character varying;
+		ALTER TABLE ax_bahnverkehrsanlage ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_bahnverkehrsanlage ADD hat3d character(16)[];
+		ALTER TABLE ax_bahnverkehrsanlage ADD quellobjektid character varying;
+		ALTER TABLE ax_bahnverkehrsanlage ADD verkehrsdienst integer;
+
+		CREATE INDEX alkis_2b51bd36_d39f_4d67_892f_cc7bc3c5fb2b ON ax_bahnverkehrsanlage USING gin (hat3d);
+		ALTER TABLE ax_baublock ADD quellobjektid character varying;
+		ALTER TABLE ax_bauraumoderbodenordnungsrecht ADD quellobjektid character varying;
+		ALTER TABLE ax_bauteil ADD anzahlderunterirdischengeschosse integer;
+		ALTER TABLE ax_bauteil ADD dachart character varying;
+		ALTER TABLE ax_bauteil ADD hat character(16)[];
+		ALTER TABLE ax_bauteil ADD herkunft_source_source_ax_datenerhebung character varying[];
+		ALTER TABLE ax_bauteil ADD herkunft_source_source_scaledenominator character varying[];
+		ALTER TABLE ax_bauteil ADD herkunft_source_source_sourceextent character varying[];
+		ALTER TABLE ax_bauteil ADD herkunft_source_source_sourcereferencesystem character varying[];
+		ALTER TABLE ax_bauteil ADD herkunft_source_source_sourcestep character varying[];
+		ALTER TABLE ax_bauteil ADD hoehe double precision[];
+		ALTER TABLE ax_bauteil ADD obererbezugspunkt integer[];
+		ALTER TABLE ax_bauteil ADD processstep_address character varying[];
+		ALTER TABLE ax_bauteil ADD processstep_ax_datenerhebung character varying[];
+		ALTER TABLE ax_bauteil ADD processstep_ax_li_processstep_mitdatenerhebung_description character varying[];
+		ALTER TABLE ax_bauteil ADD processstep_contactinstructions character varying[];
+		ALTER TABLE ax_bauteil ADD processstep_datetime character(20)[];
+		ALTER TABLE ax_bauteil ADD processstep_hoursofservice character varying[];
+		ALTER TABLE ax_bauteil ADD processstep_individualname character varying[];
+		ALTER TABLE ax_bauteil ADD processstep_onlineresource character varying[];
+		ALTER TABLE ax_bauteil ADD processstep_organisationname character varying[];
+		ALTER TABLE ax_bauteil ADD processstep_phone character varying[];
+		ALTER TABLE ax_bauteil ADD processstep_positionname character varying[];
+		ALTER TABLE ax_bauteil ADD processstep_rationale character varying[];
+		ALTER TABLE ax_bauteil ADD processstep_role character varying[];
+		ALTER TABLE ax_bauteil ADD processstep_scaledenominator character varying[];
+		ALTER TABLE ax_bauteil ADD processstep_sourceextent character varying[];
+		ALTER TABLE ax_bauteil ADD processstep_sourcereferencesystem character varying[];
+		ALTER TABLE ax_bauteil ADD processstep_sourcestep character varying[];
+		ALTER TABLE ax_bauteil ADD quellobjektid character varying;
+		ALTER TABLE ax_bauteil ADD statement character varying;
+		ALTER TABLE ax_bauteil ADD umbauterraum double precision;
+		ALTER TABLE ax_bauteil ADD untererbezugspunkt integer[];
+
+		CREATE INDEX alkis_3c25d20d_aedf_42cf_8bdf_0170a19c42c0 ON ax_bauteil USING gin (hat);
+		ALTER TABLE ax_bauwerkimgewaesserbereich ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_bauwerkimgewaesserbereich ADD hat3d character(16)[];
+		ALTER TABLE ax_bauwerkimgewaesserbereich ADD hoehe double precision[];
+		ALTER TABLE ax_bauwerkimgewaesserbereich ADD obererbezugspunkt integer[];
+		ALTER TABLE ax_bauwerkimgewaesserbereich ADD quellobjektid character varying;
+		ALTER TABLE ax_bauwerkimgewaesserbereich ADD regionalsprache character varying[];
+		ALTER TABLE ax_bauwerkimgewaesserbereich ADD untererbezugspunkt integer[];
+
+		CREATE INDEX alkis_98fd6e12_1577_4113_986c_0d782f9b85ed ON ax_bauwerkimgewaesserbereich USING gin (hat3d);
+		ALTER TABLE ax_bauwerkimverkehrsbereich ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_bauwerkimverkehrsbereich ADD hat3d character(16)[];
+		ALTER TABLE ax_bauwerkimverkehrsbereich ADD hoehe double precision[];
+		ALTER TABLE ax_bauwerkimverkehrsbereich ADD obererbezugspunkt integer[];
+		ALTER TABLE ax_bauwerkimverkehrsbereich ADD quellobjektid character varying;
+		ALTER TABLE ax_bauwerkimverkehrsbereich ADD untererbezugspunkt integer[];
+
+		CREATE INDEX alkis_08e00bcf_171c_4e07_96dc_f34523e0817b ON ax_bauwerkimverkehrsbereich USING gin (hat3d);
+		ALTER TABLE ax_bauwerkoderanlagefuerindustrieundgewerbe DROP objekthoehe;
+		ALTER TABLE ax_bauwerkoderanlagefuerindustrieundgewerbe ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_bauwerkoderanlagefuerindustrieundgewerbe ADD hat3d character(16)[];
+		ALTER TABLE ax_bauwerkoderanlagefuerindustrieundgewerbe ADD hoehe double precision[];
+		ALTER TABLE ax_bauwerkoderanlagefuerindustrieundgewerbe ADD obererbezugspunkt integer[];
+		ALTER TABLE ax_bauwerkoderanlagefuerindustrieundgewerbe ADD quellobjektid character varying;
+		ALTER TABLE ax_bauwerkoderanlagefuerindustrieundgewerbe ADD untererbezugspunkt integer[];
+
+		CREATE INDEX alkis_b2274f31_b02d_4cea_b379_0b67ef9b6b95 ON ax_bauwerkoderanlagefuerindustrieundgewerbe USING gin (hat3d);
+
+		-- ax_bauwerkoderanlagefuersportfreizeitunderholung.sportart -> sportart: integer => integer[]
+
+		ALTER TABLE ax_bauwerkoderanlagefuersportfreizeitunderholung ALTER sportart TYPE integer[] USING CASE WHEN sportart IS NULL THEN NULL ELSE ARRAY[sportart] END;
+		ALTER TABLE ax_bauwerkoderanlagefuersportfreizeitunderholung ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_bauwerkoderanlagefuersportfreizeitunderholung ADD hat3d character(16)[];
+		ALTER TABLE ax_bauwerkoderanlagefuersportfreizeitunderholung ADD hoehe double precision[];
+		ALTER TABLE ax_bauwerkoderanlagefuersportfreizeitunderholung ADD obererbezugspunkt integer[];
+		ALTER TABLE ax_bauwerkoderanlagefuersportfreizeitunderholung ADD quellobjektid character varying;
+		ALTER TABLE ax_bauwerkoderanlagefuersportfreizeitunderholung ADD untererbezugspunkt integer[];
+		ALTER TABLE ax_bauwerkoderanlagefuersportfreizeitunderholung ADD zustand integer;
+
+		CREATE INDEX alkis_1a3a5b27_06c5_4210_9f25_537173a1b6ea ON ax_bauwerkoderanlagefuersportfreizeitunderholung USING gin (hat3d);
+		ALTER TABLE ax_benutzer ADD quellobjektid character varying;
+		ALTER TABLE ax_benutzergruppemitzugriffskontrolle ADD quellobjektid character varying;
+		ALTER TABLE ax_benutzergruppenba ADD abgabeversion character varying NOT NULL;
+		ALTER TABLE ax_benutzergruppenba ADD quellobjektid character varying;
+		ALTER TABLE ax_bergbaubetrieb ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_bergbaubetrieb ADD funktion integer;
+		ALTER TABLE ax_bergbaubetrieb ADD istweiterenutzung integer;
+		ALTER TABLE ax_bergbaubetrieb ADD quellobjektid character varying;
+		ALTER TABLE ax_besondereflurstuecksgrenze ADD quellobjektid character varying;
+		ALTER TABLE ax_besonderegebaeudelinie ADD quellobjektid character varying;
+		ALTER TABLE ax_besondererbauwerkspunkt ADD art integer;
+		ALTER TABLE ax_besondererbauwerkspunkt ADD hoehe double precision[];
+		ALTER TABLE ax_besondererbauwerkspunkt ADD obererbezugspunkt integer[];
+		ALTER TABLE ax_besondererbauwerkspunkt ADD quellobjektid character varying;
+		ALTER TABLE ax_besondererbauwerkspunkt ADD untererbezugspunkt integer[];
+		ALTER TABLE ax_besonderergebaeudepunkt ADD hoehe double precision[];
+		ALTER TABLE ax_besonderergebaeudepunkt ADD obererbezugspunkt integer[];
+		ALTER TABLE ax_besonderergebaeudepunkt ADD quellobjektid character varying;
+		ALTER TABLE ax_besonderergebaeudepunkt ADD untererbezugspunkt integer[];
+		ALTER TABLE ax_besonderertopographischerpunkt ADD quellobjektid character varying;
+		ALTER TABLE ax_bewertung DROP herkunft_source_source_ax_datenerhebung;
+		ALTER TABLE ax_bewertung DROP herkunft_source_source_scaledenominator;
+		ALTER TABLE ax_bewertung DROP herkunft_source_source_sourceextent;
+		ALTER TABLE ax_bewertung DROP herkunft_source_source_sourcereferencesystem;
+		ALTER TABLE ax_bewertung DROP herkunft_source_source_sourcestep;
+		ALTER TABLE ax_bewertung DROP processstep_address;
+		ALTER TABLE ax_bewertung DROP processstep_ax_datenerhebung;
+		ALTER TABLE ax_bewertung DROP processstep_ax_li_processstep_mitdatenerhebung_description;
+		ALTER TABLE ax_bewertung DROP processstep_contactinstructions;
+		ALTER TABLE ax_bewertung DROP processstep_datetime;
+		ALTER TABLE ax_bewertung DROP processstep_hoursofservice;
+		ALTER TABLE ax_bewertung DROP processstep_individualname;
+		ALTER TABLE ax_bewertung DROP processstep_onlineresource;
+		ALTER TABLE ax_bewertung DROP processstep_organisationname;
+		ALTER TABLE ax_bewertung DROP processstep_phone;
+		ALTER TABLE ax_bewertung DROP processstep_positionname;
+		ALTER TABLE ax_bewertung DROP processstep_rationale;
+		ALTER TABLE ax_bewertung DROP processstep_role;
+		ALTER TABLE ax_bewertung DROP processstep_scaledenominator;
+		ALTER TABLE ax_bewertung DROP processstep_sourceextent;
+		ALTER TABLE ax_bewertung DROP processstep_sourcereferencesystem;
+		ALTER TABLE ax_bewertung DROP processstep_sourcestep;
+		ALTER TABLE ax_bewertung DROP statement;
+		ALTER TABLE ax_bewertung ADD quellobjektid character varying;
+		ALTER TABLE ax_bodenschaetzung DROP entstehungsartoderklimastufewasserverhaeltnisse;
+		ALTER TABLE ax_bodenschaetzung DROP herkunft_source_source_ax_datenerhebung;
+		ALTER TABLE ax_bodenschaetzung DROP herkunft_source_source_scaledenominator;
+		ALTER TABLE ax_bodenschaetzung DROP herkunft_source_source_sourceextent;
+		ALTER TABLE ax_bodenschaetzung DROP herkunft_source_source_sourcereferencesystem;
+		ALTER TABLE ax_bodenschaetzung DROP herkunft_source_source_sourcestep;
+		ALTER TABLE ax_bodenschaetzung DROP kulturart;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_address;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_ax_datenerhebung;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_ax_li_processstep_mitdatenerhebung_description;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_contactinstructions;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_datetime;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_hoursofservice;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_individualname;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_onlineresource;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_organisationname;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_phone;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_positionname;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_rationale;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_role;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_scaledenominator;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_sourceextent;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_sourcereferencesystem;
+		ALTER TABLE ax_bodenschaetzung DROP processstep_sourcestep;
+		ALTER TABLE ax_bodenschaetzung DROP statement;
+		ALTER TABLE ax_bodenschaetzung DROP zustandsstufeoderbodenstufe;
+		ALTER TABLE ax_bodenschaetzung ADD bodenstufe integer;
+		ALTER TABLE ax_bodenschaetzung ADD entstehungsart integer[];
+		ALTER TABLE ax_bodenschaetzung ADD klimastufe integer;
+		ALTER TABLE ax_bodenschaetzung ADD nutzungsart integer NOT NULL;
+		ALTER TABLE ax_bodenschaetzung ADD quellobjektid character varying;
+		ALTER TABLE ax_bodenschaetzung ADD wasserverhaeltnisse integer;
+		ALTER TABLE ax_bodenschaetzung ADD wirdbeschrieben character(16)[];
+		ALTER TABLE ax_bodenschaetzung ADD zustandsstufe integer;
+
+		CREATE INDEX alkis_52e4b2b3_296f_4bb7_b9a7_08b96d035ff4 ON ax_bodenschaetzung USING gin (wirdbeschrieben);
+		ALTER TABLE ax_boeschungkliff ADD quellobjektid character varying;
+		ALTER TABLE ax_boeschungsflaeche ADD quellobjektid character varying;
+		ALTER TABLE ax_buchungsblatt ADD quellobjektid character varying;
+		ALTER TABLE ax_buchungsblattbezirk ADD einwohnerzahl integer;
+		ALTER TABLE ax_buchungsblattbezirk ADD historisch character varying;
+		ALTER TABLE ax_buchungsblattbezirk ADD quellobjektid character varying;
+		ALTER TABLE ax_buchungsblattbezirk ADD regionalsprache character varying[];
+
+		-- ax_buchungsstelle.wirdverwaltetvon -> wirdverwaltetvon: character(16) => character(16)[]
+
+		ALTER TABLE ax_buchungsstelle ALTER wirdverwaltetvon TYPE character(16)[] USING CASE WHEN wirdverwaltetvon IS NULL THEN NULL ELSE ARRAY[wirdverwaltetvon] END;
+		ALTER TABLE ax_buchungsstelle ADD eingangdeseintragungsantrags date;
+		ALTER TABLE ax_buchungsstelle ADD quellobjektid character varying;
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='ax_buchungsstelle' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON ax_buchungsstelle USING btree (wirdverwaltetvon)';
+
+		CREATE INDEX alkis_8e02a148_7e37_4425_9429_123327cd3997 ON ax_buchungsstelle USING gin (wirdverwaltetvon);
+		ALTER TABLE ax_bundesland ADD einwohnerzahl integer;
+		ALTER TABLE ax_bundesland ADD historisch character varying;
+		ALTER TABLE ax_bundesland ADD quellobjektid character varying;
+		ALTER TABLE ax_bundesland ADD regionalsprache character varying[];
+		ALTER TABLE ax_dammwalldeich ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_dammwalldeich ADD quellobjektid character varying;
+		ALTER TABLE ax_denkmalschutzrecht ADD quellobjektid character varying;
+		ALTER TABLE ax_dienststelle ADD einwohnerzahl integer;
+		ALTER TABLE ax_dienststelle ADD historisch character varying;
+		ALTER TABLE ax_dienststelle ADD quellobjektid character varying;
+		ALTER TABLE ax_dienststelle ADD regionalsprache character varying[];
+		ALTER TABLE ax_duene ADD quellobjektid character varying;
+		ALTER TABLE ax_einrichtungenfuerdenschiffsverkehr ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_einrichtungenfuerdenschiffsverkehr ADD hat3d character(16)[];
+		ALTER TABLE ax_einrichtungenfuerdenschiffsverkehr ADD quellobjektid character varying;
+		ALTER TABLE ax_einrichtungenfuerdenschiffsverkehr ADD zustand integer;
+
+		CREATE INDEX alkis_0a925fab_2c89_4de8_85dc_349191bbf5ad ON ax_einrichtungenfuerdenschiffsverkehr USING gin (hat3d);
+		ALTER TABLE ax_einrichtunginoeffentlichenbereichen ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_einrichtunginoeffentlichenbereichen ADD hat3d character(16)[];
+		ALTER TABLE ax_einrichtunginoeffentlichenbereichen ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_bb0cb7d2_6d48_4654_b78c_efa5db1aa526 ON ax_einrichtunginoeffentlichenbereichen USING gin (hat3d);
+		ALTER TABLE ax_einschnitt ADD quellobjektid character varying;
+		ALTER TABLE ax_fahrbahnachse ADD fahrtrichtung character varying;
+		ALTER TABLE ax_fahrbahnachse ADD quellobjektid character varying;
+
+		-- ax_fahrwegachse.markierung -> markierung: integer => integer[]
+
+		ALTER TABLE ax_fahrwegachse ALTER markierung TYPE integer[] USING CASE WHEN markierung IS NULL THEN NULL ELSE ARRAY[markierung] END;
+
+		-- ax_fahrwegachse.zweitname -> zweitname: character varying => character varying[]
+
+		ALTER TABLE ax_fahrwegachse ALTER zweitname TYPE character varying[] USING CASE WHEN zweitname IS NULL THEN NULL ELSE ARRAY[zweitname] END;
+		ALTER TABLE ax_fahrwegachse ADD befahrbarkeit integer;
+		ALTER TABLE ax_fahrwegachse ADD fahrtrichtung character varying;
+		ALTER TABLE ax_fahrwegachse ADD quellobjektid character varying;
+		ALTER TABLE ax_fahrwegachse ADD regionalsprache character varying[];
+		ALTER TABLE ax_felsenfelsblockfelsnadel ADD quellobjektid character varying;
+		ALTER TABLE ax_firstlinie ADD quellobjektid character varying;
+		ALTER TABLE ax_flaechebesondererfunktionalerpraegung ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_flaechebesondererfunktionalerpraegung ADD istweiterenutzung integer;
+		ALTER TABLE ax_flaechebesondererfunktionalerpraegung ADD quellobjektid character varying;
+		ALTER TABLE ax_flaechegemischternutzung ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_flaechegemischternutzung ADD istweiterenutzung integer;
+		ALTER TABLE ax_flaechegemischternutzung ADD quellobjektid character varying;
+		ALTER TABLE ax_fliessgewaesser ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_fliessgewaesser ADD istweiterenutzung integer;
+		ALTER TABLE ax_fliessgewaesser ADD quellobjektid character varying;
+		ALTER TABLE ax_flugverkehr ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_flugverkehr ADD istweiterenutzung integer;
+		ALTER TABLE ax_flugverkehr ADD quellobjektid character varying;
+		ALTER TABLE ax_flugverkehr ADD zweitname character varying[];
+		ALTER TABLE ax_flugverkehrsanlage ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_flugverkehrsanlage ADD hat3d character(16)[];
+		ALTER TABLE ax_flugverkehrsanlage ADD quellobjektid character varying;
+		ALTER TABLE ax_flugverkehrsanlage ADD zustand integer;
+		ALTER TABLE ax_flugverkehrsanlage ADD zweitname character varying[];
+
+		CREATE INDEX alkis_cabe92ed_87d2_4c8f_91f2_30f7fd829632 ON ax_flugverkehrsanlage USING gin (hat3d);
+
+		ALTER TABLE ax_flurstueck ALTER gemeindezugehoerigkeit_gemeinde SET NOT NULL;
+
+		ALTER TABLE ax_flurstueck ALTER gemeindezugehoerigkeit_kreis SET NOT NULL;
+
+		ALTER TABLE ax_flurstueck ALTER gemeindezugehoerigkeit_land SET NOT NULL;
+
+		ALTER TABLE ax_flurstueck ALTER istgebucht SET NOT NULL;
+		ALTER TABLE ax_flurstueck ADD quellobjektid character varying;
+		ALTER TABLE ax_forstrecht ADD quellobjektid character varying;
+		ALTER TABLE ax_fortfuehrungsfall ADD quellobjektid character varying;
+		ALTER TABLE ax_fortfuehrungsfall ADD verweistauf_zusatzartderausgabe character varying;
+		ALTER TABLE ax_fortfuehrungsnachweisdeckblatt ADD quellobjektid character varying;
+		ALTER TABLE ax_fortfuehrungsnachweisdeckblatt ADD zusatzartderausgabe character varying;
+		ALTER TABLE ax_friedhof ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_friedhof ADD istweiterenutzung integer;
+		ALTER TABLE ax_friedhof ADD quellobjektid character varying;
+
+		-- ax_funktion_polder.wert -> wert: character varying => integer
+
+		ALTER TABLE ax_funktion_polder ALTER wert TYPE integer USING wert::int;
+
+		-- ax_gebaeude.gehoertzu -> gehoertzu: character(16) => character(16)[]
+
+		ALTER TABLE ax_gebaeude ALTER gehoertzu TYPE character(16)[] USING CASE WHEN gehoertzu IS NULL THEN NULL ELSE ARRAY[gehoertzu] END;
+		ALTER TABLE ax_gebaeude DROP objekthoehe;
+		ALTER TABLE ax_gebaeude ADD bestehtaus character(16)[];
+		ALTER TABLE ax_gebaeude ADD hoehe double precision[];
+		ALTER TABLE ax_gebaeude ADD obererbezugspunkt integer[];
+		ALTER TABLE ax_gebaeude ADD quellobjektid character varying;
+		ALTER TABLE ax_gebaeude ADD regionalsprache character varying[];
+		ALTER TABLE ax_gebaeude ADD untererbezugspunkt integer[];
+		ALTER TABLE ax_gebaeude ADD zeigtaufohne character(16);
+		ALTER TABLE ax_gebaeude ADD zweitname character varying[];
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='ax_gebaeude' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON ax_gebaeude USING btree (gehoertzu)';
+
+		CREATE INDEX alkis_08d9709c_c415_4861_9df3_8b2c0b71b07a ON ax_gebaeude USING btree (zeigtaufohne);
+
+		CREATE INDEX alkis_5f3ba7ac_403b_4cb7_83db_b5fbe1b5cde6 ON ax_gebaeude USING gin (bestehtaus);
+
+		CREATE INDEX alkis_debd37f6_1285_45b7_9cbd_5aeaeb6af309 ON ax_gebaeude USING gin (gehoertzu);
+		ALTER TABLE ax_gebaeudeausgestaltung ADD quellobjektid character varying;
+		ALTER TABLE ax_gebiet_bundesland ADD quellobjektid character varying;
+		ALTER TABLE ax_gebiet_kreis ADD quellobjektid character varying;
+		ALTER TABLE ax_gebiet_nationalstaat ADD quellobjektid character varying;
+		ALTER TABLE ax_gebiet_regierungsbezirk ADD quellobjektid character varying;
+		ALTER TABLE ax_gebiet_verwaltungsgemeinschaft ADD quellobjektid character varying;
+		ALTER TABLE ax_gebietsgrenze ADD quellobjektid character varying;
+		ALTER TABLE ax_gebietsgrenze ADD zustand integer;
+		ALTER TABLE ax_gehoelz ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_gehoelz ADD istweiterenutzung integer;
+		ALTER TABLE ax_gehoelz ADD quellobjektid character varying;
+		ALTER TABLE ax_gemarkung ADD einwohnerzahl integer;
+		ALTER TABLE ax_gemarkung ADD gemeindezugehoerigkeit_gemeinde character varying[];
+		ALTER TABLE ax_gemarkung ADD gemeindezugehoerigkeit_gemeindeteil character varying[];
+		ALTER TABLE ax_gemarkung ADD gemeindezugehoerigkeit_kreis character varying[];
+		ALTER TABLE ax_gemarkung ADD gemeindezugehoerigkeit_land character varying[];
+		ALTER TABLE ax_gemarkung ADD gemeindezugehoerigkeit_regierungsbezirk character varying[];
+		ALTER TABLE ax_gemarkung ADD historisch character varying;
+		ALTER TABLE ax_gemarkung ADD quellobjektid character varying;
+		ALTER TABLE ax_gemarkung ADD regionalsprache character varying[];
+		ALTER TABLE ax_gemarkungsteilflur ADD einwohnerzahl integer;
+		ALTER TABLE ax_gemarkungsteilflur ADD historisch character varying;
+		ALTER TABLE ax_gemarkungsteilflur ADD quellobjektid character varying;
+		ALTER TABLE ax_gemarkungsteilflur ADD regionalsprache character varying[];
+		ALTER TABLE ax_gemeinde ADD einwohnerzahl integer;
+		ALTER TABLE ax_gemeinde ADD historisch character varying;
+		ALTER TABLE ax_gemeinde ADD quellobjektid character varying;
+		ALTER TABLE ax_gemeinde ADD regionalsprache character varying[];
+		ALTER TABLE ax_gemeinde ADD rolle integer[];
+		ALTER TABLE ax_gemeinde ADD schluessel_kreis character varying[];
+		ALTER TABLE ax_gemeinde ADD schluessel_land character varying[];
+		ALTER TABLE ax_gemeinde ADD schluessel_regierungsbezirk character varying[];
+		ALTER TABLE ax_gemeinde ADD schluessel_verwaltungsgemeinschaft character varying[];
+		ALTER TABLE ax_gemeindeteil ADD einwohnerzahl integer;
+		ALTER TABLE ax_gemeindeteil ADD historisch character varying;
+		ALTER TABLE ax_gemeindeteil ADD quellobjektid character varying;
+		ALTER TABLE ax_gemeindeteil ADD regionalsprache character varying[];
+		ALTER TABLE ax_georeferenziertegebaeudeadresse DROP datensatznummer;
+		ALTER TABLE ax_georeferenziertegebaeudeadresse DROP hatauch;
+
+		ALTER TABLE ax_georeferenziertegebaeudeadresse ALTER hausnummer DROP NOT NULL;
+		ALTER TABLE ax_georeferenziertegebaeudeadresse ADD ortsteilpost character varying;
+		ALTER TABLE ax_georeferenziertegebaeudeadresse ADD quellobjektid character varying;
+		ALTER TABLE ax_georeferenziertegebaeudeadresse ADD verweistauf character(16);
+		ALTER TABLE ax_georeferenziertegebaeudeadresse ADD weistauf character(16);
+		ALTER TABLE ax_georeferenziertegebaeudeadresse ADD zeigtauf character(16);
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='ax_georeferenziertegebaeudeadresse' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON ax_georeferenziertegebaeudeadresse USING btree (hatauch)';
+
+		CREATE INDEX alkis_b42e4444_55df_473e_be1e_2fa165c1eb32 ON ax_georeferenziertegebaeudeadresse USING btree (verweistauf);
+
+		CREATE INDEX alkis_56c415c1_a1a3_426f_ba94_4efe3ef02da0 ON ax_georeferenziertegebaeudeadresse USING btree (weistauf);
+
+		CREATE INDEX alkis_42670524_c047_480e_9112_e0a7e37607c0 ON ax_georeferenziertegebaeudeadresse USING btree (zeigtauf);
+
+		ALTER TABLE ax_gewaesserachse ALTER breitedesgewaessers SET NOT NULL;
+		ALTER TABLE ax_gewaesserachse ADD quellobjektid character varying;
+		ALTER TABLE ax_gewaessermerkmal ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_gewaessermerkmal ADD hat3d character(16)[];
+		ALTER TABLE ax_gewaessermerkmal ADD quellobjektid character varying;
+		ALTER TABLE ax_gewaessermerkmal ADD regionalsprache character varying[];
+		ALTER TABLE ax_gewaessermerkmal ADD zweitname character varying[];
+
+		CREATE INDEX alkis_117136ba_ba5a_43ce_b418_56c3e689bbb0 ON ax_gewaessermerkmal USING gin (hat3d);
+		ALTER TABLE ax_gewaesserstationierungsachse DROP artdergewaesserachse;
+
+		-- ax_gewaesserstationierungsachse.zweitname -> zweitname: character varying => character varying[]
+
+		ALTER TABLE ax_gewaesserstationierungsachse ALTER zweitname TYPE character varying[] USING CASE WHEN zweitname IS NULL THEN NULL ELSE ARRAY[zweitname] END;
+		ALTER TABLE ax_gewaesserstationierungsachse ADD artdergewaesserstationierungsachse integer;
+		ALTER TABLE ax_gewaesserstationierungsachse ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_gewaesserstationierungsachse ADD hat3d character(16)[];
+		ALTER TABLE ax_gewaesserstationierungsachse ADD quellobjektid character varying;
+		ALTER TABLE ax_gewaesserstationierungsachse ADD regionalsprache character varying[];
+		ALTER TABLE ax_gewaesserstationierungsachse ADD schifffahrtskategorie integer;
+
+		CREATE INDEX alkis_1f8f3589_f15b_4630_abb4_2677a9d9e3e4 ON ax_gewaesserstationierungsachse USING gin (hat3d);
+		ALTER TABLE ax_gewann ADD quellobjektid character varying;
+		ALTER TABLE ax_gleis ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_gleis ADD hat3d character(16)[];
+		ALTER TABLE ax_gleis ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_38f6f3d6_7eb0_4c8b_abe3_f16e84aa7070 ON ax_gleis USING gin (hat3d);
+		ALTER TABLE ax_grablochderbodenschaetzung DROP bodenzahlodergruenlandgrundzahl;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP herkunft_source_source_ax_datenerhebung;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP herkunft_source_source_scaledenominator;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP herkunft_source_source_sourceextent;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP herkunft_source_source_sourcereferencesystem;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP herkunft_source_source_sourcestep;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP kennziffer_gemarkungsnummer;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP kennziffer_land;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP kennziffer_nummerierungsbezirk;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_address;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_ax_datenerhebung;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_ax_li_processstep_mitdatenerhebung_description;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_contactinstructions;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_datetime;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_hoursofservice;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_individualname;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_onlineresource;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_organisationname;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_phone;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_positionname;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_rationale;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_role;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_scaledenominator;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_sourceextent;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_sourcereferencesystem;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP processstep_sourcestep;
+		ALTER TABLE ax_grablochderbodenschaetzung DROP statement;
+		ALTER TABLE ax_grablochderbodenschaetzung ADD beschreibt character(16)[];
+		ALTER TABLE ax_grablochderbodenschaetzung ADD bestimmt character(16);
+		ALTER TABLE ax_grablochderbodenschaetzung ADD bodenzahlodergruenlandgrundzahlgrabloch character varying;
+		ALTER TABLE ax_grablochderbodenschaetzung ADD folgenummer integer;
+		ALTER TABLE ax_grablochderbodenschaetzung ADD gemarkungsnummer character varying NOT NULL;
+		ALTER TABLE ax_grablochderbodenschaetzung ADD kennungderflaeche character varying;
+		ALTER TABLE ax_grablochderbodenschaetzung ADD kennungdesgrablochs character varying NOT NULL;
+		ALTER TABLE ax_grablochderbodenschaetzung ADD kennzeichen character varying NOT NULL;
+		ALTER TABLE ax_grablochderbodenschaetzung ADD land character varying NOT NULL;
+		ALTER TABLE ax_grablochderbodenschaetzung ADD nummerderflaeche character varying;
+		ALTER TABLE ax_grablochderbodenschaetzung ADD nummerderteilflaeche character varying;
+		ALTER TABLE ax_grablochderbodenschaetzung ADD nummerdesordnungsmerkmals character varying NOT NULL;
+		ALTER TABLE ax_grablochderbodenschaetzung ADD ordnungsmerkmaldesgrablochs character varying NOT NULL;
+		ALTER TABLE ax_grablochderbodenschaetzung ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_eb0ce1bf_1fa6_4204_97e6_3ba0dc0b839e ON ax_grablochderbodenschaetzung USING btree (bestimmt);
+
+		CREATE INDEX alkis_86270598_fe06_4e07_a574_3b1e5ab2edc3 ON ax_grablochderbodenschaetzung USING gin (beschreibt);
+		ALTER TABLE ax_grenzpunkt ADD quellobjektid character varying;
+		ALTER TABLE ax_grenzuebergang ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_grenzuebergang ADD hat3d character(16)[];
+		ALTER TABLE ax_grenzuebergang ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_07f157c0_2ab8_473e_a2fa_dbbebc01e122 ON ax_grenzuebergang USING gin (hat3d);
+		ALTER TABLE ax_hafen ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_hafen ADD hat3d character(16)[];
+		ALTER TABLE ax_hafen ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_e62382e8_194d_4a3b_8153_ad053ba918c7 ON ax_hafen USING gin (hat3d);
+		ALTER TABLE ax_hafenbecken ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_hafenbecken ADD istweiterenutzung integer;
+		ALTER TABLE ax_hafenbecken ADD quellobjektid character varying;
+		ALTER TABLE ax_hafenbecken ADD seekennzahl character varying;
+		ALTER TABLE ax_halde ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_halde ADD istweiterenutzung integer;
+		ALTER TABLE ax_halde ADD quellobjektid character varying;
+		ALTER TABLE ax_heide ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_heide ADD istweiterenutzung integer;
+		ALTER TABLE ax_heide ADD quellobjektid character varying;
+		ALTER TABLE ax_heilquellegasquelle ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_heilquellegasquelle ADD hat3d character(16)[];
+		ALTER TABLE ax_heilquellegasquelle ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_e709ba0d_74e2_49ea_8f54_abe879127637 ON ax_heilquellegasquelle USING gin (hat3d);
+		ALTER TABLE ax_historischesbauwerkoderhistorischeeinrichtung ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_historischesbauwerkoderhistorischeeinrichtung ADD hat3d character(16)[];
+		ALTER TABLE ax_historischesbauwerkoderhistorischeeinrichtung ADD hoehe double precision[];
+		ALTER TABLE ax_historischesbauwerkoderhistorischeeinrichtung ADD obererbezugspunkt integer[];
+		ALTER TABLE ax_historischesbauwerkoderhistorischeeinrichtung ADD quellobjektid character varying;
+		ALTER TABLE ax_historischesbauwerkoderhistorischeeinrichtung ADD untererbezugspunkt integer[];
+
+		CREATE INDEX alkis_3b5d7047_7010_47b2_888d_575440af6c4f ON ax_historischesbauwerkoderhistorischeeinrichtung USING gin (hat3d);
+
+		ALTER TABLE ax_historischesflurstueck ALTER gemeindezugehoerigkeit_gemeinde SET NOT NULL;
+
+		ALTER TABLE ax_historischesflurstueck ALTER gemeindezugehoerigkeit_kreis SET NOT NULL;
+
+		ALTER TABLE ax_historischesflurstueck ALTER gemeindezugehoerigkeit_land SET NOT NULL;
+		ALTER TABLE ax_historischesflurstueck ADD quellobjektid character varying;
+		ALTER TABLE ax_historischesflurstueckalb ADD quellobjektid character varying;
+
+		ALTER TABLE ax_historischesflurstueckohneraumbezug ALTER gemeindezugehoerigkeit_gemeinde SET NOT NULL;
+
+		ALTER TABLE ax_historischesflurstueckohneraumbezug ALTER gemeindezugehoerigkeit_kreis SET NOT NULL;
+
+		ALTER TABLE ax_historischesflurstueckohneraumbezug ALTER gemeindezugehoerigkeit_land SET NOT NULL;
+		ALTER TABLE ax_historischesflurstueckohneraumbezug DROP istgebucht;
+		ALTER TABLE ax_historischesflurstueckohneraumbezug ADD isthistgebucht character(16);
+		ALTER TABLE ax_historischesflurstueckohneraumbezug ADD quellobjektid character varying;
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='ax_historischesflurstueckohneraumbezug' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON ax_historischesflurstueckohneraumbezug USING btree (istgebucht)';
+
+		CREATE INDEX alkis_b13b28e1_d8de_4e41_86e7_dbc4d4026235 ON ax_historischesflurstueckohneraumbezug USING btree (isthistgebucht);
+		ALTER TABLE ax_hoehenfestpunkt DROP gemarkung_gemarkungsnummer;
+		ALTER TABLE ax_hoehenfestpunkt DROP gemarkung_land;
+		ALTER TABLE ax_hoehenfestpunkt RENAME gemeinde TO gemeinde_gemeinde;
+		ALTER TABLE ax_hoehenfestpunkt RENAME kreis TO gemeinde_kreis;
+		ALTER TABLE ax_hoehenfestpunkt DROP topographieundumwelt;
+		ALTER TABLE ax_hoehenfestpunkt ADD erstvermarkung date;
+		ALTER TABLE ax_hoehenfestpunkt ADD gemarkungsnummer character varying;
+		ALTER TABLE ax_hoehenfestpunkt ADD land character varying;
+		ALTER TABLE ax_hoehenfestpunkt ADD nutzungextern character varying NOT NULL;
+		ALTER TABLE ax_hoehenfestpunkt ADD quellobjektid character varying;
+		ALTER TABLE ax_hoehenfestpunkt ADD topographieundumwelteinfluesse integer;
+		ALTER TABLE ax_hoehenfestpunkt ADD untergangsdatum date;
+		ALTER TABLE ax_hoehenfestpunkt ADD vermarkungsdatum date;
+		ALTER TABLE ax_hoehenlinie ADD quellobjektid character varying;
+		ALTER TABLE ax_hoehleneingang ADD quellobjektid character varying;
+		ALTER TABLE ax_hoehleneingang ADD zweitname character varying[];
+		ALTER TABLE ax_industrieundgewerbeflaeche ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_industrieundgewerbeflaeche ADD istweiterenutzung integer;
+		ALTER TABLE ax_industrieundgewerbeflaeche ADD quellobjektid character varying;
+		ALTER TABLE ax_insel ADD quellobjektid character varying;
+		ALTER TABLE ax_insel ADD regionalsprache character varying[];
+
+		-- ax_kanal.zweitname -> zweitname: character varying => character varying[]
+
+		ALTER TABLE ax_kanal ALTER zweitname TYPE character varying[] USING CASE WHEN zweitname IS NULL THEN NULL ELSE ARRAY[zweitname] END;
+		ALTER TABLE ax_kanal ADD quellobjektid character varying;
+		ALTER TABLE ax_kanal ADD regionalsprache character varying[];
+		ALTER TABLE ax_klassifizierungnachstrassenrecht ADD quellobjektid character varying;
+		ALTER TABLE ax_klassifizierungnachwasserrecht ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_klassifizierungnachwasserrecht ADD quellobjektid character varying;
+		ALTER TABLE ax_kleinraeumigerlandschaftsteil ADD quellobjektid character varying;
+		ALTER TABLE ax_kommunalesgebiet ADD quellobjektid character varying;
+		ALTER TABLE ax_kondominium ADD quellobjektid character varying;
+		ALTER TABLE ax_kreisregion ADD einwohnerzahl integer;
+		ALTER TABLE ax_kreisregion ADD historisch character varying;
+		ALTER TABLE ax_kreisregion ADD quellobjektid character varying;
+		ALTER TABLE ax_kreisregion ADD regionalsprache character varying[];
+		ALTER TABLE ax_lagebezeichnungkatalogeintrag ADD einwohnerzahl integer;
+		ALTER TABLE ax_lagebezeichnungkatalogeintrag ADD historisch character varying;
+		ALTER TABLE ax_lagebezeichnungkatalogeintrag ADD quellobjektid character varying;
+		ALTER TABLE ax_lagebezeichnungkatalogeintrag ADD regionalsprache character varying[];
+		ALTER TABLE ax_lagebezeichnungmithausnummer ADD quellobjektid character varying;
+		ALTER TABLE ax_lagebezeichnungmitpseudonummer ADD gehoertzupseudo character(16);
+		ALTER TABLE ax_lagebezeichnungmitpseudonummer ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_ca535aab_87e2_4ab3_9863_86745da822bb ON ax_lagebezeichnungmitpseudonummer USING btree (gehoertzupseudo);
+		ALTER TABLE ax_lagebezeichnungohnehausnummer ADD gehoertauchzu character(16);
+		ALTER TABLE ax_lagebezeichnungohnehausnummer ADD gehoertzuohne character(16);
+		ALTER TABLE ax_lagebezeichnungohnehausnummer ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_709f4a78_75f7_48ea_b6c2_510a1cdee560 ON ax_lagebezeichnungohnehausnummer USING btree (gehoertauchzu);
+
+		CREATE INDEX alkis_5c044948_5dd3_4d7c_888d_e96991cd7bfd ON ax_lagebezeichnungohnehausnummer USING btree (gehoertzuohne);
+		ALTER TABLE ax_lagefestpunkt DROP gemarkung_gemarkungsnummer;
+		ALTER TABLE ax_lagefestpunkt DROP gemarkung_land;
+		ALTER TABLE ax_lagefestpunkt RENAME gemeinde TO gemeinde_gemeinde;
+		ALTER TABLE ax_lagefestpunkt RENAME kreis TO gemeinde_kreis;
+		ALTER TABLE ax_lagefestpunkt ADD erstvermarkung date;
+		ALTER TABLE ax_lagefestpunkt ADD gemarkungsnummer character varying;
+		ALTER TABLE ax_lagefestpunkt ADD land character varying;
+		ALTER TABLE ax_lagefestpunkt ADD nutzungextern character varying NOT NULL;
+		ALTER TABLE ax_lagefestpunkt ADD quellobjektid character varying;
+		ALTER TABLE ax_lagefestpunkt ADD untergangsdatum date;
+		ALTER TABLE ax_lagefestpunkt ADD vermarkungsdatum date;
+
+		ALTER TABLE ax_landschaft ALTER landschaftstyp DROP NOT NULL;
+		ALTER TABLE ax_landschaft ADD quellobjektid character varying;
+		ALTER TABLE ax_landschaft ADD regionalsprache character varying[];
+		ALTER TABLE ax_landwirtschaft ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_landwirtschaft ADD istweiterenutzung integer;
+		ALTER TABLE ax_landwirtschaft ADD quellobjektid character varying;
+		ALTER TABLE ax_leitung ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_leitung ADD hat3d character(16)[];
+		ALTER TABLE ax_leitung ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_bd397375_f740_403f_a91d_216dae4addbe ON ax_leitung USING gin (hat3d);
+		ALTER TABLE ax_meer ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_meer ADD istweiterenutzung integer;
+		ALTER TABLE ax_meer ADD quellobjektid character varying;
+		ALTER TABLE ax_meer ADD regionalsprache character varying[];
+		ALTER TABLE ax_moor ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_moor ADD istweiterenutzung integer;
+		ALTER TABLE ax_moor ADD quellobjektid character varying;
+
+		-- ax_namensnummer.bestehtausrechtsverhaeltnissenzu -> bestehtausrechtsverhaeltnissenzu: character(16) => character(16)[]
+
+		ALTER TABLE ax_namensnummer ALTER bestehtausrechtsverhaeltnissenzu TYPE character(16)[] USING CASE WHEN bestehtausrechtsverhaeltnissenzu IS NULL THEN NULL ELSE ARRAY[bestehtausrechtsverhaeltnissenzu] END;
+		ALTER TABLE ax_namensnummer ADD quellobjektid character varying;
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='ax_namensnummer' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON ax_namensnummer USING btree (bestehtausrechtsverhaeltnissenzu)';
+
+		CREATE INDEX alkis_ee3237ad_0db7_46c7_8920_29ea5da23732 ON ax_namensnummer USING gin (bestehtausrechtsverhaeltnissenzu);
+		ALTER TABLE ax_nationalstaat ADD einwohnerzahl integer;
+		ALTER TABLE ax_nationalstaat ADD historisch character varying;
+		ALTER TABLE ax_nationalstaat ADD quellobjektid character varying;
+		ALTER TABLE ax_nationalstaat ADD regionalsprache character varying[];
+		ALTER TABLE ax_naturumweltoderbodenschutzrecht ADD quellobjektid character varying;
+		ALTER TABLE ax_netzknoten ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_netzknoten ADD hat3d character(16)[];
+		ALTER TABLE ax_netzknoten ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_a4043504_b0ca_40c6_a45e_53ef86175209 ON ax_netzknoten USING gin (hat3d);
+		ALTER TABLE ax_nullpunkt ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_nullpunkt ADD hat3d character(16)[];
+		ALTER TABLE ax_nullpunkt ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_b2c05fa1_e3af_4f36_84fd_351a016a7b56 ON ax_nullpunkt USING gin (hat3d);
+		ALTER TABLE ax_ortslage ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_ortslage ADD hat3d character(16)[];
+		ALTER TABLE ax_ortslage ADD quellobjektid character varying;
+		ALTER TABLE ax_ortslage ADD regionalsprache character varying[];
+
+		CREATE INDEX alkis_b8e917d0_d8b8_4d8a_ba3d_17f3cfa02a32 ON ax_ortslage USING gin (hat3d);
+		ALTER TABLE ax_person ADD quellobjektid character varying;
+		ALTER TABLE ax_person ADD rufname character varying;
+		ALTER TABLE ax_person ADD sterbedatum date;
+		ALTER TABLE ax_personengruppe ADD quellobjektid character varying;
+
+		-- ax_platz.zweitname -> zweitname: character varying => character varying[]
+
+		ALTER TABLE ax_platz ALTER zweitname TYPE character varying[] USING CASE WHEN zweitname IS NULL THEN NULL ELSE ARRAY[zweitname] END;
+		ALTER TABLE ax_platz ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_platz ADD istweiterenutzung integer;
+		ALTER TABLE ax_platz ADD quellobjektid character varying;
+		ALTER TABLE ax_platz ADD regionalsprache character varying[];
+
+		-- ax_polder.funktion -> funktion: character varying => integer
+
+		ALTER TABLE ax_polder ALTER funktion TYPE integer USING funktion::int;
+		ALTER TABLE ax_polder ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_polder ADD hat3d character(16)[];
+		ALTER TABLE ax_polder ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_e819a0b6_b822_4cba_896f_92fddb3e7e9e ON ax_polder USING gin (hat3d);
+		ALTER TABLE ax_punktkennunguntergegangen ADD quellobjektid character varying;
+		ALTER TABLE ax_punktkennungvergleichend ADD quellobjektid character varying;
+		ALTER TABLE ax_punktortag DROP genauigkeitswert_datetime;
+		ALTER TABLE ax_punktortag DROP genauigkeitswert_evaluationmethoddescription;
+		ALTER TABLE ax_punktortag DROP genauigkeitswert_evaluationmethodtype;
+		ALTER TABLE ax_punktortag DROP genauigkeitswert_evaluationprocedure;
+		ALTER TABLE ax_punktortag DROP genauigkeitswert_measuredescription;
+		ALTER TABLE ax_punktortag DROP genauigkeitswert_measureidentification;
+		ALTER TABLE ax_punktortag DROP genauigkeitswert_nameofmeasure;
+		ALTER TABLE ax_punktortag DROP genauigkeitswert_result;
+
+		-- ax_punktortag.statement -> statement: character varying => character varying[]
+
+		ALTER TABLE ax_punktortag ALTER statement TYPE character varying[] USING CASE WHEN statement IS NULL THEN NULL ELSE ARRAY[statement] END;
+		ALTER TABLE ax_punktortag ADD genauigkeitswert character varying;
+		ALTER TABLE ax_punktortag ADD quellobjektid character varying;
+		ALTER TABLE ax_punktortau DROP genauigkeitswert_datetime;
+		ALTER TABLE ax_punktortau DROP genauigkeitswert_evaluationmethoddescription;
+		ALTER TABLE ax_punktortau DROP genauigkeitswert_evaluationmethodtype;
+		ALTER TABLE ax_punktortau DROP genauigkeitswert_evaluationprocedure;
+		ALTER TABLE ax_punktortau DROP genauigkeitswert_measuredescription;
+		ALTER TABLE ax_punktortau DROP genauigkeitswert_measureidentification;
+		ALTER TABLE ax_punktortau DROP genauigkeitswert_nameofmeasure;
+		ALTER TABLE ax_punktortau DROP genauigkeitswert_result;
+
+		-- ax_punktortau.statement -> statement: character varying => character varying[]
+
+		ALTER TABLE ax_punktortau ALTER statement TYPE character varying[] USING CASE WHEN statement IS NULL THEN NULL ELSE ARRAY[statement] END;
+		ALTER TABLE ax_punktortau ADD genauigkeitswert character varying;
+		ALTER TABLE ax_punktortau ADD quellobjektid character varying;
+		ALTER TABLE ax_punktortta DROP genauigkeitswert_datetime;
+		ALTER TABLE ax_punktortta DROP genauigkeitswert_evaluationmethoddescription;
+		ALTER TABLE ax_punktortta DROP genauigkeitswert_evaluationmethodtype;
+		ALTER TABLE ax_punktortta DROP genauigkeitswert_evaluationprocedure;
+		ALTER TABLE ax_punktortta DROP genauigkeitswert_measuredescription;
+		ALTER TABLE ax_punktortta DROP genauigkeitswert_measureidentification;
+		ALTER TABLE ax_punktortta DROP genauigkeitswert_nameofmeasure;
+		ALTER TABLE ax_punktortta DROP genauigkeitswert_result;
+
+		-- ax_punktortta.statement -> statement: character varying => character varying[]
+
+		ALTER TABLE ax_punktortta ALTER statement TYPE character varying[] USING CASE WHEN statement IS NULL THEN NULL ELSE ARRAY[statement] END;
+		ALTER TABLE ax_punktortta ADD genauigkeitswert character varying;
+		ALTER TABLE ax_punktortta ADD quellobjektid character varying;
+		ALTER TABLE ax_referenzstationspunkt DROP antennenhoehe;
+		ALTER TABLE ax_referenzstationspunkt DROP antennenreferenzpunkt;
+		ALTER TABLE ax_referenzstationspunkt DROP aufbaudatum;
+		ALTER TABLE ax_referenzstationspunkt DROP azimutaleabweichung;
+		ALTER TABLE ax_referenzstationspunkt DROP beginn;
+		ALTER TABLE ax_referenzstationspunkt DROP ende;
+		ALTER TABLE ax_referenzstationspunkt DROP funkfrequenz;
+		ALTER TABLE ax_referenzstationspunkt DROP gemarkung_gemarkungsnummer;
+		ALTER TABLE ax_referenzstationspunkt DROP gemarkung_land;
+		ALTER TABLE ax_referenzstationspunkt RENAME gemeinde TO gemeinde_gemeinde;
+		ALTER TABLE ax_referenzstationspunkt DROP gnssantenne_abbaudatum;
+		ALTER TABLE ax_referenzstationspunkt DROP gnssantenne_zusaetzlicheinformationen;
+		ALTER TABLE ax_referenzstationspunkt DROP gnssantennenundradometyp;
+		ALTER TABLE ax_referenzstationspunkt DROP gnssempfaenger_abbaudatum;
+		ALTER TABLE ax_referenzstationspunkt DROP gnssempfaenger_aufbaudatum;
+		ALTER TABLE ax_referenzstationspunkt DROP gnssempfaenger_firmwareversion;
+		ALTER TABLE ax_referenzstationspunkt DROP gnssempfaenger_gnssempfaengertyp;
+		ALTER TABLE ax_referenzstationspunkt DROP gnssempfaenger_seriennummer;
+		ALTER TABLE ax_referenzstationspunkt DROP gnssempfaenger_zusaetzlicheinformationen;
+		ALTER TABLE ax_referenzstationspunkt DROP hoehenoffsetl1;
+		ALTER TABLE ax_referenzstationspunkt DROP hoehenoffsetl2;
+		ALTER TABLE ax_referenzstationspunkt DROP isdnnummer;
+		ALTER TABLE ax_referenzstationspunkt RENAME kreis TO gemeinde_kreis;
+		ALTER TABLE ax_referenzstationspunkt DROP offsetl1_east;
+		ALTER TABLE ax_referenzstationspunkt DROP offsetl1_height;
+		ALTER TABLE ax_referenzstationspunkt DROP offsetl1_north;
+		ALTER TABLE ax_referenzstationspunkt DROP offsetl2_east;
+		ALTER TABLE ax_referenzstationspunkt DROP offsetl2_height;
+		ALTER TABLE ax_referenzstationspunkt DROP offsetl2_north;
+		ALTER TABLE ax_referenzstationspunkt DROP phasenzentrumsvariationl1_zeile;
+		ALTER TABLE ax_referenzstationspunkt DROP phasenzentrumsvariationl2_zeile;
+		ALTER TABLE ax_referenzstationspunkt DROP seriennummer;
+		ALTER TABLE ax_referenzstationspunkt DROP tcpipnummer;
+		ALTER TABLE ax_referenzstationspunkt DROP unterschiedlicherbezugspunktmitsfp;
+		ALTER TABLE ax_referenzstationspunkt ADD erstvermarkung date;
+		ALTER TABLE ax_referenzstationspunkt ADD gemarkungsnummer character varying;
+		ALTER TABLE ax_referenzstationspunkt ADD land character varying;
+		ALTER TABLE ax_referenzstationspunkt ADD nutzungextern character varying NOT NULL;
+		ALTER TABLE ax_referenzstationspunkt ADD quellobjektid character varying;
+		ALTER TABLE ax_referenzstationspunkt ADD untergangsdatum date;
+		ALTER TABLE ax_referenzstationspunkt ADD vermarkungsdatum date;
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='ax_referenzstationspunkt' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON ax_referenzstationspunkt USING btree (unterschiedlicherbezugspunktmitsfp)';
+		ALTER TABLE ax_regierungsbezirk ADD einwohnerzahl integer;
+		ALTER TABLE ax_regierungsbezirk ADD historisch character varying;
+		ALTER TABLE ax_regierungsbezirk ADD quellobjektid character varying;
+		ALTER TABLE ax_regierungsbezirk ADD regionalsprache character varying[];
+		ALTER TABLE ax_reservierung ADD quellobjektid character varying;
+		ALTER TABLE ax_schifffahrtsliniefaehrverkehr ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_schifffahrtsliniefaehrverkehr ADD hat3d character(16)[];
+		ALTER TABLE ax_schifffahrtsliniefaehrverkehr ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_8476af80_655e_4617_989d_c3e14c1b6811 ON ax_schifffahrtsliniefaehrverkehr USING gin (hat3d);
+		ALTER TABLE ax_schiffsverkehr ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_schiffsverkehr ADD istweiterenutzung integer;
+		ALTER TABLE ax_schiffsverkehr ADD quellobjektid character varying;
+		ALTER TABLE ax_schleuse ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_schleuse ADD hat3d character(16)[];
+		ALTER TABLE ax_schleuse ADD hoehe double precision[];
+		ALTER TABLE ax_schleuse ADD obererbezugspunkt integer[];
+		ALTER TABLE ax_schleuse ADD quellobjektid character varying;
+		ALTER TABLE ax_schleuse ADD untererbezugspunkt integer[];
+
+		CREATE INDEX alkis_740f5837_714f_4935_be2c_943ee25db73f ON ax_schleuse USING gin (hat3d);
+		ALTER TABLE ax_schutzgebietnachnaturumweltoderbodenschutzrecht ADD quellobjektid character varying;
+		ALTER TABLE ax_schutzgebietnachwasserrecht ADD quellobjektid character varying;
+		ALTER TABLE ax_schutzzone ADD quellobjektid character varying;
+
+		-- ax_schwere.genauigkeitswert -> genauigkeitswert: integer => character varying
+
+		ALTER TABLE ax_schwere ALTER genauigkeitswert TYPE character varying USING genauigkeitswert::varchar;
+		ALTER TABLE ax_schwere DROP schweresystem;
+
+		-- ax_schwere.schwerewert -> schwerewert: double precision => character varying
+
+		ALTER TABLE ax_schwere ALTER schwerewert TYPE character varying USING schwerewert::text;
+
+		ALTER TABLE ax_schwere ALTER schwerewert DROP NOT NULL;
+		ALTER TABLE ax_schwere ADD berechnungsdatum date;
+		ALTER TABLE ax_schwere ADD genauigkeitvertikalerschweregradient character varying;
+		ALTER TABLE ax_schwere ADD messdatum date;
+		ALTER TABLE ax_schwere ADD messhoehevertikalerschweregradient double precision[];
+		ALTER TABLE ax_schwere ADD quellobjektid character varying;
+		ALTER TABLE ax_schwere ADD schwerebezugssystem integer NOT NULL;
+		ALTER TABLE ax_schwere ADD tauglichkeitgcg integer;
+		ALTER TABLE ax_schwere ADD wertvertikalerschweregradient character varying;
+		ALTER TABLE ax_schwere ADD zustaendigestelleberechnung_land character varying;
+		ALTER TABLE ax_schwere ADD zustaendigestelleberechnung_stelle character varying;
+		ALTER TABLE ax_schwere ADD zustaendigestellemessung_land character varying;
+		ALTER TABLE ax_schwere ADD zustaendigestellemessung_stelle character varying;
+		ALTER TABLE ax_schwerefestpunkt DROP gemarkung_gemarkungsnummer;
+		ALTER TABLE ax_schwerefestpunkt DROP gemarkung_land;
+		ALTER TABLE ax_schwerefestpunkt RENAME gemeinde TO gemeinde_gemeinde;
+		ALTER TABLE ax_schwerefestpunkt RENAME kreis TO gemeinde_kreis;
+		ALTER TABLE ax_schwerefestpunkt DROP unterschiedlicherbezugspunktmitrsp;
+		ALTER TABLE ax_schwerefestpunkt ADD erstvermarkung date;
+		ALTER TABLE ax_schwerefestpunkt ADD gemarkungsnummer character varying;
+		ALTER TABLE ax_schwerefestpunkt ADD land character varying;
+		ALTER TABLE ax_schwerefestpunkt ADD nutzungextern character varying NOT NULL;
+		ALTER TABLE ax_schwerefestpunkt ADD quellobjektid character varying;
+		ALTER TABLE ax_schwerefestpunkt ADD untergangsdatum date;
+		ALTER TABLE ax_schwerefestpunkt ADD vermarkungsdatum date;
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='ax_schwerefestpunkt' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON ax_schwerefestpunkt USING btree (unterschiedlicherbezugspunktmitrsp)';
+		ALTER TABLE ax_seilbahnschwebebahn ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_seilbahnschwebebahn ADD hat3d character(16)[];
+		ALTER TABLE ax_seilbahnschwebebahn ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_f7fc9194_c365_45dc_a983_117793bcf694 ON ax_seilbahnschwebebahn USING gin (hat3d);
+		ALTER TABLE ax_sicherungspunkt ADD quellobjektid character varying;
+		ALTER TABLE ax_sickerstrecke ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_sickerstrecke ADD fliessrichtung character varying NOT NULL;
+		ALTER TABLE ax_sickerstrecke ADD hat3d character(16)[];
+		ALTER TABLE ax_sickerstrecke ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_78aea909_0eb5_4f5a_849f_8c6702f326c4 ON ax_sickerstrecke USING gin (hat3d);
+		ALTER TABLE ax_siedlungsflaeche ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_siedlungsflaeche ADD funktion integer;
+		ALTER TABLE ax_siedlungsflaeche ADD istweiterenutzung integer;
+		ALTER TABLE ax_siedlungsflaeche ADD quellobjektid character varying;
+		ALTER TABLE ax_siedlungsflaeche ADD regionalsprache character varying[];
+		ALTER TABLE ax_skizze ADD quellobjektid character varying;
+		ALTER TABLE ax_soll ADD quellobjektid character varying;
+		ALTER TABLE ax_sonstigervermessungspunkt DROP hat;
+		ALTER TABLE ax_sonstigervermessungspunkt ADD mit character(16)[];
+		ALTER TABLE ax_sonstigervermessungspunkt ADD quellobjektid character varying;
+		PERFORM alkis_dropobject(ix.relname) FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace JOIN pg_index ind ON cl.oid = ind.indrelid JOIN pg_class ix ON ix.oid = ind.indexrelid WHERE ns.nspname=current_schema() AND cl.relname='ax_sonstigervermessungspunkt' AND pg_get_indexdef(ind.indexrelid) LIKE 'CREATE INDEX % ON ax_sonstigervermessungspunkt USING gin (hat)';
+
+		CREATE INDEX alkis_8d0d26f0_9a07_49c6_8078_9d9f536e19f9 ON ax_sonstigervermessungspunkt USING gin (mit);
+		ALTER TABLE ax_sonstigesbauwerkodersonstigeeinrichtung DROP objekthoehe;
+		ALTER TABLE ax_sonstigesbauwerkodersonstigeeinrichtung ADD dachform integer;
+		ALTER TABLE ax_sonstigesbauwerkodersonstigeeinrichtung ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_sonstigesbauwerkodersonstigeeinrichtung ADD hat3d character(16)[];
+		ALTER TABLE ax_sonstigesbauwerkodersonstigeeinrichtung ADD hoehe double precision[];
+		ALTER TABLE ax_sonstigesbauwerkodersonstigeeinrichtung ADD obererbezugspunkt integer[];
+		ALTER TABLE ax_sonstigesbauwerkodersonstigeeinrichtung ADD quellobjektid character varying;
+		ALTER TABLE ax_sonstigesbauwerkodersonstigeeinrichtung ADD untererbezugspunkt integer[];
+
+		CREATE INDEX alkis_4d17dd53_a629_4a08_b70b_0b4d7130e225 ON ax_sonstigesbauwerkodersonstigeeinrichtung USING gin (hat3d);
+		ALTER TABLE ax_sonstigesrecht ADD quellobjektid character varying;
+		ALTER TABLE ax_sportfreizeitunderholungsflaeche ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_sportfreizeitunderholungsflaeche ADD istweiterenutzung integer;
+		ALTER TABLE ax_sportfreizeitunderholungsflaeche ADD quellobjektid character varying;
+		ALTER TABLE ax_stehendesgewaesser DROP gewaesserkennziffer;
+		ALTER TABLE ax_stehendesgewaesser ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_stehendesgewaesser ADD istweiterenutzung integer;
+		ALTER TABLE ax_stehendesgewaesser ADD nutzung integer[];
+		ALTER TABLE ax_stehendesgewaesser ADD quellobjektid character varying;
+		ALTER TABLE ax_stehendesgewaesser ADD regionalsprache character varying[];
+		ALTER TABLE ax_stehendesgewaesser ADD seekennzahl character varying;
+		ALTER TABLE ax_stehendesgewaesser ADD wasserspiegelhoeheinstehendemgewaesser double precision;
+		ALTER TABLE ax_stehendesgewaesser ADD zustand integer;
+		ALTER TABLE ax_stehendesgewaesser ADD zweitname character varying[];
+
+		-- ax_strasse.zweitname -> zweitname: character varying => character varying[]
+
+		ALTER TABLE ax_strasse ALTER zweitname TYPE character varying[] USING CASE WHEN zweitname IS NULL THEN NULL ELSE ARRAY[zweitname] END;
+		ALTER TABLE ax_strasse ADD quellobjektid character varying;
+		ALTER TABLE ax_strasse ADD regionalsprache character varying[];
+		ALTER TABLE ax_strassenachse DROP verkehrsbedeutunginneroertlich;
+		ALTER TABLE ax_strassenachse DROP verkehrsbedeutungueberoertlich;
+		ALTER TABLE ax_strassenachse ADD besondereverkehrsbedeutung integer;
+		ALTER TABLE ax_strassenachse ADD fahrtrichtung character varying;
+		ALTER TABLE ax_strassenachse ADD quellobjektid character varying;
+		ALTER TABLE ax_strassenverkehr ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_strassenverkehr ADD istweiterenutzung integer;
+		ALTER TABLE ax_strassenverkehr ADD quellobjektid character varying;
+
+		-- ax_strassenverkehrsanlage.zweitname -> zweitname: character varying => character varying[]
+
+		ALTER TABLE ax_strassenverkehrsanlage ALTER zweitname TYPE character varying[] USING CASE WHEN zweitname IS NULL THEN NULL ELSE ARRAY[zweitname] END;
+		ALTER TABLE ax_strassenverkehrsanlage ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_strassenverkehrsanlage ADD hat3d character(16)[];
+		ALTER TABLE ax_strassenverkehrsanlage ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_dc1c0beb_da19_49ef_a2c6_bcfc4b9c41c7 ON ax_strassenverkehrsanlage USING gin (hat3d);
+		ALTER TABLE ax_sumpf ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_sumpf ADD istweiterenutzung integer;
+		ALTER TABLE ax_sumpf ADD quellobjektid character varying;
+		ALTER TABLE ax_tagebaugrubesteinbruch ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_tagebaugrubesteinbruch ADD funktion integer;
+		ALTER TABLE ax_tagebaugrubesteinbruch ADD istweiterenutzung integer;
+		ALTER TABLE ax_tagebaugrubesteinbruch ADD quellobjektid character varying;
+		ALTER TABLE ax_tagesabschnitt ADD quellobjektid character varying;
+		ALTER TABLE ax_testgelaende ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_testgelaende ADD hat3d character(16)[];
+		ALTER TABLE ax_testgelaende ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_82e1cf40_aaa0_4d83_804d_d229fe86b37a ON ax_testgelaende USING gin (hat3d);
+		ALTER TABLE ax_topographischelinie ADD quellobjektid character varying;
+		ALTER TABLE ax_transportanlage ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_transportanlage ADD hat3d character(16)[];
+		ALTER TABLE ax_transportanlage ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_295d9747_a875_43c1_a37c_9c36462f46ef ON ax_transportanlage USING gin (hat3d);
+		ALTER TABLE ax_turm DROP objekthoehe;
+		ALTER TABLE ax_turm ADD dachform integer;
+		ALTER TABLE ax_turm ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_turm ADD hat3d character(16)[];
+		ALTER TABLE ax_turm ADD hoehe double precision[];
+		ALTER TABLE ax_turm ADD obererbezugspunkt integer[];
+		ALTER TABLE ax_turm ADD quellobjektid character varying;
+		ALTER TABLE ax_turm ADD untererbezugspunkt integer[];
+
+		CREATE INDEX alkis_4768faa5_c25d_47ec_9c63_1dd687da7821 ON ax_turm USING gin (hat3d);
+		ALTER TABLE ax_unlandvegetationsloseflaeche ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_unlandvegetationsloseflaeche ADD istweiterenutzung integer;
+		ALTER TABLE ax_unlandvegetationsloseflaeche ADD quellobjektid character varying;
+		ALTER TABLE ax_untergeordnetesgewaesser ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_untergeordnetesgewaesser ADD hat3d character(16)[];
+		ALTER TABLE ax_untergeordnetesgewaesser ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_903e0c16_ce76_45d7_b6a4_cf7cb995bd69 ON ax_untergeordnetesgewaesser USING gin (hat3d);
+		ALTER TABLE ax_vegetationsmerkmal ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_vegetationsmerkmal ADD hat3d character(16)[];
+		ALTER TABLE ax_vegetationsmerkmal ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_fb5d2c68_d634_4291_a6eb_71408b2969e6 ON ax_vegetationsmerkmal USING gin (hat3d);
+		ALTER TABLE ax_verband ADD einwohnerzahl integer;
+		ALTER TABLE ax_verband ADD historisch character varying;
+		ALTER TABLE ax_verband ADD quellobjektid character varying;
+		ALTER TABLE ax_verband ADD regionalsprache character varying[];
+		ALTER TABLE ax_vertretung ADD quellobjektid character varying;
+		ALTER TABLE ax_verwaltung ADD quellobjektid character varying;
+		ALTER TABLE ax_verwaltungsgemeinschaft ADD einwohnerzahl integer;
+		ALTER TABLE ax_verwaltungsgemeinschaft ADD historisch character varying;
+		ALTER TABLE ax_verwaltungsgemeinschaft ADD quellobjektid character varying;
+		ALTER TABLE ax_verwaltungsgemeinschaft ADD regionalsprache character varying[];
+		ALTER TABLE ax_vorratsbehaelterspeicherbauwerk DROP objekthoehe;
+		ALTER TABLE ax_vorratsbehaelterspeicherbauwerk ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_vorratsbehaelterspeicherbauwerk ADD hat3d character(16)[];
+		ALTER TABLE ax_vorratsbehaelterspeicherbauwerk ADD hoehe double precision[];
+		ALTER TABLE ax_vorratsbehaelterspeicherbauwerk ADD obererbezugspunkt integer[];
+		ALTER TABLE ax_vorratsbehaelterspeicherbauwerk ADD quellobjektid character varying;
+		ALTER TABLE ax_vorratsbehaelterspeicherbauwerk ADD untererbezugspunkt integer[];
+
+		CREATE INDEX alkis_901eb86e_222f_4310_aac2_fc195f264aee ON ax_vorratsbehaelterspeicherbauwerk USING gin (hat3d);
+		ALTER TABLE ax_wald ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_wald ADD istweiterenutzung integer;
+		ALTER TABLE ax_wald ADD quellobjektid character varying;
+		ALTER TABLE ax_wald ADD regionalsprache character varying[];
+		ALTER TABLE ax_wald ADD zustand integer;
+
+		-- ax_wasserlauf.zweitname -> zweitname: character varying => character varying[]
+
+		ALTER TABLE ax_wasserlauf ALTER zweitname TYPE character varying[] USING CASE WHEN zweitname IS NULL THEN NULL ELSE ARRAY[zweitname] END;
+		ALTER TABLE ax_wasserlauf ADD quellobjektid character varying;
+		ALTER TABLE ax_wasserlauf ADD regionalsprache character varying[];
+		ALTER TABLE ax_wasserspiegelhoehe ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_wasserspiegelhoehe ADD hat3d character(16)[];
+		ALTER TABLE ax_wasserspiegelhoehe ADD quellobjektid character varying;
+
+		CREATE INDEX alkis_244959ef_2c90_4fda_821f_ca40521c86a7 ON ax_wasserspiegelhoehe USING gin (hat3d);
+		ALTER TABLE ax_weg ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_weg ADD istweiterenutzung integer;
+		ALTER TABLE ax_weg ADD quellobjektid character varying;
+
+		-- ax_wegpfadsteig.markierung -> markierung: integer => integer[]
+
+		ALTER TABLE ax_wegpfadsteig ALTER markierung TYPE integer[] USING CASE WHEN markierung IS NULL THEN NULL ELSE ARRAY[markierung] END;
+
+		-- ax_wegpfadsteig.zweitname -> zweitname: character varying => character varying[]
+
+		ALTER TABLE ax_wegpfadsteig ALTER zweitname TYPE character varying[] USING CASE WHEN zweitname IS NULL THEN NULL ELSE ARRAY[zweitname] END;
+		ALTER TABLE ax_wegpfadsteig ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_wegpfadsteig ADD hat3d character(16)[];
+		ALTER TABLE ax_wegpfadsteig ADD quellobjektid character varying;
+		ALTER TABLE ax_wegpfadsteig ADD regionalsprache character varying[];
+
+		CREATE INDEX alkis_14761526_2400_491f_9db1_cfb7f5f7cb04 ON ax_wegpfadsteig USING gin (hat3d);
+		ALTER TABLE ax_wirtschaftlicheeinheit ADD quellobjektid character varying;
+
+		-- ax_wohnbauflaeche.zweitname -> zweitname: character varying => character varying[]
+
+		ALTER TABLE ax_wohnbauflaeche ALTER zweitname TYPE character varying[] USING CASE WHEN zweitname IS NULL THEN NULL ELSE ARRAY[zweitname] END;
+		ALTER TABLE ax_wohnbauflaeche ADD ergebnisderueberpruefung integer;
+		ALTER TABLE ax_wohnbauflaeche ADD funktion integer;
+		ALTER TABLE ax_wohnbauflaeche ADD istweiterenutzung integer;
+		ALTER TABLE ax_wohnbauflaeche ADD quellobjektid character varying;
+		ALTER TABLE ax_wohnplatz DROP einwohnerzahl;
+
+		-- ax_wohnplatz.zweitname -> zweitname: character varying => character varying[]
+
+		ALTER TABLE ax_wohnplatz ALTER zweitname TYPE character varying[] USING CASE WHEN zweitname IS NULL THEN NULL ELSE ARRAY[zweitname] END;
+		ALTER TABLE ax_wohnplatz ADD quellobjektid character varying;
+		ALTER TABLE ax_wohnplatz ADD regionalsprache character varying[];
+		CREATE TABLE ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti IS 'Alias: "AX_ErgebnisDerUeberpruefung_BauwerkeEinrichtungenUndSonstigeAngaben", UML-Typ: Enumeration';
+		INSERT INTO ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Fehlerkorrektur', 'Fehlerkorrektur beschreibt dass eine Anpassung durchgeführt wurde, obwohl in der Realwelt keine tatsächliche Änderung stattgefunden hat.'),
+		('2000', 'Bestätigung des Ist-Zustandes', 'Bestätigung des Ist-Zustandes beschreibt, dass das Objekt zum Zeitpunkt einer Überprüfung als zutreffend ermittelt wurde.'),
+		('3000', 'Erfassung eines neuen Objektes', 'Erfassung eines neuen Objektes beschreibt, dass eine tatsächliche Änderungen in der Realwelt zur Neubildung des Objektes geführt haben. Das bedeutet, dass eine fachliche Änderung auf Ebene der Objekt- und/oder Attributart stattfand.'),
+		('4000', 'Geometrieveränderung eines bestehenden Objektes', 'Geometrieveränderung eines bestehenden Objektes beschreibt eine Änderung der Umringsgeometrie in der Realwelt, ohne das eine fachliche Änderung auf Ebene der Objekt- oder Attributart stattfand.');
+		CREATE TABLE ax_zustand_bauwerkoderanlagefuersportfreizeitunderholung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_zustand_bauwerkoderanlagefuersportfreizeitunderholung IS 'Alias: "AX_Zustand_BauwerkOderAnlageFuerSportFreizeitUndErholung", UML-Typ: Enumeration';
+		INSERT INTO ax_zustand_bauwerkoderanlagefuersportfreizeitunderholung (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt, verlassen bedeutet, dass sich das Bauwerk oder die Anlage nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.');
+		CREATE TABLE ax_art_bauwerkspunkt (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_art_bauwerkspunkt IS 'Alias: "AX_Art_Bauwerkspunkt", UML-Typ: Enumeration';
+		INSERT INTO ax_art_bauwerkspunkt (wert,beschreibung,dokumentation) VALUES
+		('1100', 'First', ''),
+		('1200', 'Traufe', ''),
+		('2100', 'Eingang', '');
+		CREATE TABLE ax_zustand_flugverkehrsanlage (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_zustand_flugverkehrsanlage IS 'Alias: "AX_Zustand_Flugverkehrsanlage", UML-Typ: Enumeration';
+		INSERT INTO ax_zustand_flugverkehrsanlage (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt, verlassen bedeutet, dass sich Flugverkehrsanlage nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
+		('4000', 'Im Bau', 'Im Bau bedeutet, dass sich überwiegende Teile von Flugverkehrsanlage im Bau befinden.');
+		CREATE TABLE ax_bahnkategorie_bahnverkehrsanlage (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_bahnkategorie_bahnverkehrsanlage IS 'Alias: "AX_Bahnkategorie_Bahnverkehrsanlage", UML-Typ: Enumeration';
+		INSERT INTO ax_bahnkategorie_bahnverkehrsanlage (wert,beschreibung,dokumentation) VALUES
+		('1100', 'Eisenbahn', 'Eisenbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem im Nah- und Fernverkehr Personen befördert und/oder Güter transportiert werden.'),
+		('1101', 'Personenverkehr', 'Personenverkehr ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem im Nah- und / oder Fernverkehr Personen transportiert werden bzw. ist die Bezeichnung für eine Bahnverkehrsanlage mit Personenverkehr.'),
+		('1102', 'Güterverkehr', 'Güterverkehr ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem im Nah- und / oder Fernverkehr Güter transportiert werden bzw. ist die Bezeichnung für eine Bahnverkehrsanlage mit Güterverkehr.'),
+		('1103', 'Betriebsverkehr', 'Betriebsverkehr ist die Bezeichnung für eine Bahnverkehrsanlage, die aus innerbetrieblichen Gründen erforderlich ist.'),
+		('1104', 'S-Bahn', 'S-Bahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, der zur schnellen Personenbeförderung in Ballungsräumen dient und meist auf eigenen Gleisen verläuft.'),
+		('1200', 'Stadtbahn', 'Stadtbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine elektrisch betriebene Schienenbahn zur Personenbeförderung im öffentlichen Nahverkehr fährt. Sie kann sowohl ober- als auch unterirdisch verlaufen.'),
+		('1201', 'Straßenbahn', 'Straßenbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine elektrisch betriebene Schienenbahn zur Personenbeförderung fährt. Sie verläuft i. d. R. oberirdisch.'),
+		('1202', 'U-Bahn', 'U-Bahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine elektrisch betriebene Schienenbahn zur Personenbeförderung in Großstädten fährt. Sie verläuft i. d. R. unterirdisch.'),
+		('1300', 'Seilbahn, Bergbahn', 'Seilbahn, Bergbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine Schienenbahn große Höhenunterschiede überwindet.'),
+		('1301', 'Zahnradbahn', 'Zahnradbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine Schienenbahn mittels Zahnradantrieb große Höhenunterschiede in stark geneigtem Gelände überwindet.'),
+		('1302', 'Standseilbahn', 'Standseilbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine Schienenbahn auf einer stark geneigten, meist kurzen und geraden Strecke verläuft. Mit Hilfe eines oder mehrerer Zugseile wird ein Schienenfahrzeug bergauf gezogen und gleichzeitig ein zweites bergab gelassen.'),
+		('1400', 'Museumsbahn', 'Museumsbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem ausschließlich Touristen in alten, meist restaurierten Zügen befördert werden.'),
+		('1500', 'Bahn im Freizeitpark', 'Bahn im Freizeitpark ist die Bezeichnung für einen schienengebundenen Verkehrsweg innerhalb eines Freizeitparks.'),
+		('1600', 'Magnetschwebebahn', 'Magnetschwebebahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem räderlose Schienenfahrzeuge mit Hilfe von Magnetfeldern an oder auf einer Fahrschiene schwebend entlanggeführt werden.'),
+		('9999', 'Sonstiges', 'Sonstiges bedeutet, dass die Bahnkategorie bekannt, aber nicht in der Attributwertliste aufgeführt ist.');
+		CREATE TABLE ax_verkehrsdienst_bahnverkehrsanlage (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_verkehrsdienst_bahnverkehrsanlage IS 'Alias: "AX_Verkehrsdienst_Bahnverkehrsanlage", UML-Typ: Enumeration';
+		INSERT INTO ax_verkehrsdienst_bahnverkehrsanlage (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Fernverkehrshalt', 'Fernverkehrshalt bedeutet, dass an der Bahnverkehrsanlage von einem Eisenbahnverkehrsunternehmen ein planmäßiger Halt im nationalen oder internationalen Schienenpersonenfernverkehrsdienst erbracht wird.');
+		CREATE TABLE ax_zustand_einrichtungenfuerdenschiffsverkehr (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_zustand_einrichtungenfuerdenschiffsverkehr IS 'Alias: "AX_Zustand_EinrichtungenFuerDenSchiffsverkehr", UML-Typ: Enumeration';
+		INSERT INTO ax_zustand_einrichtungenfuerdenschiffsverkehr (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt, verlassen bedeutet, dass sich die Einrichtung für den Schiffsverkehr nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.');
+		CREATE TABLE ax_artdergewaesserstationierungsachse (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_artdergewaesserstationierungsachse IS 'Alias: "AX_ArtDerGewaesserstationierungsachse", UML-Typ: Enumeration';
+		INSERT INTO ax_artdergewaesserstationierungsachse (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Gewässerstationierungsachse der WSV', 'Gewässerstationierungsachse der WSV ist eine Gewässerachse, deren Geometrie unverändert aus den Unterlagen der Wasser- und Schifffahrtsverwaltung übernommen wurde.'),
+		('2000', 'Genäherte Mittellinie in Gewässern', 'Genäherte Mittellinie in Gewässern ist eine Gewässerachse, die den Spezifikationen der Richtlinie der Gebiets- und Gewässerverschlüsselung der Länderarbeitsgemeinschaft Wasser (LAWA) entspricht.'),
+		('3001', 'Fiktive Verbindung in Fließgewässern', 'Fiktive Verbindung in Fließgewässern ist eine Gewässerachse, die ein einmündendes Gewässer mit der Gewässerachse des aufnehmenden Fließgewässers verbindet.'),
+		('3002', 'Fiktive Verbindung in Seen und Teichen', 'Fiktive Verbindung in Seen und Teichen ist eine hydrologisch sinnvolle Verbindungslinie in stehenden Gewässern, die für den Aufbau eines geschlossenen topologischen Gewässernetzes benötigt wird.');
+		CREATE TABLE ax_schifffahrtskategorie_gewaesserstationierungsachse (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_schifffahrtskategorie_gewaesserstationierungsachse IS 'Alias: "AX_Schifffahrtskategorie_Gewaesserstationierungsachse", UML-Typ: Enumeration';
+		INSERT INTO ax_schifffahrtskategorie_gewaesserstationierungsachse (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Binnenwasserstraße', 'Binnenwasserstraße ist ein oberirdisches Gewässer oder Küstengewässer, das gesetzlich für den Personen- und/oder Güterverkehr mit Schiffen bestimmt ist. Binnengewässer im Küstengebiet sind gegen das Küstengewässer gesetzlich abgegrenzt.'),
+		('2000', 'Seewasserstraße', 'Seewasserstraße ist ein als Wasserstraße gesetzlich festgelegter Teil eines Küstengewässers.'),
+		('3000', 'Landesgewässer mit Verkehrsordnung', 'Landesgewässer mit Verkehrsordnung ist eine Wasserstraße, die keine Binnenwasserstraße ist. Die Schiffbarkeit wird durch eine Landesverkehrsordnung geregelt.');
+		CREATE TABLE ax_tauglichkeit_gcg (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_tauglichkeit_gcg IS 'Alias: "AX_Tauglichkeit_GCG", UML-Typ: Enumeration';
+		INSERT INTO ax_tauglichkeit_gcg (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Gut geeignet', ''),
+		('2000', 'Bedingt geeignet', ''),
+		('5000', 'Ungeeignet', ''),
+		('9998', 'Nicht untersucht', '');
+		CREATE TABLE ax_schwerebezugssystem_schwere (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_schwerebezugssystem_schwere IS 'Alias: "AX_Schwerebezugssystem_Schwere", UML-Typ: Enumeration';
+		INSERT INTO ax_schwerebezugssystem_schwere (wert,beschreibung,dokumentation) VALUES
+		('1000', 'DHSN82', 'Schwerewert im System des DHSN82 (System der Landesvermessung)'),
+		('1100', 'DSGN62', 'Schwerewert im System des DSGN62 (auch als DSN62 bezeichnet)'),
+		('1200', 'SGN71', 'Schwerewert im System des SGN der DDR (auch als System 71 bezeichnet)'),
+		('1300', 'DHSN96', 'Schwerewert im System des DHSN96 (System der Landesvermessung)'),
+		('1400', 'DHSN2016', 'Schwerewert im System des DHSN2016 (System der Landesvermessung)'),
+		('4000', 'ISGN71', 'Schwerewert im System des ISGN71 (wissenschaftliches System)'),
+		('4010', 'DSGN76', 'Schwerewert im System des DSGN76 (wissenschaftliches System)'),
+		('4020', 'DSGN94', 'Schwerewert im System des DSGN94 (wissenschaftliches System)'),
+		('4030', 'DSGN2016', 'Schwerewert im System des DSGN2016 (wissenschaftliches System)'),
+		('6000', 'PSS09', 'Potsdamer Schweresystem 1909'),
+		('6100', 'SGRA43', 'Schweresystem der Geophysikalischen Reichsaufnahme 1934 - 1943');
+		CREATE TABLE ax_untererbezugspunkt (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_untererbezugspunkt IS 'Alias: "AX_UntererBezugspunkt", UML-Typ: Enumeration';
+		INSERT INTO ax_untererbezugspunkt (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Hauseingang/ Eingangstür', 'Hauseingang/Eingangstür ist ein Eingang, der in ein Haus führt.'),
+		('2000', 'Mittlere Höhe Schnittpunkt mit Gelände', 'Mittlere Höhe Schnittpunkt mit Gelände ist der Mittelwert aller Schnittpunkte, die sich aus dem Schnitt der Kanten und dem Gelände ergeben.'),
+		('3000', 'Höchster Punkt Schnittpunkt mit Gelände', 'Höchster Punkt Schnittpunkt mit Gelände ist der am höchsten gelegene Punkt, der sich aus dem Schnitt einer Kante und Gelände ergibt.'),
+		('4000', 'Niedrigster Punkt Schnittpunkt mit Gelände', 'Niedrigster Punkt Schnittpunkt mit Gelände ist der am niedrigsten gelegene Punkt, der sich aus dem Schnitt einer Kante und Gelände ergibt.');
+		CREATE TABLE ax_obererbezugspunkt (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_obererbezugspunkt IS 'Alias: "AX_ObererBezugspunkt", UML-Typ: Enumeration';
+		INSERT INTO ax_obererbezugspunkt (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Mittlere Traufhöhe (Schnitt aufgehendes Mauerwerk mit Dachhaut)', 'Mittlere Traufhöhe ist der Mittelwert aus höchster und niedrigster Traufhöhe.'),
+		('1100', 'Mittlere Giebelhöhe', 'Mittlere Giebelhöhe ist der Mittelwert aus Traufhöhe und Firsthöhe an der Giebelseite.'),
+		('1200', 'Mittlere Höhe der Dachkanten', 'Mittlere Höhe der Dachkanten ist der Mittelwert der Höhen aller Dachkanten.'),
+		('1300', 'Höchste Traufhöhe (Schnitt aufgehendes Mauerwerk mit Dachhaut)', 'Höchste Traufhöhe ist der absolut am höchsten gelegene Punkt aller Traufhöhen.'),
+		('1400', 'Höchster Punkt der Dachaufbauten', 'Höchster Punkt der Dachaufbauten ist der höchstgelegene Punkt der Dachaufbauten.'),
+		('1500', 'Höchste Dachkante', 'Höchste Dachkante ist die am höchsten gelegene Verbindung von Traufe und First.'),
+		('1600', 'Niedrigste Traufhöhe (Schnitt aufgehendes Mauerwerk mit Dachhaut)', 'Niedrigste Traufhöhe ist der absolut am niedrigsten gelegene Punkt aller Traufhöhen die sich durch den Schnitt des aufgehenden Mauerwerks mit der Dachhaut ergeben.'),
+		('1700', 'Niedrigste Dachkante', 'niedrigste Dachkante ist die am niedrigsten gelegene Verbindung von Traufe und First.'),
+		('1800', 'First', 'First ist die oberste, waagerechte Kante einer Dachform. Bei gewölbten und runden, tonnenförmigen Dachkonstruktionen verläuft der First am Scheitelpunkt des Bogens.'),
+		('1900', 'Höchster Punkt', 'Höchster Punkt ist der höchste Punkt des Objekts.'),
+		('2000', 'Mittlere Höhe', 'Mittlere Höhe ist der Mittelwert der Höhen aus höchsten und niedrigsten Punkt des Objekts.'),
+		('2100', 'Niedrigster Punkt', 'Niedrigster Punkt ist der niedrigste Punkt des Objekts.');
+		CREATE TABLE ax_null_listenelement3d (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_null_listenelement3d IS 'Alias: "AX_Null_Listenelement3D", UML-Typ: Enumeration';
+		INSERT INTO ax_null_listenelement3d (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Keine Angabe', ''),
+		('2000', 'Nicht eingetragen', '');
+		CREATE TABLE ax_funktion_gebaeudeinstallation3d (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_funktion_gebaeudeinstallation3d IS 'Alias: "AX_Funktion_GebaeudeInstallation3D", UML-Typ: Enumeration';
+		INSERT INTO ax_funktion_gebaeudeinstallation3d (wert,beschreibung,dokumentation) VALUES
+		('1010', 'Wintergarten', 'Wintergarten bezeichnet den fest umbauten Raum einer Terrasse.'),
+		('1020', 'Arkade', 'Arkade bezeichnet den durch Säulen getragenen Bogengang eines Gebäudes.'),
+		('1030', 'Schornstein im Gebäude', 'Schornstein im Gebäude ist ein über das Dach hinausragender Abzugskanal für die Rauchgase einer Feuerungsanlage oder für andere Abgase.'),
+		('1040', 'Säule', 'Säule ist eine lotrechte, freistehende Stütze aus Holz, Stein, Ziegel oder Metall.'),
+		('1050', 'Treppe', 'Treppe ist ein aus Stufen gebildeter Auf- oder Abgang.'),
+		('1060', 'Gaube', 'Gaube ist ein Dachaufbau im geneigten Dach eines Gebäudes.'),
+		('1070', 'Balkon', 'Balkon ist eine Plattform an einem Gebäude, die über dem Geländeniveau liegt und aus dem Baukörper hinausragt. Ein Balkon wird von einer Brüstung oder einem Geländer eingefasst.'),
+		('1080', 'Fahrstuhlaufbau', 'Fahrstuhlaufbau ist ein Aufbau auf einen Dach, in welchem die Technik des Fahrstuhls untergebracht ist.'),
+		('1090', 'Antenne', 'Antenne ist eine Vorrichtung zum Senden und Empfangen elektromagnetischer Wellen.'),
+		('1100', 'Geländer', ''),
+		('1110', 'Vordach', 'Ein Vordach ist ein zusätzliches kleines Dach, das über dem Eingangsbereich eines Hauses angebracht ist.'),
+		('1120', 'Beleuchtung', 'Beleuchtung bezeichnet eine auf einem Dach installierte künstliche Lichtquelle.'),
+		('9999', 'Sonstiges', '');
+		CREATE TABLE ax_li_processstep_bodenhoehe_description (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_li_processstep_bodenhoehe_description IS 'Alias: "AX_LI_ProcessStep_Bodenhoehe_Description", UML-Typ: Enumeration';
+		INSERT INTO ax_li_processstep_bodenhoehe_description (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Aus Verschneidung mit DGM', ''),
+		('1100', 'Aus Verschneidung mit DGM 1', ''),
+		('1200', 'Aus Verschneidung mit DGM 2', ''),
+		('1300', 'Aus Verschneidung mit DGM 5', ''),
+		('1400', 'Aus Verschneidung mit DGM 10', ''),
+		('1500', 'Aus Verschneidung mit DGM 25', ''),
+		('1600', 'Aus Verschneidung mit DGM 50', ''),
+		('1700', 'Aus Verschneidung mit DGM 200', ''),
+		('1800', 'Aus Verschneidung mit DGM 1000', ''),
+		('2000', 'Aus Einzelmessung', ''),
+		('3000', 'Aus Photogrammetrie -manuell', ''),
+		('4000', 'Aus Photogrammetrie -automatisch', ''),
+		('9998', 'Nach Quellenlage nicht zu spezifizieren', ''),
+		('9999', 'Sonstiges', '');
+		CREATE TABLE ax_li_processstep_dachhoehe_source (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_li_processstep_dachhoehe_source IS 'Alias: "AX_LI_ProcessStep_Dachhoehe_Source", UML-Typ: Enumeration';
+		INSERT INTO ax_li_processstep_dachhoehe_source (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Aus Laserscanmessung', ''),
+		('2000', 'Aus Stockwerken', ''),
+		('3000', 'Aus Standardwerten', ''),
+		('4000', 'Aus Photogrammetrie -manuell', ''),
+		('5000', 'Aus Photogrammetrie -automatisch', ''),
+		('6000', 'Manuell', ''),
+		('9998', 'Nach Quellelage nicht zu spezifizieren', ''),
+		('9999', 'Sonstiges', '');
+		CREATE TABLE ax_bezugspunktdach (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_bezugspunktdach IS 'Alias: "AX_BezugspunktDach", UML-Typ: Enumeration';
+		INSERT INTO ax_bezugspunktdach (wert,beschreibung,dokumentation) VALUES
+		('1000', 'First', 'First bezeichnet die obere Dachkante einer Dachfläche.'),
+		('2000', 'Mittelwert', 'Der Mittelwert ist eine allgemeine Bezeichnung für das arithmetische Mittel.'),
+		('2100', 'Arithmetrisches Mittel', 'Das arithmetische Mittel ist ein Mittelwert, der als Quotient aus der Summe aller beobachteten Werte und der Anzahl der Werte definiert ist'),
+		('2200', 'Median', 'Der Median, oder Zentralwert, bezeichnet eine Grenze zwischen zwei Hälften. In der Statistik halbiert der Median eine Verteilung.'),
+		('2300', 'Geometrisches Mittel', 'Das geometrische Mittel ist ein Mittelwert; es ist in der Statistik ein geeignetes Mittelmaß für Größen, von denen das Produkt anstelle der Summe interpretierbar ist.'),
+		('3000', 'Traufe', 'Traufe bezeichnet den Schnittpunkt der Dachhaut mit dem aufgehenden Mauerwerk.'),
+		('9998', 'Nach Quellenlage nicht zu spezifizieren', '');
+		CREATE TABLE ax_material_materialeigenschaft_material3d (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_material_materialeigenschaft_material3d IS 'Alias: "AX_Material_Materialeigenschaft_Material3D", UML-Typ: Enumeration';
+		INSERT INTO ax_material_materialeigenschaft_material3d (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Holz', ''),
+		('2000', 'Beton', ''),
+		('3000', 'Klinker', ''),
+		('4000', 'Putz', ''),
+		('5000', 'Glas', ''),
+		('9999', 'Sonstiges', '');
+		CREATE TABLE ax_dateitypraster_textur3d (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_dateitypraster_textur3d IS 'Alias: "AX_DateiTypRaster_Textur3D", UML-Typ: Enumeration';
+		INSERT INTO ax_dateitypraster_textur3d (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Jpg', ''),
+		('2000', 'Jp2', ''),
+		('3000', 'Gif', ''),
+		('4000', 'Bmp', ''),
+		('5000', 'Tif', ''),
+		('6000', 'Png', '');
+		CREATE TABLE ax_typ_textur3d (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_typ_textur3d IS 'Alias: "AX_Typ_Textur3D", UML-Typ: Enumeration';
+		INSERT INTO ax_typ_textur3d (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Typisch', 'Eine typische Textur ist eine generalisierte Darstellung der Struktur und Farbe der Oberfläche.'),
+		('2000', 'Spezifisch', 'Eine spezifische Textur ist eine fotorealistische Darstellung der Oberfläche.');
+		CREATE TABLE ax_zustand_gebietsgrenze (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_zustand_gebietsgrenze IS 'Alias: "AX_Zustand_Gebietsgrenze", UML-Typ: Enumeration';
+		INSERT INTO ax_zustand_gebietsgrenze (wert,beschreibung,dokumentation) VALUES
+		('4100', 'Streitig/strittig', 'Streitig/strittig bedeutet, dass der Grenzverlauf umstritten ist.'),
+		('4200', 'Grenzverlauf, fiktiv', 'Grenzverlauf, fiktiv’ bedeutet, dass für den Grenzverlauf des Gebietes keine explizite Grenzgeometrie festgelegt ist.');
+		CREATE TABLE ax_bodenstufe (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_bodenstufe IS 'Alias: "AX_Bodenstufe", UML-Typ: Enumeration';
+		INSERT INTO ax_bodenstufe (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Bodenstufe (I)', ''),
+		('2200', 'Bodenstufe (II)', ''),
+		('2300', 'Bodenstufe (III)', ''),
+		('2400', 'Bodenstufe Misch- und Schichtböden sowie künstlich veränderte Böden (-)', ''),
+		('3100', 'Bodenstufe (II+III)', ''),
+		('3200', 'Bodenstufe ("(III)")', ''),
+		('3300', 'Bodenstufe (IV)', '');
+		CREATE TABLE ax_sonstigeangaben_musterundvergleichsstueck (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_sonstigeangaben_musterundvergleichsstueck IS 'Alias: "AX_SonstigeAngaben_MusterUndVergleichsstueck", UML-Typ: Enumeration';
+		INSERT INTO ax_sonstigeangaben_musterundvergleichsstueck (wert,beschreibung,dokumentation) VALUES
+		('1100', 'Nass, zu viel Wasser (Wa+)', ''),
+		('1200', 'Trocken, zu wenig Wasser (Wa-)', ''),
+		('1300', 'Besonders günstige Wasserverhältnisse (Wa gt)', ''),
+		('1400', 'Rieselwasser, künstliche Bewässerung (RiWa)', ''),
+		('2100', 'Unbedingtes Wiesenland (W)', ''),
+		('2200', 'Streuwiese (Str)', ''),
+		('2300', 'Hutung (Hu)', ''),
+		('2400', 'Acker-Hackrain (Hack)', ''),
+		('2500', 'Grünland-Hackrain (Hack)', ''),
+		('2600', 'Garten (G)', ''),
+		('3000', 'Neukultur (N)', ''),
+		('4000', 'Tiefkultur (T)', ''),
+		('5000', 'Geringstland (Ger)', '');
+		CREATE TABLE ax_merkmal_musterundvergleichsstueck (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_merkmal_musterundvergleichsstueck IS 'Alias: "AX_Merkmal_MusterUndVergleichsstueck", UML-Typ: Enumeration';
+		INSERT INTO ax_merkmal_musterundvergleichsstueck (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Musterstück (M)', ''),
+		('3000', 'Vergleichsstück (V)', '');
+		CREATE TABLE ax_wasserverhaeltnisse (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_wasserverhaeltnisse IS 'Alias: "AX_Wasserverhaeltnisse", UML-Typ: Enumeration';
+		INSERT INTO ax_wasserverhaeltnisse (wert,beschreibung,dokumentation) VALUES
+		('7000', 'Wasserstufe nicht erkennbar (-)', ''),
+		('7100', 'Wasserstufe (1)', ''),
+		('7200', 'Wasserstufe (2)', ''),
+		('7300', 'Wasserstufe (3)', ''),
+		('7310', 'Wasserstufe (3-)', ''),
+		('7400', 'Wasserstufe (4)', ''),
+		('7410', 'Wasserstufe (4-)', ''),
+		('7500', 'Wasserstufe (5)', ''),
+		('7510', 'Wasserstufe (5-)', ''),
+		('7600', 'Wasserstufe (3+4)', '');
+		CREATE TABLE ax_bodenart_musterundvergleichsstueck (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_bodenart_musterundvergleichsstueck IS 'Alias: "AX_Bodenart_MusterUndVergleichsstueck", UML-Typ: Enumeration';
+		INSERT INTO ax_bodenart_musterundvergleichsstueck (wert,beschreibung,dokumentation) VALUES
+		('1100', 'Sand (S)', ''),
+		('1200', 'Anlehmiger Sand (Sl)', ''),
+		('2100', 'Lehmiger Sand (lS)', ''),
+		('2200', 'Stark lehmiger Sand (SL)', ''),
+		('3100', 'Lehm (L)', ''),
+		('3200', 'Sandiger Lehm (sL)', ''),
+		('4100', 'Ton (T)', ''),
+		('4200', 'Schwerer Lehm (LT)', ''),
+		('5000', 'Moor (Mo)', ''),
+		('6110', 'Sand mit Moor (SMo)', ''),
+		('6120', 'Lehmiger Sand mit Moor (lSMo)', ''),
+		('6130', 'Lehm mit Moor (LMo)', ''),
+		('6140', 'Ton mit Moor (TMo)', ''),
+		('6210', 'Moor mit Sand (MoS)', ''),
+		('6220', 'Moor mit lehmigem Sand (MolS)', ''),
+		('6230', 'Moor mit Lehm (MoL)', ''),
+		('6240', 'Moor mit Ton (MoT)', ''),
+		('7100', 'Sand auf stark lehmigem Sand (S/SL)', ''),
+		('7110', 'Sand auf sandigem Lehm (S/sL)', ''),
+		('7120', 'Sand auf Lehm (S/L)', ''),
+		('7130', 'Sand auf schwerem Lehm (S/LT)', ''),
+		('7140', 'Sand auf Ton (S/T)', ''),
+		('7200', 'Anlehmiger Sand auf sandigem Lehm (Sl/sL)', ''),
+		('7210', 'Anlehmiger Sand auf Lehm (Sl/L)', ''),
+		('7220', 'Anlehmiger Sand auf schwerem Lehm (Sl/LT)', ''),
+		('7230', 'Anlehmiger Sand auf Ton (Sl/T)', ''),
+		('7300', 'Lehmiger Sand auf Lehm (lS/L)', ''),
+		('7310', 'Lehmiger Sand auf schwerem Lehm (lS/LT)', ''),
+		('7320', 'Lehmiger Sand auf Sand (lS/S)', ''),
+		('7330', 'Lehmiger Sand auf Ton (lS/T)', ''),
+		('7400', 'Stark lehmiger Sand auf Ton (SL/T)', ''),
+		('7410', 'Stark lehmiger Sand auf schwerem Lehm (SL/LT)', ''),
+		('7420', 'Stark lehmiger Sand auf Sand (SL/S)', ''),
+		('7500', 'Ton auf sandigem Lehm (T/sL)', ''),
+		('7510', 'Ton auf stark lehmigem Sand (T/SL)', ''),
+		('7520', 'Ton auf lehmigem Sand (T/lS)', ''),
+		('7530', 'Ton auf anlehmigem Sand (T/Sl)', ''),
+		('7540', 'Ton auf Sand (T/S)', ''),
+		('7600', 'Schwerer Lehm auf stark lehmigem Sand (LT/SL)', ''),
+		('7610', 'Schwerer Lehm auf lehmigem Sand (LT/lS)', ''),
+		('7620', 'Schwerer Lehm auf anlehmigem Sand (LT/Sl)', ''),
+		('7630', 'Schwerer Lehm auf Sand (LT/S)', ''),
+		('7700', 'Lehm auf lehmigem Sand (L/lS)', ''),
+		('7710', 'Lehm auf anlehmigem Sand (L/Sl)', ''),
+		('7720', 'Lehm auf Sand (L/S)', ''),
+		('7800', 'Sandiger Lehm auf Sand (sL/S)', ''),
+		('7810', 'Sandiger Lehm auf anlehmigem Sand (sL/Sl)', ''),
+		('7820', 'Sandiger Lehm auf Ton (sL/T)', ''),
+		('8110', 'Sand auf Moor (S/Mo)', ''),
+		('8120', 'Lehmiger Sand auf Moor (lS/Mo)', ''),
+		('8130', 'Lehm auf Moor (L/Mo)', ''),
+		('8140', 'Ton auf Moor (T/Mo)', ''),
+		('8210', 'Moor auf Sand (Mo/S)', ''),
+		('8220', 'Moor auf lehmigem Sand (Mo/lS)', ''),
+		('8230', 'Moor auf Lehm (Mo/L)', ''),
+		('8240', 'Moor auf Ton (Mo/T)', ''),
+		('9120', 'Lehm und Moor, Bodenwechsel (L+Mo)', ''),
+		('9130', 'Lehmiger Sand, steinig (lSg)', ''),
+		('9140', 'Lehm, steinig (Lg)', ''),
+		('9150', 'Lehmiger Sand und Steine/Blöcke (lS+St)', ''),
+		('9160', 'Lehm und Steine/Blöcke (L+St)', ''),
+		('9170', 'Steine/Blöcke und lehmiger Sand (St+lS)', ''),
+		('9180', 'Steine/Blöcke und Lehm (St+L)', ''),
+		('9190', 'Lehmiger Sand und Felsen (lS+Fe)', ''),
+		('9200', 'Lehm und Felsen (L+Fe)', ''),
+		('9210', 'Felsen und lehmiger Sand (Fe+lS)', ''),
+		('9220', 'Felsen und Lehm (Fe+L)', '');
+		CREATE TABLE ax_klimastufe (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_klimastufe IS 'Alias: "AX_Klimastufe", UML-Typ: Enumeration';
+		INSERT INTO ax_klimastufe (wert,beschreibung,dokumentation) VALUES
+		('6000', 'Klimastufe nicht erkennbar (-)', ''),
+		('6100', 'Klimastufe 8° C und darüber (a)', ''),
+		('6200', 'Klimastufe 7,9° - 7,0° C (b)', ''),
+		('6300', 'Klimastufe 6,9° - 5,7° C (c)', ''),
+		('6400', 'Klimastufe 5,6° C und darunter (d)', '');
+		CREATE TABLE ax_entstehungsart (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_entstehungsart IS 'Alias: "AX_Entstehungsart", UML-Typ: Enumeration';
+		INSERT INTO ax_entstehungsart (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Diluvium (D)', ''),
+		('1100', 'Diluvium, Alluvium (DAl)', ''),
+		('1110', 'Diluvium, Alluvium, grob, steinig (DAlg)', ''),
+		('1200', 'Diluvium, Löß (DLö)', ''),
+		('1300', 'Diluvium, Verwitterung (DV)', ''),
+		('1310', 'Diluvium, Verwitterung, grob, steinig (DVg)', ''),
+		('1400', 'Diluvium, grob, steinig (Dg)', ''),
+		('1410', 'Diluvium, grob, steinig, Alluvium (DgAl)', ''),
+		('1420', 'Diluvium, grob, steinig, Löß (DgLö)', ''),
+		('1430', 'Diluvium, grob, steinig, Verwitterung (DgV)', ''),
+		('2000', 'Löß (Lö)', ''),
+		('2100', 'Löß, Diluvium (LöD)', ''),
+		('2110', 'Löß, Diluvium, grob, steinig (LöDg)', ''),
+		('2120', 'Löß, Diluvium, Verwitterung (LöDV)', ''),
+		('2200', 'Löß, Alluvium (LöAl)', ''),
+		('2210', 'Löß, Alluvium, grob, steinig (LöAlg)', ''),
+		('2300', 'Löß, Verwitterung (LöV)', ''),
+		('2310', 'Löß, Verwitterung, grob, steinig (LöVg)', ''),
+		('2400', 'Löß über Verwitterung, gesteinig (LöVg)', ''),
+		('3000', 'Alluvium (Al)', ''),
+		('3100', 'Alluvium, Diluvium (AlD)', ''),
+		('3200', 'Alluvium, Löß (AlLö)', ''),
+		('3300', 'Alluvium, Verwitterung (AlV)', ''),
+		('3310', 'Alluvium, Verwitterung, grob, steinig (AlVg)', ''),
+		('3400', 'Alluvium, grob, steinig (Alg)', ''),
+		('3410', 'Alluvium, grob, steinig, Diluvium (AlgD)', ''),
+		('3420', 'Alluvium, grob, steinig, Löß (AlgLö)', ''),
+		('3430', 'Alluvium, grob, steinig, Verwitterung (AlgV)', ''),
+		('3500', 'Alluvium, Marsch (AlMa)', ''),
+		('3610', 'Alluvium, Moor (AlMo)', ''),
+		('3620', 'Moor, Alluvium (MoAI)', ''),
+		('3700', 'Mergel (Me)', ''),
+		('4000', 'Verwitterung (V)', ''),
+		('4100', 'Verwitterung, Diluvium (VD)', ''),
+		('4110', 'Verwitterung, Diluvium, grob, steinig (VDg)', ''),
+		('4200', 'Verwitterung, Alluvium (VAl)', ''),
+		('4210', 'Verwitterung, Alluvium, grob, steinig (VAlg)', ''),
+		('4300', 'Verwitterung, Löß (VLö)', ''),
+		('4400', 'Verwitterung, grob, steinig (Vg)', ''),
+		('4410', 'Verwitterung, grob, steinig, Diluvium (VgD)', ''),
+		('4420', 'Verwitterung, grob, steinig, Löß (VgLö)', ''),
+		('4430', 'Verwitterung, grob, steinig, Alluvium (VgAl)', ''),
+		('5000', 'Entstehungsart nicht erkennbar (-)', '');
+		CREATE TABLE ax_zustandsstufe (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_zustandsstufe IS 'Alias: "AX_Zustandsstufe", UML-Typ: Enumeration';
+		INSERT INTO ax_zustandsstufe (wert,beschreibung,dokumentation) VALUES
+		('1100', 'Zustandsstufe (1)', ''),
+		('1200', 'Zustandsstufe (2)', ''),
+		('1300', 'Zustandsstufe (3)', ''),
+		('1400', 'Zustandsstufe (4)', ''),
+		('1500', 'Zustandsstufe (5)', ''),
+		('1600', 'Zustandsstufe (6)', ''),
+		('1700', 'Zustandsstufe (7)', ''),
+		('1800', 'Zustandsstufe Misch- und Schichtböden sowie künstlich veränderte Böden (-)', '');
+		CREATE TABLE ax_nutzungsart_bodenschaetzung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_nutzungsart_bodenschaetzung IS 'Alias: "AX_Nutzungsart_Bodenschaetzung", UML-Typ: Enumeration';
+		INSERT INTO ax_nutzungsart_bodenschaetzung (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Ackerland (A)', ''),
+		('2000', 'Acker-Grünland (AGr)', ''),
+		('3000', 'Grünland (Gr)', ''),
+		('4000', 'Grünland-Acker (GrA)', '');
+		CREATE TABLE ax_nutzungsart_musterundvergleichsstueck (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_nutzungsart_musterundvergleichsstueck IS 'Alias: "AX_Nutzungsart_MusterUndVergleichsstueck", UML-Typ: Enumeration';
+		INSERT INTO ax_nutzungsart_musterundvergleichsstueck (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Ackerland (A)', ''),
+		('2000', 'Acker-Grünland (AGr)', ''),
+		('3000', 'Grünland (Gr)', ''),
+		('4000', 'Grünland-Acker (GrA)', '');
+		CREATE TABLE ax_ergebnisderueberpruefung_klassifizierungnachwasserrecht (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_ergebnisderueberpruefung_klassifizierungnachwasserrecht IS 'Alias: "AX_ErgebnisDerUeberpruefung_KlassifizierungNachWasserrecht", UML-Typ: Enumeration';
+		INSERT INTO ax_ergebnisderueberpruefung_klassifizierungnachwasserrecht (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Fehlerkorrektur', 'Fehlerkorrektur beschreibt dass eine Anpassung durchgeführt wurde, obwohl in der Realwelt keine tatsächliche Änderung stattgefunden hat.'),
+		('2000', 'Bestätigung des Ist-Zustandes', 'Bestätigung des Ist-Zustandes beschreibt, dass das Objekt zum Zeitpunkt einer Überprüfung als zutreffend ermittelt wurde.'),
+		('3000', 'Erfassung eines neuen Objektes', 'Erfassung eines neuen Objektes beschreibt, dass eine tatsächliche Änderungen in der Realwelt zur Neubildung des Objektes geführt haben. Das bedeutet, dass eine fachliche Änderung auf Ebene der Objekt- und/oder Attributart stattfand.'),
+		('4000', 'Geometrieveränderung eines bestehenden Objektes', 'Geometrieveränderung eines bestehenden Objektes beschreibt eine Änderung der Umringsgeometrie in der Realwelt, ohne das eine fachliche Änderung auf Ebene der Objekt- oder Attributart stattfand.');
+		CREATE TABLE ax_rolledergemeinde (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_rolledergemeinde IS 'Alias: "AX_RolleDerGemeinde", UML-Typ: Enumeration';
+		INSERT INTO ax_rolledergemeinde (wert,beschreibung,dokumentation) VALUES
+		('5000', 'Gemeinde, die sich einer erfüllenden Gemeinde bedient', 'Gemeinde, die sich einer erfüllenden Gemeinde bedient umfasst in einem Bundesland das Gebiet einer Gemeinde, die sich einer erfüllenden Gemeinde bedient.'),
+		('6000', 'Erfüllende Gemeinde', 'Erfüllende Gemeinde umfasst in einem Bundesland das Gebiet einer erfüllende Gemeinde, welche in einer vereinbarten Verwaltungsgemeinschaft die Aufgaben des Gemeindeverwaltungsverbands erfüllt.');
+		CREATE TABLE ax_buchungsart_anlieger (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_buchungsart_anlieger IS 'Alias: "AX_Buchungsart_Anlieger", UML-Typ: Enumeration';
+		INSERT INTO ax_buchungsart_anlieger (wert,beschreibung,dokumentation) VALUES
+		('5200', 'Anliegerflurstück', 'Ein Flurstück dessen Teilflächen den anliegenden Flurstücken zugerechnet wird.'),
+		('5201', 'Anliegerweg', ''),
+		('5202', 'Anliegergraben', ''),
+		('5203', 'Anliegerwasserlauf, Anliegergewässer', '');
+		CREATE TABLE ax_wirtschaftsartgrundbuch (
+		  wert character varying,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_wirtschaftsartgrundbuch IS 'Alias: "AX_WirtschaftsartGrundbuch", UML-Typ: Enumeration';
+		INSERT INTO ax_wirtschaftsartgrundbuch (wert,beschreibung,dokumentation) VALUES
+		('Wohnbaufläche', NULL, 'Wohnbaufläche wird aggregiert aus der Nutzungsart 1100.'),
+		('Industrie- und Gewerbefläche', NULL, 'Industrie- und Gewerbefläche wird aggregiert aus den Nutzungsarten 1200 bis 1204, 1300 bis 1308, 1400 bis 1405 und 1500 bis 1505.'),
+		('Mischnutzung', NULL, 'Mischnutzung wird aggregiert aus den Nutzungsarten 1600 bis 1671 und 1700 bis 1702.'),
+		('Gebäude- und Freifläche Land- und Forstwirtschaft', NULL, 'Gebäude- und Freifläche Land- und Forstwirtschaft wird aggregiert aus der Nutzungsart 1672.'),
+		('Erholungsfläche', NULL, 'Erholungsfläche wird aggregiert aus den Nutzungsarten 1800 bis 1871.'),
+		('Friedhof', NULL, 'Friedhof wird aggregiert aus den Nutzungsarten 1900 bis 1971.'),
+		('Verkehrsfläche', NULL, 'Verkehrsfläche wird aus den Nutzungsarten 2101 bis 2271, 2300 bis 2371 und 2400 bis 2471 aggregiert.'),
+		('Landwirtschaftsfläche', NULL, 'Landwirtschaftsfläche wird aggregiert aus den Nutzungsarten 3100 bis 3109.'),
+		('Waldfläche', NULL, 'Waldfläche wird aggregiert aus den Nutzungsartenkennungen 3200 bis 3203.'),
+		('Sonstige Vegetationsfläche', NULL, 'Sonstige Vegetationsfläche wird aggregiert aus den Nutzungsarten 3300, 3400, 3500 und 3600.'),
+		('Unland', NULL, 'Unland wird aggregiert aus den Nutzungsarten 3700 bis 3704.'),
+		('Wasserfläche', NULL, 'Wasserfläche wird aggregiert aus den Nutzungsarten 4100 bis 4104, 4200 und 4201, 4300 bis 4303, 4400 und 4401.');
+		CREATE TABLE ax_abgabeversion (
+		  wert character varying,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_abgabeversion IS 'Alias: "AX_Abgabeversion", UML-Typ: Enumeration';
+		INSERT INTO ax_abgabeversion (wert,beschreibung,dokumentation) VALUES
+		('7.1.0', NULL, ''),
+		('6.0.1', NULL, ''),
+		('6.0.0', NULL, '');
+		CREATE TABLE ax_verwendeteobjekte_abgeleitetehoehenlinie (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_verwendeteobjekte_abgeleitetehoehenlinie IS 'Alias: "AX_VerwendeteObjekte_AbgeleiteteHoehenlinie", UML-Typ: Enumeration';
+		INSERT INTO ax_verwendeteobjekte_abgeleitetehoehenlinie (wert,beschreibung,dokumentation) VALUES
+		('5200', 'DGM', ''),
+		('5210', 'DGM modifiziert', ''),
+		('5410', 'Punktwolke3D', ''),
+		('5420', 'Punkt3D', ''),
+		('5430', 'Stukturlinie3D', ''),
+		('5440', 'Fläche3D', '');
+		CREATE TABLE ax_auspraegung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_auspraegung IS 'Alias: "AX_Auspraegung", UML-Typ: Enumeration';
+		INSERT INTO ax_auspraegung (wert,beschreibung,dokumentation) VALUES
+		('5200', 'DGM', ''),
+		('5210', 'DGM modifiziert', ''),
+		('5220', 'DOM', ''),
+		('5230', 'DOM modifiziert', '');
+		CREATE TABLE ax_verwendeteobjekte_dhmgitter (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_verwendeteobjekte_dhmgitter IS 'Alias: "AX_VerwendeteObjekte_DHMGitter", UML-Typ: Enumeration';
+		INSERT INTO ax_verwendeteobjekte_dhmgitter (wert,beschreibung,dokumentation) VALUES
+		('5200', 'DGM', ''),
+		('5210', 'DGM modifiziert', ''),
+		('5220', 'DOM', ''),
+		('5230', 'DOM modifiziert', ''),
+		('5410', 'Punktwolke3D', ''),
+		('5420', 'Punkt3D', ''),
+		('5430', 'Stukturlinie3D', ''),
+		('5440', 'Fläche3D', '');
+		CREATE TABLE ax_ergebnisderueberpruefung_dammwalldeich (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_ergebnisderueberpruefung_dammwalldeich IS 'Alias: "AX_ErgebnisDerUeberpruefung_DammWallDeich", UML-Typ: Enumeration';
+		INSERT INTO ax_ergebnisderueberpruefung_dammwalldeich (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Fehlerkorrektur', 'Fehlerkorrektur beschreibt dass eine Anpassung durchgeführt wurde, obwohl in der Realwelt keine tatsächliche Änderung stattgefunden hat.'),
+		('2000', 'Bestätigung des Ist-Zustandes', 'Bestätigung des Ist-Zustandes beschreibt, dass das Objekt zum Zeitpunkt einer Überprüfung als zutreffend ermittelt wurde.'),
+		('3000', 'Erfassung eines neuen Objektes', 'Erfassung eines neuen Objektes beschreibt, dass eine tatsächliche Änderungen in der Realwelt zur Neubildung des Objektes geführt haben. Das bedeutet, dass eine fachliche Änderung auf Ebene der Objekt- und/oder Attributart stattfand.'),
+		('4000', 'Geometrieveränderung eines bestehenden Objektes', 'Geometrieveränderung eines bestehenden Objektes beschreibt eine Änderung der Umringsgeometrie in der Realwelt, ohne das eine fachliche Änderung auf Ebene der Objekt- oder Attributart stattfand.');
+		CREATE TABLE ax_li_processstep3d_description (
+		  wert character varying,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_li_processstep3d_description IS 'Alias: "AX_LI_ProcessStep3D_Description", UML-Typ: Enumeration';
+		INSERT INTO ax_li_processstep3d_description (wert,beschreibung,dokumentation) VALUES
+		('Erhebung', NULL, 'Erhebung beschreibt im Attribut stepDateTime den Erfassungszeitpunkt (Zeitpunkt der Messung).'),
+		('Berechnung', NULL, 'Berechnung beschreibt im Attribut stepDateTime den Auswertezeitpunkt.');
+		CREATE TABLE ax_art_strukturlinie3d (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_art_strukturlinie3d IS 'Alias: "AX_Art_Strukturlinie3D", UML-Typ: Enumeration';
+		INSERT INTO ax_art_strukturlinie3d (wert,beschreibung,dokumentation) VALUES
+		('1100', 'Gewässerbegrenzung', 'Gewässerbegrenzung ist die Linie, welche ein Gewässer zum Ufer hin abgrenzt.'),
+		('1200', 'Geländekante, allgemein', 'Geländekante, allgemein ist die einzelne Kante unterschiedlich geneigter Geländeflächen und keine Obergruppe anderer Geländekanten.'),
+		('1210', 'Steilrand, Kliffkante', 'Steilrand, Kliffkante begrenzt den von der Brandung beständig abgetragenen Steilhang einer Küste.'),
+		('1220', 'Oberkante', 'Oberkante ist die obere Kante eines ZUSO Böschung, Kliff oder eines Bauwerkes wie z. B. Kai- oder Stützmauer.'),
+		('1230', 'Unterkante', 'Unterkante ist die untere Kante eines ZUSO Böschung, Kliff oder eines Bauwerkes wie z. B. Kai- oder Stützmauer.'),
+		('1240', 'Sonstige Begrenzungskante', 'Sonstige Begrenzungskante sind alle Kanten, die nicht anderen Kanten zugeordnet werden können (z. B. Trennschraffe).'),
+		('1250', 'Oberkante zugleich Unterkante', 'Oberkante zugleich Unterkante beschreibt den Wechsel der Böschungsneigung (Gefällewechsel) innerhalb von ZUSO Böschung, Kliff.'),
+		('1300', 'Geripplinie', 'Geripplinie ist eine Falllinie, welche zur Erfassung von Rücken und Mulden erforderlich ist.'),
+		('1310', 'Muldenlinie', 'Muldenlinie ist die tiefste Linie einer Mulde.'),
+		('1311', 'Wasserführende Muldenlinie', 'Wasserführende Muldenlinie ist die tiefste Linie einer Mulde, die Wasser führt.'),
+		('1320', 'Rückenlinie', 'Rückenlinie ist die höchste Linie bei lang gestreckten Bergrücken, welche die Wasserscheide bildet.'),
+		('1400', 'Bauwerksbegrenzungslinie', 'Bauwerksbegrenzungslinie ist die Linie, welche ein Bauwerk zur umliegenden Umgebung hin abgrenzt.'),
+		('1410', 'Brückenbegrenzungslinie', 'Brückenbegrenzungslinie ist die Linie, welche eine Brücke zur umliegenden Umgebung hin abgrenzt.'),
+		('1420', 'Tunnelbegrenzungslinie', 'Tunnelbegrenzungslinie ist die Linie, welche ein Tunnelportal zur umliegenden Umgebung hin abgrenzt.');
+		CREATE TABLE ax_art_punkt3d (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_art_punkt3d IS 'Alias: "AX_Art_Punkt3D", UML-Typ: Enumeration';
+		INSERT INTO ax_art_punkt3d (wert,beschreibung,dokumentation) VALUES
+		('1010', 'Markanter Geländepunkt', 'Markanter Geländepunkt ist ein charakteristischer Höhenpunkt an markanten Geländestellen.'),
+		('1020', 'Kuppenpunkt', 'Kuppenpunkt ist ein charakteristischer Höhenpunkt an der höchsten Stelle einer rundlichen Einzelerhebung.'),
+		('1030', 'Kesselpunkt', 'Kesselpunkt ist ein charakteristischer Höhenpunkt an der tiefsten Stelle einer rundlichen Vertiefung.'),
+		('1040', 'Sattelpunkt', 'Sattelpunkt ist ein charakteristischer Höhenpunkt im Schnittpunkt einer Rücken und Muldenlinie.'),
+		('1100', 'Besonderer Höhenpunkt', 'Besonderer Höhenpunkt ist ein charakteristischer Höhenpunkt.'),
+		('1110', 'Höhenpunkt auf Wasserfläche', 'Höhenpunkt auf Wasserfläche ist ein charakteristischer Höhenpunkt auf einer Wasserfläche.'),
+		('1120', 'Wegepunkt', 'Wegepunkt ist ein charakteristischer Höhenpunkt auf einem Weg oder einer Straße.'),
+		('1210', 'Strukturiert erfasster Geländepunkt', 'Strukturiert erfasster Geländepunkt ist ein Geländepunkt, der nach einem bestimmten Kriterium erfasst wurde.'),
+		('1220', 'Gemessener Höhenlinienpunkt', 'Gemessener Höhenlinienpunkt ist ein gemessener Höhenpunkt innerhalb einer Höhenlinie.'),
+		('1230', 'Dynamisch gemessener Höhenprofilpunkt', 'Dynamisch gemessener Höhenlinienprofilpunkt ist ein gemessener Höhenpunkt innerhalb eines Höhenprofils.');
+		CREATE TABLE ax_datenerhebung3d (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_datenerhebung3d IS 'Alias: "AX_Datenerhebung3D", UML-Typ: Enumeration';
+		INSERT INTO ax_datenerhebung3d (wert,beschreibung,dokumentation) VALUES
+		('5000', 'Terrestrische Aufnahme', ''),
+		('5001', 'Terrestrisches Laserscanning', ''),
+		('5010', 'Interaktive photogrammetrische Datenerfassung', ''),
+		('5020', 'Airborn Laserscanning', ''),
+		('5021', 'Airborne Laserscanning, first pulse', ''),
+		('5022', 'Airborne Laserscanning, last pulse', ''),
+		('5030', 'Digitalisierung analoger Vorlagen', ''),
+		('5040', 'Bildkorrelation', ''),
+		('5060', 'Amtliche Festlegung', ''),
+		('9999', 'Sonstiges', '');
+		CREATE TABLE ax_art_flaeche3d (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_art_flaeche3d IS 'Alias: "AX_Art_Flaeche3D", UML-Typ: Enumeration';
+		INSERT INTO ax_art_flaeche3d (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Aussparungsfläche', 'Aussparungsfläche ist eine Fläche, die bei der DHM-Bearbeitung nicht berücksichtigt wird.'),
+		('1010', 'DGM-Aussparungsfläche', 'DGM-Aussparungsfläche ist eine Fläche, die bei der DGM-Bearbeitung nicht berücksichtigt wird.'),
+		('1020', 'DOM-Aussparungsfläche', 'DOM-Aussparungsfläche ist eine Fläche, die bei der DOM-Bearbeitung nicht berücksichtigt wird.'),
+		('1030', 'Kartographische Aussparungsfläche', 'Kartographische Aussparungsfläche ist eine Fläche, die bei der kartographischen Bearbeitung nicht berücksichtigt wird.'),
+		('1040', 'Brückenbegrenzungsfläche', 'Brückenbegrenzungsfläche ist eine Fläche, die bei der Bearbeitung von Brücken-DGM berücksichtigt wird.');
+		CREATE TABLE ax_art_punktwolke3d (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_art_punktwolke3d IS 'Alias: "AX_Art_Punktwolke3D", UML-Typ: Enumeration';
+		INSERT INTO ax_art_punktwolke3d (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Unklassifizierte Punkte', 'Unklassifizierte Punkte sind nicht spezifizierte Höhenpunkte.'),
+		('1100', 'Geländepunkte, allgemein', 'Geländepunkte sind nicht näher spezifizierte Höhenpunkte auf dem Gelände als auch in trockengefallenen Gewässer-/Wattflächen.'),
+		('1110', 'Feinklassifizierte Geländepunkte', 'Feinklassifizierte Geländepunkte sind verifizierte Höhenpunkte auf dem Gelände als auch in trockengefallenen Gewässer-/Wattflächen.'),
+		('1120', 'Geländepunkte ohne Keller', 'Geländepunkte ohne Keller sind Höhenpunkte auf dem Gelände als auch in trockengefallenen Gewässer-/Wattflächen, die nicht in einem (Keller-)Abgang oder Lichtschacht liegen.'),
+		('1130', 'Gewässerpunkte', 'Gewässerpunkte sind nicht näher spezifizierte Höhenpunkte auf einem Gewässer.'),
+		('1200', 'Nicht-Geländepunkte, allgemein', 'Nicht-Geländepunkte sind nicht näher spezifizierte Höhenpunkte, die nicht auf dem Gelände liegen.'),
+		('1210', 'Tiefpunkte, Rauschen', 'Tiefpunkte sind nicht näher spezifizierte Höhenpunkte, die unterhalb des Geländes liegen und durch Fehlmessungen (Multipath-Effekt) entstanden sind.'),
+		('1220', 'Hochpunkte, Rauschen', 'Hochpunkte sind nicht näher spezifizierte Höhenpunkte, die kein Oberflächenobjekt beschreiben und durch Fehlmessungen (z. B.: Vögel, Nebel, Wolken, etc.) entstanden sind.'),
+		('1300', 'Bauwerkspunkte, allgemein', 'Bauwerkspunkte sind nicht näher spezifizierte Höhenpunkte auf einem Bauwerk.'),
+		('1310', 'Gebäudepunkte', 'Gebäudepunkte sind nicht näher spezifizierte Höhenpunkte auf einem Gebäude.'),
+		('1315', 'Gebäudeinstallationspunkte', 'Gebäudeinstallationspunkte sind Höhenpunkte, auf einer Gebäudeinstallation (z.B.: Antenne, Schornstein, etc.).'),
+		('1318', 'Kellerpunkte', 'Kellerpunkte sind Höhenpunkte, die in einem Keller-/Abgang oder Lichtschacht liegen.'),
+		('1320', 'Brückenpunkte', 'Brückenpunkte sind nicht näher spezifizierte Höhenpunkte auf einem Brückenbauwerk, die die eigentliche Brückenüberführung beschreiben.'),
+		('1325', 'Brückenfundamentpunkte', 'Brückenfundamentpunkte sind Höhenpunkte, die das Brückenfundament sowie Pfeiler und Widerlager beschreiben.'),
+		('1330', 'Wasserbauwerkspunkte', 'Wasserbauwerkspunkte sind Höhenpunkte, die ein Wasserbauwerk wie z. B. Buhnen, Parallelwerke, Leitdämme, nicht bewegliche Bauteile von Anlegebrücken, Sperrwerken und Schleusen, Wehre, Leuchtfeuer, etc. beschreiben.'),
+		('1340', 'Straßenpunkte', 'Straßenpunkte sind nicht näher spezifizierte Höhenpunkte auf einer Straße.'),
+		('1350', 'Bahnkörperpunkte', 'Bahnkörperpunkte sind nicht näher spezifizierte Höhenpunkte auf einem Bahnkörper (Schotterung).'),
+		('1400', 'Vegetationspunkte, allgemein', 'Vegetationspunkte sind nicht näher spezifizierte Höhenpunkte auf der Vegetation.'),
+		('1401', 'Vegetationspunkte, niedrige Vegetation', 'Vegetationspunkte, niedrige Vegetation sind nicht näher spezifizierte Höhenpunkte auf der Vegetation mit einer Höhe bis 1,5 Meter über dem Gelände.'),
+		('1402', 'Vegetationspunkte, mittel hohe Vegetation', 'Vegetationspunkte, mittelhohe Vegetation sind nicht näher spezifizierte Höhenpunkte auf der Vegetation mit einer Höhe ab 1,5 Meter bis 8 Meter über dem Gelände.'),
+		('1403', 'Vegetationspunkte, hohe Vegetation', 'Vegetationspunkte, hohe Vegetation sind nicht näher spezifizierte Höhenpunkte auf der Vegetation mit einer Höhe ab 8 Meter über dem Gelände.'),
+		('1500', 'Energieversorgungspunkte, allgemein', 'Energieversorgungspunkte sind nicht näher spezifizierte Höhenpunkte auf einem Energieversorgungsobjekt.'),
+		('1501', 'Leitungsschutzpunkte', 'Leitungsschutzpunkte sind Höhenpunkte auf einem Leitungsschutz.'),
+		('1502', 'Leitungsdrahtpunkte', 'Leitungsdrahtpunkte sind Höhenpunkte auf einem Leitungsdraht.'),
+		('1503', 'Fernleitungsmastpunkte', 'Fernleitungsmastpunkte sind Höhenpunkte auf einem Fernleitungsmast.'),
+		('1504', 'Fernleitungsinfrastrukturpunkte', 'Fernleitungsinfrastrukturpunkte sind nicht näher spezifizierte Höhenpunkte auf einem Fernleitungsinfrastrukturobjekt wie z. B. einem Isolator, etc.');
+		CREATE TABLE ax_ergebnisderueberpruefung_tatsaechlichenutzung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_ergebnisderueberpruefung_tatsaechlichenutzung IS 'Alias: "AX_ErgebnisDerUeberpruefung_TatsaechlicheNutzung", UML-Typ: Enumeration';
+		INSERT INTO ax_ergebnisderueberpruefung_tatsaechlichenutzung (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Fehlerkorrektur', 'Fehlerkorrektur beschreibt dass eine Anpassung durchgeführt wurde, obwohl in der Realwelt keine tatsächliche Änderung stattgefunden hat.'),
+		('2000', 'Bestätigung des Ist-Zustandes', 'Bestätigung des Ist-Zustandes beschreibt, dass das Objekt zum Zeitpunkt einer Überprüfung als zutreffend ermittelt wurde.'),
+		('3000', 'Erfassung eines neuen Objektes', 'Erfassung eines neuen Objektes beschreibt, dass eine tatsächliche Änderungen in der Realwelt zur Neubildung des Objektes geführt haben. Das bedeutet, dass eine fachliche Änderung auf Ebene der Objekt- und/oder Attributart stattfand.'),
+		('4000', 'Geometrieveränderung eines bestehenden Objektes', 'Geometrieveränderung eines bestehenden Objektes beschreibt eine Änderung der Umringsgeometrie in der Realwelt, ohne das eine fachliche Änderung auf Ebene der Objekt- oder Attributart stattfand.');
+		CREATE TABLE ax_weiterenutzung_tatsaechlichenutzung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_weiterenutzung_tatsaechlichenutzung IS 'Alias: "AX_WeitereNutzung_TatsaechlicheNutzung", UML-Typ: Enumeration';
+		INSERT INTO ax_weiterenutzung_tatsaechlichenutzung (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Überlagernd', 'Überlagernd beschreibt die Überlagerung des Objektes zu weiteren Objekten der Tatsächlichen Nutzung.');
+		CREATE TABLE ax_zustand_stehendesgewaesser (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_zustand_stehendesgewaesser IS 'Alias: "AX_Zustand_StehendesGewaesser", UML-Typ: Enumeration';
+		INSERT INTO ax_zustand_stehendesgewaesser (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb, stillgelegt', 'Außer Betrieb, stillgelegt bedeutet, dass sich die Fläche nicht mehr in regelmäßiger, der Bestimmung entsprechender Nutzung befindet.'),
+		('8000', 'Erweiterung, Neuansiedlung', 'Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		CREATE TABLE ax_zustand_gewaesserachse (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_zustand_gewaesserachse IS 'Alias: "AX_Zustand_Gewaesserachse", UML-Typ: Enumeration';
+		INSERT INTO ax_zustand_gewaesserachse (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb, stillgelegt, verlassen', 'Außer Betrieb, stillgelegt, verlassen bedeutet, dass sich der Kanal nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
+		('4000', 'Im Bau', 'Im Bau bedeutet, dass der Kanal noch nicht fertiggestellt ist.');
+		CREATE TABLE ax_nutzung_stehendesgewaesser (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_nutzung_stehendesgewaesser IS 'Alias: "AX_Nutzung_StehendesGewaesser", UML-Typ: Enumeration';
+		INSERT INTO ax_nutzung_stehendesgewaesser (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Trinkwasser', 'Trinkwasser im vorliegenden Sinne bezeichnet Wasser, das für den menschlichen Genuss geeignet ist.'),
+		('2000', 'Energie', 'Energie weist die Nutzung eines Stehenden Gewässers zur Energiegewinnung aus.'),
+		('3000', 'Brauchwasser', 'Brauchwasser dient spezifischen technischen, gewerblichen, industriellen, landwirtschaftlichen, hauswirtschaftlichen oder ähnlichen Zwecken, ohne dass hierfür Trinkwasserqualität verlangt wird. Hierzu zählen z B. Kesselspeisewasser, Kühlwasser, unterschiedlich aufbereitetes Rohwasser.');
+		CREATE TABLE ax_funktion_siedlungsflaeche (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_funktion_siedlungsflaeche IS 'Alias: "AX_Funktion_Siedlungsflaeche", UML-Typ: Enumeration';
+		INSERT INTO ax_funktion_siedlungsflaeche (wert,beschreibung,dokumentation) VALUES
+		('1200', 'Parken', 'Parken bezeichnet eine Fläche die vorwiegend dem Abstellen von Fahrzeugen dient und zu diesem Zweck ggf. mit Gebäuden, Bauwerken, Anlagen oder Kennzeichnungen versehen ist.');
+		CREATE TABLE ax_funktion_tagebaugrubesteinbruch (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_funktion_tagebaugrubesteinbruch IS 'Alias: "AX_Funktion_TagebauGrubeSteinbruch", UML-Typ: Enumeration';
+		INSERT INTO ax_funktion_tagebaugrubesteinbruch (wert,beschreibung,dokumentation) VALUES
+		('1200', 'Parken', 'Parken bezeichnet eine Fläche die vorwiegend dem Abstellen von Fahrzeugen dient und zu diesem Zweck ggf. mit Gebäuden, Bauwerken, Anlagen oder Kennzeichnungen versehen ist.');
+		CREATE TABLE ax_funktion_bergbaubetrieb (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_funktion_bergbaubetrieb IS 'Alias: "AX_Funktion_Bergbaubetrieb", UML-Typ: Enumeration';
+		INSERT INTO ax_funktion_bergbaubetrieb (wert,beschreibung,dokumentation) VALUES
+		('1200', 'Parken', 'Parken bezeichnet eine Fläche die vorwiegend dem Abstellen von Fahrzeugen dient und zu diesem Zweck ggf. mit Gebäuden, Bauwerken, Anlagen oder Kennzeichnungen versehen ist.');
+		CREATE TABLE ax_funktion_wohnbauflaeche (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_funktion_wohnbauflaeche IS 'Alias: "AX_Funktion_Wohnbauflaeche", UML-Typ: Enumeration';
+		INSERT INTO ax_funktion_wohnbauflaeche (wert,beschreibung,dokumentation) VALUES
+		('1200', 'Parken', 'Parken bezeichnet eine Fläche die vorwiegend dem Abstellen von Fahrzeugen dient und zu diesem Zweck ggf. mit Gebäuden, Bauwerken, Anlagen oder Kennzeichnungen versehen ist.');
+		CREATE TABLE ax_zustand_wald (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_zustand_wald IS 'Alias: "AX_Zustand_Wald", UML-Typ: Enumeration';
+		INSERT INTO ax_zustand_wald (wert,beschreibung,dokumentation) VALUES
+		('6100', 'Verjüngungs-, Neuanpflanzungsfläche', 'Verjüngungs-, Neuanpflanzungsfläche bedeutet, dass sich der Wald durch Aufforstung, Naturverjüngung oder durch Anpflanzung neu bildet.'),
+		('6200', 'Waldbestattungsfläche', 'Waldbestattungsfläche ist eine Fläche im Wald, die zur Bestattung dient oder gedient hat.'),
+		('6300', 'Unbewirtschaftet', 'Unbewirtschaftet bezeichnet eine Waldfläche, mit oder ohne Bäumen, welche nicht bewirtschaftet bzw. nicht wirtschaftlich genutzt wird.'),
+		('7000', 'Forstwirtschaftsfläche', 'Forstwirtschaftsfläche bezeichnet eine Waldfläche, mit oder ohne Bäumen, welche forstwirtschaftlich genutzt wird. Hierzu zählen keine Kurzumtriebsplantagen.'),
+		('7100', 'Dauerhaft unbestockt', 'Dauerhaft unbestockt umfasst alle als Waldflächen geltenden Flächen, auf denen dauerhaft weder Bäume noch sonstige Gehölze stehen, aber stehen könnten. Hierzu zählen z.B. Lichtungen.');
+		CREATE TABLE ax_besondereverkehrsbedeutung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_besondereverkehrsbedeutung IS 'Alias: "AX_BesondereVerkehrsbedeutung", UML-Typ: Enumeration';
+		INSERT INTO ax_besondereverkehrsbedeutung (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Durchgangsverkehr, überörtlicher Verkehr', 'Durchgangsverkehr, überörtlicher Verkehr beschreibt den tatsächlich stattfindenden Verkehr auf einer Straße (Durchgangsstraße), unabhängig von gesetzlichen Festlegungen (z. B. Landesstraßengesetz). Als Durchgangsstraße wird die Straße bezeichnet, auf der aufgrund des Ausbauzustandes und der örtlichen Verkehrsregelung der überörtliche Verkehr durch ein bebautes Gebiet geleitet wird. Der Durchgangsverkehr kann sowohl auf Gemeindestraßen als auch auf höherwertig klassifizierten Straßen liegen.'),
+		('1003', 'Nahverkehr, zwischenörtlicher Verkehr', 'Nahverkehr, zwischenörtlicher Verkehr findet hauptsächlich auf Kreis- und Gemeindestraßen statt.'),
+		('2000', 'Ortsverkehr', 'Ortsverkehr beschreibt den tatsächlich stattfindenden Verkehr auf einer Straße (Ortsstraße), unabhängig von örtlichen Festlegungen (z. B. Ortssatzungen). Ortsstraße ist in der Regel eine als Gemeindestraße gewidmete Straße, auf der kein Durchgangsverkehr verläuft.'),
+		('2001', 'Sammelverkehr', 'Sammelverkehr beschreibt den tatsächlich stattfindenden Verkehr auf einer Straße (Sammelstraße), unabhängig von örtlichen Festlegungen (z. B. Ortssatzungen). Die Sammelstraße leitet hauptsächlich den innerörtlichen Verkehr von den Anliegerstrassen zur Durchgangsstraße.'),
+		('2002', 'Anliegerverkehr', 'Anliegerverkehr beschreibt den tatsächlich stattfindenden Verkehr auf einer Straße (Anliegerstraße), unabhängig von örtlichen Festlegungen (z. B. Ortssatzungen). Die Anliegerstraße ist eine Straße auf die jeder Straßenanlieger von seinem Anwesen aus freie Zufahrt hat und die nicht die Funktion einer Sammelstraße übernimmt.');
+		CREATE TABLE ax_verkehrsdienst_bahnstrecke (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_verkehrsdienst_bahnstrecke IS 'Alias: "AX_Verkehrsdienst_Bahnstrecke", UML-Typ: Enumeration';
+		INSERT INTO ax_verkehrsdienst_bahnstrecke (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Fernverkehr', 'Fernverkehr bedeutet, dass auf der Bahnstrecke von einem Eisenbahnverkehrsunternehmen ein nationaler oder internationaler Schienenpersonenfernverkehrsdienst erbracht wird.');
+		CREATE TABLE ax_bahnkategorie_bahnstrecke (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_bahnkategorie_bahnstrecke IS 'Alias: "AX_Bahnkategorie_Bahnstrecke", UML-Typ: Enumeration';
+		INSERT INTO ax_bahnkategorie_bahnstrecke (wert,beschreibung,dokumentation) VALUES
+		('1100', 'Eisenbahn', 'Eisenbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem im Nah- und Fernverkehr Personen befördert und/oder Güter transportiert werden.'),
+		('1101', 'Personenverkehr', 'Personenverkehr ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem im Nah- und / oder Fernverkehr Personen transportiert werden.'),
+		('1102', 'Güterverkehr', 'Güterverkehr ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem im Nah- und / oder Fernverkehr Güter transportiert werden.'),
+		('1104', 'S-Bahn', 'S-Bahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, der zur schnellen Personenbeförderung in Ballungsräumen dient und meist auf eigenen Gleisen verläuft.'),
+		('1200', 'Stadtbahn', 'Stadtbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine elektrisch betriebene Schienenbahn zur Personenbeförderung im öffentlichen Nahverkehr fährt. Sie kann sowohl ober- als auch unterirdisch verlaufen.'),
+		('1201', 'Straßenbahn', 'Straßenbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine elektrisch betriebene Schienenbahn zur Personenbeförderung fährt. Sie verläuft i. d. R. oberirdisch.'),
+		('1202', 'U-Bahn', 'U-Bahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine elektrisch betriebene Schienenbahn zur Personenbeförderung in Großstädten fährt. Sie verläuft i. d. R. unterirdisch.'),
+		('1300', 'Seilbahn, Bergbahn', 'Seilbahn, Bergbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine Schienenbahn große Höhenunterschiede überwindet.'),
+		('1301', 'Zahnradbahn', 'Zahnradbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine Schienenbahn mittels Zahnradantrieb große Höhenunterschiede in stark geneigtem Gelände überwindet.'),
+		('1302', 'Standseilbahn', 'Standseilbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine Schienenbahn auf einer stark geneigten, meist kurzen und geraden Strecke verläuft. Mit Hilfe eines oder mehrerer Zugseile wird ein Schienenfahrzeug bergauf gezogen und gleichzeitig ein zweites bergab gelassen.'),
+		('1400', 'Museumsbahn', 'Museumsbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem ausschließlich Touristen in alten, meist restaurierten Zügen befördert werden.'),
+		('1500', 'Bahn im Freizeitpark', 'Bahn im Freizeitpark ist die Bezeichnung für einen schienengebundenen Verkehrsweg innerhalb eines Freizeitparks.'),
+		('1600', 'Magnetschwebebahn', 'Magnetschwebebahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem räderlose Schienenfahrzeuge mit Hilfe von Magnetfeldern an oder auf einer Fahrschiene schwebend entlanggeführt werden.');
+		CREATE TABLE ax_befahrbarkeit_fahrwegachse (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_befahrbarkeit_fahrwegachse IS 'Alias: "AX_Befahrbarkeit_Fahrwegachse", UML-Typ: Enumeration';
+		INSERT INTO ax_befahrbarkeit_fahrwegachse (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Ganzjährig befahrbar', 'Ganzjährig befahrbar bedeutet, dass Fahrwegachse zu jeder Jahreszeit befahrbar ist.'),
+		('2000', 'Eingeschränkt befahrbar', 'Eingeschränkt befahrbar bedeutet, dass Fahrwegachse nicht ganzjährig befahrbar ist.');
+		CREATE TABLE ax_selektionsmasstab_benutzungsauftrag (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_selektionsmasstab_benutzungsauftrag IS 'Alias: "AX_Selektionsmasstab_Benutzungsauftrag", UML-Typ: Enumeration';
+		INSERT INTO ax_selektionsmasstab_benutzungsauftrag (wert,beschreibung,dokumentation) VALUES
+		('0500', '1-zu-500', ''),
+		('1000', '1-zu-1000', ''),
+		('2000', '1-zu-2000', ''),
+		('3000', '1-zu-5000', '');
+		CREATE TABLE ax_verarbeitungsart_fortfuehrungsauftrag (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_verarbeitungsart_fortfuehrungsauftrag IS 'Alias: "AX_Verarbeitungsart_Fortfuehrungsauftrag", UML-Typ: Enumeration';
+		INSERT INTO ax_verarbeitungsart_fortfuehrungsauftrag (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Fortführen mit Sperre', ''),
+		('2000', 'Fortführungssimulation mit Unterbrechung der Verarbeitung', ''),
+		('3000', 'Unterbrochenen Auftrag fortsetzen', ''),
+		('4000', 'Fortführen ohne Sperre', ''),
+		('5000', 'Entsperren und Auftrag zurücksetzen', '');
+		CREATE TABLE ax_reservierungsart_reservierungsauftrag (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_reservierungsart_reservierungsauftrag IS 'Alias: "AX_Reservierungsart_Reservierungsauftrag", UML-Typ: Enumeration';
+		INSERT INTO ax_reservierungsart_reservierungsauftrag (wert,beschreibung,dokumentation) VALUES
+		('1100', 'Reservierung im Anschluss an die höchst vergebene Nummer', ''),
+		('1200', 'Reservierung im Anschluss an die höchst vergebene Folgenummer', ''),
+		('2100', 'Reservierung unter Verwendung von Nummerierungslücken bei der Nummer', ''),
+		('2200', 'Reservierung unter Verwendung von Nummerierungslücken bei der Folgenummer', ''),
+		('3000', 'Löschung einer Reservierung', '');
+		CREATE TABLE ax_verarbeitungsart_einrichtungsauftrag (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_verarbeitungsart_einrichtungsauftrag IS 'Alias: "AX_Verarbeitungsart_Einrichtungsauftrag", UML-Typ: Enumeration';
+		INSERT INTO ax_verarbeitungsart_einrichtungsauftrag (wert,beschreibung,dokumentation) VALUES
+		('6000', 'Einrichten ohne Sperre', 'Ein Einrichtungsauftrag kann aus mehreren Dateien (Konvoi) bestehen (6000er, mit einem abschließenden 6100er).'),
+		('6100', 'Ende Einrichten ohne Sperre', 'Verarbeitungsart der letzten Datei einer Folge von Einrichtungsaufträgen.
+		
+		6100 ist ein leerer Auftrag, d.h. es sind keine AAA-Fachobjekte enthalten; "LZI.beginnt" wird vom Verarbeitungsbeginn des 6100 einheitlich für ganzen Konvoi bestimmt; 
+		
+		6100 stößt bezogen auf seinen Konvoi und bezüglich ggf. bereits eingerichteter Bereiche Prüfungen an, z.B. Flächendeckungsprüfungen, die den korrekten Anschluss an das eingerichtete Gebiet gewährleisten.'),
+		('6200', 'Abbruch', '6200 dient zum Abbruch eines Konvois und zum Rücksetzen des temporären Arbeitsbereichs.
+		
+		Nach Ausführung diesen Auftrages ist das aufnehmende System wieder in dem Zustand, der vor Beginn des Einrichtungskonvois dort herrschte.');
+		CREATE TABLE ax_impliziteloeschungderreservierung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ax_impliziteloeschungderreservierung IS 'Alias: "AX_ImpliziteLoeschungDerReservierung", UML-Typ: Enumeration';
+		INSERT INTO ax_impliziteloeschungderreservierung (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Reservierte Punktkennungen und Flurstückskennzeichen löschen', ''),
+		('2000', 'Reservierte Punktkennungen löschen', ''),
+		('3000', 'Reservierte Flurstückskennzeichen löschen', ''),
+		('4000', 'Ohne Löschung reservierter Punktkennungen und Flurstückskennzeichen', '');
+		CREATE TABLE lb_wassersaettigung_lockermaterial (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE lb_wassersaettigung_lockermaterial IS 'Alias: "LB_Wassersaettigung_Lockermaterial", UML-Typ: Enumeration';
+		INSERT INTO lb_wassersaettigung_lockermaterial (wert,beschreibung,dokumentation) VALUES
+		('1000', 'ganzjährig', 'ganzjährige Wassersättigung bedeutet, dass die Hohlräume des Bodens ganzjährig vollständig mit Wasser gefüllt sind. Ein solcher nasser Standort kann zeitweise auch unter Wasser stehen.'),
+		('2000', 'zeitweilig', 'zeitweilige Wassersättigung bedeutet, dass die Hohlräume des Bodens in regelmäßigem Zyklus (periodisch) oder nur gelegentlich und vorübergehend (episodisch) vollständig mit Wasser gefüllt sind. Ein solcher vorübergehend nasser Standort kann zeitweise auch unter Wasser stehen.');
+		CREATE TABLE lb_oberflaechenmaterial_lockermaterial (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE lb_oberflaechenmaterial_lockermaterial IS 'Alias: "LB_Oberflaechenmaterial_Lockermaterial", UML-Typ: Enumeration';
+		INSERT INTO lb_oberflaechenmaterial_lockermaterial (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Geröll, Schotter, Kies', 'Geröll, Schotter Kies umfasst unbewachsene Oberflächen, die mit größeren, abgerundeten oder kantigen Gesteinstrümmern bedeckt sind. Hierzu zählen auch Kohle, Erze oder Salze in zerkleinerter Form.'),
+		('2000', 'Sand, Feinkies', 'Sand, Feinkies umfasst unbewachsene Oberflächen, die mit kleinen losen Gesteinskörnern bedeckt sind.'),
+		('3000', 'Erdreich', 'Erdreich sind unbewachsene Oberflächen, die überwiegend mit Mutterboden (Humusanteil, feine Körngrößen) bedeckt sind.'),
+		('4000', 'Ton, Schluff', 'Ton, Schluff umfasst unbewachsene Oberflächen ohne Humusanteil, die mit mineralischen Partikeln sehr feiner Korngröße bedeckt sind und im Allgemeinen auch als Lehm bezeichnet werden.'),
+		('5000', 'künstlich', 'künstlich umfasst jegliche Art aus fragmentierten Materialien künstlichen Ursprungs in aufgeschütteter Form. Beispiele für künstliche Materialien sind: Abfall, Müll, Schutt, Schlacke, Schrott, Altmaterial.');
+		CREATE TABLE lb_blattform_holzigevegetation (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE lb_blattform_holzigevegetation IS 'Alias: "LB_Blattform_HolzigeVegetation", UML-Typ: Enumeration';
+		INSERT INTO lb_blattform_holzigevegetation (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Laub', 'Laub beschreibt die Zugehörigkeit der Pflanzen zur Gruppe der Laubhölzer (Bedecktsamer).'),
+		('2000', 'Nadel', 'Nadel beschreibt die Zugehörigkeit der Pflanzen zur Gruppe der Nadelhölzer (Nacktsamer).');
+		CREATE TABLE lb_wassersaettigung_krautigevegetation (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE lb_wassersaettigung_krautigevegetation IS 'Alias: "LB_Wassersaettigung_KrautigeVegetation", UML-Typ: Enumeration';
+		INSERT INTO lb_wassersaettigung_krautigevegetation (wert,beschreibung,dokumentation) VALUES
+		('1000', 'ganzjährig', 'ganzjährige Wassersättigung bedeutet, dass die Hohlräume des Bodens ganzjährig vollständig mit Wasser gefüllt sind. Ein solcher nasser Standort kann zeitweise auch unter Wasser stehen.'),
+		('2000', 'zeitweilig', 'zeitweilige Wassersättigung bedeutet, dass die Hohlräume des Bodens in regelmäßigem Zyklus (periodisch) oder nur gelegentlich und vorübergehend (episodisch) vollständig mit Wasser gefüllt sind. Ein solcher vorübergehend nasser Standort kann zeitweise auch unter Wasser stehen.');
+		CREATE TABLE lb_wassersaettigung_holzigevegetation (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE lb_wassersaettigung_holzigevegetation IS 'Alias: "LB_Wassersaettigung_HolzigeVegetation", UML-Typ: Enumeration';
+		INSERT INTO lb_wassersaettigung_holzigevegetation (wert,beschreibung,dokumentation) VALUES
+		('1000', 'ganzjährig', 'ganzjährige Wassersättigung bedeutet, dass die Hohlräume des Bodens ganzjährig vollständig mit Wasser gefüllt sind. Ein solcher nasser Standort kann zeitweise auch unter Wasser stehen.'),
+		('2000', 'zeitweilig', 'zeitweilige Wassersättigung bedeutet, dass die Hohlräume des Bodens in regelmäßigem Zyklus (periodisch) oder nur gelegentlich und vorübergehend (episodisch) vollständig mit Wasser gefüllt sind. Ein solcher vorübergehend nasser Standort kann zeitweise auch unter Wasser stehen.');
+		CREATE TABLE lb_vegetationsmerkmal_krautigevegetation (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE lb_vegetationsmerkmal_krautigevegetation IS 'Alias: "LB_Vegetationsmerkmal_KrautigeVegetation", UML-Typ: Enumeration';
+		INSERT INTO lb_vegetationsmerkmal_krautigevegetation (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Gras', 'Gras beschreibt den Bewuchs einer Vegetationsfläche mit schlanken, krautigen einkeimblättrigen Blütenpflanzen.'),
+		('2000', 'Röhricht, Schilf', 'Röhricht, Schilf beschreibt den Bewuchs einer Vegetations- oder Wasserfläche mit Schilfrohr- und schilfrohrähnlichen Pflanzen.'),
+		('3000', 'Getreide, Staudengewächse, Farne', 'Getreide, Staudengewächse, Farne umfasst Flächen, die überwiegend mit krautigen Pflanzen (Getreide, Mais und andere Ackerfrüchte, Staudengewächse, Farne) bestanden sind. Hierzu zählt auch zeitweise vegetationsloses Erdreich (Mutterboden) von landwirtschaftlich genutzten Ackerflächen.');
+		CREATE TABLE lb_vegetationsmerkmal_holzigevegetation (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE lb_vegetationsmerkmal_holzigevegetation IS 'Alias: "LB_Vegetationsmerkmal_HolzigeVegetation", UML-Typ: Enumeration';
+		INSERT INTO lb_vegetationsmerkmal_holzigevegetation (wert,beschreibung,dokumentation) VALUES
+		('4000', 'Bäume', 'Bäume bedeutet, dass die Oberflächen mit verholzten Pflanzen bestanden ist, welche aus einem Wurzelwerk, einem daraus emporsteigenden, hochgewachsenen Stamm und einer verästelten Krone bestehen.'),
+		('5000', 'Gehölz', 'Gehölz ist eine Mischfläche, die mit einzelnen verholzten Pflanzen unterschiedlicher Wuchshöhe und Wuchsform (sowohl Bäume als auch Büsche oder Sträucher) in gemischter Form bestockt ist.'),
+		('6000', 'Büsche, Sträucher', 'Büsche, Sträucher umfasst eine Fläche, die mit holziger Vegetation unterschiedlicher Wuchsform und begrenzter Wuchshöhe bestanden ist. Büsche und Sträucher haben in der Regel mehrere Stammtriebe, deren Sprossen sich nahe der Bodenoberfläche verzweigen.'),
+		('7000', 'Zwergsträucher', 'Zwergsträucher ist eine Sonderform der holzigen Vegetation. Sie umfasst eine Fläche, die mit Pflanzen sehr niederer Wuchshöhe bestanden ist. Beispiele hierfür sind: Heidekrautgewächse, Lavendel.');
+		CREATE TABLE lb_fliesseigenschaft_binnengewaesser (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE lb_fliesseigenschaft_binnengewaesser IS 'Alias: "LB_Fliesseigenschaft_Binnengewaesser", UML-Typ: Enumeration';
+		INSERT INTO lb_fliesseigenschaft_binnengewaesser (wert,beschreibung,dokumentation) VALUES
+		('1000', 'fließend', 'fließend bedeutet, dass das Wasser aufgrund eines Gefälles ständig in Bewegung ist.'),
+		('2000', 'stehend', 'stehend bedeutet, dass das Gewässer insgesamt oder abschnittsweise eine einheitliche Höhe des Wasserspiegels besitzt; dies schließt saisonale Schwankungen dieser einheitlichen Wasserspiegelhöhe nicht aus.');
+		CREATE TABLE lb_gewaesserart_binnengewaesser (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE lb_gewaesserart_binnengewaesser IS 'Alias: "LB_Gewaesserart_Binnengewaesser", UML-Typ: Enumeration';
+		INSERT INTO lb_gewaesserart_binnengewaesser (wert,beschreibung,dokumentation) VALUES
+		('1010', 'Fluss', 'Fluss ist ein natürliches, fließendes Gewässer (ggf. auch mit begradigten, kanalisierten Teilstücken), das wegen seiner Größe und Bedeutung im allgemeinen Sprachgebrauch als Fluss angesprochen wird. Kriterien hierfür können eine größere Wassertiefe, ein größere Breite oder größere Gewässerquerschnitt sein.'),
+		('1020', 'Bach', 'Bach ist ein natürliches, fließendes Gewässer, das wegen seiner geringen Größe und Bedeutung im allgemeinen Sprachgebrauch als Bach anzusehen ist. Kriterien hierfür können eine geringere Wassertiefe, eine geringe Breite, oder kleiner Gewässerquerschnitt sein. Bäche unterscheiden sich von Flüssen durch ihren stärker ans Gelände angepassten Verlauf, das unregelmäßige Längsprofil und den oft schießenden Abfluss.'),
+		('2000', 'Altwasser, Altarm', 'Altwasser, Altarm ist ein Teil eines Fließgewässers, der bei einer Begradigung vom fließenden Gewässer an beiden oder an einem Ende abgetrennt wurde, wodurch das Gewässer einen eher stehenden Charakter bekommt.'),
+		('3010', 'Kanal', 'Kanal bezeichnet einen künstlich angelegten Wasserlauf. In der Regel hat er einen regelmäßigen Gewässerquerschnitt und einen geradlinigen Verlauf.'),
+		('3020', 'Graben', 'Graben ist ein ständig oder zeitweise fließendes, künstlich angelegtes Gewässer, das im allgemeinen Sprachgebrauch als Graben anzusehen ist. In der Regel hat er einen regelmäßigen Gewässerquerschnitt und einen geradlinigen Verlauf.'),
+		('4000', 'Becken', 'Becken ist eine zweckgebundene, künstlich errichtete, befestigte Hohlform im Gelände, die im allgemeinen Sprachgebrauch als eine Art von "Becken" bezeichnet werden. In der Regel sind Becken von einer künstlich errichteten Umrandung oder einem Bauwerk ganz oder teilweise umschlossen. Beispiele hierfür sind: Hafenbecken, Speicherbecken, Rückhaltebecken, Klärbecken, Fischzuchtbecken.'),
+		('5000', 'See, Teich', 'See, Teich ist eine natürliche oder naturnah angelegte, stehende oder nahezu stehende Wasserfläche, die im allgemeinen Sprachgebrauch als See oder Teich anzusehen ist. In der Regel haben Seen und Teiche einen natürlichen oder naturnahen Uferverlauf. Dies gilt auch für Talsperren- und Stauseen.');
+		CREATE TABLE lb_wasserfuehrung_binnengewaesser (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE lb_wasserfuehrung_binnengewaesser IS 'Alias: "LB_Wasserfuehrung_Binnengewaesser", UML-Typ: Enumeration';
+		INSERT INTO lb_wasserfuehrung_binnengewaesser (wert,beschreibung,dokumentation) VALUES
+		('1000', 'ganzjährig', 'ganzjährige Wasserführung bedeutet, dass Gewässer das ganze Jahr hindurch perennierend Wasser führt.'),
+		('2000', 'zeitweilig', 'zeitweilige Wasserführung bedeutet, dass das Gewässer in regelmäßigem Zyklus (periodisch) Wasser führt (Beispiele: Schneeschmelze, Regenzeit etc.), oder nur gelegentlich und vorübergehend (episodisch) Wasser führt (Beispiel: saisonunabhängige Starkregenereignisse).');
+		CREATE TABLE lb_meerart_meer (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE lb_meerart_meer IS 'Alias: "LB_Meerart_Meer", UML-Typ: Enumeration';
+		INSERT INTO lb_meerart_meer (wert,beschreibung,dokumentation) VALUES
+		('1010', 'Watt', 'Watt ist ein aus Sand oder Schlick bestehender Boden an flachen Gezeitenküsten und Flüssen, der bei Ebbe ganz oder teilweise trocken fällt.'),
+		('1020', 'Haff, Bodden', 'Haff, Bodden ist ein vom offenen Meer durch Landzungen gänzlich oder teilweise abgetrenntes Küstengewässer an der Ostsee.'),
+		('1030', 'Priel', 'Priel ist eine natürliche Rinne im Watt, die auch bei Ebbe Wasser führt.');
+		CREATE TABLE lb_eisart_eis (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE lb_eisart_eis IS 'Alias: "LB_Eisart_Eis", UML-Typ: Enumeration';
+		INSERT INTO lb_eisart_eis (wert,beschreibung,dokumentation) VALUES
+		('2010', 'Gletscher', 'Gletscher umfasst eine von Gletschereis bedeckte Fläche. Gletschereis ist aus mehrjährigem Schnee unter zunehmendem Eigendruck entstanden. Gletscher sind entsprechend der Jahreszeiten teils mit Schnee bedeckt.'),
+		('2020', 'Dauerschnee, Firn', 'Dauerschnee bedeutet, dass die Erdoberfläche ganzjährig mit Schnee bedeckt ist. Firn bedeutet, dass die Erdoberfläche im Hochgebirge mit altem, grobkörnigem, mehrjährigem und stark verdichtetem Schnee bedeckt ist, der unter zunehmendem Druck zu Gletschereis wird.');
+		CREATE TABLE ln_zustand_wasserwirtschaft (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_zustand_wasserwirtschaft IS 'Alias: "LN_Zustand_Wasserwirtschaft", UML-Typ: Enumeration';
+		INSERT INTO ln_zustand_wasserwirtschaft (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb', 'Außer Betrieb bedeutet, dass sich das Objekt nicht mehr in regelmäßiger, der Bestimmung entsprechender Nutzung befindet.'),
+		('4000', 'Im Bau', 'Im Bau bedeutet, dass die Bauarbeiten am Objekt bereits begonnen haben und das Objekt noch nicht fertiggestellt ist.');
+		CREATE TABLE ln_funktion_wasserwirtschaft (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_funktion_wasserwirtschaft IS 'Alias: "LN_Funktion_Wasserwirtschaft", UML-Typ: Enumeration';
+		INSERT INTO ln_funktion_wasserwirtschaft (wert,beschreibung,dokumentation) VALUES
+		('7111', 'Trinkwasser', 'Trinkwasser im vorliegenden Sinne bezeichnet Wasser, das für den menschlichen Genuss geeignet ist.'),
+		('7112', 'Energie', 'Energie weist die Nutzung eines Stehendes Gewässers zur Energiegewinnung aus.'),
+		('7113', 'Brauchwasser', 'Brauchwasser dient spezifischen technischen, gewerblichen, industriellen, landwirtschaftlichen, hauswirtschaftlichen oder ähnlichen Zwecken, ohne dass im allgemeinen hierfür Trinkwasserqualität verlangt wird. Hierzu zählen z B. Kesselspeisewasser, Kühlwasser, unterschiedlich aufbereitetes Rohwasser.');
+		CREATE TABLE ln_art_wasserwirtschaft (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_art_wasserwirtschaft IS 'Alias: "LN_Art_Wasserwirtschaft", UML-Typ: Enumeration';
+		INSERT INTO ln_art_wasserwirtschaft (wert,beschreibung,dokumentation) VALUES
+		('7100', 'Wasserrückhalt', 'Wasserrückhalt bezeichnet Flächen zur Dämmung, Speicherung und zum Rückhalt von Wasser auf flutbaren Flächen (z. B. Polder, Talsperren).'),
+		('7110', 'Stauung', 'Stauung umschreibt künstlich angelegte Flächen zur Speicherung von Wasser zur wirtschaftlichen Nutzung (z. B. Staudamm).'),
+		('7120', 'Niederschlagsrückhalt', 'Niederschlagsrückhalt sind Flächen zum Rückhalt von Niederschlagwasser (z. B. Rückhaltebecken).'),
+		('7130', 'Gewässerregulierung', 'Gewässerregulierung beschreibt Flächen die zur Regulierung von Gewässern beitragen (z. B. Begradigungen, Mäandrierungen, Fischtreppen, Drainagen).'),
+		('7200', 'Entwässerung', 'Entwässerung beschreibt Flächen zum Abführen von Wasser (z. B. Gräben, Vorfluter, Verrohrungen).');
+		CREATE TABLE ln_artderbetriebsflaeche_landwirtschaft (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_artderbetriebsflaeche_landwirtschaft IS 'Alias: "LN_ArtDerBetriebsflaeche_Landwirtschaft", UML-Typ: Enumeration';
+		INSERT INTO ln_artderbetriebsflaeche_landwirtschaft (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Tierhaltung', 'Tierhaltung bezeichnet eine bebaute und unbebaute Fläche, die vorwiegend dem landwirtschaftlichen Betrieb, primär der Tierhaltung dient. Diese umfasst auch die Gebäude- und Freiflächen.'),
+		('2000', 'Pflanzliche Produktion', 'Pflanzliche Produktion bezeichnet eine bebaute und unbebaute Fläche, die vorwiegend dem landwirtschaftlichen Betrieb, primär der pflanzlichen Produktion dient. Diese umfasst auch die Gebäude- und Freiflächen.');
+		CREATE TABLE ln_art_forstwirtschaft (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_art_forstwirtschaft IS 'Alias: "LN_Art_Forstwirtschaft", UML-Typ: Enumeration';
+		INSERT INTO ln_art_forstwirtschaft (wert,beschreibung,dokumentation) VALUES
+		('6100', 'Forstwirtschaftsfläche', 'Forstwirtschaftsfläche bezeichnet eine Waldfläche mit oder ohne Bäumen, welche forstwirtschaftlich genutzt wird. Hierzu zählen keine Kurzumtriebsplantagen.'),
+		('6200', 'Dauerhaft unbestockt', 'Dauerhaft unbestockt umfasst alle als Waldflächen geltenden Flächen, auf denen dauerhaft weder Bäume noch sonstige Gehölze stehen, aber stehen könnten. Hierzu zählen z.B. Lichtungen.'),
+		('6300', 'Betriebsfläche Forstwirtschaft', 'Betriebsfläche Forstwirtschaft bezeichnet eine bebaute und unbebaute Fläche, die vorwiegend dem forstwirtschaftlich Betrieb dient.');
+		CREATE TABLE ln_bewirtschaftung_landwirtschaft (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_bewirtschaftung_landwirtschaft IS 'Alias: "LN_Bewirtschaftung_Landwirtschaft", UML-Typ: Enumeration';
+		INSERT INTO ln_bewirtschaftung_landwirtschaft (wert,beschreibung,dokumentation) VALUES
+		('1010', 'Ackerland', 'Ackerland ist eine Fläche für den Anbau von Feldfrüchten (z.B. Getreide, Hülsenfrüchte, Hackfrüchte) und Beerenfrüchten (z.B. Erdbeeren).'),
+		('1011', 'Streuobst', 'Streuobst beschreibt den Bewuchs einer Acker-, Mahd- oder Weidelandfläche mit Obstbäumen.'),
+		('1012', 'Hopfen', 'Hopfen ist eine mit speziellen Vorrichtungen ausgestattete Agrarfläche für den Anbau von Hopfen.'),
+		('1013', 'Spargel', 'Spargel beschreibt den Bewuchs einer landwirtschaftlichen Fläche mit Spargel.'),
+		('1014', 'Hanf', 'Hanf beschreibt den Bewuchs einer Agrarfläche mit Nutzhanf.'),
+		('1020', 'Mahd- und Weideland', 'Mahd- und Weideland ist eine Grasfläche, die gemäht oder beweidet wird.'),
+		('1030', 'Gartenbauland', 'Gartenbauland ist eine Fläche, die dem gewerbsmäßigen Anbau von Gartengewächsen (Gemüse, Obst und Blumen) sowie für die Aufzucht von Kulturpflanzen dient.'),
+		('1040', 'Rebfläche', 'Rebfläche ist eine mit speziellen Vorrichtungen ausgestattete Agrarfläche, auf der Weinstöcke angepflanzt sind.'),
+		('1050', 'Obst- und Nussplantage', 'Obst- und Nussplantage ist eine Fläche, die vorwiegend dem Intensivobstanbau dient und mit Obst- und Nussbäumen und -sträuchern bestanden ist. Im Unterschied zu Streuobst handelt es sich hierbei um gleichmäßige und dichter angelegte Monokulturen.'),
+		('1060', 'Kurzumtriebsplantage', 'Kurzumtriebsplantage sind landwirtschaftliche Kulturen oder Anpflanzung schnell wachsender Bäume mit dem Ziel, innerhalb kurzer Umtriebszeiten Holz als nachwachsenden Rohstoff zu produzieren; auch mit Ziel der Energieerzeugung.'),
+		('1070', 'Baumschule', 'Baumschule ist eine Fläche, auf der Holzgewächse aus Samen, Ablegern oder Stecklingen unter mehrmaligem Umpflanzen (Verschulen) gezogen werden.'),
+		('1080', 'Weihnachtsbaumkultur', 'Weihnachtsbaumkultur bezeichnet eine landwirtschaftliche Fläche, die vorrangig mit Weihnachtsbäumen bepflanzt ist.'),
+		('1200', 'Brachland', 'Brachland ist eine Fläche der Landwirtschaft, die seit längerem nicht mehr zu Produktionszwecken genutzt wird.'),
+		('1300', 'Betriebsfläche Landwirtschaft', 'Betriebsfläche Landwirtschaft bezeichnet eine bebaute und unbebaute Fläche, die dem landwirtschaftlich Betrieb dient.');
+		CREATE TABLE ln_art_aquakulturundfischereiwirtschaft (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_art_aquakulturundfischereiwirtschaft IS 'Alias: "LN_Art_AquakulturUndFischereiwirtschaft", UML-Typ: Enumeration';
+		INSERT INTO ln_art_aquakulturundfischereiwirtschaft (wert,beschreibung,dokumentation) VALUES
+		('6400', 'Fischzucht, Muschelzucht', 'Fischzucht, Muschelzucht bezeichnet Flächen/Areale, die dem (gewerblichen) Züchten bzw. der kontrollierten Aufzucht von im Wasser lebenden Organismen, insbesondere Fischen und Muscheln, zur Nahrungsgewinnung und Weiterverarbeitung dienen.'),
+		('6500', 'Algenzucht', 'Algenzucht bezeichnet Flächen/Areale, die dem (gewerblichen) Züchten bzw. der kontrollierten Aufzucht von im Wasser lebenden Organismen, insbesondere Algen, zur Nahrungsgewinnung und Weiterverarbeitung dienen.');
+		CREATE TABLE ln_abbaugut_abbau (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_abbaugut_abbau IS 'Alias: "LN_Abbaugut_Abbau", UML-Typ: Enumeration';
+		INSERT INTO ln_abbaugut_abbau (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Erden, Lockergestein', 'Erden, Lockergestein bedeutet, dass feinkörnige Gesteine abgebaut werden.'),
+		('2000', 'Steine, Gestein, Festgestein', 'Steine, Gestein, Festgestein bedeutet, dass grobkörnige oder feste Gesteine abgebaut werden.'),
+		('3000', 'Erze', 'Erze bedeutet, dass die in der Natur vorkommenden, metallhaltigen Mineralien und Mineralgemische abgebaut oder gespeichert werden.'),
+		('4000', 'Treib- und Brennstoffe', 'Treib- und Brennstoffe bedeutet, dass die in der Natur vorkommenden brennbaren organischen und anorganischen Substanzen abgebaut oder gewonnen werden.'),
+		('5000', 'Industrieminerale, Salze', 'Industrieminerale, Salze bedeutet, dass die in der Natur vorkommenden Mineralien abgebaut werden.');
+		CREATE TABLE ln_oberflaeche_lagerung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_oberflaeche_lagerung IS 'Alias: "LN_Oberflaeche_Lagerung", UML-Typ: Enumeration';
+		INSERT INTO ln_oberflaeche_lagerung (wert,beschreibung,dokumentation) VALUES
+		('1000', 'oberirdisch', 'oberirdisch ist eine Fläche, auf der sich die Objekte auf oder über der Erdoberfläche befinden.'),
+		('2000', 'unterirdisch', 'unterirdisch ist eine Fläche, auf der sich die Objekte unter der Erdoberfläche befinden.');
+		CREATE TABLE ln_zustand_abbau (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_zustand_abbau IS 'Alias: "LN_Zustand_Abbau", UML-Typ: Enumeration';
+		INSERT INTO ln_zustand_abbau (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb', 'Außer Betrieb bedeutet, dass sich die Fläche nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
+		('8000', 'Erweiterung, Neuansiedlung', 'Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		CREATE TABLE ln_lagergut_lagerung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_lagergut_lagerung IS 'Alias: "LN_Lagergut_Lagerung", UML-Typ: Enumeration';
+		INSERT INTO ln_lagergut_lagerung (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Baustoffe', 'Baustoffe sind sämtliche im Bauwesen verwendete Materialien, die als Lagergut aufbewahrt werden.'),
+		('2000', 'Kohle, Erz, Salz', 'Kohle, Erz und Salz sind durch Berg- bzw. Tagebau gewonnene Abbaugüter, die für eine Weiterverwendung (vorübergehend) gelagert werden.'),
+		('3000', 'Öl', 'Öl ist eine organische Flüssigkeit, die als Rohstoff gewonnen wird und in der Industrie vielseitige Verwendung findet.'),
+		('4000', 'Erdreich', 'Erdreich‘ bezeichnet eine Fläche auf der „Erdreich“ gelagert wird. Erdreich im vorliegenden Sinne bezeichnet Oberflächenmaterial, das überwiegend aus Mutterboden (Humusanteil, feine Korngrößen) besteht.'),
+		('5000', 'Schutt', 'Schutt ist eine nicht verfestigte Anhäufung von Trümmerstücken.'),
+		('7000', 'Abraum', 'Abraum sind unbrauchbare Boden- und Gesteinsmassen.'),
+		('8000', 'Schrott, Altmaterial', 'Schrott, Altmaterial sind Wertstoffe, die als Sekundärrohstoffe dienen.'),
+		('9000', 'Gas', 'Gas bezeichnet den Aggregatzustand einer Materie ohne bestimmte Gestalt.');
+		CREATE TABLE ln_foerdergut_abbau (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_foerdergut_abbau IS 'Alias: "LN_Foerdergut_Abbau", UML-Typ: Enumeration';
+		INSERT INTO ln_foerdergut_abbau (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Erdöl', 'Erdöl ist ein flüssiges und brennbares Kohlenwasserstoffgemisch, das gefördert wird.'),
+		('2000', 'Erdgas', 'Erdgas ist ein in der Erdkruste vorkommendes brennbares Naturgas, das gefördert wird.'),
+		('3000', 'Sole, Lauge', 'Sole, Lauge ist ein kochsalzhaltiges Wasser, das gefördert wird.'),
+		('4000', 'Kohlensäure', 'Kohlensäure ist eine schwache Säure, die durch Lösung von Kohlendioxid in Wasser entsteht und gefördert wird.'),
+		('5000', 'Erdwärme', 'Erdwärme ist eine auf natürlichem Wege sich erneuernde Wärmeenergie, die aus einer geothermisch geringen Tiefenstufe der Erdkruste gefördert wird.');
+		CREATE TABLE ln_art_abbau (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_art_abbau IS 'Alias: "LN_Art_Abbau", UML-Typ: Enumeration';
+		INSERT INTO ln_art_abbau (wert,beschreibung,dokumentation) VALUES
+		('3110', 'Tagebau', 'Tagebau ist eine Fläche, auf der oberirdisch Bodenmaterial abgebaut wird. Rekultivierte Tagebaue, Gruben, Steinbrüche werden als Objekte entsprechend der vorhandenen Nutzung erfasst.'),
+		('3120', 'Untertagebau', 'Untertagebau ist eine Fläche, die für die Förderung des Abbaugutes unter Tage genutzt wird.'),
+		('3200', 'Förderanlage', 'Förderanlage bezeichnet eine Fläche mit Einrichtungen zur Förderung von Rohstoffen und Energieträgern.');
+		CREATE TABLE ln_sportart_sportanlage (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_sportart_sportanlage IS 'Alias: "LN_Sportart_Sportanlage", UML-Typ: Enumeration';
+		INSERT INTO ln_sportart_sportanlage (wert,beschreibung,dokumentation) VALUES
+		('1010', 'Ballsport', 'Ballsport bedeutet, dass ein Spielfeld oder Stadion zur Ausübung des Ballsports genutzt wird.'),
+		('1011', 'Fußball', 'Fußball bedeutet, dass ein Spielfeld oder Stadion zum Fußball spielen genutzt wird.'),
+		('1012', 'Golf', 'Golf ist eine Fläche mit Bauwerken und Einrichtungen, die zur Ausübung des Golfsports genutzt wird.'),
+		('1013', 'Tennis', 'Tennis ist eine Fläche mit baulichen Anlagen und mit Spielfeldern für den Tennissport. Die zusammenhängenden Spielflächen innerhalb einer Tennisanlage werden zu einem Spielfeld zusammengefasst.'),
+		('1020', 'Leichtathletik', 'Leichtathletik bedeutet, dass ein Spielfeld oder Stadion zur Ausübung verschiedener Leichtathletikdisziplinen genutzt wird'),
+		('1030', 'Wassersport', 'Wassersport bezeichnet ein Areal welches beispielsweise zum Rudern, Segeln oder für Wasserski genutzt wird.'),
+		('1040', 'Schwimmen', 'Schwimmen bedeutet, dass ein Stadion zum Schwimmen genutzt wird.'),
+		('1050', 'Ski', 'Ski bedeutet, dass ein Stadion zur Ausübung des Skisports genutzt wird.'),
+		('1060', 'Motorrennsport', 'Motorrennsport bedeutet, dass eine Rennbahn zur Ausübung des Motorrennsports genutzt wird.'),
+		('1070', 'Eislauf, Eishockey', 'Eislauf, Eishockey bedeutet, dass ein Stadion zur Ausübung des Eislaufsports oder des Eishockeysports genutzt wird.'),
+		('1080', 'Rollschuhlaufen, Skating', 'Rollschuhlaufen, Skating bedeutet, dass eine Laufbahn zum Rollschuhfahren, Skaten genutzt wird.'),
+		('1110', 'Radsport', 'Radsport bedeutet, dass ein Stadion oder eine Rennbahn zur Ausübung des Radsports genutzt wird.'),
+		('1120', 'Pferdesport', 'Pferdesport ist eine Anlage für Wettkämpfe und/oder dient der Ausübung des Reitsports. Die Fläche des Reitsports kann u.a. Stallungen und kleine bauliche Anlagen enthalten.'),
+		('1130', 'Hundesport', 'Hundesport ist eine Fläche, auch mit Bauwerken, die speziell mit Hunden genutzt wird. (z. B. Rennhundesport, Parcours zum Abrichten).'),
+		('1140', 'Schießen', 'Schießen umfasst ein Gelände mit Gebäuden zum Üben und Prüfen von Schusswaffen und Schützen. (z.B. Schützenvereinsanlagen, Schießanlagen, Trainingsgelände für Schützen).');
+		CREATE TABLE ln_primaerenergie_versorgungundentsorgung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_primaerenergie_versorgungundentsorgung IS 'Alias: "LN_Primaerenergie_VersorgungUndEntsorgung", UML-Typ: Enumeration';
+		INSERT INTO ln_primaerenergie_versorgungundentsorgung (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Wasser', 'Wasser bedeutet, dass das Kraftwerk potentielle und kinetische Energie des Wasserkreislaufs in elektrische Energie umwandelt.'),
+		('2000', 'Kernkraft', 'Kernkraft bedeutet, dass das Kraftwerk die durch Kernspaltung gewonnene Energie in eine andere Energieform umwandelt.'),
+		('3000', 'Sonne', 'Sonne bedeutet, dass das Kraftwerk bzw. Heizwerk Sonnenenergie in eine andere Energieform umwandelt.'),
+		('4000', 'Wind', 'Wind bedeutet, dass das Kraftwerk die Strömungsenergie des Windes in elektrische Energie umwandelt.'),
+		('5000', 'Gezeiten', 'Gezeiten bedeutet, dass das Kraftwerk die kinetische Energie der Meeresgezeiten in elektrische Energie umwandelt.'),
+		('6000', 'Erdwärme', 'Erdwärme bedeutet, dass das Heizwerk die geothermische Energie der Erde nutzt.'),
+		('7100', 'Kohle', 'Kohle bedeutet, dass das Kraftwerk bzw. Heizwerk die durch Verbrennung von Kohle frei werdende Energie in eine andere Energieform umwandelt.'),
+		('7200', 'Öl', 'Öl bedeutet, dass das Kraftwerk bzw. Heizwerk die durch Verbrennung von Öl freiwerdende Energie in eine andere Energieform umwandelt.'),
+		('7300', 'Gas', 'Gas bedeutet, dass das Kraftwerk bzw. Heizwerk die durch Verbrennung von Gas freiwerdende Energie in eine andere Energieform umwandelt.'),
+		('7400', 'Müll, Abfall', 'Müll, Abfall bedeutet, dass das Kraftwerk bzw. Heizwerk die durch Verbrennung von Müll bzw. Abfall freiwerdende Energie in eine andere Energieform umwandelt.'),
+		('7500', 'Biomasse', 'Biomasse sind organische Substanzen (z.B. Pflanzen, Futtermittelabfälle, Gülle), die verbrannt und/oder vergärt werden, um Energie zu gewinnen.');
+		CREATE TABLE ln_art_freizeitanlage (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_art_freizeitanlage IS 'Alias: "LN_Art_Freizeitanlage", UML-Typ: Enumeration';
+		INSERT INTO ln_art_freizeitanlage (wert,beschreibung,dokumentation) VALUES
+		('4210', 'Zoo', 'Zoo ist ein Gelände mit Tierschauhäusern und umzäunten Gehegen, auf dem Tiere gehalten und gezeigt werden.'),
+		('4220', 'Safaripark, Wildpark', 'Safaripark, Wildpark ist ein Gelände mit umzäunten Gehegen, in denen Tiere im Freien gehalten und gezeigt werden.'),
+		('4230', 'Freizeitpark', 'Freizeitpark ist ein Gelände mit Karussells, Verkaufs- und Schaubuden und/oder Wildgattern, das der Freizeitgestaltung dient.'),
+		('4240', 'Freilichtbühne', 'Freilichtbühne ist eine Anlage mit Bühne und Zuschauerbänken für Aufführungen im Freien.'),
+		('4250', 'Freilichtmuseum', 'Freilichtmuseum ist eine volkskundliche Museumsanlage, in der Wohnformen oder historische Betriebsformen in ihrer natürlichen Umgebung im Freien dargestellt sind.'),
+		('4260', 'Autokino, Freilichtkino', 'Autokino, Freilichtkino ist ein Lichtspieltheater im Freien, in dem der Film im Allgemeinen vom Auto aus angesehen wird.'),
+		('4270', 'Modellfluggelände', 'Modellfluggelände ist eine Fläche, die zur Ausübung des Modellflugsports dient.'),
+		('4310', 'Festplatz', 'Festplatz ist eine Fläche, auf der zeitlich begrenzte Festveranstaltungen stattfinden.'),
+		('4320', 'Freizeitbad', 'Freizeitbad ist eine Anlage mit Schwimmbecken oder eine Anlage an Ufern von Gewässern für den Badebetrieb und Schwimmsport.'),
+		('4330', 'Campingplatz', 'Campingplatz ist eine Fläche für den Aufbau einer größeren Zahl von Zelten oder zum Abstellen und Benutzen von Wohnwagen mit ortsfesten Anlagen und Einrichtungen.'),
+		('4340', 'Kletteranlage', 'Kletteranlage ist eine Fläche mit Bauwerken und Einrichtungen, die zur Ausübung des Klettersports genutzt wird.'),
+		('4350', 'Gelände für Luftsportgeräte', 'Gelände für Luftsportgeräte ist eine Fläche, auf der Ultraleichtflug-, Hängegleiter-, Gleitsegel-, Sprungfallschirm-, Gleitflug- und Freiballonaktivitäten ausgeübt werden.'),
+		('4360', 'Go-Kart-Bahn', 'Go-Kart-Bahn umfasst eine abgegrenzte Strecke mit Anlagen und Gebäuden, die zur Ausübung des Kartrennsports genutzt wird. Hierzu gehören Indoor- und Outdoor-Kartbahnen.');
+		CREATE TABLE ln_funktion_kulturundunterhaltung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_funktion_kulturundunterhaltung IS 'Alias: "LN_Funktion_KulturUndUnterhaltung", UML-Typ: Enumeration';
+		INSERT INTO ln_funktion_kulturundunterhaltung (wert,beschreibung,dokumentation) VALUES
+		('1210', 'Kultur', 'Kultur bezeichnet eine Fläche auf der vorwiegend Anlagen und Gebäude für kulturelle Zwecke, z.B. Konzert- und Museumsgebäude, Bibliotheken, Theater, Schlösser und Burgen stehen.'),
+		('1220', 'Medien und Kommunikation', 'Medien und Kommunikation bezeichnet eine Fläche auf der vorwiegend Anlagen und Gebäude für die Erzeugung und Verbreitung von Printmedien, Hörfunk, Film und Fernsehen sowie Internet und Telefonie stehen.'),
+		('1230', 'Vergnügung', 'Vergnügung‘ bezeichnet eine Fläche mit Gebäuden und Einrichtungen, in denen Möglichkeiten zur unterhaltsamen Freizeitgestaltung angeboten werden.');
+		CREATE TABLE ln_zustand_industrieundverarbeitendesgewerbe (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_zustand_industrieundverarbeitendesgewerbe IS 'Alias: "LN_Zustand_IndustrieUndVerarbeitendesGewerbe", UML-Typ: Enumeration';
+		INSERT INTO ln_zustand_industrieundverarbeitendesgewerbe (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb', 'Außer Betrieb bedeutet, dass sich die Fläche nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
+		('8000', 'Erweiterung, Neuansiedlung', 'Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		CREATE TABLE ln_art_versorgungundentsorgung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_art_versorgungundentsorgung IS 'Alias: "LN_Art_VersorgungUndEntsorgung", UML-Typ: Enumeration';
+		INSERT INTO ln_art_versorgungundentsorgung (wert,beschreibung,dokumentation) VALUES
+		('2520', 'Wasserwerk', 'Wasserwerk ist eine Fläche, auf der Gebäude und Einrichtungen zur Aufbereitung und Bereitstellung von Trinkwasser steht.'),
+		('2530', 'Kraftwerk', 'Kraftwerk bezeichnet eine Fläche mit Bauwerken und sonstigen Einrichtungen zur Erzeugung von elektrischer Energie.'),
+		('2540', 'Umspannstation', 'Umspannstation bezeichnet eine Fläche mit Gebäuden und sonstigen Einrichtungen, um Strom auf eine andere Spannungsebene zu transformieren.'),
+		('2570', 'Heizwerk', 'Heizwerk bezeichnet eine Fläche mit Bauwerken und sonstigen Einrichtungen zur Erzeugung von Wärmeenergie zu Heizzwecken.'),
+		('2580', 'Funk- und Fernmeldeanlage', 'Funk- und Fernmeldeanlage bezeichnet eine Fläche, auf der vorwiegend Anlagen und Gebäude zur elektronischen Informationsübertragung stehen.'),
+		('2610', 'Kläranlage, Klärwerk', 'Kläranlage, Klärwerk bezeichnet eine Fläche mit Bauwerken und sonstigen Einrichtungen zur Reinigung von Abwasser.'),
+		('2620', 'Abfallbehandlungsanlage', 'Abfallbehandlungsanlage bezeichnet eine Fläche mit Bauwerken und sonstigen Einrichtungen, auf der Abfälle mit chemisch/physikalischen und biologischen oder thermischen Verfahren oder Kombinationen dieser Verfahren behandelt werden.');
+		CREATE TABLE ln_art_industrieundverarbeitendesgewerbe (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_art_industrieundverarbeitendesgewerbe IS 'Alias: "LN_Art_IndustrieUndVerarbeitendesGewerbe", UML-Typ: Enumeration';
+		INSERT INTO ln_art_industrieundverarbeitendesgewerbe (wert,beschreibung,dokumentation) VALUES
+		('1801', 'Nahrungs-, Futter-, Genussmittel', 'Nahrungs-, Futter-, Genussmittel bezeichnet Flächen zur Fertigung von Erzeugnissen der Landwirtschaft, Forstwirtschaft sowie die Herstellung verschiedener Halbwaren, die noch keine Nahrungs-, Futter- oder Genussmittel darstellen.'),
+		('1802', 'Textil-, Bekleidungs-, Lederwaren', 'Textil-, Bekleidungs-, Lederwaren bezeichnet Flächen auf denen primär Textil-, Bekleidungs- und Lederwaren wie nachfolgend beschrieben gefertigt oder verarbeitet werden. Textilwaren umfasst Spinnstoffaufbereitung und Spinnerei, Weberei, Veredlung von Textilien und Bekleidung, sowie die Herstellung von konfektionierten Textilwaren. Bekleidungswaren umfassen alle Schneiderarbeiten aus allen Materialien für alle Bekleidungsartikel und Bekleidungszubehör. Lederwaren umfasst das Zurichten und Färben von Pelzen und die Verarbeitung von Fellen zu Leder durch Gerben und Zurichten sowie die Weiterverarbeitung des Leders zu Gebrauchsgegenständen.'),
+		('1803', 'Holz-, Naturfaser-, Verpackungsprodukte', 'Holz-, Naturfaser-, Verpackungsprodukte bezeichnet Flächen auf denen primär Holz-, Naturfaser- oder Verpackungsprodukte wie nachfolgend beschrieben gefertigt oder verarbeitet werden. Holzprodukte umfassen die Herstellung von Bauholz, Sperrholz, Furniere, Verpackungsmittel, Lagerbehälter und Ladungsträger, Bodenbeläge, Fachwerk, vorgefertigte Gebäude. Naturfaserprodukte sind Veredelungen von Holz- und Zellprodukten. Verpackungsprodukte umfasst Flächen für die Fertigung von Verpackungsmaterial aus bspw. Papier, Karton, Pappe und Holz.'),
+		('1804', 'Print-, Audio-, Videoprodukte', 'Print-, Audio-, Videoprodukte bezeichnet Flächen auf denen primär die massenhafte Fertigung von Druckerzeugnissen bzw. bespielten Ton-, Bild- und Datenträgern erfolgt.'),
+		('1805', 'Mineralölverarbeitung, Kokerei', 'Mineralölverarbeitung, Kokerei bezeichnet Flächen auf denen primär Rohöl und Kohle zu gebrauchsfertigen Erzeugnissen verarbeitet werden. Das vorherrschende Verfahren ist die Mineralölverarbeitung durch Trennung von Rohöl in Teilerzeugnisse anhand von Verfahren wie Spaltung und Destillation.'),
+		('1806', 'Chemische-, Pharma-, Kunststoffprodukte', 'Chemische, Pharma-, Kunststoffprodukte bezeichnet Flächen auf denen primär Chemische, Pharma- und Kunststoffprodukte wie nachfolgend beschrieben gefertigt oder verarbeitet werden. Chemische Produkte umfasst die Verarbeitung organischer und anorganischer Rohstoffe in einem chemischen Verfahren zu chemischen Erzeugnissen. 
+		Pharmaprodukte umfasst die Herstellung von pharmazeutischen Grundstoffen und pharmazeutischen Spezialitäten wie auch die Herstellung von Arzneimitteln chemischen und botanischen Ursprungs.
+		Kunststoffprodukte umfasst die Herstellung von Harzen, Kunststoffen und nicht vulkanisierbaren thermoplastischen Elastomeren sowie das Mischen von Harzen nach Kundenwunsch und die Herstellung von synthetischen Harzen nach eigener Spezifikation.'),
+		('1807', 'Mineralische Bau- und Werkstoffe', 'Mineralische Bau- und Werkstoffe bezeichnet Flächen auf denen primär Bau- und Werkstoffe wie nachfolgend beschrieben gefertigt oder verarbeitet werden. Baustoffe umfassen den Großhandel mit Steinen, Sand, Kies, Schotter, Zement, Mörtel, Dämmplatten sowie Fertigteilbauten aus mineralischen Stoffen, z. B. Garagen. Werkstoffe umfasst die Herstellung von Waren unter Verwendung von Stoffen mineralischen Ursprungs bezogen auf die Herstellung von Glas und Erzeugnissen daraus, keramischen Erzeugnissen, Ziegeln und Erzeugnissen aus gebranntem Ton sowie Zement und Gips, verarbeiteten Naturstein und sonstigen Mineralerzeugnissen.'),
+		('1808', 'Metallerzeugung und –verarbeitung', 'Metallerzeugung und -verarbeitung umfasst die Flächen für die Tätigkeiten des Schmelzens und Legierens von Eisenmetallen und NE-Metallen aus Erz, Roheisen oder Schrott mit elektrometallurgischen und anderen metallurgischen Verfahren wie auch Flächen für die Herstellung von Metalllegierungen und Superlegierungen durch Zugabe anderer chemischer Elemente zu reinen Metallen.'),
+		('1809', 'Technik, Elektrik, Elektronik', 'Technik, Elektrik, Elektronik umfasst Flächen für die Herstellung von Datenverarbeitungsgeräten, sowie elektronischen und optischen Erzeugnissen.'),
+		('1810', 'Maschinenbau', 'Maschinenbau umfasst Flächen für den Bau von Maschinen, die mechanisch oder durch Wärme auf Materialien einwirken oder an Materialien Vorgänge durchführen, einschließlich ihrer mechanischen Bestandteile, die Kraft erzeugen und anwenden, sowie spezieller Teile dafür.'),
+		('1811', 'Fahrzeugbau und Zulieferer', 'Fahrzeugbau und Zulieferer umfasst die Flächen für die Herstellung von Raum-, Luft-, Wasser-, Schienen- und Straßenfahrzeugen zur Personen- oder Güterbeförderung wie auch die Flächen zur Herstellung verschiedener Teile und Zubehör.'),
+		('1812', 'Möbel und sonstige Konsumgüter', 'Möbel und sonstige Konsumgüter bezeichnet Flächen auf denen primär Möbel und sonstige Konsumgüter wie nachfolgend beschrieben gefertigt oder verarbeitet werden. Möbel umfassen die Herstellung von Möbeln aller Art und verwandten Erzeugnissen aus beliebigem Material, außer Stein, Beton und Keramik, für alle Einsatzbereiche und die verschiedensten Zwecke. Sonstige Konsumgüter umfassen den Verkauf von weiteren Neu- und Gebrauchtwaren vor allem an private Haushalte für den privaten Ge- oder Verbrauch.');
+		CREATE TABLE ln_zustand_wohnnutzung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_zustand_wohnnutzung IS 'Alias: "LN_Zustand_Wohnnutzung", UML-Typ: Enumeration';
+		INSERT INTO ln_zustand_wohnnutzung (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb', 'Außer Betrieb bedeutet, dass sich die Fläche nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
+		('8000', 'Erweiterung, Neuansiedlung', 'Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		CREATE TABLE ln_artderbestattungsflaeche_bestattung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_artderbestattungsflaeche_bestattung IS 'Alias: "LN_ArtDerBestattungsflaeche_Bestattung", UML-Typ: Enumeration';
+		INSERT INTO ln_artderbestattungsflaeche_bestattung (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Friedhof', 'Friedhof umfasst eingefriedete Flächen für Gräber.'),
+		('2000', 'Waldbestattungsfläche', 'Waldbestattungsfläche umfasst eine besondere Waldfläche außerhalb eines Friedhofes zur Bestattung ohne Pflege der Grabstelle.'),
+		('3000', 'historischer Friedhof', 'historischer Friedhof ist ein Friedhof, der als historisch gilt.'),
+		('4000', 'Parkfriedhof', 'Parkfriedhof ist ein Friedhof, der als Park angelegt ist.');
+		CREATE TABLE ln_art_freiluftundnaherholung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_art_freiluftundnaherholung IS 'Alias: "LN_Art_FreiluftUndNaherholung", UML-Typ: Enumeration';
+		INSERT INTO ln_art_freiluftundnaherholung (wert,beschreibung,dokumentation) VALUES
+		('4400', 'Grünanlage', 'Grünanlage ist in erster Linie eine Anlage mit Bäumen, Sträuchern, Rasenflächen, Blumenrabatten und Wegen, die vor allem der Erholung und Verschönerung des Stadtbildes dient.'),
+		('4410', 'Siedlungsgrünfläche', 'Siedlungsgrünfläche ist eine unbebaute Wiese, Freifläche oder anderweitige Grünfläche in Städten und Siedlungen.'),
+		('4420', 'Park', 'Park ist eine landschaftsgärtnerisch gestaltete Grünanlage, die der Repräsentation und der Erholung dient.'),
+		('4430', 'Botanischer Garten', 'Botanischer Garten ist ein der Öffentlichkeit zugänglicher Garten zum Studium der Pflanzenwelt; systematisch geordnete Sammlung in Freiland und Gewächshäusern (Warmhäuser).'),
+		('4440', 'Kleingarten', 'Kleingarten ist eine Anlage von Gartengrundstücken, die im Unterschied zu Gartenland vorwiegend der Freizeit und Erholung dient.'),
+		('4450', 'Wochenendplatz', 'Wochenendplatz sind Flächen, die der Freizeitgestaltung dienen.'),
+		('4470', 'Spielplatz, Bolzplatz', 'Spielplatz, Bolzplatz ist eine Freianlage, die dem nicht wettkampforientierten Sport-, Bewegungs- und Freizeitaktivitäten dient. Es können verschiedene Sportarten betrieben werden.'),
+		('4480', 'Zierfläche', 'Zierfläche ist eine der Öffentlichkeit zugängliche künstlich gepflegte Fläche kleineren Ausmaßes die vornehmlich der optischen Auflockerung des Stadtbildes dient, zur Erholung mit Kunst, Zierpflanzen.');
+		CREATE TABLE ln_funktion_oeffentlicheeinrichtungen (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_funktion_oeffentlicheeinrichtungen IS 'Alias: "LN_Funktion_OeffentlicheEinrichtungen", UML-Typ: Enumeration';
+		INSERT INTO ln_funktion_oeffentlicheeinrichtungen (wert,beschreibung,dokumentation) VALUES
+		('1110', 'Regierung und Verwaltung', 'Regierung und Verwaltung bezeichnet eine Fläche auf der vorwiegend Gebäude der öffentlichen Regierung und Verwaltung, z. B. Rathaus, Gericht, Kreisverwaltung stehen.'),
+		('1120', 'Bildung und Wissenschaft', 'Bildung und Wissenschaft bezeichnet eine Fläche, auf der vorwiegend Gebäude stehen, in denen geistige, kulturelle und soziale Fähigkeiten vermittelt werden und/oder wissenschaftliche Forschung betrieben wird (z.B. Schulen, Universitäten, Institute).'),
+		('1140', 'Religiöse Einrichtung', 'Religiöse Einrichtung bezeichnet eine Fläche auf der vorwiegend religiöse Gebäude stehen.'),
+		('1150', 'Gesundheit, Kur', 'Gesundheit, Kur bezeichnet eine Fläche auf der vorwiegend Gebäude des Gesundheitswesens stehen, z.B. Krankenhäuser, Heil- und Pflegeanstalten.'),
+		('1160', 'Soziales', 'Soziales bezeichnet eine Fläche auf der vorwiegend Gebäude des Sozialwesens stehen, z. B. Kindergärten, Jugend- und Senioreneinrichtungen, Freizeit-, Fremden- und Obdachlosenheime.'),
+		('1170', 'Sicherheit und Ordnung', 'Sicherheit und Ordnung bezeichnet eine Fläche auf der vorwiegend Anlagen und Gebäude der Polizei, der Bundeswehr, der Feuerwehr und der Justizvollzugsbehörden stehen.');
+		CREATE TABLE ln_zustand_lagerung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_zustand_lagerung IS 'Alias: "LN_Zustand_Lagerung", UML-Typ: Enumeration';
+		INSERT INTO ln_zustand_lagerung (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb', 'Außer Betrieb bedeutet, dass sich die Fläche nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
+		('8000', 'Erweiterung, Neuansiedlung', 'Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		CREATE TABLE ln_zustand_kulturundunterhaltung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_zustand_kulturundunterhaltung IS 'Alias: "LN_Zustand_KulturUndUnterhaltung", UML-Typ: Enumeration';
+		INSERT INTO ln_zustand_kulturundunterhaltung (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb', 'Außer Betrieb bedeutet, dass sich die Fläche nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
+		('8000', 'Erweiterung, Neuansiedlung', 'Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		CREATE TABLE ln_zeitlichkeit_wohnnutzung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_zeitlichkeit_wohnnutzung IS 'Alias: "LN_Zeitlichkeit_Wohnnutzung", UML-Typ: Enumeration';
+		INSERT INTO ln_zeitlichkeit_wohnnutzung (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Dauerhaft', 'Dauerhaft bezeichnet eine beständige fortwährend anhaltende Nutzung der Flächen.'),
+		('2000', 'Zeitweilig', 'Zeitweilig bezeichnet die Nutzung der Flächen nur zu bestimmten Zeiten wie z.B. Ferienhäuser und Wochenendhäuser.');
+		CREATE TABLE ln_zustand_gewerblichedienstleistungen (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_zustand_gewerblichedienstleistungen IS 'Alias: "LN_Zustand_GewerblicheDienstleistungen", UML-Typ: Enumeration';
+		INSERT INTO ln_zustand_gewerblichedienstleistungen (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb', 'Außer Betrieb bedeutet, dass sich die Fläche nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
+		('8000', 'Erweiterung, Neuansiedlung', 'Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		CREATE TABLE ln_funktion_lagerung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_funktion_lagerung IS 'Alias: "LN_Funktion_Lagerung", UML-Typ: Enumeration';
+		INSERT INTO ln_funktion_lagerung (wert,beschreibung,dokumentation) VALUES
+		('8100', 'Deponie', 'Deponie bezeichnet eine Fläche, auf der oberirdisch Abfallstoffe gelagert werden. Deponie bezeichnet ebenfalls eine oberirdische Betriebsfläche, unter der Abfallstoffe unterirdisch eingelagert werden (Untertagedeponie).'),
+		('8200', 'Halde', 'Halde ist eine Fläche, auf der sich eine Aufschüttung von Material oberhalb der umgebenden Geländeoberfläche befindet, welche langfristig gelagert wird.'),
+		('8300', 'Lagerfläche', 'Lagerfläche bezeichnet Flächen, auf denen inner- und außerhalb von Gebäuden wirtschaftliche Güter gelagert werden.');
+		CREATE TABLE ln_zustand_oeffentlicheeinrichtungen (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_zustand_oeffentlicheeinrichtungen IS 'Alias: "LN_Zustand_OeffentlicheEinrichtungen", UML-Typ: Enumeration';
+		INSERT INTO ln_zustand_oeffentlicheeinrichtungen (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb', 'Außer Betrieb bedeutet, dass sich die Fläche nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
+		('8000', 'Erweiterung, Neuansiedlung', 'Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		CREATE TABLE ln_art_gewerblichedienstleistungen (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_art_gewerblichedienstleistungen IS 'Alias: "LN_Art_GewerblicheDienstleistungen", UML-Typ: Enumeration';
+		INSERT INTO ln_art_gewerblichedienstleistungen (wert,beschreibung,dokumentation) VALUES
+		('1310', 'Handwerk', 'Handwerk‘ bezeichnet eine Fläche, auf der vorwiegend Handwerksbetriebe vorhanden sind.'),
+		('1320', 'Logistik und Transport', 'Logistik und Transport‘ umfasst Flächen mit Gebäuden und Einrichtungen, die sich mit der Planung, Steuerung und Durchführung von Güter-, Informations- und Personenströmen befassen. Hierzu gehören Speditionen, Bus- und Taxiunternehmen, Kurier-, Express- und Paketdienste.'),
+		('1330', 'Tankstelle', 'Tankstelle‘ bezeichnet eine Fläche, auf der sich Gebäude und Einrichtungen befinden, an denen Kraftfahrzeuge mit den benötigten Kraftstoffen versorgt werden.'),
+		('1410', 'Forschung und Entwicklung', 'Forschung und Entwicklung‘ bezeichnet eine Fläche, auf der sich vorwiegend industrielle Forschungs- und Entwicklungseinrichtungen befinden.'),
+		('1510', 'freie Berufe und weitere Dienstleistungen', 'freie Berufe und weitere Dienstleistungen‘ bezeichnet eine Fläche mit Gebäuden und Einrichtungen welche zur Ausübung freier Berufe wie auch weiterer Dienstleistungen genutzt wird.'),
+		('1520', 'Finanz- und Versicherungsdienstleistung', 'Finanz- und Versicherungsdienstleistungen‘ bezeichnet eine Fläche mit Gebäuden und Einrichtungen von Bank- oder Kreditunternehmen sowie von Versicherungsgesellschaften.'),
+		('1530', 'Handel', 'Handel‘ bezeichnet Flächen mit Anlagen mit Einzelhandels- und Dienstleistungsbetrieben, die durch einheitliche Verwaltung, auf das Einzugsgebiet abgestimmter Anbieter und durch umfangreiche Parkmöglichkeiten geprägt sind.'),
+		('1540', 'Ausstellung, Messe', 'Ausstellung, Messe‘ bezeichnet eine Fläche mit Ausstellungshallen und sonstigen Einrichtungen zur Präsentation von Warenmustern.'),
+		('1550', 'Gärtnerei', 'Gärtnerei bezeichnet eine Fläche mit Gebäuden, Gewächshäusern und sonstigen Einrichtungen, die der Aufzucht von Blumen und Gemüsepflanzen dienen.'),
+		('1560', 'Restauration', 'Restauration bezeichnet eine Fläche mit Gebäuden und Einrichtungen für das gewerbliche Angebot der gastronomischen Versorgung.'),
+		('1570', 'Beherbergung (Hotel, Pension, Herberge)', 'Beherbergung‘ bezeichnet eine Fläche mit Gebäuden und Einrichtungen für das gewerbliche Angebot der Unterbringung von Personen wie z.B. Hotel, Pension oder Herberge.'),
+		('1600', 'Verkehrsübungsplatz, Testgelände, Fahrsicherheit', 'Verkehrsübungsplatz, Testgelände, Fahrsicherheit umfasst Flächen, die Übungs- und Erprobungszwecken (auch technischer Produkte) dienen.');
+		CREATE TABLE ln_zustand_versorgungundentsorgung (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_zustand_versorgungundentsorgung IS 'Alias: "LN_Zustand_VersorgungUndEntsorgung", UML-Typ: Enumeration';
+		INSERT INTO ln_zustand_versorgungundentsorgung (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb', 'Außer Betrieb bedeutet, dass sich die Fläche nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.'),
+		('8000', 'Erweiterung, Neuansiedlung', 'Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		CREATE TABLE ln_funktion_bahnverkehr (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_funktion_bahnverkehr IS 'Alias: "LN_Funktion_Bahnverkehr", UML-Typ: Enumeration';
+		INSERT INTO ln_funktion_bahnverkehr (wert,beschreibung,dokumentation) VALUES
+		('5210', 'Bahnverkehrsfläche', 'Bahnverkehrsfläche ist eine Fläche die der Abwicklung und Sicherheit des Bahnverkehrs sowie der Unterhaltung dieser Verkehrsflächen dient. Sie beinhaltet die Flächen der Trasse sowie deren Begleitfläche.'),
+		('5211', 'Trasse (Streckengleisbett)', 'Trasse ist ein befestigtes, dem allgemeinen Schienenverkehr dienendes Gleisbett einschließlich der auf Brücken oder in Tunneln verlaufenden Abschnitte.'),
+		('5212', 'Begleitfläche Bahnverkehr', 'Begleitfläche Bahnverkehr bezeichnet eine unbebaute Fläche, die dem Bahnverkehr zugeordnet wird. Die Begleitfläche Bahnverkehr ist nicht Bestandteil der Gleisanlagen.'),
+		('5220', 'Betriebsfläche Bahnverkehr', 'Betriebsfläche Bahnverkehr bezeichnet Flächen, auf denen vorwiegend Anlagen und Gebäude zur Versorgung, Unterhaltung und Instandhaltung des Bahnverkehrs vorhanden sind.'),
+		('5230', 'Bahnhofsstation', 'Bahnhofsstation ist eine Anlage im Netz der Schienen- und Magnetschwebebahnen zur Abwicklung des Personen- und Güterverkehrs entsprechend der Angaben des Betreibers.');
+		CREATE TABLE ln_funktion_strassenundwegeverkehr (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_funktion_strassenundwegeverkehr IS 'Alias: "LN_Funktion_StrassenUndWegeverkehr", UML-Typ: Enumeration';
+		INSERT INTO ln_funktion_strassenundwegeverkehr (wert,beschreibung,dokumentation) VALUES
+		('5110', 'Straßen- und Wegeverkehrsfläche', 'Straßen- und Wegeverkehrsfläche ist eine Fläche die der Abwicklung und Sicherheit des Verkehrs sowie der Unterhaltung der Verkehrsfläche dient. Sie beinhaltet die Flächen der Fahrbahn sowie deren Begleitfläche.'),
+		('5111', 'Fahrbahn', 'Fahrbahn bezeichnet Flächen, die den zusammenhängenden, befestigten Teil der Straße bilden, als Verkehrsraum dienen und mit Fahrzeugen befahren werden dürfen. Zur Fahrbahn gehören auch Stand- und Kriechspuren.'),
+		('5112', 'Begleitfläche Straßen- und Wegeverkehr', 'Begleitfläche Straßen- und Wegeverkehr bezeichnet eine unbebaute Fläche, die einer Straße oder eines Weges zugeordnet wird. Die Begleitfläche Straßen- und Wegeverkehr ist nicht Bestandteil der Fahrbahn.'),
+		('5120', 'Betriebsfläche Straßen- und Wegeverkehr', 'Betriebsfläche Straßen- und Wegeverkehr bezeichnet Flächen, auf denen vorwiegend Anlagen und Gebäude zur Versorgung und Unterhaltung der Verkehrsflächen bzw. des Straßen- und Wegeverkehrs vorhanden sind. Hierzu gehören z.B. Straßenmeistereien.'),
+		('5130', 'Rastplatz', 'Rastplatz ist eine Anlage zum Rasten der Verkehrsteilnehmer mit unmittelbarem Anschluss zur Straße ohne Versorgungseinrichtung, ggf. mit Toiletten.'),
+		('5140', 'Raststätte, Autohof', 'Raststätte, Autohof ist eine Anlage an Verkehrsstraßen mit Bauwerken und Einrichtungen zur Versorgung und Erholung von Reisenden. Dazu gehören Autohöfe gemäß der Verwaltungsvorschriften zur Straßenverkehrsordnung (VwV-StVO).'),
+		('5150', 'Parkplatz', 'Parkplatz bezeichnet eine Fläche, auf der vorwiegend Anlagen und Gebäude zum Abstellen von Fahrzeugen stehen.'),
+		('5160', 'Marktplatz', 'Marktplatz ist eine Fläche, auf der Waren regelmäßig an einem zentralen Ort gehandelt werden.'),
+		('5170', 'Busbahnhof', 'Busbahnhof umfasst einen zentralen Platz, an dem sich der Autobusverkehr einer Stadt oder Region konzentriert. Meist mit Haltestellenanlagen.');
+		CREATE TABLE ln_nutzung_schiffsverkehr (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_nutzung_schiffsverkehr IS 'Alias: "LN_Nutzung_Schiffsverkehr", UML-Typ: Enumeration';
+		INSERT INTO ln_nutzung_schiffsverkehr (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Zivil', 'zivil bedeutet, dass Schiffsverkehr privaten oder öffentlichen Zwecken dient und nicht militärisch genutzt wird.'),
+		('2000', 'Militärisch', 'Militärisch bedeutet, dass Schiffsverkehr nur von Streitkräften genutzt wird.');
+		CREATE TABLE ln_zuflusssteuerung_schutzanlage (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_zuflusssteuerung_schutzanlage IS 'Alias: "LN_Zuflusssteuerung_Schutzanlage", UML-Typ: Enumeration';
+		INSERT INTO ln_zuflusssteuerung_schutzanlage (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Gesteuert', 'Gesteuert bedeutet, dass die eingedeichte Fläche regelmäßig zu einem bestimmten festgelegten Zeitpunkt geflutet wird (z.B. bei einem ausgewählten Pegelstand).'),
+		('2000', 'Ungesteuert', 'Ungesteuert bedeutet, dass die eingedeichte Fläche ereignisabhängig geflutet wird.');
+		CREATE TABLE ln_fussgaengerzone_strassenundwegeverkehr (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_fussgaengerzone_strassenundwegeverkehr IS 'Alias: "LN_Fussgaengerzone_StrassenUndWegeverkehr", UML-Typ: Enumeration';
+		INSERT INTO ln_fussgaengerzone_strassenundwegeverkehr (wert,beschreibung,dokumentation) VALUES
+		('5130', 'Fußgängerzone', 'Fußgängerzone ist ein dem Fußgängerverkehr vorbehaltener Bereich, in dem ausnahmsweise öffentlicher Personenverkehr, Lieferverkehr oder Fahrradverkehr zulässig sein kann.');
+		CREATE TABLE ln_funktion_schiffsverkehr (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_funktion_schiffsverkehr IS 'Alias: "LN_Funktion_Schiffsverkehr", UML-Typ: Enumeration';
+		INSERT INTO ln_funktion_schiffsverkehr (wert,beschreibung,dokumentation) VALUES
+		('5410', 'Schiffsverkehrsfläche', 'Schiffsverkehrsfläche umfasst die wasserseitigen Flächen, auf denen der fließende oder stehende Schiffsverkehr stattfindet und die mit ihr in Zusammenhang stehenden begleitenden Freifläche wie z.B. die Uferstreifen.'),
+		('5411', 'Wasserweg (Wasserkörper incl. Schleusenkammer)', 'Wasserweg ist der Transportweg auf dem Wasser, auf dem hauptsächlich durch Schifffahrt Personen und Güter befördert werden.'),
+		('5412', 'Begleitfläche Schiffsverkehr', 'Begleitfläche Schiffsverkehr bezeichnet landseitige unbebaute Flächen, die dem Schiffsverkehr zugeordnet wird. Die Begleitfläche Schiffsverkehr ist nicht Bestandteil der Wasserverkehrsanlagen.'),
+		('5413', 'Liegeplatz', 'Liegeplatz bezeichnet eine Stelle im Hafen oder am Ufer, an dem Wasserfahrzeuge vorübergehend oder dauerhaft verankert sind.'),
+		('5420', 'Betriebsfläche Schiffsverkehr', 'Betriebsfläche bezeichnet landseitige Flächen mit zugehörigen Bauwerken, die dem Betrieb des Schiffsverkehrs zuzuordnen sind.'),
+		('5421', 'Fähranlage', 'Fähranlage ist eine besondere Landfläche von der in der Regel nach festem Fahrplan über Flüsse, Seen, Kanäle, Meerengen oder Meeresarme ein Schiffsverkehr stattfindet.'),
+		('5422', 'Hafenanlage (landseitig, zum Be- und Entladen)', 'Hafenanlage bezeichnet die landseitige Fläche die nicht von Wasser bedeckt ist und die ausschließlich zum Betrieb des Hafens (zum Be- und Entladen) dient.'),
+		('5423', 'Anlegestelle', 'Anlegestelle umfasst den landseitigen Anleger umgebenden Bereich, der eine feste oder schwimmende Einrichtung zum Anlegen von Schiffen und Booten ist.'),
+		('5424', 'Schleuse', 'Schleuse bezeichnet die Fläche Landfläche die ausschließlich zum Betrieb der Schleuse dient.');
+		CREATE TABLE ln_typ_schutzanlage (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_typ_schutzanlage IS 'Alias: "LN_Typ_Schutzanlage", UML-Typ: Enumeration';
+		INSERT INTO ln_typ_schutzanlage (wert,beschreibung,dokumentation) VALUES
+		('1910', 'Hochwasserdeich', 'Hochwasserdeich ist ein Deich an einem Fließgewässer oder im Küstengebiet, der dem Schutz eines Gebietes vor Hochwasser oder gegen Sturmfluten dient.'),
+		('1920', 'Hauptdeich, Landesschutzdeich', 'Hauptdeich, Landesschutzdeich ist ein Deich der ersten Deichlinie zum Schutz der Küsten- und Inselgebiete gegen Sturmflut.'),
+		('1930', 'Überlaufdeich', 'Überlaufdeich ist ein Deich vor dem Hauptdeich, der in erster Linie dem Schutz landwirtschaftlich genutzter Flächen gegen leichte Sturmtiden dient und der bei höheren Sturmtiden überströmt wird.'),
+		('1940', 'Leitdeich', 'Leitdeich ist ein dammartiges Bauwerk im Watt, um strömendes Wasser in bestimmte Richtungen zu lenken und zum Schutz von Wasserläufen im Watt (Außentiefs) vor Versandung.'),
+		('1950', 'Polderdeich', 'Polderdeich ist ein vor dem Hauptdeich liegender Deich, der landwirtschaftlich nutzbares Land (z. B. Marschland) schützt.');
+		CREATE TABLE ln_artdesparkplatzes_strassenundwegeverkehr (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_artdesparkplatzes_strassenundwegeverkehr IS 'Alias: "LN_ArtDesParkplatzes_StrassenUndWegeverkehr", UML-Typ: Enumeration';
+		INSERT INTO ln_artdesparkplatzes_strassenundwegeverkehr (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Öffentlich', 'Öffentlich bezeichnet die Zugänglichkeit und Nutzung eines Parkplatzes für jedermann.'),
+		('2000', 'Nutzungsbezogen', 'Nutzungsbezogen bezeichnet die eingeschränkte Nutzungsrecht eines Parkplatzes wie z.B. Parkplätze auf einem Firmengelände');
+		CREATE TABLE ln_funktion_schutzanlage (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_funktion_schutzanlage IS 'Alias: "LN_Funktion_Schutzanlage", UML-Typ: Enumeration';
+		INSERT INTO ln_funktion_schutzanlage (wert,beschreibung,dokumentation) VALUES
+		('5510', 'Hochwasserschutz (Damm, Wall, Deich, Schutzwand, Schutzmauer)', 'Hochwasserschutz ist eine Fläche die einen Hochwasserfall oder dessen Auswirkungen begrenzt. Hierzu zählen Damm, Wall, Deich, Schutzwand, Schutzmauer.'),
+		('5520', 'Polder', 'Polder ist eine eingedeichte Fläche innerhalb eines Überschwemmungsgebietes, die zum Schutz vor Überflutung ereignisabhängig oder regelmäßig geflutet werden kann.'),
+		('5530', 'Lärmschutz (Wall, Schutzwand)', 'Lärmschutz bedeutet, dass das Bauwerk dem Schutz vor Lärmemissionen dient. Hierzu zählen ein Lärmschutzwall oder eine Lärmschutzwand.'),
+		('5540', 'Windschutz (Hecke, Knick)', 'Windschutz beschreibt bauliche Anlagen oder geeigneten Bewuchs zur Hemmung von Windschäden und Verwehungen. (z. B. Hecken, Feldgehölze, Knicks).');
+		CREATE TABLE ln_zustand_strassenundwegeverkehr (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_zustand_strassenundwegeverkehr IS 'Alias: "LN_Zustand_StrassenUndWegeverkehr", UML-Typ: Enumeration';
+		INSERT INTO ln_zustand_strassenundwegeverkehr (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb', 'Außer Betrieb bedeutet, dass sich das Objekt nicht mehr in regelmäßiger, der Bestimmung entsprechender Nutzung befindet.'),
+		('4000', 'Im Bau', 'Im Bau bedeutet, dass die Bauarbeiten am Objekt bereits begonnen haben und das Objekt noch nicht fertiggestellt ist.'),
+		('8000', 'Erweiterung, Neuansiedlung', 'Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		CREATE TABLE ln_hafenkategorie_schiffsverkehr (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_hafenkategorie_schiffsverkehr IS 'Alias: "LN_Hafenkategorie_Schiffsverkehr", UML-Typ: Enumeration';
+		INSERT INTO ln_hafenkategorie_schiffsverkehr (wert,beschreibung,dokumentation) VALUES
+		('1010', 'Containerhafen', 'Containerhafen ist ein Hafen mit speziellen Einrichtungen (z. B. Verladebrücken) für den Umschlag von genormten Containern.'),
+		('1020', 'Ölhafen', 'Ölhafen ist ein Hafen mit speziellen Einrichtungen (z. B. Tankanlagen) für den Umschlag von Rohöl und den daraus verarbeiteten Produkten'),
+		('1030', 'Fischereihafen', 'Fischereihafen ist ein Hafen mit speziellen Einrichtungen (z. B. Kühlhäuser) für den Umschlag von frisch gefangenem Fisch.'),
+		('1040', 'Sporthafen, Yachthafen', 'Sporthafen, Yachthafen ist ein Hafen für Sport- und Freizeitschiffe.'),
+		('1050', 'Fährhafen', 'Fährhafen ist ein Hafen zum Anlegen von Fährschiffen.'),
+		('1060', 'Stückguthafen', 'Stückguthafen ist ein Hafen, in dem nur Stückgüter umgeschlagen werden.'),
+		('1070', 'Hafen für Massengüter', 'Hafen für Massengüter ist ein Hafen, in dem Massengüter umgeschlagen werden.');
+		CREATE TABLE ln_zustand_flugverkehr (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_zustand_flugverkehr IS 'Alias: "LN_Zustand_Flugverkehr", UML-Typ: Enumeration';
+		INSERT INTO ln_zustand_flugverkehr (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb', 'Außer Betrieb bedeutet, dass sich das Objekt nicht mehr in regelmäßiger, der Bestimmung entsprechender Nutzung befindet.'),
+		('4000', 'Im Bau', 'Im Bau bedeutet, dass die Bauarbeiten am Objekt bereits begonnen haben und das Objekt noch nicht fertiggestellt ist.'),
+		('8000', 'Erweiterung, Neuansiedlung', 'Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		CREATE TABLE ln_zustand_schiffsverkehr (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_zustand_schiffsverkehr IS 'Alias: "LN_Zustand_Schiffsverkehr", UML-Typ: Enumeration';
+		INSERT INTO ln_zustand_schiffsverkehr (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb', 'Außer Betrieb bedeutet, dass sich das Objekt nicht mehr in regelmäßiger, der Bestimmung entsprechender Nutzung befindet.'),
+		('4000', 'Im Bau', 'Im Bau bedeutet, dass die Bauarbeiten am Objekt bereits begonnen haben und das Objekt noch nicht fertiggestellt ist.'),
+		('8000', 'Erweiterung, Neuansiedlung', 'Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		CREATE TABLE ln_nutzung_flugverkehr (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_nutzung_flugverkehr IS 'Alias: "LN_Nutzung_Flugverkehr", UML-Typ: Enumeration';
+		INSERT INTO ln_nutzung_flugverkehr (wert,beschreibung,dokumentation) VALUES
+		('1000', 'Zivil', 'zivil bedeutet, dass Flugverkehr privaten oder öffentlichen Zwecken dient und nicht militärisch genutzt wird.'),
+		('2000', 'Militärisch', 'Militärisch bedeutet, dass Flugverkehr nur von Streitkräften genutzt wird.');
+		CREATE TABLE ln_zustand_bahnverkehr (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_zustand_bahnverkehr IS 'Alias: "LN_Zustand_Bahnverkehr", UML-Typ: Enumeration';
+		INSERT INTO ln_zustand_bahnverkehr (wert,beschreibung,dokumentation) VALUES
+		('2100', 'Außer Betrieb', 'Außer Betrieb bedeutet, dass sich das Objekt nicht mehr in regelmäßiger, der Bestimmung entsprechender Nutzung befindet.'),
+		('4000', 'Im Bau', 'Im Bau bedeutet, dass die Bauarbeiten am Objekt bereits begonnen haben und das Objekt noch nicht fertiggestellt ist.'),
+		('8000', 'Erweiterung, Neuansiedlung', 'Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		CREATE TABLE ln_funktion_flugverkehr (
+		  wert integer,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ln_funktion_flugverkehr IS 'Alias: "LN_Funktion_Flugverkehr", UML-Typ: Enumeration';
+		INSERT INTO ln_funktion_flugverkehr (wert,beschreibung,dokumentation) VALUES
+		('5310', 'Flugverkehrsfläche', 'Flugverkehrsfläche umfasst die baulich geprägte Fläche und die mit ihr in Zusammenhang stehende Freifläche, die ausschließlich oder vorwiegend dem Flugverkehr dient.'),
+		('5311', 'Startbahn, Landebahn', 'Startbahn, Landebahn ist eine Fläche, auf der Flugzeuge starten bzw. landen.'),
+		('5312', 'Begleitfläche Flugverkehr', 'Begleitfläche Flugverkehr bezeichnet eine unbebaute Fläche, die dem Flugverkehr zugeordnet wird. Die Begleitfläche Flugverkehr beinhaltet nicht die Flächen für den Flugverkehr wie Vorfeld, Start- und Landebahn oder Taxiway. Hierzu gehören z.B. Grünflächen neben den Flugverkehrsflächen.'),
+		('5313', 'Zurollbahn, Taxiway', 'Zurollbahn, Taxiway ist ein Verbindungsweg zwischen den Terminals bzw. dem Vorfeld und der Start- und/oder Landebahn.'),
+		('5314', 'Vorfeld', 'Vorfeld ist ein Bereich, in dem Flugzeuge abgefertigt und abgestellt werden.'),
+		('5320', 'Betriebsfläche Flugverkehr', 'Betriebsfläche Flugverkehr bezeichnet Flächen, auf denen vorwiegend Anlagen und Gebäude zur Versorgung und Unterhaltung des Flugverkehrs vorhanden sind. Hierzu gehören z.B. Hangars.');
+		CREATE TABLE ci_rolecode (
+		  wert character varying,
+		  beschreibung character varying,
+		  dokumentation character varying,
+		  PRIMARY KEY (wert)
+		);
+		
+		COMMENT ON TABLE ci_rolecode IS 'Alias: "CI_RoleCode", UML-Typ: Enumeration';
+		INSERT INTO ci_rolecode (wert,beschreibung,dokumentation) VALUES
+		('distributor', NULL, ''),
+		('author', NULL, ''),
+		('processor', NULL, ''),
+		('originator', NULL, ''),
+		('custodian', NULL, ''),
+		('user', NULL, ''),
+		('owner', NULL, ''),
+		('principalInvestigator', NULL, ''),
+		('publisher', NULL, ''),
+		('resourceProvider', NULL, ''),
+		('pointOfContact', NULL, '');
+		CREATE TABLE aa_gefuehrteobjektart (
+		  codespace text,
+		  id character varying,
+		  value text,
+		  PRIMARY KEY (id)
+		);
+		
+		COMMENT ON TABLE aa_gefuehrteobjektart IS 'Alias: "AA_GefuehrteObjektart", UML-Typ: Code Liste';
+		CREATE TABLE ax_punkt3d (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  art integer,
+		  aktualisierungsdatum3d date,
+		  herkunft3d_description character varying,
+		  herkunft3d_rationale character varying,
+		  herkunft3d_datetime character(20),
+		  herkunft3d_individualname character varying[],
+		  herkunft3d_organisationname character varying[],
+		  herkunft3d_positionname character varying[],
+		  herkunft3d_phone character varying[],
+		  herkunft3d_address character varying[],
+		  herkunft3d_onlineresource character varying[],
+		  herkunft3d_hoursofservice character varying[],
+		  herkunft3d_contactinstructions character varying[],
+		  herkunft3d_role character varying[],
+		  source_description character varying[],
+		  herkunft3d_scaledenominator character varying[],
+		  herkunft3d_sourcereferencesystem character varying[],
+		  herkunft3d_sourceextent character varying[],
+		  herkunft3d_sourcestep character varying[],
+		  hoehengenauigkeit3d_nameofmeasure character varying[],
+		  hoehengenauigkeit3d_measureidentification character varying,
+		  hoehengenauigkeit3d_measuredescription character varying,
+		  hoehengenauigkeit3d_evaluationmethodtype character varying,
+		  hoehengenauigkeit3d_evaluationmethoddescription character varying,
+		  hoehengenauigkeit3d_evaluationprocedure character varying,
+		  hoehengenauigkeit3d_datetime character(20)[],
+		  hoehengenauigkeit3d_result character varying[],
+		  lagegenauigkeit3d_nameofmeasure character varying[],
+		  lagegenauigkeit3d_measureidentification character varying,
+		  lagegenauigkeit3d_measuredescription character varying,
+		  lagegenauigkeit3d_evaluationmethodtype character varying,
+		  lagegenauigkeit3d_evaluationmethoddescription character varying,
+		  lagegenauigkeit3d_evaluationprocedure character varying,
+		  lagegenauigkeit3d_datetime character(20)[],
+		  lagegenauigkeit3d_result character varying[],
+		  hatdirektunten character(16)[],
+		  istabgeleitetaus character(16)[],
+		  traegtbeizu character(16)[],
+		  istteilvon character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_punkt3d_gml ON ax_punkt3d USING btree (gml_id,beginnt);
+		CREATE INDEX ax_punkt3d_endet ON ax_punkt3d USING btree (endet);
+		PERFORM AddGeometryColumn('ax_punkt3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 3);
+		CREATE INDEX ax_punkt3d_wkb_geometry_idx ON ax_punkt3d USING gist (wkb_geometry);
+		CREATE INDEX ax_punkt3d_hatdirektunten ON ax_punkt3d USING gin (hatdirektunten);
+		CREATE INDEX ax_punkt3d_istabgeleitetaus ON ax_punkt3d USING gin (istabgeleitetaus);
+		CREATE INDEX ax_punkt3d_traegtbeizu ON ax_punkt3d USING gin (traegtbeizu);
+		CREATE INDEX ax_punkt3d_istteilvon ON ax_punkt3d USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_punkt3d IS 'FeatureType: "AX_Punkt3D"';
+		COMMENT ON COLUMN ax_punkt3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_punkt3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_punkt3d.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_punkt3d.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_punkt3d.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_punkt3d.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_punkt3d.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_punkt3d.wkb_geometry IS 'wkb_geometry  GM_Point 0..1';
+		COMMENT ON COLUMN ax_punkt3d.art IS 'art enumeration AX_Art_Punkt3D 0..1';
+		COMMENT ON COLUMN ax_punkt3d.aktualisierungsdatum3d IS 'qualitaetsangaben|AX_DQErhebung3D|aktualisierungsdatum3D  Date 0..1';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_description IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|description|CharacterString enumeration  1';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_rationale IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|rationale|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_datetime IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|dateTime|DateTime  DateTime 0..1';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_individualname IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|individualName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_organisationname IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|organisationName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_positionname IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|positionName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_phone IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|phone|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_address IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|address|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_onlineresource IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|onlineResource|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_hoursofservice IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|hoursOfService|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_contactinstructions IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|contactInstructions|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_role IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|role|CI_RoleCode enumeration CI_RoleCode 1';
+		COMMENT ON COLUMN ax_punkt3d.source_description IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|description|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_scaledenominator IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|scaleDenominator|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_sourcereferencesystem IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|sourceReferenceSystem|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_sourceextent IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|sourceExtent|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_punkt3d.herkunft3d_sourcestep IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|sourceStep|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_punkt3d.hoehengenauigkeit3d_nameofmeasure IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|nameOfMeasure|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_punkt3d.hoehengenauigkeit3d_measureidentification IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureIdentification|MD_Identifier  MD_Identifier 0..1';
+		COMMENT ON COLUMN ax_punkt3d.hoehengenauigkeit3d_measuredescription IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.hoehengenauigkeit3d_evaluationmethodtype IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodType|DQ_EvaluationMethodTypeCode  DQ_EvaluationMethodTypeCode 0..1';
+		COMMENT ON COLUMN ax_punkt3d.hoehengenauigkeit3d_evaluationmethoddescription IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.hoehengenauigkeit3d_evaluationprocedure IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationProcedure|CI_Citation  CI_Citation 0..1';
+		COMMENT ON COLUMN ax_punkt3d.hoehengenauigkeit3d_datetime IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|dateTime|DateTime  DateTime 0..*';
+		COMMENT ON COLUMN ax_punkt3d.hoehengenauigkeit3d_result IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|result|DQ_Result  DQ_Result 1..*';
+		COMMENT ON COLUMN ax_punkt3d.lagegenauigkeit3d_nameofmeasure IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|nameOfMeasure|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_punkt3d.lagegenauigkeit3d_measureidentification IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureIdentification|MD_Identifier  MD_Identifier 0..1';
+		COMMENT ON COLUMN ax_punkt3d.lagegenauigkeit3d_measuredescription IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.lagegenauigkeit3d_evaluationmethodtype IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodType|DQ_EvaluationMethodTypeCode  DQ_EvaluationMethodTypeCode 0..1';
+		COMMENT ON COLUMN ax_punkt3d.lagegenauigkeit3d_evaluationmethoddescription IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punkt3d.lagegenauigkeit3d_evaluationprocedure IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationProcedure|CI_Citation  CI_Citation 0..1';
+		COMMENT ON COLUMN ax_punkt3d.lagegenauigkeit3d_datetime IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|dateTime|DateTime  DateTime 0..*';
+		COMMENT ON COLUMN ax_punkt3d.lagegenauigkeit3d_result IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|result|DQ_Result  DQ_Result 1..*';
+		CREATE TABLE ax_musterundvergleichsstueck (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  ackerzahlodergruenlandzahl character varying,
+		  bodenart integer,
+		  bodenstufe integer,
+		  bodenzahlodergruenlandgrundzahl character varying,
+		  entstehungsart integer,
+		  jahreszahl integer,
+		  klimastufe integer,
+		  merkmal integer NOT NULL,
+		  nummer character varying,
+		  nutzungsart integer,
+		  sonstigeangaben integer[],
+		  wasserverhaeltnisse integer,
+		  zustandsstufe integer,
+		  hatdirektunten character(16)[],
+		  istabgeleitetaus character(16)[],
+		  traegtbeizu character(16)[],
+		  istteilvon character(16)[],
+		  wirdbestimmt character(16),
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_musterundvergleichsstueck_gml ON ax_musterundvergleichsstueck USING btree (gml_id,beginnt);
+		CREATE INDEX ax_musterundvergleichsstueck_endet ON ax_musterundvergleichsstueck USING btree (endet);
+		PERFORM AddGeometryColumn('ax_musterundvergleichsstueck', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		CREATE INDEX ax_musterundvergleichsstueck_wkb_geometry_idx ON ax_musterundvergleichsstueck USING gist (wkb_geometry);
+		CREATE INDEX ax_musterundvergleichsstueck_wirdbestimmt ON ax_musterundvergleichsstueck USING btree (wirdbestimmt);
+		CREATE INDEX ax_musterundvergleichsstueck_hatdirektunten ON ax_musterundvergleichsstueck USING gin (hatdirektunten);
+		CREATE INDEX ax_musterundvergleichsstueck_istabgeleitetaus ON ax_musterundvergleichsstueck USING gin (istabgeleitetaus);
+		CREATE INDEX ax_musterundvergleichsstueck_traegtbeizu ON ax_musterundvergleichsstueck USING gin (traegtbeizu);
+		CREATE INDEX ax_musterundvergleichsstueck_istteilvon ON ax_musterundvergleichsstueck USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_musterundvergleichsstueck IS 'FeatureType: "AX_MusterUndVergleichsstueck"';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.ackerzahlodergruenlandzahl IS 'ackerzahlOderGruenlandzahl  CharacterString 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.bodenart IS 'bodenart enumeration AX_Bodenart_MusterUndVergleichsstueck 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.bodenstufe IS 'bodenstufe enumeration AX_Bodenstufe 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.bodenzahlodergruenlandgrundzahl IS 'bodenzahlOderGruenlandgrundzahl  CharacterString 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.entstehungsart IS 'entstehungsart enumeration AX_Entstehungsart 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.jahreszahl IS 'jahreszahl  Integer 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.klimastufe IS 'klimastufe enumeration AX_Klimastufe 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.merkmal IS 'merkmal enumeration AX_Merkmal_MusterUndVergleichsstueck 1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.nummer IS 'nummer  CharacterString 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.nutzungsart IS 'nutzungsart enumeration AX_Nutzungsart_MusterUndVergleichsstueck 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.sonstigeangaben IS 'sonstigeAngaben enumeration AX_SonstigeAngaben_MusterUndVergleichsstueck 0..*';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.wasserverhaeltnisse IS 'wasserverhaeltnisse enumeration AX_Wasserverhaeltnisse 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.zustandsstufe IS 'zustandsstufe enumeration AX_Zustandsstufe 0..1';
+		COMMENT ON COLUMN ax_musterundvergleichsstueck.wirdbestimmt IS 'Assoziation zu: FeatureType AX_GrablochDerBodenschaetzung (ax_grablochderbodenschaetzung) 0..1';
+		CREATE TABLE ax_kommunalesteilgebiet (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  administrativefunktion integer[],
+		  bezeichnung character varying NOT NULL,
+		  einwohnerzahl integer,
+		  hierarchiename character varying NOT NULL,
+		  hierarchiestufe integer NOT NULL,
+		  historisch character varying,
+		  gemeinde character varying NOT NULL,
+		  gemeindeteil character varying,
+		  kreis character varying NOT NULL,
+		  land character varying NOT NULL,
+		  regierungsbezirk character varying,
+		  regionalsprache character varying[],
+		  schluesselgesamt character varying NOT NULL,
+		  hatdirektunten character(16)[],
+		  istabgeleitetaus character(16)[],
+		  traegtbeizu character(16)[],
+		  istteilvon character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_kommunalesteilgebiet_gml ON ax_kommunalesteilgebiet USING btree (gml_id,beginnt);
+		CREATE INDEX ax_kommunalesteilgebiet_endet ON ax_kommunalesteilgebiet USING btree (endet);
+		PERFORM AddGeometryColumn('ax_kommunalesteilgebiet', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 2);
+		CREATE INDEX ax_kommunalesteilgebiet_wkb_geometry_idx ON ax_kommunalesteilgebiet USING gist (wkb_geometry);
+		CREATE INDEX ax_kommunalesteilgebiet_hatdirektunten ON ax_kommunalesteilgebiet USING gin (hatdirektunten);
+		CREATE INDEX ax_kommunalesteilgebiet_istabgeleitetaus ON ax_kommunalesteilgebiet USING gin (istabgeleitetaus);
+		CREATE INDEX ax_kommunalesteilgebiet_traegtbeizu ON ax_kommunalesteilgebiet USING gin (traegtbeizu);
+		CREATE INDEX ax_kommunalesteilgebiet_istteilvon ON ax_kommunalesteilgebiet USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_kommunalesteilgebiet IS 'FeatureType: "AX_KommunalesTeilgebiet"';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.administrativefunktion IS 'administrativeFunktion enumeration AX_Administrative_Funktion 0..*';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.bezeichnung IS 'bezeichnung  CharacterString 1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.einwohnerzahl IS 'einwohnerzahl  Integer 0..1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.hierarchiename IS 'hierarchiename  CharacterString 1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.hierarchiestufe IS 'hierarchiestufe  Integer 1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.historisch IS 'historisch  Boolean 0..1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.gemeinde IS 'kennzeichen|AX_Gemeindekennzeichen|gemeinde  CharacterString 1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.gemeindeteil IS 'kennzeichen|AX_Gemeindekennzeichen|gemeindeteil  CharacterString 0..1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.kreis IS 'kennzeichen|AX_Gemeindekennzeichen|kreis  CharacterString 1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.land IS 'kennzeichen|AX_Gemeindekennzeichen|land  CharacterString 1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.regierungsbezirk IS 'kennzeichen|AX_Gemeindekennzeichen|regierungsbezirk  CharacterString 0..1';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.regionalsprache IS 'regionalsprache  CharacterString 0..*';
+		COMMENT ON COLUMN ax_kommunalesteilgebiet.schluesselgesamt IS 'schluesselGesamt  CharacterString 1';
+		CREATE TABLE ax_strukturlinie3d (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  art integer,
+		  aktualisierungsdatum3d date,
+		  herkunft3d_description character varying,
+		  herkunft3d_rationale character varying,
+		  herkunft3d_datetime character(20),
+		  herkunft3d_individualname character varying[],
+		  herkunft3d_organisationname character varying[],
+		  herkunft3d_positionname character varying[],
+		  herkunft3d_phone character varying[],
+		  herkunft3d_address character varying[],
+		  herkunft3d_onlineresource character varying[],
+		  herkunft3d_hoursofservice character varying[],
+		  herkunft3d_contactinstructions character varying[],
+		  herkunft3d_role character varying[],
+		  source_description character varying[],
+		  herkunft3d_scaledenominator character varying[],
+		  herkunft3d_sourcereferencesystem character varying[],
+		  herkunft3d_sourceextent character varying[],
+		  herkunft3d_sourcestep character varying[],
+		  hoehengenauigkeit3d_nameofmeasure character varying[],
+		  hoehengenauigkeit3d_measureidentification character varying,
+		  hoehengenauigkeit3d_measuredescription character varying,
+		  hoehengenauigkeit3d_evaluationmethodtype character varying,
+		  hoehengenauigkeit3d_evaluationmethoddescription character varying,
+		  hoehengenauigkeit3d_evaluationprocedure character varying,
+		  hoehengenauigkeit3d_datetime character(20)[],
+		  hoehengenauigkeit3d_result character varying[],
+		  lagegenauigkeit3d_nameofmeasure character varying[],
+		  lagegenauigkeit3d_measureidentification character varying,
+		  lagegenauigkeit3d_measuredescription character varying,
+		  lagegenauigkeit3d_evaluationmethodtype character varying,
+		  lagegenauigkeit3d_evaluationmethoddescription character varying,
+		  lagegenauigkeit3d_evaluationprocedure character varying,
+		  lagegenauigkeit3d_datetime character(20)[],
+		  lagegenauigkeit3d_result character varying[],
+		  ursprung integer,
+		  hatdirektunten character(16)[],
+		  istabgeleitetaus character(16)[],
+		  traegtbeizu character(16)[],
+		  istteilvon character(16)[],
+		  an character(16),
+		  istgelaendeschnittlinievon character(16),
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_strukturlinie3d_gml ON ax_strukturlinie3d USING btree (gml_id,beginnt);
+		CREATE INDEX ax_strukturlinie3d_endet ON ax_strukturlinie3d USING btree (endet);
+		PERFORM AddGeometryColumn('ax_strukturlinie3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 3);
+		CREATE INDEX ax_strukturlinie3d_wkb_geometry_idx ON ax_strukturlinie3d USING gist (wkb_geometry);
+		CREATE INDEX ax_strukturlinie3d_an ON ax_strukturlinie3d USING btree (an);
+		CREATE INDEX ax_strukturlinie3d_istgelaendeschnittlinievon ON ax_strukturlinie3d USING btree (istgelaendeschnittlinievon);
+		CREATE INDEX ax_strukturlinie3d_hatdirektunten ON ax_strukturlinie3d USING gin (hatdirektunten);
+		CREATE INDEX ax_strukturlinie3d_istabgeleitetaus ON ax_strukturlinie3d USING gin (istabgeleitetaus);
+		CREATE INDEX ax_strukturlinie3d_traegtbeizu ON ax_strukturlinie3d USING gin (traegtbeizu);
+		CREATE INDEX ax_strukturlinie3d_istteilvon ON ax_strukturlinie3d USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_strukturlinie3d IS 'FeatureType: "AX_Strukturlinie3D"';
+		COMMENT ON COLUMN ax_strukturlinie3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_strukturlinie3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_strukturlinie3d.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_strukturlinie3d.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.wkb_geometry IS 'wkb_geometry  GM_CompositeCurve 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.art IS 'art enumeration AX_Art_Strukturlinie3D 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.aktualisierungsdatum3d IS 'qualitaetsangaben|AX_DQErhebung3D|aktualisierungsdatum3D  Date 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_description IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|description|CharacterString enumeration  1';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_rationale IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|rationale|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_datetime IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|dateTime|DateTime  DateTime 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_individualname IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|individualName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_organisationname IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|organisationName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_positionname IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|positionName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_phone IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|phone|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_address IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|address|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_onlineresource IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|onlineResource|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_hoursofservice IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|hoursOfService|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_contactinstructions IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|contactInstructions|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_role IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|role|CI_RoleCode enumeration CI_RoleCode 1';
+		COMMENT ON COLUMN ax_strukturlinie3d.source_description IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|description|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_scaledenominator IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|scaleDenominator|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_sourcereferencesystem IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|sourceReferenceSystem|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_sourceextent IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|sourceExtent|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_strukturlinie3d.herkunft3d_sourcestep IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|sourceStep|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_strukturlinie3d.hoehengenauigkeit3d_nameofmeasure IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|nameOfMeasure|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_strukturlinie3d.hoehengenauigkeit3d_measureidentification IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureIdentification|MD_Identifier  MD_Identifier 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.hoehengenauigkeit3d_measuredescription IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.hoehengenauigkeit3d_evaluationmethodtype IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodType|DQ_EvaluationMethodTypeCode  DQ_EvaluationMethodTypeCode 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.hoehengenauigkeit3d_evaluationmethoddescription IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.hoehengenauigkeit3d_evaluationprocedure IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationProcedure|CI_Citation  CI_Citation 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.hoehengenauigkeit3d_datetime IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|dateTime|DateTime  DateTime 0..*';
+		COMMENT ON COLUMN ax_strukturlinie3d.hoehengenauigkeit3d_result IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|result|DQ_Result  DQ_Result 1..*';
+		COMMENT ON COLUMN ax_strukturlinie3d.lagegenauigkeit3d_nameofmeasure IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|nameOfMeasure|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_strukturlinie3d.lagegenauigkeit3d_measureidentification IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureIdentification|MD_Identifier  MD_Identifier 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.lagegenauigkeit3d_measuredescription IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.lagegenauigkeit3d_evaluationmethodtype IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodType|DQ_EvaluationMethodTypeCode  DQ_EvaluationMethodTypeCode 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.lagegenauigkeit3d_evaluationmethoddescription IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.lagegenauigkeit3d_evaluationprocedure IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationProcedure|CI_Citation  CI_Citation 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.lagegenauigkeit3d_datetime IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|dateTime|DateTime  DateTime 0..*';
+		COMMENT ON COLUMN ax_strukturlinie3d.lagegenauigkeit3d_result IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|result|DQ_Result  DQ_Result 1..*';
+		COMMENT ON COLUMN ax_strukturlinie3d.ursprung IS 'ursprung enumeration AX_Ursprung 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.an IS 'Assoziation zu: FeatureType AX_Bauteil3D (ax_bauteil3d) 0..1';
+		COMMENT ON COLUMN ax_strukturlinie3d.istgelaendeschnittlinievon IS 'Assoziation zu: FeatureType AX_Bauwerk3D (ax_bauwerk3d) 0..1';
+		CREATE TABLE ax_bauteil3d (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  anzahlderoberirdischengeschosse integer,
+		  anzahlderunterirdischengeschosse integer,
+		  baujahr integer[],
+		  dachart character varying,
+		  dachform integer,
+		  durchfahrtshoehe double precision,
+		  geschosshoeheuebergrund_null integer,
+		  geschosshoeheuebergrund_wert double precision,
+		  geschosshoeheuntergrund_null integer,
+		  geschosshoeheuntergrund_wert double precision,
+		  lagezurerdoberflaeche integer,
+		  hoehe double precision[],
+		  obererbezugspunkt integer[],
+		  untererbezugspunkt integer[],
+		  qbodenhoehe_statement character varying,
+		  qbodenhoehe_ps_description character varying[],
+		  qbodenhoehe_ps_rationale character varying[],
+		  qbodenhoehe_ps_datetime character(20)[],
+		  qbodenhoehe_ps_individualname character varying[],
+		  qbodenhoehe_ps_organisationname character varying[],
+		  qbodenhoehe_ps_positionname character varying[],
+		  qbodenhoehe_ps_phone character varying[],
+		  qbodenhoehe_ps_address character varying[],
+		  qbodenhoehe_ps_onlineresource character varying[],
+		  qbodenhoehe_ps_hoursofservice character varying[],
+		  qbodenhoehe_ps_contactinstructions character varying[],
+		  qbodenhoehe_ps_role character varying[],
+		  qbodenhoehe_ps_src_description character varying[],
+		  qbodenhoehe_ps_src_scaledenominator character varying[],
+		  qbodenhoehe_ps_src_sourcereferencesystem character varying[],
+		  qbodenhoehe_ps_src_sourceextent character varying[],
+		  qbodenhoehe_ps_src_sourcestep character varying[],
+		  qbodenhoehe_src_description character varying[],
+		  qbodenhoehe_src_scaledenominator character varying[],
+		  qbodenhoehe_src_sourcereferencesystem character varying[],
+		  qbodenhoehe_src_sourceextent character varying[],
+		  qbodenhoehe_src_sourcestep character varying[],
+		  qdachhoehe_statement character varying,
+		  qdachhoehe_ps_description character varying[],
+		  qdachhoehe_ps_rationale character varying[],
+		  qdachhoehe_ps_datetime character(20)[],
+		  qdachhoehe_ps_individualname character varying[],
+		  qdachhoehe_ps_organisationname character varying[],
+		  qdachhoehe_ps_positionname character varying[],
+		  qdachhoehe_ps_phone character varying[],
+		  qdachhoehe_ps_address character varying[],
+		  qdachhoehe_ps_onlineresource character varying[],
+		  qdachhoehe_ps_hoursofservice character varying[],
+		  qdachhoehe_ps_contactinstructions character varying[],
+		  qdachhoehe_ps_role character varying[],
+		  qdachhoehe_ps_src_description character varying[],
+		  qdachhoehe_ps_src_scaledenominator character varying[],
+		  qdachhoehe_ps_src_sourcereferencesystem character varying[],
+		  qdachhoehe_ps_src_sourceextent character varying[],
+		  qdachhoehe_ps_src_sourcestep character varying[],
+		  qdachhoehe_src_description character varying[],
+		  qdachhoehe_src_scaledenominator character varying[],
+		  qdachhoehe_src_sourcereferencesystem character varying[],
+		  qdachhoehe_src_sourceextent character varying[],
+		  qdachhoehe_src_sourcestep character varying[],
+		  statement character varying,
+		  processstep_ax_li_processstep_mitdatenerhebung_description character varying[],
+		  processstep_rationale character varying[],
+		  processstep_datetime character(20)[],
+		  processstep_individualname character varying[],
+		  processstep_organisationname character varying[],
+		  processstep_positionname character varying[],
+		  processstep_phone character varying[],
+		  processstep_address character varying[],
+		  processstep_onlineresource character varying[],
+		  processstep_hoursofservice character varying[],
+		  processstep_contactinstructions character varying[],
+		  processstep_role character varying[],
+		  processstep_ax_datenerhebung character varying[],
+		  processstep_scaledenominator character varying[],
+		  processstep_sourcereferencesystem character varying[],
+		  processstep_sourceextent character varying[],
+		  processstep_sourcestep character varying[],
+		  herkunft_source_source_ax_datenerhebung character varying[],
+		  herkunft_source_source_scaledenominator character varying[],
+		  herkunft_source_source_sourcereferencesystem character varying[],
+		  herkunft_source_source_sourceextent character varying[],
+		  herkunft_source_source_sourcestep character varying[],
+		  umbauterraum double precision,
+		  hatdirektunten character(16)[],
+		  istabgeleitetaus character(16)[],
+		  traegtbeizu character(16)[],
+		  istteilvon character(16)[],
+		  gehoertzu character(16)[],
+		  beziehtsichauf character(16),
+		  wirdbegrenztdurch character(16)[],
+		  hat character(16)[],
+		  hatgelaendeschnittlinie character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_bauteil3d_gml ON ax_bauteil3d USING btree (gml_id,beginnt);
+		CREATE INDEX ax_bauteil3d_endet ON ax_bauteil3d USING btree (endet);
+		PERFORM AddGeometryColumn('ax_bauteil3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 3);
+		CREATE INDEX ax_bauteil3d_wkb_geometry_idx ON ax_bauteil3d USING gist (wkb_geometry);
+		CREATE INDEX ax_bauteil3d_gehoertzu ON ax_bauteil3d USING gin (gehoertzu);
+		CREATE INDEX ax_bauteil3d_beziehtsichauf ON ax_bauteil3d USING btree (beziehtsichauf);
+		CREATE INDEX ax_bauteil3d_wirdbegrenztdurch ON ax_bauteil3d USING gin (wirdbegrenztdurch);
+		CREATE INDEX ax_bauteil3d_hat ON ax_bauteil3d USING gin (hat);
+		CREATE INDEX ax_bauteil3d_hatgelaendeschnittlinie ON ax_bauteil3d USING gin (hatgelaendeschnittlinie);
+		CREATE INDEX ax_bauteil3d_hatdirektunten ON ax_bauteil3d USING gin (hatdirektunten);
+		CREATE INDEX ax_bauteil3d_istabgeleitetaus ON ax_bauteil3d USING gin (istabgeleitetaus);
+		CREATE INDEX ax_bauteil3d_traegtbeizu ON ax_bauteil3d USING gin (traegtbeizu);
+		CREATE INDEX ax_bauteil3d_istteilvon ON ax_bauteil3d USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_bauteil3d IS 'FeatureType: "AX_Bauteil3D"';
+		COMMENT ON COLUMN ax_bauteil3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_bauteil3d.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_bauteil3d.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.anzahlderoberirdischengeschosse IS 'anzahlDerOberirdischenGeschosse  Integer 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.anzahlderunterirdischengeschosse IS 'anzahlDerUnterirdischenGeschosse  Integer 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.baujahr IS 'baujahr  Integer 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.dachart IS 'dachart  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.dachform IS 'dachform enumeration AX_Dachform 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.durchfahrtshoehe IS 'durchfahrtshoehe  Length 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.geschosshoeheuebergrund_null IS 'geschosshoeheUeberGrund|AX_Listenelement3D|null enumeration AX_Null_Listenelement3D 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.geschosshoeheuebergrund_wert IS 'geschosshoeheUeberGrund|AX_Listenelement3D|wert  Length 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.geschosshoeheuntergrund_null IS 'geschosshoeheUnterGrund|AX_Listenelement3D|null enumeration AX_Null_Listenelement3D 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.geschosshoeheuntergrund_wert IS 'geschosshoeheUnterGrund|AX_Listenelement3D|wert  Length 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.lagezurerdoberflaeche IS 'lageZurErdoberflaeche enumeration AX_LageZurErdoberflaeche_Gebaeude 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.hoehe IS 'objekthoehe|AX_RelativeHoehe|hoehe  Length 1';
+		COMMENT ON COLUMN ax_bauteil3d.obererbezugspunkt IS 'objekthoehe|AX_RelativeHoehe|obererBezugspunkt enumeration AX_ObererBezugspunkt 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.untererbezugspunkt IS 'objekthoehe|AX_RelativeHoehe|untererBezugspunkt enumeration AX_UntererBezugspunkt 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_statement IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|statement|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_description IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString enumeration  1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_rationale IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|rationale|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_datetime IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|dateTime|DateTime  DateTime 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_individualname IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|individualName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_organisationname IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|organisationName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_positionname IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|positionName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_phone IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|phone|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_address IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|address|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_onlineresource IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|onlineResource|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_hoursofservice IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|hoursOfService|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_contactinstructions IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|contactInstructions|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_role IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|role|CI_RoleCode enumeration CI_RoleCode 1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_src_description IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_src_scaledenominator IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|scaleDenominator|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_src_sourcereferencesystem IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceReferenceSystem|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_src_sourceextent IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceExtent|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_ps_src_sourcestep IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceStep|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_src_description IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|source|LI_Source|description|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_src_scaledenominator IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|source|LI_Source|scaleDenominator|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_src_sourcereferencesystem IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|source|LI_Source|sourceReferenceSystem|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_src_sourceextent IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|source|LI_Source|sourceExtent|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.qbodenhoehe_src_sourcestep IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|source|LI_Source|sourceStep|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_statement IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|statement|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_description IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString enumeration  1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_rationale IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|rationale|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_datetime IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|dateTime|DateTime  DateTime 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_individualname IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|individualName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_organisationname IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|organisationName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_positionname IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|positionName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_phone IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|phone|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_address IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|address|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_onlineresource IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|onlineResource|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_hoursofservice IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|hoursOfService|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_contactinstructions IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|contactInstructions|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_role IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|role|CI_RoleCode enumeration CI_RoleCode 1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_src_description IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_src_scaledenominator IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|scaleDenominator|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_src_sourcereferencesystem IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceReferenceSystem|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_src_sourceextent IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceExtent|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_ps_src_sourcestep IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceStep|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_src_description IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|source|LI_Source|description|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_src_scaledenominator IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|source|LI_Source|scaleDenominator|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_src_sourcereferencesystem IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|source|LI_Source|sourceReferenceSystem|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_src_sourceextent IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|source|LI_Source|sourceExtent|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.qdachhoehe_src_sourcestep IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|source|LI_Source|sourceStep|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.statement IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|statement|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_ax_li_processstep_mitdatenerhebung_description IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|AX_LI_ProcessStep_MitDatenerhebung_Description enumeration  1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_rationale IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|rationale|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_datetime IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|dateTime|DateTime  DateTime 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_individualname IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|individualName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_organisationname IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|organisationName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_positionname IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|positionName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_phone IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|phone|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_address IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|address|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_onlineresource IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|onlineResource|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_hoursofservice IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|hoursOfService|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_contactinstructions IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|contactInstructions|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_role IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|role|CI_RoleCode enumeration CI_RoleCode 1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_ax_datenerhebung IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|AX_Datenerhebung  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_scaledenominator IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|scaleDenominator|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_sourcereferencesystem IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceReferenceSystem|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_sourceextent IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceExtent|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.processstep_sourcestep IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceStep|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.herkunft_source_source_ax_datenerhebung IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|description|AX_Datenerhebung  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.herkunft_source_source_scaledenominator IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|scaleDenominator|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.herkunft_source_source_sourcereferencesystem IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|sourceReferenceSystem|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.herkunft_source_source_sourceextent IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|sourceExtent|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.herkunft_source_source_sourcestep IS 'qualitaetsangaben|AX_DQMitDatenerhebung|herkunft|LI_Lineage|source|LI_Source|sourceStep|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.umbauterraum IS 'umbauterRaum  Volume 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.gehoertzu IS 'Assoziation zu: FeatureType AX_Gebaeude (ax_gebaeude) 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.beziehtsichauf IS 'Assoziation zu: FeatureType AX_Bauteil (ax_bauteil) 0..1';
+		COMMENT ON COLUMN ax_bauteil3d.wirdbegrenztdurch IS 'Assoziation zu: FeatureType AX_Begrenzungsflaeche3D (ax_begrenzungsflaeche3d) 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.hat IS 'Assoziation zu: FeatureType AX_GebaeudeInstallation3D (ax_gebaeudeinstallation3d) 0..*';
+		COMMENT ON COLUMN ax_bauteil3d.hatgelaendeschnittlinie IS 'Assoziation zu: FeatureType AX_Strukturlinie3D (ax_strukturlinie3d) 0..*';
+		CREATE TABLE ax_gebaeudeinstallation3d (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  funktion integer NOT NULL,
+		  hatdirektunten character(16)[],
+		  istabgeleitetaus character(16)[],
+		  traegtbeizu character(16)[],
+		  istteilvon character(16)[],
+		  istteil character(16)[],
+		  gehoertzu character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_gebaeudeinstallation3d_gml ON ax_gebaeudeinstallation3d USING btree (gml_id,beginnt);
+		CREATE INDEX ax_gebaeudeinstallation3d_endet ON ax_gebaeudeinstallation3d USING btree (endet);
+		PERFORM AddGeometryColumn('ax_gebaeudeinstallation3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 3);
+		CREATE INDEX ax_gebaeudeinstallation3d_wkb_geometry_idx ON ax_gebaeudeinstallation3d USING gist (wkb_geometry);
+		CREATE INDEX ax_gebaeudeinstallation3d_istteil ON ax_gebaeudeinstallation3d USING gin (istteil);
+		CREATE INDEX ax_gebaeudeinstallation3d_gehoertzu ON ax_gebaeudeinstallation3d USING gin (gehoertzu);
+		CREATE INDEX ax_gebaeudeinstallation3d_hatdirektunten ON ax_gebaeudeinstallation3d USING gin (hatdirektunten);
+		CREATE INDEX ax_gebaeudeinstallation3d_istabgeleitetaus ON ax_gebaeudeinstallation3d USING gin (istabgeleitetaus);
+		CREATE INDEX ax_gebaeudeinstallation3d_traegtbeizu ON ax_gebaeudeinstallation3d USING gin (traegtbeizu);
+		CREATE INDEX ax_gebaeudeinstallation3d_istteilvon ON ax_gebaeudeinstallation3d USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_gebaeudeinstallation3d IS 'FeatureType: "AX_GebaeudeInstallation3D"';
+		COMMENT ON COLUMN ax_gebaeudeinstallation3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_gebaeudeinstallation3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_gebaeudeinstallation3d.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_gebaeudeinstallation3d.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_gebaeudeinstallation3d.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_gebaeudeinstallation3d.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_gebaeudeinstallation3d.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_gebaeudeinstallation3d.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_gebaeudeinstallation3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_gebaeudeinstallation3d.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+		COMMENT ON COLUMN ax_gebaeudeinstallation3d.funktion IS 'funktion enumeration AX_Funktion_GebaeudeInstallation3D 1';
+		COMMENT ON COLUMN ax_gebaeudeinstallation3d.istteil IS 'Assoziation zu: FeatureType AX_Bauteil3D (ax_bauteil3d) 0..*';
+		COMMENT ON COLUMN ax_gebaeudeinstallation3d.gehoertzu IS 'Assoziation zu: FeatureType AX_Bauwerk3D (ax_bauwerk3d) 0..*';
+		CREATE TABLE ax_bauwerk3d (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  qbodenhoehe_statement character varying,
+		  qbodenhoehe_ps_description character varying[],
+		  qbodenhoehe_ps_rationale character varying[],
+		  qbodenhoehe_ps_datetime character(20)[],
+		  qbodenhoehe_ps_individualname character varying[],
+		  qbodenhoehe_ps_organisationname character varying[],
+		  qbodenhoehe_ps_positionname character varying[],
+		  qbodenhoehe_ps_phone character varying[],
+		  qbodenhoehe_ps_address character varying[],
+		  qbodenhoehe_ps_onlineresource character varying[],
+		  qbodenhoehe_ps_hoursofservice character varying[],
+		  qbodenhoehe_ps_contactinstructions character varying[],
+		  qbodenhoehe_ps_role character varying[],
+		  qbodenhoehe_ps_src_description character varying[],
+		  qbodenhoehe_ps_src_scaledenominator character varying[],
+		  qbodenhoehe_ps_src_sourcereferencesystem character varying[],
+		  qbodenhoehe_ps_src_sourceextent character varying[],
+		  qbodenhoehe_ps_src_sourcestep character varying[],
+		  qbodenhoehe_src_description character varying[],
+		  qbodenhoehe_src_scaledenominator character varying[],
+		  qbodenhoehe_src_sourcereferencesystem character varying[],
+		  qbodenhoehe_src_sourceextent character varying[],
+		  qbodenhoehe_src_sourcestep character varying[],
+		  qdachhoehe_statement character varying,
+		  qdachhoehe_ps_description character varying[],
+		  qdachhoehe_ps_rationale character varying[],
+		  qdachhoehe_ps_datetime character(20)[],
+		  qdachhoehe_ps_individualname character varying[],
+		  qdachhoehe_ps_organisationname character varying[],
+		  qdachhoehe_ps_positionname character varying[],
+		  qdachhoehe_ps_phone character varying[],
+		  qdachhoehe_ps_address character varying[],
+		  qdachhoehe_ps_onlineresource character varying[],
+		  qdachhoehe_ps_hoursofservice character varying[],
+		  qdachhoehe_ps_contactinstructions character varying[],
+		  qdachhoehe_ps_role character varying[],
+		  qdachhoehe_ps_src_description character varying[],
+		  qdachhoehe_ps_src_scaledenominator character varying[],
+		  qdachhoehe_ps_src_sourcereferencesystem character varying[],
+		  qdachhoehe_ps_src_sourceextent character varying[],
+		  qdachhoehe_ps_src_sourcestep character varying[],
+		  qdachhoehe_src_description character varying[],
+		  qdachhoehe_src_scaledenominator character varying[],
+		  qdachhoehe_src_sourcereferencesystem character varying[],
+		  qdachhoehe_src_sourceextent character varying[],
+		  qdachhoehe_src_sourcestep character varying[],
+		  hatdirektunten character(16)[],
+		  istabgeleitetaus character(16)[],
+		  traegtbeizu character(16)[],
+		  istteilvon character(16)[],
+		  beziehtsichauf_ax_transportanlage character(16),
+		  beziehtsichauf_ax_heilquellegasquelle character(16),
+		  beziehtsichauf_ax_vorratsbehaelterspeicherbauwerk character(16),
+		  beziehtsichauf_ax_historischesbauwerkoderhistorischeeinric character(16),
+		  beziehtsichauf_ax_bauwerkoderanlagefuersportfreizeitunderh character(16),
+		  beziehtsichauf_ax_bauwerkoderanlagefuerindustrieundgewerbe character(16),
+		  beziehtsichauf_ax_einrichtunginoeffentlichenbereichen character(16),
+		  beziehtsichauf_ax_sonstigesbauwerkodersonstigeeinrichtung character(16),
+		  beziehtsichauf_ax_leitung character(16),
+		  beziehtsichauf_ax_turm character(16),
+		  beziehtsichauf_ax_seilbahnschwebebahn character(16),
+		  beziehtsichauf_ax_wegpfadsteig character(16),
+		  beziehtsichauf_ax_bahnverkehrsanlage character(16),
+		  beziehtsichauf_ax_gleis character(16),
+		  beziehtsichauf_ax_strassenverkehrsanlage character(16),
+		  beziehtsichauf_ax_bauwerkimverkehrsbereich character(16),
+		  beziehtsichauf_ax_flugverkehrsanlage character(16),
+		  beziehtsichauf_ax_einrichtungenfuerdenschiffsverkehr character(16),
+		  beziehtsichauf_ax_bauwerkimgewaesserbereich character(16),
+		  beziehtsichauf_ax_schifffahrtsliniefaehrverkehr character(16),
+		  beziehtsichauf_ax_sickerstrecke character(16),
+		  beziehtsichauf_ax_gewaesserstationierungsachse character(16),
+		  beziehtsichauf_ax_wasserspiegelhoehe character(16),
+		  beziehtsichauf_ax_nullpunkt character(16),
+		  beziehtsichauf_ax_abschnitt character(16),
+		  beziehtsichauf_ax_netzknoten character(16),
+		  beziehtsichauf_ax_ast character(16),
+		  beziehtsichauf_ax_grenzuebergang character(16),
+		  beziehtsichauf_ax_testgelaende character(16),
+		  beziehtsichauf_ax_schleuse character(16),
+		  beziehtsichauf_ax_ortslage character(16),
+		  beziehtsichauf_ax_hafen character(16),
+		  beziehtsichauf_ax_untergeordnetesgewaesser character(16),
+		  beziehtsichauf_ax_gewaessermerkmal character(16),
+		  beziehtsichauf_ax_polder character(16),
+		  beziehtsichauf_ax_vegetationsmerkmal character(16),
+		  bauwerkwirdbegrenztdurch character(16)[],
+		  hat character(16)[],
+		  gehoertzubauwerk_3d character(16)[],
+		  hatbauwerk_3d character(16)[],
+		  hatgelaendeschnittlinie character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_bauwerk3d_gml ON ax_bauwerk3d USING btree (gml_id,beginnt);
+		CREATE INDEX ax_bauwerk3d_endet ON ax_bauwerk3d USING btree (endet);
+		PERFORM AddGeometryColumn('ax_bauwerk3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 3);
+		CREATE INDEX ax_bauwerk3d_wkb_geometry_idx ON ax_bauwerk3d USING gist (wkb_geometry);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_transportanlage ON ax_bauwerk3d USING btree (beziehtsichauf_ax_transportanlage);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_heilquellegasquelle ON ax_bauwerk3d USING btree (beziehtsichauf_ax_heilquellegasquelle);
+		CREATE INDEX ax_b3d_beziehtsichauf_ax_vorratsbehaelterspeicherbauwerk ON ax_bauwerk3d USING btree (beziehtsichauf_ax_vorratsbehaelterspeicherbauwerk);
+		CREATE INDEX ax_b3d_bsa_ax_hbohe ON ax_bauwerk3d USING btree (beziehtsichauf_ax_historischesbauwerkoderhistorischeeinric);
+		CREATE INDEX ax_b3d_bsa_ax_boafsfue ON ax_bauwerk3d USING btree (beziehtsichauf_ax_bauwerkoderanlagefuersportfreizeitunderh);
+		CREATE INDEX ax_b3d_bsa_ax_boafiug ON ax_bauwerk3d USING btree (beziehtsichauf_ax_bauwerkoderanlagefuerindustrieundgewerbe);
+		CREATE INDEX ax_b3d_bsa_ax_eiob ON ax_bauwerk3d USING btree (beziehtsichauf_ax_einrichtunginoeffentlichenbereichen);
+		CREATE INDEX ax_b3d_bsa_ax_sbose ON ax_bauwerk3d USING btree (beziehtsichauf_ax_sonstigesbauwerkodersonstigeeinrichtung);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_leitung ON ax_bauwerk3d USING btree (beziehtsichauf_ax_leitung);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_turm ON ax_bauwerk3d USING btree (beziehtsichauf_ax_turm);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_seilbahnschwebebahn ON ax_bauwerk3d USING btree (beziehtsichauf_ax_seilbahnschwebebahn);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_wegpfadsteig ON ax_bauwerk3d USING btree (beziehtsichauf_ax_wegpfadsteig);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_bahnverkehrsanlage ON ax_bauwerk3d USING btree (beziehtsichauf_ax_bahnverkehrsanlage);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_gleis ON ax_bauwerk3d USING btree (beziehtsichauf_ax_gleis);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_strassenverkehrsanlage ON ax_bauwerk3d USING btree (beziehtsichauf_ax_strassenverkehrsanlage);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_bauwerkimverkehrsbereich ON ax_bauwerk3d USING btree (beziehtsichauf_ax_bauwerkimverkehrsbereich);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_flugverkehrsanlage ON ax_bauwerk3d USING btree (beziehtsichauf_ax_flugverkehrsanlage);
+		CREATE INDEX ax_b3d_bsa_ax_efds ON ax_bauwerk3d USING btree (beziehtsichauf_ax_einrichtungenfuerdenschiffsverkehr);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_bauwerkimgewaesserbereich ON ax_bauwerk3d USING btree (beziehtsichauf_ax_bauwerkimgewaesserbereich);
+		CREATE INDEX ax_b3d_beziehtsichauf_ax_schifffahrtsliniefaehrverkehr ON ax_bauwerk3d USING btree (beziehtsichauf_ax_schifffahrtsliniefaehrverkehr);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_sickerstrecke ON ax_bauwerk3d USING btree (beziehtsichauf_ax_sickerstrecke);
+		CREATE INDEX ax_b3d_beziehtsichauf_ax_gewaesserstationierungsachse ON ax_bauwerk3d USING btree (beziehtsichauf_ax_gewaesserstationierungsachse);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_wasserspiegelhoehe ON ax_bauwerk3d USING btree (beziehtsichauf_ax_wasserspiegelhoehe);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_nullpunkt ON ax_bauwerk3d USING btree (beziehtsichauf_ax_nullpunkt);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_abschnitt ON ax_bauwerk3d USING btree (beziehtsichauf_ax_abschnitt);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_netzknoten ON ax_bauwerk3d USING btree (beziehtsichauf_ax_netzknoten);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_ast ON ax_bauwerk3d USING btree (beziehtsichauf_ax_ast);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_grenzuebergang ON ax_bauwerk3d USING btree (beziehtsichauf_ax_grenzuebergang);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_testgelaende ON ax_bauwerk3d USING btree (beziehtsichauf_ax_testgelaende);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_schleuse ON ax_bauwerk3d USING btree (beziehtsichauf_ax_schleuse);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_ortslage ON ax_bauwerk3d USING btree (beziehtsichauf_ax_ortslage);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_hafen ON ax_bauwerk3d USING btree (beziehtsichauf_ax_hafen);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_untergeordnetesgewaesser ON ax_bauwerk3d USING btree (beziehtsichauf_ax_untergeordnetesgewaesser);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_gewaessermerkmal ON ax_bauwerk3d USING btree (beziehtsichauf_ax_gewaessermerkmal);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_polder ON ax_bauwerk3d USING btree (beziehtsichauf_ax_polder);
+		CREATE INDEX ax_bauwerk3d_beziehtsichauf_ax_vegetationsmerkmal ON ax_bauwerk3d USING btree (beziehtsichauf_ax_vegetationsmerkmal);
+		CREATE INDEX ax_bauwerk3d_bauwerkwirdbegrenztdurch ON ax_bauwerk3d USING gin (bauwerkwirdbegrenztdurch);
+		CREATE INDEX ax_bauwerk3d_hat ON ax_bauwerk3d USING gin (hat);
+		CREATE INDEX ax_bauwerk3d_gehoertzubauwerk_3d ON ax_bauwerk3d USING gin (gehoertzubauwerk_3d);
+		CREATE INDEX ax_bauwerk3d_hatbauwerk_3d ON ax_bauwerk3d USING gin (hatbauwerk_3d);
+		CREATE INDEX ax_bauwerk3d_hatgelaendeschnittlinie ON ax_bauwerk3d USING gin (hatgelaendeschnittlinie);
+		CREATE INDEX ax_bauwerk3d_hatdirektunten ON ax_bauwerk3d USING gin (hatdirektunten);
+		CREATE INDEX ax_bauwerk3d_istabgeleitetaus ON ax_bauwerk3d USING gin (istabgeleitetaus);
+		CREATE INDEX ax_bauwerk3d_traegtbeizu ON ax_bauwerk3d USING gin (traegtbeizu);
+		CREATE INDEX ax_bauwerk3d_istteilvon ON ax_bauwerk3d USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_bauwerk3d IS 'FeatureType: "AX_Bauwerk3D"';
+		COMMENT ON COLUMN ax_bauwerk3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_bauwerk3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_bauwerk3d.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_bauwerk3d.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_statement IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|statement|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_description IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString enumeration  1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_rationale IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|rationale|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_datetime IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|dateTime|DateTime  DateTime 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_individualname IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|individualName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_organisationname IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|organisationName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_positionname IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|positionName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_phone IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|phone|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_address IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|address|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_onlineresource IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|onlineResource|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_hoursofservice IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|hoursOfService|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_contactinstructions IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|contactInstructions|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_role IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|role|CI_RoleCode enumeration CI_RoleCode 1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_src_description IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_src_scaledenominator IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|scaleDenominator|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_src_sourcereferencesystem IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceReferenceSystem|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_src_sourceextent IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceExtent|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_ps_src_sourcestep IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceStep|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_src_description IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|source|LI_Source|description|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_src_scaledenominator IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|source|LI_Source|scaleDenominator|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_src_sourcereferencesystem IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|source|LI_Source|sourceReferenceSystem|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_src_sourceextent IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|source|LI_Source|sourceExtent|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauwerk3d.qbodenhoehe_src_sourcestep IS 'qualitaetBodenhoehe|AX_DQBodenhoehe|herkunft|LI_Lineage|source|LI_Source|sourceStep|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_statement IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|statement|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_description IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|description|CharacterString enumeration  1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_rationale IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|rationale|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_datetime IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|dateTime|DateTime  DateTime 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_individualname IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|individualName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_organisationname IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|organisationName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_positionname IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|positionName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_phone IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|phone|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_address IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|address|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_onlineresource IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|onlineResource|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_hoursofservice IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|hoursOfService|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_contactinstructions IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|contactInstructions|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_role IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|processor|CI_ResponsibleParty|role|CI_RoleCode enumeration CI_RoleCode 1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_src_description IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|description|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_src_scaledenominator IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|scaleDenominator|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_src_sourcereferencesystem IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceReferenceSystem|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_src_sourceextent IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceExtent|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_ps_src_sourcestep IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|processStep|LI_ProcessStep|source|LI_Source|sourceStep|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_src_description IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|source|LI_Source|description|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_src_scaledenominator IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|source|LI_Source|scaleDenominator|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_src_sourcereferencesystem IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|source|LI_Source|sourceReferenceSystem|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_src_sourceextent IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|source|LI_Source|sourceExtent|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauwerk3d.qdachhoehe_src_sourcestep IS 'qualitaetDachhoehe|AX_DQDachhoehe|herkunft|LI_Lineage|source|LI_Source|sourceStep|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_transportanlage IS 'Assoziation zu: FeatureType AX_Transportanlage (ax_transportanlage) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_heilquellegasquelle IS 'Assoziation zu: FeatureType AX_HeilquelleGasquelle (ax_heilquellegasquelle) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_vorratsbehaelterspeicherbauwerk IS 'Assoziation zu: FeatureType AX_VorratsbehaelterSpeicherbauwerk (ax_vorratsbehaelterspeicherbauwerk) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_historischesbauwerkoderhistorischeeinric IS 'Assoziation zu: FeatureType AX_HistorischesBauwerkOderHistorischeEinrichtung (ax_historischesbauwerkoderhistorischeeinrichtung) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_bauwerkoderanlagefuersportfreizeitunderh IS 'Assoziation zu: FeatureType AX_BauwerkOderAnlageFuerSportFreizeitUndErholung (ax_bauwerkoderanlagefuersportfreizeitunderholung) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_bauwerkoderanlagefuerindustrieundgewerbe IS 'Assoziation zu: FeatureType AX_BauwerkOderAnlageFuerIndustrieUndGewerbe (ax_bauwerkoderanlagefuerindustrieundgewerbe) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_einrichtunginoeffentlichenbereichen IS 'Assoziation zu: FeatureType AX_EinrichtungInOeffentlichenBereichen (ax_einrichtunginoeffentlichenbereichen) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_sonstigesbauwerkodersonstigeeinrichtung IS 'Assoziation zu: FeatureType AX_SonstigesBauwerkOderSonstigeEinrichtung (ax_sonstigesbauwerkodersonstigeeinrichtung) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_leitung IS 'Assoziation zu: FeatureType AX_Leitung (ax_leitung) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_turm IS 'Assoziation zu: FeatureType AX_Turm (ax_turm) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_seilbahnschwebebahn IS 'Assoziation zu: FeatureType AX_SeilbahnSchwebebahn (ax_seilbahnschwebebahn) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_wegpfadsteig IS 'Assoziation zu: FeatureType AX_WegPfadSteig (ax_wegpfadsteig) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_bahnverkehrsanlage IS 'Assoziation zu: FeatureType AX_Bahnverkehrsanlage (ax_bahnverkehrsanlage) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_gleis IS 'Assoziation zu: FeatureType AX_Gleis (ax_gleis) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_strassenverkehrsanlage IS 'Assoziation zu: FeatureType AX_Strassenverkehrsanlage (ax_strassenverkehrsanlage) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_bauwerkimverkehrsbereich IS 'Assoziation zu: FeatureType AX_BauwerkImVerkehrsbereich (ax_bauwerkimverkehrsbereich) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_flugverkehrsanlage IS 'Assoziation zu: FeatureType AX_Flugverkehrsanlage (ax_flugverkehrsanlage) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_einrichtungenfuerdenschiffsverkehr IS 'Assoziation zu: FeatureType AX_EinrichtungenFuerDenSchiffsverkehr (ax_einrichtungenfuerdenschiffsverkehr) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_bauwerkimgewaesserbereich IS 'Assoziation zu: FeatureType AX_BauwerkImGewaesserbereich (ax_bauwerkimgewaesserbereich) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_schifffahrtsliniefaehrverkehr IS 'Assoziation zu: FeatureType AX_SchifffahrtslinieFaehrverkehr (ax_schifffahrtsliniefaehrverkehr) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_sickerstrecke IS 'Assoziation zu: FeatureType AX_Sickerstrecke (ax_sickerstrecke) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_gewaesserstationierungsachse IS 'Assoziation zu: FeatureType AX_Gewaesserstationierungsachse (ax_gewaesserstationierungsachse) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_wasserspiegelhoehe IS 'Assoziation zu: FeatureType AX_Wasserspiegelhoehe (ax_wasserspiegelhoehe) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_nullpunkt IS 'Assoziation zu: FeatureType AX_Nullpunkt (ax_nullpunkt) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_abschnitt IS 'Assoziation zu: FeatureType AX_Abschnitt (ax_abschnitt) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_netzknoten IS 'Assoziation zu: FeatureType AX_Netzknoten (ax_netzknoten) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_ast IS 'Assoziation zu: FeatureType AX_Ast (ax_ast) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_grenzuebergang IS 'Assoziation zu: FeatureType AX_Grenzuebergang (ax_grenzuebergang) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_testgelaende IS 'Assoziation zu: FeatureType AX_Testgelaende (ax_testgelaende) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_schleuse IS 'Assoziation zu: FeatureType AX_Schleuse (ax_schleuse) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_ortslage IS 'Assoziation zu: FeatureType AX_Ortslage (ax_ortslage) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_hafen IS 'Assoziation zu: FeatureType AX_Hafen (ax_hafen) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_untergeordnetesgewaesser IS 'Assoziation zu: FeatureType AX_UntergeordnetesGewaesser (ax_untergeordnetesgewaesser) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_gewaessermerkmal IS 'Assoziation zu: FeatureType AX_Gewaessermerkmal (ax_gewaessermerkmal) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_polder IS 'Assoziation zu: FeatureType AX_Polder (ax_polder) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.beziehtsichauf_ax_vegetationsmerkmal IS 'Assoziation zu: FeatureType AX_Vegetationsmerkmal (ax_vegetationsmerkmal) 0..1';
+		COMMENT ON COLUMN ax_bauwerk3d.bauwerkwirdbegrenztdurch IS 'Assoziation zu: FeatureType AX_Begrenzungsflaeche3D (ax_begrenzungsflaeche3d) 0..*';
+		COMMENT ON COLUMN ax_bauwerk3d.hat IS 'Assoziation zu: FeatureType AX_GebaeudeInstallation3D (ax_gebaeudeinstallation3d) 0..*';
+		COMMENT ON COLUMN ax_bauwerk3d.gehoertzubauwerk_3d IS 'Assoziation zu: FeatureType AX_Bauwerk3D (ax_bauwerk3d) 0..*';
+		COMMENT ON COLUMN ax_bauwerk3d.hatbauwerk_3d IS 'Assoziation zu: FeatureType AX_Bauwerk3D (ax_bauwerk3d) 0..*';
+		COMMENT ON COLUMN ax_bauwerk3d.hatgelaendeschnittlinie IS 'Assoziation zu: FeatureType AX_Strukturlinie3D (ax_strukturlinie3d) 0..*';
+		CREATE TABLE ax_tuer3d (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  istenthaltenin character(16),
+		  hatdirektunten character(16)[],
+		  istabgeleitetaus character(16)[],
+		  traegtbeizu character(16)[],
+		  istteilvon character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_tuer3d_gml ON ax_tuer3d USING btree (gml_id,beginnt);
+		CREATE INDEX ax_tuer3d_endet ON ax_tuer3d USING btree (endet);
+		PERFORM AddGeometryColumn('ax_tuer3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 3);
+		CREATE INDEX ax_tuer3d_wkb_geometry_idx ON ax_tuer3d USING gist (wkb_geometry);
+		CREATE INDEX ax_tuer3d_istenthaltenin ON ax_tuer3d USING btree (istenthaltenin);
+		CREATE INDEX ax_tuer3d_hatdirektunten ON ax_tuer3d USING gin (hatdirektunten);
+		CREATE INDEX ax_tuer3d_istabgeleitetaus ON ax_tuer3d USING gin (istabgeleitetaus);
+		CREATE INDEX ax_tuer3d_traegtbeizu ON ax_tuer3d USING gin (traegtbeizu);
+		CREATE INDEX ax_tuer3d_istteilvon ON ax_tuer3d USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_tuer3d IS 'FeatureType: "AX_Tuer3D"';
+		COMMENT ON COLUMN ax_tuer3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_tuer3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_tuer3d.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_tuer3d.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_tuer3d.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_tuer3d.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_tuer3d.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_tuer3d.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_tuer3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_tuer3d.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+		CREATE TABLE ax_fenster3d (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  istenthaltenin character(16),
+		  hatdirektunten character(16)[],
+		  istabgeleitetaus character(16)[],
+		  traegtbeizu character(16)[],
+		  istteilvon character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_fenster3d_gml ON ax_fenster3d USING btree (gml_id,beginnt);
+		CREATE INDEX ax_fenster3d_endet ON ax_fenster3d USING btree (endet);
+		PERFORM AddGeometryColumn('ax_fenster3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 3);
+		CREATE INDEX ax_fenster3d_wkb_geometry_idx ON ax_fenster3d USING gist (wkb_geometry);
+		CREATE INDEX ax_fenster3d_istenthaltenin ON ax_fenster3d USING btree (istenthaltenin);
+		CREATE INDEX ax_fenster3d_hatdirektunten ON ax_fenster3d USING gin (hatdirektunten);
+		CREATE INDEX ax_fenster3d_istabgeleitetaus ON ax_fenster3d USING gin (istabgeleitetaus);
+		CREATE INDEX ax_fenster3d_traegtbeizu ON ax_fenster3d USING gin (traegtbeizu);
+		CREATE INDEX ax_fenster3d_istteilvon ON ax_fenster3d USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_fenster3d IS 'FeatureType: "AX_Fenster3D"';
+		COMMENT ON COLUMN ax_fenster3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_fenster3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_fenster3d.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_fenster3d.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_fenster3d.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_fenster3d.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_fenster3d.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_fenster3d.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_fenster3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_fenster3d.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+		CREATE TABLE ax_dachflaeche3d (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  hat character(16)[],
+		  begrenzt character(16),
+		  begrenztbauwerk character(16),
+		  hatdirektunten character(16)[],
+		  istabgeleitetaus character(16)[],
+		  traegtbeizu character(16)[],
+		  istteilvon character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_dachflaeche3d_gml ON ax_dachflaeche3d USING btree (gml_id,beginnt);
+		CREATE INDEX ax_dachflaeche3d_endet ON ax_dachflaeche3d USING btree (endet);
+		PERFORM AddGeometryColumn('ax_dachflaeche3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 3);
+		CREATE INDEX ax_dachflaeche3d_wkb_geometry_idx ON ax_dachflaeche3d USING gist (wkb_geometry);
+		CREATE INDEX ax_dachflaeche3d_hat ON ax_dachflaeche3d USING gin (hat);
+		CREATE INDEX ax_dachflaeche3d_begrenzt ON ax_dachflaeche3d USING btree (begrenzt);
+		CREATE INDEX ax_dachflaeche3d_begrenztbauwerk ON ax_dachflaeche3d USING btree (begrenztbauwerk);
+		CREATE INDEX ax_dachflaeche3d_hatdirektunten ON ax_dachflaeche3d USING gin (hatdirektunten);
+		CREATE INDEX ax_dachflaeche3d_istabgeleitetaus ON ax_dachflaeche3d USING gin (istabgeleitetaus);
+		CREATE INDEX ax_dachflaeche3d_traegtbeizu ON ax_dachflaeche3d USING gin (traegtbeizu);
+		CREATE INDEX ax_dachflaeche3d_istteilvon ON ax_dachflaeche3d USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_dachflaeche3d IS 'FeatureType: "AX_Dachflaeche3D"';
+		COMMENT ON COLUMN ax_dachflaeche3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_dachflaeche3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_dachflaeche3d.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_dachflaeche3d.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_dachflaeche3d.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_dachflaeche3d.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_dachflaeche3d.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_dachflaeche3d.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_dachflaeche3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_dachflaeche3d.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+		CREATE TABLE ax_abschlussflaeche3d (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  hat character(16)[],
+		  begrenzt character(16),
+		  begrenztbauwerk character(16),
+		  hatdirektunten character(16)[],
+		  istabgeleitetaus character(16)[],
+		  traegtbeizu character(16)[],
+		  istteilvon character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_abschlussflaeche3d_gml ON ax_abschlussflaeche3d USING btree (gml_id,beginnt);
+		CREATE INDEX ax_abschlussflaeche3d_endet ON ax_abschlussflaeche3d USING btree (endet);
+		PERFORM AddGeometryColumn('ax_abschlussflaeche3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 3);
+		CREATE INDEX ax_abschlussflaeche3d_wkb_geometry_idx ON ax_abschlussflaeche3d USING gist (wkb_geometry);
+		CREATE INDEX ax_abschlussflaeche3d_hat ON ax_abschlussflaeche3d USING gin (hat);
+		CREATE INDEX ax_abschlussflaeche3d_begrenzt ON ax_abschlussflaeche3d USING btree (begrenzt);
+		CREATE INDEX ax_abschlussflaeche3d_begrenztbauwerk ON ax_abschlussflaeche3d USING btree (begrenztbauwerk);
+		CREATE INDEX ax_abschlussflaeche3d_hatdirektunten ON ax_abschlussflaeche3d USING gin (hatdirektunten);
+		CREATE INDEX ax_abschlussflaeche3d_istabgeleitetaus ON ax_abschlussflaeche3d USING gin (istabgeleitetaus);
+		CREATE INDEX ax_abschlussflaeche3d_traegtbeizu ON ax_abschlussflaeche3d USING gin (traegtbeizu);
+		CREATE INDEX ax_abschlussflaeche3d_istteilvon ON ax_abschlussflaeche3d USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_abschlussflaeche3d IS 'FeatureType: "AX_Abschlussflaeche3D"';
+		COMMENT ON COLUMN ax_abschlussflaeche3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_abschlussflaeche3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_abschlussflaeche3d.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_abschlussflaeche3d.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_abschlussflaeche3d.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_abschlussflaeche3d.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_abschlussflaeche3d.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_abschlussflaeche3d.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_abschlussflaeche3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_abschlussflaeche3d.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+		CREATE TABLE ax_bodenflaeche3d (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  hat character(16)[],
+		  begrenzt character(16),
+		  begrenztbauwerk character(16),
+		  hatdirektunten character(16)[],
+		  istabgeleitetaus character(16)[],
+		  traegtbeizu character(16)[],
+		  istteilvon character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_bodenflaeche3d_gml ON ax_bodenflaeche3d USING btree (gml_id,beginnt);
+		CREATE INDEX ax_bodenflaeche3d_endet ON ax_bodenflaeche3d USING btree (endet);
+		PERFORM AddGeometryColumn('ax_bodenflaeche3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 3);
+		CREATE INDEX ax_bodenflaeche3d_wkb_geometry_idx ON ax_bodenflaeche3d USING gist (wkb_geometry);
+		CREATE INDEX ax_bodenflaeche3d_hat ON ax_bodenflaeche3d USING gin (hat);
+		CREATE INDEX ax_bodenflaeche3d_begrenzt ON ax_bodenflaeche3d USING btree (begrenzt);
+		CREATE INDEX ax_bodenflaeche3d_begrenztbauwerk ON ax_bodenflaeche3d USING btree (begrenztbauwerk);
+		CREATE INDEX ax_bodenflaeche3d_hatdirektunten ON ax_bodenflaeche3d USING gin (hatdirektunten);
+		CREATE INDEX ax_bodenflaeche3d_istabgeleitetaus ON ax_bodenflaeche3d USING gin (istabgeleitetaus);
+		CREATE INDEX ax_bodenflaeche3d_traegtbeizu ON ax_bodenflaeche3d USING gin (traegtbeizu);
+		CREATE INDEX ax_bodenflaeche3d_istteilvon ON ax_bodenflaeche3d USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_bodenflaeche3d IS 'FeatureType: "AX_Bodenflaeche3D"';
+		COMMENT ON COLUMN ax_bodenflaeche3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_bodenflaeche3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_bodenflaeche3d.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_bodenflaeche3d.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_bodenflaeche3d.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_bodenflaeche3d.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bodenflaeche3d.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_bodenflaeche3d.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bodenflaeche3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_bodenflaeche3d.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+		CREATE TABLE ax_wandflaeche3d (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  hat character(16)[],
+		  begrenzt character(16),
+		  begrenztbauwerk character(16),
+		  hatdirektunten character(16)[],
+		  istabgeleitetaus character(16)[],
+		  traegtbeizu character(16)[],
+		  istteilvon character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_wandflaeche3d_gml ON ax_wandflaeche3d USING btree (gml_id,beginnt);
+		CREATE INDEX ax_wandflaeche3d_endet ON ax_wandflaeche3d USING btree (endet);
+		PERFORM AddGeometryColumn('ax_wandflaeche3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 3);
+		CREATE INDEX ax_wandflaeche3d_wkb_geometry_idx ON ax_wandflaeche3d USING gist (wkb_geometry);
+		CREATE INDEX ax_wandflaeche3d_hat ON ax_wandflaeche3d USING gin (hat);
+		CREATE INDEX ax_wandflaeche3d_begrenzt ON ax_wandflaeche3d USING btree (begrenzt);
+		CREATE INDEX ax_wandflaeche3d_begrenztbauwerk ON ax_wandflaeche3d USING btree (begrenztbauwerk);
+		CREATE INDEX ax_wandflaeche3d_hatdirektunten ON ax_wandflaeche3d USING gin (hatdirektunten);
+		CREATE INDEX ax_wandflaeche3d_istabgeleitetaus ON ax_wandflaeche3d USING gin (istabgeleitetaus);
+		CREATE INDEX ax_wandflaeche3d_traegtbeizu ON ax_wandflaeche3d USING gin (traegtbeizu);
+		CREATE INDEX ax_wandflaeche3d_istteilvon ON ax_wandflaeche3d USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_wandflaeche3d IS 'FeatureType: "AX_Wandflaeche3D"';
+		COMMENT ON COLUMN ax_wandflaeche3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_wandflaeche3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_wandflaeche3d.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_wandflaeche3d.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_wandflaeche3d.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_wandflaeche3d.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_wandflaeche3d.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_wandflaeche3d.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_wandflaeche3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_wandflaeche3d.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+		CREATE TABLE ax_flaeche3d (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  art integer NOT NULL,
+		  aktualisierungsdatum3d date,
+		  herkunft3d_description character varying,
+		  herkunft3d_rationale character varying,
+		  herkunft3d_datetime character(20),
+		  herkunft3d_individualname character varying[],
+		  herkunft3d_organisationname character varying[],
+		  herkunft3d_positionname character varying[],
+		  herkunft3d_phone character varying[],
+		  herkunft3d_address character varying[],
+		  herkunft3d_onlineresource character varying[],
+		  herkunft3d_hoursofservice character varying[],
+		  herkunft3d_contactinstructions character varying[],
+		  herkunft3d_role character varying[],
+		  source_description character varying[],
+		  herkunft3d_scaledenominator character varying[],
+		  herkunft3d_sourcereferencesystem character varying[],
+		  herkunft3d_sourceextent character varying[],
+		  herkunft3d_sourcestep character varying[],
+		  hoehengenauigkeit3d_nameofmeasure character varying[],
+		  hoehengenauigkeit3d_measureidentification character varying,
+		  hoehengenauigkeit3d_measuredescription character varying,
+		  hoehengenauigkeit3d_evaluationmethodtype character varying,
+		  hoehengenauigkeit3d_evaluationmethoddescription character varying,
+		  hoehengenauigkeit3d_evaluationprocedure character varying,
+		  hoehengenauigkeit3d_datetime character(20)[],
+		  hoehengenauigkeit3d_result character varying[],
+		  lagegenauigkeit3d_nameofmeasure character varying[],
+		  lagegenauigkeit3d_measureidentification character varying,
+		  lagegenauigkeit3d_measuredescription character varying,
+		  lagegenauigkeit3d_evaluationmethodtype character varying,
+		  lagegenauigkeit3d_evaluationmethoddescription character varying,
+		  lagegenauigkeit3d_evaluationprocedure character varying,
+		  lagegenauigkeit3d_datetime character(20)[],
+		  lagegenauigkeit3d_result character varying[],
+		  ursprung integer,
+		  hatdirektunten character(16)[],
+		  istabgeleitetaus character(16)[],
+		  traegtbeizu character(16)[],
+		  istteilvon character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_flaeche3d_gml ON ax_flaeche3d USING btree (gml_id,beginnt);
+		CREATE INDEX ax_flaeche3d_endet ON ax_flaeche3d USING btree (endet);
+		PERFORM AddGeometryColumn('ax_flaeche3d', 'wkb_geometry', find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry'), 'GEOMETRY', 3);
+		CREATE INDEX ax_flaeche3d_wkb_geometry_idx ON ax_flaeche3d USING gist (wkb_geometry);
+		CREATE INDEX ax_flaeche3d_hatdirektunten ON ax_flaeche3d USING gin (hatdirektunten);
+		CREATE INDEX ax_flaeche3d_istabgeleitetaus ON ax_flaeche3d USING gin (istabgeleitetaus);
+		CREATE INDEX ax_flaeche3d_traegtbeizu ON ax_flaeche3d USING gin (traegtbeizu);
+		CREATE INDEX ax_flaeche3d_istteilvon ON ax_flaeche3d USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_flaeche3d IS 'FeatureType: "AX_Flaeche3D"';
+		COMMENT ON COLUMN ax_flaeche3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_flaeche3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_flaeche3d.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_flaeche3d.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.wkb_geometry IS 'wkb_geometry  GM_Object 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.art IS 'art enumeration AX_Art_Flaeche3D 1';
+		COMMENT ON COLUMN ax_flaeche3d.aktualisierungsdatum3d IS 'qualitaetsangaben|AX_DQErhebung3D|aktualisierungsdatum3D  Date 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_description IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|description|CharacterString enumeration  1';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_rationale IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|rationale|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_datetime IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|dateTime|DateTime  DateTime 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_individualname IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|individualName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_organisationname IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|organisationName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_positionname IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|positionName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_phone IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|phone|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_address IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|address|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_onlineresource IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|onlineResource|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_hoursofservice IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|hoursOfService|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_contactinstructions IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|contactInstructions|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_role IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|role|CI_RoleCode enumeration CI_RoleCode 1';
+		COMMENT ON COLUMN ax_flaeche3d.source_description IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|description|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_scaledenominator IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|scaleDenominator|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_sourcereferencesystem IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|sourceReferenceSystem|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_sourceextent IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|sourceExtent|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_flaeche3d.herkunft3d_sourcestep IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|sourceStep|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_flaeche3d.hoehengenauigkeit3d_nameofmeasure IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|nameOfMeasure|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_flaeche3d.hoehengenauigkeit3d_measureidentification IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureIdentification|MD_Identifier  MD_Identifier 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.hoehengenauigkeit3d_measuredescription IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.hoehengenauigkeit3d_evaluationmethodtype IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodType|DQ_EvaluationMethodTypeCode  DQ_EvaluationMethodTypeCode 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.hoehengenauigkeit3d_evaluationmethoddescription IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.hoehengenauigkeit3d_evaluationprocedure IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationProcedure|CI_Citation  CI_Citation 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.hoehengenauigkeit3d_datetime IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|dateTime|DateTime  DateTime 0..*';
+		COMMENT ON COLUMN ax_flaeche3d.hoehengenauigkeit3d_result IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|result|DQ_Result  DQ_Result 1..*';
+		COMMENT ON COLUMN ax_flaeche3d.lagegenauigkeit3d_nameofmeasure IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|nameOfMeasure|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_flaeche3d.lagegenauigkeit3d_measureidentification IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureIdentification|MD_Identifier  MD_Identifier 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.lagegenauigkeit3d_measuredescription IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.lagegenauigkeit3d_evaluationmethodtype IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodType|DQ_EvaluationMethodTypeCode  DQ_EvaluationMethodTypeCode 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.lagegenauigkeit3d_evaluationmethoddescription IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.lagegenauigkeit3d_evaluationprocedure IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationProcedure|CI_Citation  CI_Citation 0..1';
+		COMMENT ON COLUMN ax_flaeche3d.lagegenauigkeit3d_datetime IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|dateTime|DateTime  DateTime 0..*';
+		COMMENT ON COLUMN ax_flaeche3d.lagegenauigkeit3d_result IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|result|DQ_Result  DQ_Result 1..*';
+		COMMENT ON COLUMN ax_flaeche3d.ursprung IS 'ursprung enumeration AX_Ursprung 0..1';
+		CREATE TABLE ax_textur3d (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  art character varying,
+		  darstellungsprioritaet integer,
+		  signaturnummer character varying,
+		  thema character varying,
+		  vorderseite character varying,
+		  aktualitaet character(20),
+		  dateitypraster integer,
+		  link character varying NOT NULL,
+		  texturkoordinaten double precision[] NOT NULL,
+		  horizontal integer,
+		  vertikal integer,
+		  typ integer,
+		  dientzurdarstellungvon character(16)[],
+		  istteilvon character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_textur3d_gml ON ax_textur3d USING btree (gml_id,beginnt);
+		CREATE INDEX ax_textur3d_endet ON ax_textur3d USING btree (endet);
+		CREATE INDEX ax_textur3d_dientzurdarstellungvon ON ax_textur3d USING gin (dientzurdarstellungvon);
+		CREATE INDEX ax_textur3d_istteilvon ON ax_textur3d USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_textur3d IS 'FeatureType: "AX_Textur3D"';
+		COMMENT ON COLUMN ax_textur3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_textur3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_textur3d.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_textur3d.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_textur3d.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_textur3d.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_textur3d.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_textur3d.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_textur3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_textur3d.art IS 'art  CharacterString 0..1';
+		COMMENT ON COLUMN ax_textur3d.darstellungsprioritaet IS 'darstellungsprioritaet  Integer 0..1';
+		COMMENT ON COLUMN ax_textur3d.signaturnummer IS 'signaturnummer  CharacterString 0..1';
+		COMMENT ON COLUMN ax_textur3d.thema IS 'thema  CharacterString 0..1';
+		COMMENT ON COLUMN ax_textur3d.vorderseite IS 'vorderseite  Boolean 0..1';
+		COMMENT ON COLUMN ax_textur3d.aktualitaet IS 'aktualitaet  DateTime 0..1';
+		COMMENT ON COLUMN ax_textur3d.dateitypraster IS 'dateiTypRaster enumeration AX_DateiTypRaster_Textur3D 0..1';
+		COMMENT ON COLUMN ax_textur3d.link IS 'link  URI 1';
+		COMMENT ON COLUMN ax_textur3d.texturkoordinaten IS 'texturKoordinaten  Real 1..*';
+		COMMENT ON COLUMN ax_textur3d.horizontal IS 'texturVerarbeitung|AX_TexturVerarbeitung_Textur3D|horizontal  Integer 1';
+		COMMENT ON COLUMN ax_textur3d.vertikal IS 'texturVerarbeitung|AX_TexturVerarbeitung_Textur3D|vertikal  Integer 1';
+		COMMENT ON COLUMN ax_textur3d.typ IS 'typ enumeration AX_Typ_Textur3D 0..1';
+		CREATE TABLE ax_material3d (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  art character varying,
+		  darstellungsprioritaet integer,
+		  signaturnummer character varying,
+		  thema character varying,
+		  vorderseite character varying,
+		  aktualitaet character(20),
+		  blau integer,
+		  gruen integer,
+		  rot integer,
+		  material integer,
+		  dientzurdarstellungvon character(16)[],
+		  istteilvon character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_material3d_gml ON ax_material3d USING btree (gml_id,beginnt);
+		CREATE INDEX ax_material3d_endet ON ax_material3d USING btree (endet);
+		CREATE INDEX ax_material3d_dientzurdarstellungvon ON ax_material3d USING gin (dientzurdarstellungvon);
+		CREATE INDEX ax_material3d_istteilvon ON ax_material3d USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_material3d IS 'FeatureType: "AX_Material3D"';
+		COMMENT ON COLUMN ax_material3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_material3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_material3d.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_material3d.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_material3d.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_material3d.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_material3d.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_material3d.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_material3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_material3d.art IS 'art  CharacterString 0..1';
+		COMMENT ON COLUMN ax_material3d.darstellungsprioritaet IS 'darstellungsprioritaet  Integer 0..1';
+		COMMENT ON COLUMN ax_material3d.signaturnummer IS 'signaturnummer  CharacterString 0..1';
+		COMMENT ON COLUMN ax_material3d.thema IS 'thema  CharacterString 0..1';
+		COMMENT ON COLUMN ax_material3d.vorderseite IS 'vorderseite  Boolean 0..1';
+		COMMENT ON COLUMN ax_material3d.aktualitaet IS 'aktualitaet  DateTime 0..1';
+		COMMENT ON COLUMN ax_material3d.blau IS 'materialeigenschaft|AX_Materialeigenschaft_Material3D|farbeRGB|AX_FarbeRGB_Materialeigenschaft_Material3D|blau  Integer 1';
+		COMMENT ON COLUMN ax_material3d.gruen IS 'materialeigenschaft|AX_Materialeigenschaft_Material3D|farbeRGB|AX_FarbeRGB_Materialeigenschaft_Material3D|gruen  Integer 1';
+		COMMENT ON COLUMN ax_material3d.rot IS 'materialeigenschaft|AX_Materialeigenschaft_Material3D|farbeRGB|AX_FarbeRGB_Materialeigenschaft_Material3D|rot  Integer 1';
+		COMMENT ON COLUMN ax_material3d.material IS 'materialeigenschaft|AX_Materialeigenschaft_Material3D|material enumeration AX_Material_Materialeigenschaft_Material3D 0..1';
+		CREATE TABLE ax_flurstueckgrundbuch (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  amtlicheflaeche character varying NOT NULL,
+		  anlassflurstueck character varying,
+		  anliegervermerk_buchungsart integer[],
+		  anliegervermerk_flurnummer character varying[],
+		  anliegervermerk_nenner character varying[],
+		  anliegervermerk_zaehler character varying[],
+		  anliegervermerk_gemarkungsnummer character varying[],
+		  anliegervermerk_land character varying[],
+		  flurnummer character varying,
+		  flurstuecksfolge character varying,
+		  flurstueckskennzeichen character varying NOT NULL,
+		  nenner character varying,
+		  zaehler character varying NOT NULL,
+		  gemarkungsnummer character varying NOT NULL,
+		  land character varying NOT NULL,
+		  gemeindezugehoerigkeit_gemeinde character varying NOT NULL,
+		  gemeindezugehoerigkeit_gemeindeteil character varying,
+		  gemeindezugehoerigkeit_kreis character varying NOT NULL,
+		  gemeindezugehoerigkeit_land character varying NOT NULL,
+		  gemeindezugehoerigkeit_regierungsbezirk character varying,
+		  lagebezeichnung character varying[] NOT NULL,
+		  lebenszeitintervallflurstueck_beginnt character(20) NOT NULL,
+		  lebenszeitintervallflurstueck_endet character(20),
+		  rechtsbehelfsverfahren character varying,
+		  strittigegrenze character varying,
+		  wirtschaftsart character varying[] NOT NULL,
+		  zustaendigestelle_land character varying NOT NULL,
+		  zustaendigestelle_stelle character varying NOT NULL,
+		  istteilvon character(16)[],
+		  istgebucht character(16) NOT NULL,
+		  isteinverweisaufflurstueck character(16) NOT NULL,
+		  einbezogenin character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_flurstueckgrundbuch_gml ON ax_flurstueckgrundbuch USING btree (gml_id,beginnt);
+		CREATE INDEX ax_flurstueckgrundbuch_endet ON ax_flurstueckgrundbuch USING btree (endet);
+		CREATE INDEX ax_flurstueckgrundbuch_istgebucht ON ax_flurstueckgrundbuch USING btree (istgebucht);
+		CREATE INDEX ax_flurstueckgrundbuch_isteinverweisaufflurstueck ON ax_flurstueckgrundbuch USING btree (isteinverweisaufflurstueck);
+		CREATE INDEX ax_flurstueckgrundbuch_einbezogenin ON ax_flurstueckgrundbuch USING gin (einbezogenin);
+		CREATE INDEX ax_flurstueckgrundbuch_istteilvon ON ax_flurstueckgrundbuch USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_flurstueckgrundbuch IS 'FeatureType: "AX_FlurstueckGrundbuch"';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.amtlicheflaeche IS 'amtlicheFlaeche  CharacterString 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.anlassflurstueck IS 'anlassFlurstueck codelist AA_Anlassart 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.anliegervermerk_buchungsart IS 'anliegervermerk|AX_Anliegervermerk|buchungsart enumeration AX_Buchungsart_Anlieger 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.anliegervermerk_flurnummer IS 'anliegervermerk|AX_Anliegervermerk|flurnummer  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.anliegervermerk_nenner IS 'anliegervermerk|AX_Anliegervermerk|flurstuecksnummer|AX_Flurstuecksnummer|nenner  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.anliegervermerk_zaehler IS 'anliegervermerk|AX_Anliegervermerk|flurstuecksnummer|AX_Flurstuecksnummer|zaehler  CharacterString 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.anliegervermerk_gemarkungsnummer IS 'anliegervermerk|AX_Anliegervermerk|gemarkung|AX_Gemarkung_Schluessel|gemarkungsnummer  CharacterString 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.anliegervermerk_land IS 'anliegervermerk|AX_Anliegervermerk|gemarkung|AX_Gemarkung_Schluessel|land  CharacterString 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.flurnummer IS 'flurnummer  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.flurstuecksfolge IS 'flurstuecksfolge  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.flurstueckskennzeichen IS 'flurstueckskennzeichen  CharacterString 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.nenner IS 'flurstuecksnummer|AX_Flurstuecksnummer|nenner  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.zaehler IS 'flurstuecksnummer|AX_Flurstuecksnummer|zaehler  CharacterString 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.gemarkungsnummer IS 'gemarkung|AX_Gemarkung_Schluessel|gemarkungsnummer  CharacterString 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.land IS 'gemarkung|AX_Gemarkung_Schluessel|land  CharacterString 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.gemeindezugehoerigkeit_gemeinde IS 'gemeindezugehoerigkeit|AX_Gemeindekennzeichen|gemeinde  CharacterString 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.gemeindezugehoerigkeit_gemeindeteil IS 'gemeindezugehoerigkeit|AX_Gemeindekennzeichen|gemeindeteil  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.gemeindezugehoerigkeit_kreis IS 'gemeindezugehoerigkeit|AX_Gemeindekennzeichen|kreis  CharacterString 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.gemeindezugehoerigkeit_land IS 'gemeindezugehoerigkeit|AX_Gemeindekennzeichen|land  CharacterString 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.gemeindezugehoerigkeit_regierungsbezirk IS 'gemeindezugehoerigkeit|AX_Gemeindekennzeichen|regierungsbezirk  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.lagebezeichnung IS 'lagebezeichnung  CharacterString 1..*';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.lebenszeitintervallflurstueck_beginnt IS 'lebenszeitintervallFlurstueck|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.lebenszeitintervallflurstueck_endet IS 'lebenszeitintervallFlurstueck|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.rechtsbehelfsverfahren IS 'rechtsbehelfsverfahren  Boolean 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.strittigegrenze IS 'strittigeGrenze  CharacterString 0..1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.wirtschaftsart IS 'wirtschaftsart enumeration AX_WirtschaftsartGrundbuch 1..*';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.zustaendigestelle_land IS 'zustaendigeStelle|AX_Dienststelle_Schluessel|land  CharacterString 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.zustaendigestelle_stelle IS 'zustaendigeStelle|AX_Dienststelle_Schluessel|stelle  CharacterString 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.istgebucht IS 'Assoziation zu: FeatureType AX_Buchungsstelle (ax_buchungsstelle) 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.isteinverweisaufflurstueck IS 'Assoziation zu: FeatureType AX_Flurstueck (ax_flurstueck) 1';
+		COMMENT ON COLUMN ax_flurstueckgrundbuch.einbezogenin IS 'Assoziation zu: FeatureType AX_BauRaumOderBodenordnungsrechtGrundbuch (ax_bauraumoderbodenordnungsrechtgrundbuch) 0..*';
+		CREATE TABLE ax_bauraumoderbodenordnungsrechtgrundbuch (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  anlassbauraumoderbodenordnungsrecht character varying,
+		  artderfestlegung integer NOT NULL,
+		  land character varying,
+		  stelle character varying,
+		  ausfuehrendestellebezeichnung character varying,
+		  bezeichnung character varying,
+		  datumabgabe date,
+		  datumanordnung date,
+		  datumbesitzeinweisung date,
+		  datumrechtskraeftig date,
+		  lebenszeitintervallbauraumoderbodenordnungsrecht_beginnt character(20) NOT NULL,
+		  lebenszeitintervallbauraumoderbodenordnungsrecht_endet character(20),
+		  name character varying,
+		  istteilvon character(16)[],
+		  isteinverweisaufbauraumoderbodenordnungsrecht character(16) NOT NULL,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_bauraumoderbodenordnungsrechtgrundbuch_gml ON ax_bauraumoderbodenordnungsrechtgrundbuch USING btree (gml_id,beginnt);
+		CREATE INDEX ax_bauraumoderbodenordnungsrechtgrundbuch_endet ON ax_bauraumoderbodenordnungsrechtgrundbuch USING btree (endet);
+		CREATE INDEX ax_brobg_isteinverweisaufbauraumoderbodenordnungsrecht ON ax_bauraumoderbodenordnungsrechtgrundbuch USING btree (isteinverweisaufbauraumoderbodenordnungsrecht);
+		CREATE INDEX ax_bauraumoderbodenordnungsrechtgrundbuch_istteilvon ON ax_bauraumoderbodenordnungsrechtgrundbuch USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_bauraumoderbodenordnungsrechtgrundbuch IS 'FeatureType: "AX_BauRaumOderBodenordnungsrechtGrundbuch"';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.anlassbauraumoderbodenordnungsrecht IS 'anlassBauRaumOderBodenordnungsrecht codelist AA_Anlassart 0..1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.artderfestlegung IS 'artDerFestlegung enumeration AX_ArtDerFestlegung_BauRaumOderBodenordnungsrecht 1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.land IS 'ausfuehrendeStelle|AX_Dienststelle_Schluessel|land  CharacterString 1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.stelle IS 'ausfuehrendeStelle|AX_Dienststelle_Schluessel|stelle  CharacterString 1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.ausfuehrendestellebezeichnung IS 'ausfuehrendeStelleBezeichnung  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.datumabgabe IS 'datumAbgabe  Date 0..1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.datumanordnung IS 'datumAnordnung  Date 0..1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.datumbesitzeinweisung IS 'datumBesitzeinweisung  Date 0..1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.datumrechtskraeftig IS 'datumRechtskraeftig  Date 0..1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.lebenszeitintervallbauraumoderbodenordnungsrecht_beginnt IS 'lebenszeitintervallBauRaumOderBodenordnungsrecht|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.lebenszeitintervallbauraumoderbodenordnungsrecht_endet IS 'lebenszeitintervallBauRaumOderBodenordnungsrecht|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.name IS 'name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_bauraumoderbodenordnungsrechtgrundbuch.isteinverweisaufbauraumoderbodenordnungsrecht IS 'Assoziation zu: FeatureType AX_BauRaumOderBodenordnungsrecht (ax_bauraumoderbodenordnungsrecht) 1';
+		CREATE TABLE ax_fortfuehrungsfallgrundbuch (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  bemerkung character varying,
+		  bezeichnungbauraumoderbodenordnungsrecht character varying,
+		  fortfuehrungsfallnummer integer NOT NULL,
+		  gemarkungsnummer character varying,
+		  land character varying,
+		  laufendenummer character varying,
+		  ordnungsnummer character varying[],
+		  ueberschriftimfortfuehrungsnachweis character varying[] NOT NULL,
+		  zeigtaufaltesflurstueckgrundbuch character varying[],
+		  zeigtaufneuesflurstueckgrundbuch character varying[],
+		  istteilvon character(16)[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_fortfuehrungsfallgrundbuch_gml ON ax_fortfuehrungsfallgrundbuch USING btree (gml_id,beginnt);
+		CREATE INDEX ax_fortfuehrungsfallgrundbuch_endet ON ax_fortfuehrungsfallgrundbuch USING btree (endet);
+		CREATE INDEX ax_fortfuehrungsfallgrundbuch_istteilvon ON ax_fortfuehrungsfallgrundbuch USING gin (istteilvon);
+		
+		COMMENT ON TABLE ax_fortfuehrungsfallgrundbuch IS 'FeatureType: "AX_FortfuehrungsfallGrundbuch"';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.bemerkung IS 'bemerkung  CharacterString 0..1';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.bezeichnungbauraumoderbodenordnungsrecht IS 'bezeichnungBauRaumOderBodenordnungsrecht  CharacterString 0..1';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.fortfuehrungsfallnummer IS 'fortfuehrungsfallnummer  Integer 1';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.gemarkungsnummer IS 'laufendeNummer|AX_Fortfuehrungsnummer|gemarkungsnummer  CharacterString 1';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.land IS 'laufendeNummer|AX_Fortfuehrungsnummer|land  CharacterString 1';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.laufendenummer IS 'laufendeNummer|AX_Fortfuehrungsnummer|laufendeNummer  CharacterString 1';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.ordnungsnummer IS 'ordnungsnummer  CharacterString 0..*';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.ueberschriftimfortfuehrungsnachweis IS 'ueberschriftImFortfuehrungsnachweis codelist AA_Anlassart 1..*';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.zeigtaufaltesflurstueckgrundbuch IS 'zeigtAufAltesFlurstueckGrundbuch  CharacterString 0..*';
+		COMMENT ON COLUMN ax_fortfuehrungsfallgrundbuch.zeigtaufneuesflurstueckgrundbuch IS 'zeigtAufNeuesFlurstueckGrundbuch  CharacterString 0..*';
+		CREATE TABLE ax_punktwolke3d (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beschreibung character varying,
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  name character varying,
+		  quellobjektid character varying,
+		  zeigtaufexternes_art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  art integer,
+		  aktualisierungsdatum3d date,
+		  herkunft3d_description character varying,
+		  herkunft3d_rationale character varying,
+		  herkunft3d_datetime character(20),
+		  herkunft3d_individualname character varying[],
+		  herkunft3d_organisationname character varying[],
+		  herkunft3d_positionname character varying[],
+		  herkunft3d_phone character varying[],
+		  herkunft3d_address character varying[],
+		  herkunft3d_onlineresource character varying[],
+		  herkunft3d_hoursofservice character varying[],
+		  herkunft3d_contactinstructions character varying[],
+		  herkunft3d_role character varying[],
+		  source_description character varying[],
+		  herkunft3d_scaledenominator character varying[],
+		  herkunft3d_sourcereferencesystem character varying[],
+		  herkunft3d_sourceextent character varying[],
+		  herkunft3d_sourcestep character varying[],
+		  hoehengenauigkeit3d_nameofmeasure character varying[],
+		  hoehengenauigkeit3d_measureidentification character varying,
+		  hoehengenauigkeit3d_measuredescription character varying,
+		  hoehengenauigkeit3d_evaluationmethodtype character varying,
+		  hoehengenauigkeit3d_evaluationmethoddescription character varying,
+		  hoehengenauigkeit3d_evaluationprocedure character varying,
+		  hoehengenauigkeit3d_datetime character(20)[],
+		  hoehengenauigkeit3d_result character varying[],
+		  lagegenauigkeit3d_nameofmeasure character varying[],
+		  lagegenauigkeit3d_measureidentification character varying,
+		  lagegenauigkeit3d_measuredescription character varying,
+		  lagegenauigkeit3d_evaluationmethodtype character varying,
+		  lagegenauigkeit3d_evaluationmethoddescription character varying,
+		  lagegenauigkeit3d_evaluationprocedure character varying,
+		  lagegenauigkeit3d_datetime character(20)[],
+		  lagegenauigkeit3d_result character varying[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_punktwolke3d_gml ON ax_punktwolke3d USING btree (gml_id,beginnt);
+		CREATE INDEX ax_punktwolke3d_endet ON ax_punktwolke3d USING btree (endet);
+		
+		COMMENT ON TABLE ax_punktwolke3d IS 'FeatureType: "AX_Punktwolke3D"';
+		COMMENT ON COLUMN ax_punktwolke3d.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_punktwolke3d.beschreibung IS 'beschreibung  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_punktwolke3d.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.name IS 'name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.zeigtaufexternes_art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_punktwolke3d.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.art IS 'art enumeration AX_Art_Punktwolke3D 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.aktualisierungsdatum3d IS 'qualitaetsangaben|AX_DQErhebung3D|aktualisierungsdatum3D  Date 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_description IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|description|CharacterString enumeration  1';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_rationale IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|rationale|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_datetime IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|dateTime|DateTime  DateTime 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_individualname IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|individualName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_organisationname IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|organisationName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_positionname IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|positionName|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_phone IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|phone|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_address IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|address|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_onlineresource IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|onlineResource|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_hoursofservice IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|hoursOfService|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_contactinstructions IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|contactInfo|CI_Contact|contactInstructions|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_role IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|processor|CI_ResponsibleParty|role|CI_RoleCode enumeration CI_RoleCode 1';
+		COMMENT ON COLUMN ax_punktwolke3d.source_description IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|description|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_scaledenominator IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|scaleDenominator|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_sourcereferencesystem IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|sourceReferenceSystem|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_sourceextent IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|sourceExtent|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_punktwolke3d.herkunft3d_sourcestep IS 'qualitaetsangaben|AX_DQErhebung3D|herkunft3D|LI_ProcessStep|source|LI_Source|sourceStep|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_punktwolke3d.hoehengenauigkeit3d_nameofmeasure IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|nameOfMeasure|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_punktwolke3d.hoehengenauigkeit3d_measureidentification IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureIdentification|MD_Identifier  MD_Identifier 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.hoehengenauigkeit3d_measuredescription IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.hoehengenauigkeit3d_evaluationmethodtype IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodType|DQ_EvaluationMethodTypeCode  DQ_EvaluationMethodTypeCode 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.hoehengenauigkeit3d_evaluationmethoddescription IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.hoehengenauigkeit3d_evaluationprocedure IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationProcedure|CI_Citation  CI_Citation 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.hoehengenauigkeit3d_datetime IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|dateTime|DateTime  DateTime 0..*';
+		COMMENT ON COLUMN ax_punktwolke3d.hoehengenauigkeit3d_result IS 'qualitaetsangaben|AX_DQErhebung3D|hoehengenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|result|DQ_Result  DQ_Result 1..*';
+		COMMENT ON COLUMN ax_punktwolke3d.lagegenauigkeit3d_nameofmeasure IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|nameOfMeasure|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_punktwolke3d.lagegenauigkeit3d_measureidentification IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureIdentification|MD_Identifier  MD_Identifier 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.lagegenauigkeit3d_measuredescription IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|measureDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.lagegenauigkeit3d_evaluationmethodtype IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodType|DQ_EvaluationMethodTypeCode  DQ_EvaluationMethodTypeCode 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.lagegenauigkeit3d_evaluationmethoddescription IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.lagegenauigkeit3d_evaluationprocedure IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|evaluationProcedure|CI_Citation  CI_Citation 0..1';
+		COMMENT ON COLUMN ax_punktwolke3d.lagegenauigkeit3d_datetime IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|dateTime|DateTime  DateTime 0..*';
+		COMMENT ON COLUMN ax_punktwolke3d.lagegenauigkeit3d_result IS 'qualitaetsangaben|AX_DQErhebung3D|lagegenauigkeit3D|DQ_AbsoluteExternalPositionalAccuracy|result|DQ_Result  DQ_Result 1..*';
+		CREATE TABLE ax_dhmgitter (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  anlass character varying[],
+		  beschreibung character varying,
+		  beginnt character(20) NOT NULL,
+		  endet character(20),
+		  advstandardmodell character varying[],
+		  sonstigesmodell character varying[],
+		  name character varying,
+		  quellobjektid character varying,
+		  art character varying[],
+		  zeigtaufexternes_name character varying[],
+		  zeigtaufexternes_uri character varying[],
+		  aktualisierungsdatum date,
+		  auspraegung integer NOT NULL,
+		  berechnungsmethode integer[],
+		  erfassungsdatum date NOT NULL,
+		  nameofmeasure character varying[],
+		  measureidentification character varying,
+		  measuredescription character varying,
+		  evaluationmethodtype character varying,
+		  evaluationmethoddescription character varying,
+		  evaluationprocedure character varying,
+		  datetime character(20)[],
+		  result character varying[],
+		  gitterweite double precision NOT NULL,
+		  verwendeteobjekte integer[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		CREATE UNIQUE INDEX ax_dhmgitter_gml ON ax_dhmgitter USING btree (gml_id,beginnt);
+		CREATE INDEX ax_dhmgitter_endet ON ax_dhmgitter USING btree (endet);
+		
+		COMMENT ON TABLE ax_dhmgitter IS 'FeatureType: "AX_DHMGitter"';
+		COMMENT ON COLUMN ax_dhmgitter.anlass IS 'anlass codelist AA_Anlassart 0..*';
+		COMMENT ON COLUMN ax_dhmgitter.beschreibung IS 'beschreibung  CharacterString 0..1';
+		COMMENT ON COLUMN ax_dhmgitter.beginnt IS 'lebenszeitintervall|AA_Lebenszeitintervall|beginnt  DateTime 1';
+		COMMENT ON COLUMN ax_dhmgitter.endet IS 'lebenszeitintervall|AA_Lebenszeitintervall|endet  DateTime 0..1';
+		COMMENT ON COLUMN ax_dhmgitter.advstandardmodell IS 'modellart|AA_Modellart|advStandardModell enumeration AA_AdVStandardModell 0..1';
+		COMMENT ON COLUMN ax_dhmgitter.sonstigesmodell IS 'modellart|AA_Modellart|sonstigesModell codelist AA_WeitereModellart 0..1';
+		COMMENT ON COLUMN ax_dhmgitter.name IS 'name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_dhmgitter.quellobjektid IS 'quellobjektID  CharacterString 0..1';
+		COMMENT ON COLUMN ax_dhmgitter.art IS 'zeigtAufExternes|AA_Fachdatenverbindung|art  URI 1';
+		COMMENT ON COLUMN ax_dhmgitter.zeigtaufexternes_name IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|name  CharacterString 0..1';
+		COMMENT ON COLUMN ax_dhmgitter.zeigtaufexternes_uri IS 'zeigtAufExternes|AA_Fachdatenverbindung|fachdatenobjekt|AA_Fachdatenobjekt|uri  URI 0..1';
+		COMMENT ON COLUMN ax_dhmgitter.aktualisierungsdatum IS 'aktualisierungsdatum  Date 0..1';
+		COMMENT ON COLUMN ax_dhmgitter.auspraegung IS 'auspraegung enumeration AX_Auspraegung 1';
+		COMMENT ON COLUMN ax_dhmgitter.berechnungsmethode IS 'berechnungsmethode enumeration AX_Berechnungsmethode 0..*';
+		COMMENT ON COLUMN ax_dhmgitter.erfassungsdatum IS 'erfassungsdatum  Date 1';
+		COMMENT ON COLUMN ax_dhmgitter.nameofmeasure IS 'genauigkeit|DQ_AbsoluteExternalPositionalAccuracy|nameOfMeasure|CharacterString  CharacterString 0..*';
+		COMMENT ON COLUMN ax_dhmgitter.measureidentification IS 'genauigkeit|DQ_AbsoluteExternalPositionalAccuracy|measureIdentification|MD_Identifier  MD_Identifier 0..1';
+		COMMENT ON COLUMN ax_dhmgitter.measuredescription IS 'genauigkeit|DQ_AbsoluteExternalPositionalAccuracy|measureDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_dhmgitter.evaluationmethodtype IS 'genauigkeit|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodType|DQ_EvaluationMethodTypeCode  DQ_EvaluationMethodTypeCode 0..1';
+		COMMENT ON COLUMN ax_dhmgitter.evaluationmethoddescription IS 'genauigkeit|DQ_AbsoluteExternalPositionalAccuracy|evaluationMethodDescription|CharacterString  CharacterString 0..1';
+		COMMENT ON COLUMN ax_dhmgitter.evaluationprocedure IS 'genauigkeit|DQ_AbsoluteExternalPositionalAccuracy|evaluationProcedure|CI_Citation  CI_Citation 0..1';
+		COMMENT ON COLUMN ax_dhmgitter.datetime IS 'genauigkeit|DQ_AbsoluteExternalPositionalAccuracy|dateTime|DateTime  DateTime 0..*';
+		COMMENT ON COLUMN ax_dhmgitter.result IS 'genauigkeit|DQ_AbsoluteExternalPositionalAccuracy|result|DQ_Result  DQ_Result 1..*';
+		COMMENT ON COLUMN ax_dhmgitter.gitterweite IS 'gitterweite  Length 1';
+		COMMENT ON COLUMN ax_dhmgitter.verwendeteobjekte IS 'verwendeteObjekte enumeration AX_VerwendeteObjekte_DHMGitter 0..*';
+		CREATE TABLE lb_lockermaterial (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  oberflaechenmaterial integer,
+		  wassersaettigung integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE lb_lockermaterial IS 'FeatureType: "LB_Lockermaterial"';
+		COMMENT ON COLUMN lb_lockermaterial.oberflaechenmaterial IS 'oberflaechenmaterial enumeration LB_Oberflaechenmaterial_Lockermaterial 0..1';
+		COMMENT ON COLUMN lb_lockermaterial.wassersaettigung IS 'wassersaettigung enumeration LB_Wassersaettigung_Lockermaterial 0..1';
+		CREATE TABLE lb_festgestein (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE lb_festgestein IS 'FeatureType: "LB_Festgestein"';
+		CREATE TABLE lb_hochbauundbaulichenebenflaeche (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE lb_hochbauundbaulichenebenflaeche IS 'FeatureType: "LB_HochbauUndBaulicheNebenflaeche"';
+		CREATE TABLE lb_tiefbau (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE lb_tiefbau IS 'FeatureType: "LB_Tiefbau"';
+		CREATE TABLE lb_krautigevegetation (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  salzigerstandort character varying,
+		  vegetationsmerkmal integer,
+		  wassersaettigung integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE lb_krautigevegetation IS 'FeatureType: "LB_KrautigeVegetation"';
+		COMMENT ON COLUMN lb_krautigevegetation.salzigerstandort IS 'salzigerStandort   0..1';
+		COMMENT ON COLUMN lb_krautigevegetation.vegetationsmerkmal IS 'vegetationsmerkmal enumeration LB_Vegetationsmerkmal_KrautigeVegetation 0..1';
+		COMMENT ON COLUMN lb_krautigevegetation.wassersaettigung IS 'wassersaettigung enumeration LB_Wassersaettigung_KrautigeVegetation 0..1';
+		CREATE TABLE lb_holzigevegetation (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  blattform integer[],
+		  vegetationsmerkmal integer,
+		  verjuengungsflaeche character varying,
+		  wassersaettigung integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE lb_holzigevegetation IS 'FeatureType: "LB_HolzigeVegetation"';
+		COMMENT ON COLUMN lb_holzigevegetation.blattform IS 'blattform enumeration LB_Blattform_HolzigeVegetation 0..*';
+		COMMENT ON COLUMN lb_holzigevegetation.vegetationsmerkmal IS 'vegetationsmerkmal enumeration LB_Vegetationsmerkmal_HolzigeVegetation 0..1';
+		COMMENT ON COLUMN lb_holzigevegetation.verjuengungsflaeche IS 'verjuengungsflaeche   0..1';
+		COMMENT ON COLUMN lb_holzigevegetation.wassersaettigung IS 'wassersaettigung enumeration LB_Wassersaettigung_HolzigeVegetation 0..1';
+		CREATE TABLE lb_binnengewaesser (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  fliesseigenschaft integer,
+		  gewaesserart integer,
+		  wasserfuehrung integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE lb_binnengewaesser IS 'FeatureType: "LB_Binnengewaesser"';
+		COMMENT ON COLUMN lb_binnengewaesser.fliesseigenschaft IS 'fliesseigenschaft enumeration LB_Fliesseigenschaft_Binnengewaesser 0..1';
+		COMMENT ON COLUMN lb_binnengewaesser.gewaesserart IS 'gewaesserart enumeration LB_Gewaesserart_Binnengewaesser 0..1';
+		COMMENT ON COLUMN lb_binnengewaesser.wasserfuehrung IS 'wasserfuehrung enumeration LB_Wasserfuehrung_Binnengewaesser 0..1';
+		CREATE TABLE lb_eis (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  eisart integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE lb_eis IS 'FeatureType: "LB_Eis"';
+		COMMENT ON COLUMN lb_eis.eisart IS 'eisart enumeration LB_Eisart_Eis 0..1';
+		CREATE TABLE lb_meer (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  meerart integer,
+		  tideeinfluss character varying,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE lb_meer IS 'FeatureType: "LB_Meer"';
+		COMMENT ON COLUMN lb_meer.meerart IS 'meerart enumeration LB_Meerart_Meer 0..1';
+		COMMENT ON COLUMN lb_meer.tideeinfluss IS 'tideeinfluss   0..1';
+		CREATE TABLE ln_wasserwirtschaft (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  art integer,
+		  funktion integer[],
+		  zustand integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_wasserwirtschaft IS 'FeatureType: "LN_Wasserwirtschaft"';
+		COMMENT ON COLUMN ln_wasserwirtschaft.art IS 'art enumeration LN_Art_Wasserwirtschaft 0..1';
+		COMMENT ON COLUMN ln_wasserwirtschaft.funktion IS 'funktion enumeration LN_Funktion_Wasserwirtschaft 0..*';
+		COMMENT ON COLUMN ln_wasserwirtschaft.zustand IS 'zustand enumeration LN_Zustand_Wasserwirtschaft 0..1';
+		CREATE TABLE ln_ohnenutzung (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  bezeichnung character varying,
+		  name character varying,
+		  zweitname character varying,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_ohnenutzung IS 'FeatureType: "LN_OhneNutzung"';
+		COMMENT ON COLUMN ln_ohnenutzung.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+		COMMENT ON COLUMN ln_ohnenutzung.name IS 'name  CharacterString 0..1';
+		COMMENT ON COLUMN ln_ohnenutzung.zweitname IS 'zweitname  CharacterString 0..1';
+		CREATE TABLE ln_forstwirtschaft (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  art integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_forstwirtschaft IS 'FeatureType: "LN_Forstwirtschaft"';
+		COMMENT ON COLUMN ln_forstwirtschaft.art IS 'art enumeration LN_Art_Forstwirtschaft 0..1';
+		CREATE TABLE ln_aquakulturundfischereiwirtschaft (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  art integer[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_aquakulturundfischereiwirtschaft IS 'FeatureType: "LN_AquakulturUndFischereiwirtschaft"';
+		COMMENT ON COLUMN ln_aquakulturundfischereiwirtschaft.art IS 'art enumeration LN_Art_AquakulturUndFischereiwirtschaft 0..*';
+		CREATE TABLE ln_landwirtschaft (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  artderbetriebsflaeche integer[],
+		  bewirtschaftung integer,
+		  name integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_landwirtschaft IS 'FeatureType: "LN_Landwirtschaft"';
+		COMMENT ON COLUMN ln_landwirtschaft.artderbetriebsflaeche IS 'artDerBetriebsflaeche enumeration LN_ArtDerBetriebsflaeche_Landwirtschaft 0..*';
+		COMMENT ON COLUMN ln_landwirtschaft.bewirtschaftung IS 'bewirtschaftung enumeration LN_Bewirtschaftung_Landwirtschaft 0..1';
+		COMMENT ON COLUMN ln_landwirtschaft.name IS 'name enumeration LN_ArtDerBetriebsflaeche_Landwirtschaft 0..1';
+		CREATE TABLE ln_freiluftundnaherholung (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  art integer,
+		  bezeichnung character varying,
+		  name character varying,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_freiluftundnaherholung IS 'FeatureType: "LN_FreiluftUndNaherholung"';
+		COMMENT ON COLUMN ln_freiluftundnaherholung.art IS 'art enumeration LN_Art_FreiluftUndNaherholung 0..1';
+		COMMENT ON COLUMN ln_freiluftundnaherholung.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+		COMMENT ON COLUMN ln_freiluftundnaherholung.name IS 'name  CharacterString 0..1';
+		CREATE TABLE ln_oeffentlicheeinrichtungen (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  funktion integer,
+		  name character varying,
+		  zustand integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_oeffentlicheeinrichtungen IS 'FeatureType: "LN_OeffentlicheEinrichtungen"';
+		COMMENT ON COLUMN ln_oeffentlicheeinrichtungen.funktion IS 'funktion enumeration LN_Funktion_OeffentlicheEinrichtungen 0..1';
+		COMMENT ON COLUMN ln_oeffentlicheeinrichtungen.name IS 'name  CharacterString 0..1';
+		COMMENT ON COLUMN ln_oeffentlicheeinrichtungen.zustand IS 'zustand enumeration LN_Zustand_OeffentlicheEinrichtungen 0..1';
+		CREATE TABLE ln_gewerblichedienstleistungen (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  art integer,
+		  bezeichnung character varying,
+		  name character varying,
+		  zustand integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_gewerblichedienstleistungen IS 'FeatureType: "LN_GewerblicheDienstleistungen"';
+		COMMENT ON COLUMN ln_gewerblichedienstleistungen.art IS 'art enumeration LN_Art_GewerblicheDienstleistungen 0..1';
+		COMMENT ON COLUMN ln_gewerblichedienstleistungen.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+		COMMENT ON COLUMN ln_gewerblichedienstleistungen.name IS 'name  CharacterString 0..1';
+		COMMENT ON COLUMN ln_gewerblichedienstleistungen.zustand IS 'zustand enumeration LN_Zustand_GewerblicheDienstleistungen 0..1';
+		CREATE TABLE ln_sportanlage (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  bezeichnung character varying,
+		  name character varying,
+		  sportart integer[],
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_sportanlage IS 'FeatureType: "LN_Sportanlage"';
+		COMMENT ON COLUMN ln_sportanlage.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+		COMMENT ON COLUMN ln_sportanlage.name IS 'name  CharacterString 0..1';
+		COMMENT ON COLUMN ln_sportanlage.sportart IS 'sportart enumeration LN_Sportart_Sportanlage 0..*';
+		CREATE TABLE ln_lagerung (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  funktion integer,
+		  lagergut integer,
+		  name character varying,
+		  oberflaeche integer,
+		  zustand integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_lagerung IS 'FeatureType: "LN_Lagerung"';
+		COMMENT ON COLUMN ln_lagerung.funktion IS 'funktion enumeration LN_Funktion_Lagerung 0..1';
+		COMMENT ON COLUMN ln_lagerung.lagergut IS 'lagergut enumeration LN_Lagergut_Lagerung 0..1';
+		COMMENT ON COLUMN ln_lagerung.name IS 'name  CharacterString 0..1';
+		COMMENT ON COLUMN ln_lagerung.oberflaeche IS 'oberflaeche enumeration LN_Oberflaeche_Lagerung 0..1';
+		COMMENT ON COLUMN ln_lagerung.zustand IS 'zustand enumeration LN_Zustand_Lagerung 0..1';
+		CREATE TABLE ln_versorgungundentsorgung (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  art integer,
+		  bezeichnung character varying,
+		  name character varying,
+		  primaerenergie integer,
+		  zustand integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_versorgungundentsorgung IS 'FeatureType: "LN_VersorgungUndEntsorgung"';
+		COMMENT ON COLUMN ln_versorgungundentsorgung.art IS 'art enumeration LN_Art_VersorgungUndEntsorgung 0..1';
+		COMMENT ON COLUMN ln_versorgungundentsorgung.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+		COMMENT ON COLUMN ln_versorgungundentsorgung.name IS 'name  CharacterString 0..1';
+		COMMENT ON COLUMN ln_versorgungundentsorgung.primaerenergie IS 'primaerenergie enumeration LN_Primaerenergie_VersorgungUndEntsorgung 0..1';
+		COMMENT ON COLUMN ln_versorgungundentsorgung.zustand IS 'zustand enumeration LN_Zustand_VersorgungUndEntsorgung 0..1';
+		CREATE TABLE ln_freizeitanlage (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  art integer,
+		  bezeichnung character varying,
+		  name character varying,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_freizeitanlage IS 'FeatureType: "LN_Freizeitanlage"';
+		COMMENT ON COLUMN ln_freizeitanlage.art IS 'art enumeration LN_Art_Freizeitanlage 0..1';
+		COMMENT ON COLUMN ln_freizeitanlage.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+		COMMENT ON COLUMN ln_freizeitanlage.name IS 'name  CharacterString 0..1';
+		CREATE TABLE ln_industrieundverarbeitendesgewerbe (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  art integer,
+		  bezeichnung character varying,
+		  name character varying,
+		  zustand integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_industrieundverarbeitendesgewerbe IS 'FeatureType: "LN_IndustrieUndVerarbeitendesGewerbe"';
+		COMMENT ON COLUMN ln_industrieundverarbeitendesgewerbe.art IS 'art enumeration LN_Art_IndustrieUndVerarbeitendesGewerbe 0..1';
+		COMMENT ON COLUMN ln_industrieundverarbeitendesgewerbe.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+		COMMENT ON COLUMN ln_industrieundverarbeitendesgewerbe.name IS 'name  CharacterString 0..1';
+		COMMENT ON COLUMN ln_industrieundverarbeitendesgewerbe.zustand IS 'zustand enumeration LN_Zustand_IndustrieUndVerarbeitendesGewerbe 0..1';
+		CREATE TABLE ln_abbau (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  abbaugut integer[],
+		  art integer,
+		  bezeichnung character varying,
+		  foerdergut integer,
+		  name character varying,
+		  zustand integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_abbau IS 'FeatureType: "LN_Abbau"';
+		COMMENT ON COLUMN ln_abbau.abbaugut IS 'abbaugut enumeration LN_Abbaugut_Abbau 0..*';
+		COMMENT ON COLUMN ln_abbau.art IS 'art enumeration LN_Art_Abbau 0..1';
+		COMMENT ON COLUMN ln_abbau.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+		COMMENT ON COLUMN ln_abbau.foerdergut IS 'foerdergut enumeration LN_Foerdergut_Abbau 0..1';
+		COMMENT ON COLUMN ln_abbau.name IS 'name  CharacterString 0..1';
+		COMMENT ON COLUMN ln_abbau.zustand IS 'zustand enumeration LN_Zustand_Abbau 0..1';
+		CREATE TABLE ln_bestattung (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  artderbestattungsflaeche integer,
+		  name character varying,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_bestattung IS 'FeatureType: "LN_Bestattung"';
+		COMMENT ON COLUMN ln_bestattung.artderbestattungsflaeche IS 'artDerBestattungsflaeche enumeration LN_ArtDerBestattungsflaeche_Bestattung 0..1';
+		COMMENT ON COLUMN ln_bestattung.name IS 'name  CharacterString 0..1';
+		CREATE TABLE ln_kulturundunterhaltung (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  funktion integer,
+		  zustand integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_kulturundunterhaltung IS 'FeatureType: "LN_KulturUndUnterhaltung"';
+		COMMENT ON COLUMN ln_kulturundunterhaltung.funktion IS 'funktion enumeration LN_Funktion_KulturUndUnterhaltung 0..1';
+		COMMENT ON COLUMN ln_kulturundunterhaltung.zustand IS 'zustand enumeration LN_Zustand_KulturUndUnterhaltung 0..1';
+		CREATE TABLE ln_wohnnutzung (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  bezeichnung character varying,
+		  name character varying,
+		  zeitlichkeit integer,
+		  zustand integer,
+		  zweitname character varying,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_wohnnutzung IS 'FeatureType: "LN_Wohnnutzung"';
+		COMMENT ON COLUMN ln_wohnnutzung.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+		COMMENT ON COLUMN ln_wohnnutzung.name IS 'name  CharacterString 0..1';
+		COMMENT ON COLUMN ln_wohnnutzung.zeitlichkeit IS 'zeitlichkeit enumeration LN_Zeitlichkeit_Wohnnutzung 0..1';
+		COMMENT ON COLUMN ln_wohnnutzung.zustand IS 'zustand enumeration LN_Zustand_Wohnnutzung 0..1';
+		COMMENT ON COLUMN ln_wohnnutzung.zweitname IS 'zweitname  CharacterString 0..1';
+		CREATE TABLE ln_flugverkehr (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  funktion integer,
+		  nutzung integer[],
+		  zustand integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_flugverkehr IS 'FeatureType: "LN_Flugverkehr"';
+		COMMENT ON COLUMN ln_flugverkehr.funktion IS 'funktion enumeration LN_Funktion_Flugverkehr 0..1';
+		COMMENT ON COLUMN ln_flugverkehr.nutzung IS 'nutzung enumeration LN_Nutzung_Flugverkehr 0..*';
+		COMMENT ON COLUMN ln_flugverkehr.zustand IS 'zustand enumeration LN_Zustand_Flugverkehr 0..1';
+		CREATE TABLE ln_schutzanlage (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  funktion integer,
+		  typ integer,
+		  zuflusssteuerung integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_schutzanlage IS 'FeatureType: "LN_Schutzanlage"';
+		COMMENT ON COLUMN ln_schutzanlage.funktion IS 'funktion enumeration LN_Funktion_Schutzanlage 0..1';
+		COMMENT ON COLUMN ln_schutzanlage.typ IS 'typ enumeration LN_Typ_Schutzanlage 0..1';
+		COMMENT ON COLUMN ln_schutzanlage.zuflusssteuerung IS 'zuflusssteuerung enumeration LN_Zuflusssteuerung_Schutzanlage 0..1';
+		CREATE TABLE ln_schiffsverkehr (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  funktion integer,
+		  hafenkategorie integer,
+		  name character varying,
+		  nutzung integer[],
+		  zustand integer,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_schiffsverkehr IS 'FeatureType: "LN_Schiffsverkehr"';
+		COMMENT ON COLUMN ln_schiffsverkehr.funktion IS 'funktion enumeration LN_Funktion_Schiffsverkehr 0..1';
+		COMMENT ON COLUMN ln_schiffsverkehr.hafenkategorie IS 'hafenkategorie enumeration LN_Hafenkategorie_Schiffsverkehr 0..1';
+		COMMENT ON COLUMN ln_schiffsverkehr.name IS 'name  CharacterString 0..1';
+		COMMENT ON COLUMN ln_schiffsverkehr.nutzung IS 'nutzung enumeration LN_Nutzung_Schiffsverkehr 0..*';
+		COMMENT ON COLUMN ln_schiffsverkehr.zustand IS 'zustand enumeration LN_Zustand_Schiffsverkehr 0..1';
+		CREATE TABLE ln_strassenundwegeverkehr (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  artdesparkplatzes integer,
+		  bezeichnung character varying,
+		  funktion integer,
+		  fussgaengerzone integer,
+		  name character varying,
+		  zustand integer,
+		  zweitname character varying,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_strassenundwegeverkehr IS 'FeatureType: "LN_StrassenUndWegeverkehr"';
+		COMMENT ON COLUMN ln_strassenundwegeverkehr.artdesparkplatzes IS 'artDesParkplatzes enumeration LN_ArtDesParkplatzes_StrassenUndWegeverkehr 0..1';
+		COMMENT ON COLUMN ln_strassenundwegeverkehr.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+		COMMENT ON COLUMN ln_strassenundwegeverkehr.funktion IS 'funktion enumeration LN_Funktion_StrassenUndWegeverkehr 0..1';
+		COMMENT ON COLUMN ln_strassenundwegeverkehr.fussgaengerzone IS 'fussgaengerzone enumeration LN_Fussgaengerzone_StrassenUndWegeverkehr 0..1';
+		COMMENT ON COLUMN ln_strassenundwegeverkehr.name IS 'name  CharacterString 0..1';
+		COMMENT ON COLUMN ln_strassenundwegeverkehr.zustand IS 'zustand enumeration LN_Zustand_StrassenUndWegeverkehr 0..1';
+		COMMENT ON COLUMN ln_strassenundwegeverkehr.zweitname IS 'zweitname  CharacterString 0..1';
+		CREATE TABLE ln_bahnverkehr (
+		  ogc_fid serial NOT NULL,
+		  gml_id character(16) NOT NULL,
+		  bezeichnung character varying,
+		  funktion integer,
+		  zustand integer,
+		  zweitname character varying,
+		  PRIMARY KEY (ogc_fid)
+		);
+		
+		
+		COMMENT ON TABLE ln_bahnverkehr IS 'FeatureType: "LN_Bahnverkehr"';
+		COMMENT ON COLUMN ln_bahnverkehr.bezeichnung IS 'bezeichnung  CharacterString 0..1';
+		COMMENT ON COLUMN ln_bahnverkehr.funktion IS 'funktion enumeration LN_Funktion_Bahnverkehr 0..1';
+		COMMENT ON COLUMN ln_bahnverkehr.zustand IS 'zustand enumeration LN_Zustand_Bahnverkehr 0..1';
+		COMMENT ON COLUMN ln_bahnverkehr.zweitname IS 'zweitname  CharacterString 0..1';
+		CREATE OR REPLACE VIEW alkis_wertearten(k,v,d,bezeichnung,element) AS
+		  SELECT id::text AS k, value::text AS v,'' AS d,'anlassdesprozesses' AS bezeichnung,'aa_projektsteuerung' AS element FROM aa_anlassart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'kategorie' AS bezeichnung,'aa_meilenstein' AS element FROM aa_besonderemeilensteinkategorie UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'aa_aktivitaet' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'aa_antrag' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'aa_antragsgebiet' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'aa_vorgang' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ap_darstellung' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ap_fpo' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ap_lpo' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ap_ppo' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'au_koerperobjekt_3d' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'au_mehrfachlinienobjekt_3d' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'au_punkthaufenobjekt_3d' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'au_trianguliertesoberflaechenobjekt_3d' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'au_umringobjekt_3d' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_abschlussflaeche3d' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_anschrift' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_bauwerk3d' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_besonderertopographischerpunkt' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_bodenflaeche3d' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_boeschungsflaeche' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_dachflaeche3d' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_duene' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_felsenfelsblockfelsnadel' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_fenster3d' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_firstlinie' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_flurstueck' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_gebiet_bundesland' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_gebiet_kreis' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_gebiet_nationalstaat' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_gebiet_regierungsbezirk' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_gewann' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_historischesflurstueckohneraumbezug' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_hoehenlinie' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_insel' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_kommunalesgebiet' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_kondominium' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_lagebezeichnungmithausnummer' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_lagebezeichnungmitpseudonummer' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_lagebezeichnungohnehausnummer' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_personengruppe' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_soll' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_tagesabschnitt' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_tuer3d' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_vertretung' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_verwaltung' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_wandflaeche3d' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_wirtschaftlicheeinheit' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'sonstigesmodell' AS bezeichnung,'ax_wohnplatz' AS element FROM aa_weiteremodellart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'ueberschriftimfortfuehrungsnachweis' AS bezeichnung,'ax_fortfuehrungsfall' AS element FROM aa_anlassart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'ueberschriftimfortfuehrungsnachweis' AS bezeichnung,'ax_fortfuehrungsfallgrundbuch' AS element FROM aa_anlassart UNION
+		  SELECT id::text AS k, value::text AS v,'' AS d,'zugriffsartproduktkennungfuehrung' AS bezeichnung,'ax_benutzergruppemitzugriffskontrolle' AS element FROM aa_anlassart UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'administrativefunktion' AS bezeichnung,'ax_buchungsblattbezirk' AS element FROM ax_administrative_funktion UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'administrativefunktion' AS bezeichnung,'ax_bundesland' AS element FROM ax_administrative_funktion UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'administrativefunktion' AS bezeichnung,'ax_gemarkung' AS element FROM ax_administrative_funktion UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'administrativefunktion' AS bezeichnung,'ax_gemarkungsteilflur' AS element FROM ax_administrative_funktion UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'administrativefunktion' AS bezeichnung,'ax_gemeindeteil' AS element FROM ax_administrative_funktion UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'administrativefunktion' AS bezeichnung,'ax_kommunalesteilgebiet' AS element FROM ax_administrative_funktion UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'administrativefunktion' AS bezeichnung,'ax_kreisregion' AS element FROM ax_administrative_funktion UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'administrativefunktion' AS bezeichnung,'ax_lagebezeichnungkatalogeintrag' AS element FROM ax_administrative_funktion UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'administrativefunktion' AS bezeichnung,'ax_nationalstaat' AS element FROM ax_administrative_funktion UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'administrativefunktion' AS bezeichnung,'ax_regierungsbezirk' AS element FROM ax_administrative_funktion UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'anrede' AS bezeichnung,'ax_person' AS element FROM ax_anrede_person UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'art' AS bezeichnung,'ax_baublock' AS element FROM ax_art_baublock UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'art' AS bezeichnung,'ax_punkt3d' AS element FROM ax_art_punkt3d UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'art' AS bezeichnung,'ax_punktkennunguntergegangen' AS element FROM ax_art_punktkennung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'art' AS bezeichnung,'ax_punktkennungvergleichend' AS element FROM ax_art_punktkennung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'art' AS bezeichnung,'ax_punktwolke3d' AS element FROM ax_art_punktwolke3d UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'art' AS bezeichnung,'ax_reservierung' AS element FROM ax_art_reservierung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'art' AS bezeichnung,'ax_verband' AS element FROM ax_art_verband UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'art' AS bezeichnung,'ln_aquakulturundfischereiwirtschaft' AS element FROM ln_art_aquakulturundfischereiwirtschaft UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'art' AS bezeichnung,'ln_forstwirtschaft' AS element FROM ln_art_forstwirtschaft UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'art' AS bezeichnung,'ln_freiluftundnaherholung' AS element FROM ln_art_freiluftundnaherholung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'art' AS bezeichnung,'ln_freizeitanlage' AS element FROM ln_art_freizeitanlage UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'artderbestattungsflaeche' AS bezeichnung,'ln_bestattung' AS element FROM ln_artderbestattungsflaeche_bestattung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'artderfestlegung' AS bezeichnung,'ax_anderefestlegungnachstrassenrecht' AS element FROM ax_artderfestlegung_anderefestlegungnachstrassenrecht UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'artderfestlegung' AS bezeichnung,'ax_anderefestlegungnachwasserrecht' AS element FROM ax_artderfestlegung_anderefestlegungnachwasserrecht UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'artderfestlegung' AS bezeichnung,'ax_bauraumoderbodenordnungsrecht' AS element FROM ax_artderfestlegung_bauraumoderbodenordnungsrecht UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'artderfestlegung' AS bezeichnung,'ax_bauraumoderbodenordnungsrechtgrundbuch' AS element FROM ax_artderfestlegung_bauraumoderbodenordnungsrecht UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'artderfestlegung' AS bezeichnung,'ax_denkmalschutzrecht' AS element FROM ax_artderfestlegung_denkmalschutzrecht UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'artderfestlegung' AS bezeichnung,'ax_klassifizierungnachstrassenrecht' AS element FROM ax_artderfestlegung_klassifizierungnachstrassenrecht UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'artderfestlegung' AS bezeichnung,'ax_schutzgebietnachnaturumweltoderbodenschutzrecht' AS element FROM ax_artderfestlegung_schutzgebietnachnaturumweltoderbodensc UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'artderfestlegung' AS bezeichnung,'ax_sonstigesrecht' AS element FROM ax_artderfestlegung_sonstigesrecht UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'artderflurstuecksgrenze' AS bezeichnung,'ax_besondereflurstuecksgrenze' AS element FROM ax_artderflurstuecksgrenze_besondereflurstuecksgrenze UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'artderverbandsgemeinde' AS bezeichnung,'ax_gebiet_verwaltungsgemeinschaft' AS element FROM ax_art_verbandsgemeinde UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'auszugfuer_art' AS bezeichnung,'ax_fortfuehrungsnachweisdeckblatt' AS element FROM ax_art_adressat_auszug UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'bedeutung' AS bezeichnung,'ax_grablochderbodenschaetzung' AS element FROM ax_bedeutung_grablochderbodenschaetzung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'bereichzeitlich_art' AS bezeichnung,'ax_benutzergruppenba' AS element FROM ax_art_bereichzeitlich UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'beschaffenheit' AS bezeichnung,'ax_besonderegebaeudelinie' AS element FROM ax_beschaffenheit_besonderegebaeudelinie UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'besonderefunktion' AS bezeichnung,'ax_forstrecht' AS element FROM ax_besonderefunktion_forstrecht UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'bezeichnungart' AS bezeichnung,'ax_verwaltungsgemeinschaft' AS element FROM ax_bezeichnung_verwaltungsgemeinschaft UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'blattart' AS bezeichnung,'ax_buchungsblatt' AS element FROM ax_blattart_buchungsblatt UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'blattart' AS bezeichnung,'ax_historischesflurstueck' AS element FROM ax_blattart_historischesflurstueck UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'blattart' AS bezeichnung,'ax_historischesflurstueckalb' AS element FROM ax_blattart_historischesflurstueck UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'buchungsart' AS bezeichnung,'ax_buchungsstelle' AS element FROM ax_buchungsart_buchungsstelle UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'darstellung' AS bezeichnung,'ax_gebaeudeausgestaltung' AS element FROM ax_darstellung_gebaeudeausgestaltung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'dateityp' AS bezeichnung,'ap_kpo_3d' AS element FROM ap_dateityp_3d UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'eigentuemerart' AS bezeichnung,'ax_namensnummer' AS element FROM ax_eigentuemerart_namensnummer UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'eisart' AS bezeichnung,'lb_eis' AS element FROM lb_eisart_eis UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ergebnisderueberpruefung' AS bezeichnung,'ax_abschnitt' AS element FROM ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ergebnisderueberpruefung' AS bezeichnung,'ax_ast' AS element FROM ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ergebnisderueberpruefung' AS bezeichnung,'ax_einrichtunginoeffentlichenbereichen' AS element FROM ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ergebnisderueberpruefung' AS bezeichnung,'ax_grenzuebergang' AS element FROM ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ergebnisderueberpruefung' AS bezeichnung,'ax_klassifizierungnachwasserrecht' AS element FROM ax_ergebnisderueberpruefung_klassifizierungnachwasserrecht UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ergebnisderueberpruefung' AS bezeichnung,'ax_leitung' AS element FROM ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ergebnisderueberpruefung' AS bezeichnung,'ax_netzknoten' AS element FROM ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ergebnisderueberpruefung' AS bezeichnung,'ax_nullpunkt' AS element FROM ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ergebnisderueberpruefung' AS bezeichnung,'ax_ortslage' AS element FROM ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ergebnisderueberpruefung' AS bezeichnung,'ax_schifffahrtsliniefaehrverkehr' AS element FROM ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ergebnisderueberpruefung' AS bezeichnung,'ax_seilbahnschwebebahn' AS element FROM ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ergebnisderueberpruefung' AS bezeichnung,'ax_sickerstrecke' AS element FROM ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ergebnisderueberpruefung' AS bezeichnung,'ax_strassenverkehrsanlage' AS element FROM ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ergebnisderueberpruefung' AS bezeichnung,'ax_testgelaende' AS element FROM ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ergebnisderueberpruefung' AS bezeichnung,'ax_wasserspiegelhoehe' AS element FROM ax_ergebnisderueberpruefung_bauwerkeeinrichtungenundsonsti UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'funktion' AS bezeichnung,'ax_dammwalldeich' AS element FROM ax_funktion_dammwalldeich UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'funktion' AS bezeichnung,'ax_einschnitt' AS element FROM ax_funktion_einschnitt UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'funktion' AS bezeichnung,'ax_gebaeudeinstallation3d' AS element FROM ax_funktion_gebaeudeinstallation3d UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'funktion' AS bezeichnung,'ax_platz' AS element FROM ax_funktion_platz UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'funktion' AS bezeichnung,'ax_polder' AS element FROM ax_funktion_polder UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'funktion' AS bezeichnung,'ax_schutzgebietnachwasserrecht' AS element FROM ax_funktion_schutzgebietnachwasserrecht UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'funktion' AS bezeichnung,'ax_siedlungsflaeche' AS element FROM ax_funktion_siedlungsflaeche UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'funktion' AS bezeichnung,'ax_weg' AS element FROM ax_funktion_weg UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'horizontfreiheit' AS bezeichnung,'ax_grenzpunkt' AS element FROM ax_horizontfreiheit_grenzpunkt UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'hydrologischesmerkmal' AS bezeichnung,'ax_gewaessermerkmal' AS element FROM ax_hydrologischesmerkmal_gewaessermerkmal UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'hydrologischesmerkmal' AS bezeichnung,'ax_heilquellegasquelle' AS element FROM ax_hydrologischesmerkmal_heilquellegasquelle UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'istweiterenutzung' AS bezeichnung,'ax_heide' AS element FROM ax_weiterenutzung_tatsaechlichenutzung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'istweiterenutzung' AS bezeichnung,'ax_moor' AS element FROM ax_weiterenutzung_tatsaechlichenutzung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'istweiterenutzung' AS bezeichnung,'ax_sumpf' AS element FROM ax_weiterenutzung_tatsaechlichenutzung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'klassifizierung' AS bezeichnung,'ax_bewertung' AS element FROM ax_klassifizierung_bewertung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'lagezurerdoberflaeche' AS bezeichnung,'ax_untergeordnetesgewaesser' AS element FROM ax_lagezurerdoberflaeche_untergeordnetesgewaesser UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'lagezuroberflaeche' AS bezeichnung,'ax_gleis' AS element FROM ax_lagezuroberflaeche_gleis UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'landschaftstyp' AS bezeichnung,'ax_kleinraeumigerlandschaftsteil' AS element FROM ax_landschaftstyp UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'landschaftstyp' AS bezeichnung,'ax_landschaft' AS element FROM ax_landschaftstyp UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'letzteabgabeart' AS bezeichnung,'ax_benutzer' AS element FROM ax_letzteabgabeart UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'liniendarstellung' AS bezeichnung,'ax_topographischelinie' AS element FROM ax_liniendarstellung_topographischelinie UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'markierung' AS bezeichnung,'ax_fahrwegachse' AS element FROM ax_markierung_wegachse UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'markierung' AS bezeichnung,'ax_wegpfadsteig' AS element FROM ax_markierung_wegpfadsteig UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'material' AS bezeichnung,'ax_material3d' AS element FROM ax_material_materialeigenschaft_material3d UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'meerart' AS bezeichnung,'lb_meer' AS element FROM lb_meerart_meer UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'name' AS bezeichnung,'ln_landwirtschaft' AS element FROM ln_artderbetriebsflaeche_landwirtschaft UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'nutzung' AS bezeichnung,'ax_hafen' AS element FROM ax_nutzung_hafen UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'nutzung' AS bezeichnung,'ax_hafenbecken' AS element FROM ax_nutzung_hafenbecken UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'oberflaechenmaterial' AS bezeichnung,'ax_unlandvegetationsloseflaeche' AS element FROM ax_oberflaechenmaterial_unlandvegetationsloseflaeche UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'produkt' AS bezeichnung,'ax_transportanlage' AS element FROM ax_produkt_transportanlage UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'punktstabilitaet' AS bezeichnung,'ax_lagefestpunkt' AS element FROM ax_punktstabilitaet UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'punktstabilitaet' AS bezeichnung,'ax_referenzstationspunkt' AS element FROM ax_punktstabilitaet UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'punktstabilitaet' AS bezeichnung,'ax_schwerefestpunkt' AS element FROM ax_punktstabilitaet UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'qualitaetsangaben' AS bezeichnung,'ax_georeferenziertegebaeudeadresse' AS element FROM ax_qualitaet_hauskoordinate UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'rolle' AS bezeichnung,'ax_gemeinde' AS element FROM ax_rolledergemeinde UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'schifffahrtskategorie' AS bezeichnung,'ax_gewaesserstationierungsachse' AS element FROM ax_schifffahrtskategorie_gewaesserstationierungsachse UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'schwerestatus' AS bezeichnung,'ax_schwere' AS element FROM ax_schwerestatus_schwere UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'skizzenart' AS bezeichnung,'ax_skizze' AS element FROM ax_skizzenart_skizze UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'speicherinhalt' AS bezeichnung,'ax_vorratsbehaelterspeicherbauwerk' AS element FROM ax_speicherinhalt_vorratsbehaelterspeicherbauwerk UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'sportart' AS bezeichnung,'ln_sportanlage' AS element FROM ln_sportart_sportanlage UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'stellenart' AS bezeichnung,'ax_dienststelle' AS element FROM ax_behoerde UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'tidemerkmal' AS bezeichnung,'ax_meer' AS element FROM ax_tidemerkmal_meer UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'typ' AS bezeichnung,'ax_textur3d' AS element FROM ax_typ_textur3d UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'untererbezugspunkt' AS bezeichnung,'ax_bauteil' AS element FROM ax_untererbezugspunkt UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'untererbezugspunkt' AS bezeichnung,'ax_bauteil3d' AS element FROM ax_untererbezugspunkt UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'untererbezugspunkt' AS bezeichnung,'ax_besondererbauwerkspunkt' AS element FROM ax_untererbezugspunkt UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'untererbezugspunkt' AS bezeichnung,'ax_besonderergebaeudepunkt' AS element FROM ax_untererbezugspunkt UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'untererbezugspunkt' AS bezeichnung,'ax_historischesbauwerkoderhistorischeeinrichtung' AS element FROM ax_untererbezugspunkt UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'untererbezugspunkt' AS bezeichnung,'ax_sonstigesbauwerkodersonstigeeinrichtung' AS element FROM ax_untererbezugspunkt UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ursprung' AS bezeichnung,'ax_flaeche3d' AS element FROM ax_ursprung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'ursprung' AS bezeichnung,'ax_strukturlinie3d' AS element FROM ax_ursprung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'vegetationsmerkmal' AS bezeichnung,'ax_gehoelz' AS element FROM ax_vegetationsmerkmal_gehoelz UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'vegetationsmerkmal' AS bezeichnung,'ax_landwirtschaft' AS element FROM ax_vegetationsmerkmal_landwirtschaft UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'vermarkung_marke' AS bezeichnung,'ax_aufnahmepunkt' AS element FROM ax_marke UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'vermarkung_marke' AS bezeichnung,'ax_sicherungspunkt' AS element FROM ax_marke UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'vermarkung_marke' AS bezeichnung,'ax_sonstigervermessungspunkt' AS element FROM ax_marke UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'vermutetehoehenstabilitaet' AS bezeichnung,'ax_hoehenfestpunkt' AS element FROM ax_punktstabilitaet_hoehenfestpunkt_vermutetehoehenstabili UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'vertikaleausrichtung' AS bezeichnung,'ap_lto' AS element FROM ap_vertikaleausrichtung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'vertikaleausrichtung' AS bezeichnung,'ap_pto' AS element FROM ap_vertikaleausrichtung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'vertrauenswuerdigkeit' AS bezeichnung,'ax_punktortag' AS element FROM ax_vertrauenswuerdigkeit_punktort UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'vertrauenswuerdigkeit' AS bezeichnung,'ax_punktortau' AS element FROM ax_vertrauenswuerdigkeit_punktort UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'vertrauenswuerdigkeit' AS bezeichnung,'ax_punktortta' AS element FROM ax_vertrauenswuerdigkeit_punktort UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'verwendeteobjekte' AS bezeichnung,'ax_abgeleitetehoehenlinie' AS element FROM ax_verwendeteobjekte_abgeleitetehoehenlinie UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'verwendeteobjekte' AS bezeichnung,'ax_dhmgitter' AS element FROM ax_verwendeteobjekte_dhmgitter UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'wasserfuehrung' AS bezeichnung,'lb_binnengewaesser' AS element FROM lb_wasserfuehrung_binnengewaesser UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'wassersaettigung' AS bezeichnung,'lb_holzigevegetation' AS element FROM lb_wassersaettigung_holzigevegetation UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'wassersaettigung' AS bezeichnung,'lb_krautigevegetation' AS element FROM lb_wassersaettigung_krautigevegetation UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'wassersaettigung' AS bezeichnung,'lb_lockermaterial' AS element FROM lb_wassersaettigung_lockermaterial UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'widmung' AS bezeichnung,'ax_kanal' AS element FROM ax_widmung_kanal UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'widmung' AS bezeichnung,'ax_strasse' AS element FROM ax_widmung_strasse UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'widmung' AS bezeichnung,'ax_wasserlauf' AS element FROM ax_widmung_wasserlauf UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'wirtschaftsart' AS bezeichnung,'ax_flurstueckgrundbuch' AS element FROM ax_wirtschaftsartgrundbuch UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zone' AS bezeichnung,'ax_schutzzone' AS element FROM ax_zone_schutzzone UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zuflusssteuerung' AS bezeichnung,'ln_schutzanlage' AS element FROM ln_zuflusssteuerung_schutzanlage UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_bahnstrecke' AS element FROM ax_zustand UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_bahnverkehr' AS element FROM ax_zustand_bahnverkehr UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_bahnverkehrsanlage' AS element FROM ax_zustand_bahnverkehrsanlage UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_bauwerkimgewaesserbereich' AS element FROM ax_zustand_bauwerkimgewaesserbereich UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_bauwerkimverkehrsbereich' AS element FROM ax_zustand_bauwerkimverkehrsbereich UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_bauwerkoderanlagefuerindustrieundgewerbe' AS element FROM ax_zustand_bauwerkoderanlagefuerindustrieundgewerbe UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_bauwerkoderanlagefuersportfreizeitunderholung' AS element FROM ax_zustand_bauwerkoderanlagefuersportfreizeitunderholung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_bergbaubetrieb' AS element FROM ax_zustand_bergbaubetrieb UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_boeschungkliff' AS element FROM ax_zustand_boeschungkliff UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_einrichtungenfuerdenschiffsverkehr' AS element FROM ax_zustand_einrichtungenfuerdenschiffsverkehr UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_fahrbahnachse' AS element FROM ax_zustand UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_flaechebesondererfunktionalerpraegung' AS element FROM ax_zustand_flaechebesondererfunktionalerpraegung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_flaechegemischternutzung' AS element FROM ax_zustand_flaechegemischternutzung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_fliessgewaesser' AS element FROM ax_zustand_kanal UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_flugverkehr' AS element FROM ax_zustand_flugverkehr UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_flugverkehrsanlage' AS element FROM ax_zustand_flugverkehrsanlage UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_friedhof' AS element FROM ax_zustand_friedhof UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_gebaeude' AS element FROM ax_zustand_gebaeude UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_gebietsgrenze' AS element FROM ax_zustand_gebietsgrenze UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_gewaesserachse' AS element FROM ax_zustand_gewaesserachse UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_halde' AS element FROM ax_zustand_halde UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_hoehleneingang' AS element FROM ax_zustand_hoehleneingang UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_industrieundgewerbeflaeche' AS element FROM ax_zustand_industrieundgewerbeflaeche UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_naturumweltoderbodenschutzrecht' AS element FROM ax_zustand_naturumweltoderbodenschutzrecht UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_schiffsverkehr' AS element FROM ax_zustand_schiffsverkehr UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_schleuse' AS element FROM ax_zustand_schleuse UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_sportfreizeitunderholungsflaeche' AS element FROM ax_zustand_sportfreizeitunderholungsflaeche UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_stehendesgewaesser' AS element FROM ax_zustand_stehendesgewaesser UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_strassenachse' AS element FROM ax_zustand UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_strassenverkehr' AS element FROM ax_zustand_strasse UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_tagebaugrubesteinbruch' AS element FROM ax_zustand_tagebaugrubesteinbruch UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_turm' AS element FROM ax_zustand_turm UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_vegetationsmerkmal' AS element FROM ax_zustand_vegetationsmerkmal UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_wald' AS element FROM ax_zustand_wald UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ax_wohnbauflaeche' AS element FROM ax_zustand_wohnbauflaeche UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ln_abbau' AS element FROM ln_zustand_abbau UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ln_bahnverkehr' AS element FROM ln_zustand_bahnverkehr UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ln_flugverkehr' AS element FROM ln_zustand_flugverkehr UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ln_gewerblichedienstleistungen' AS element FROM ln_zustand_gewerblichedienstleistungen UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ln_industrieundverarbeitendesgewerbe' AS element FROM ln_zustand_industrieundverarbeitendesgewerbe UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ln_kulturundunterhaltung' AS element FROM ln_zustand_kulturundunterhaltung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ln_lagerung' AS element FROM ln_zustand_lagerung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ln_oeffentlicheeinrichtungen' AS element FROM ln_zustand_oeffentlicheeinrichtungen UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ln_schiffsverkehr' AS element FROM ln_zustand_schiffsverkehr UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ln_strassenundwegeverkehr' AS element FROM ln_zustand_strassenundwegeverkehr UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ln_versorgungundentsorgung' AS element FROM ln_zustand_versorgungundentsorgung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ln_wasserwirtschaft' AS element FROM ln_zustand_wasserwirtschaft UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustand' AS bezeichnung,'ln_wohnnutzung' AS element FROM ln_zustand_wohnnutzung UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustandsstufe' AS bezeichnung,'ax_bodenschaetzung' AS element FROM ax_zustandsstufe UNION
+		  SELECT wert::text AS k, beschreibung::text AS v,'' AS d,'zustandsstufe' AS bezeichnung,'ax_musterundvergleichsstueck' AS element FROM ax_zustandsstufe;
+		
+		DROP TABLE aa_instanzenthemen;
+		DROP TABLE aa_levelofdetail;
+		DROP TABLE au_geometrieobjekt_3d;
+		DROP TABLE au_mehrfachflaechenobjekt_3d;
+		DROP TABLE ax_artderaussparung;
+		DROP TABLE ax_artdergelaendekante;
+		DROP TABLE ax_artdergeripplinie;
+		DROP TABLE ax_artdergewaesserachse;
+		DROP TABLE ax_artdernichtgelaendepunkte;
+		DROP TABLE ax_artderstrukturierung;
+		DROP TABLE ax_artdesmarkantengelaendepunktes;
+		DROP TABLE ax_aussparungsflaeche;
+		DROP TABLE ax_berechnungsmethodehoehenlinie;
+		DROP TABLE ax_besondereartdergewaesserbegrenzung;
+		DROP TABLE ax_besonderebedeutung;
+		DROP TABLE ax_besondererhoehenpunkt;
+		DROP TABLE ax_bodenart_musterlandesmusterundvergleichsstueck;
+		DROP TABLE ax_dqerfassungsmethode;
+		DROP TABLE ax_dqerfassungsmethodebesondererhoehenpunkt;
+		DROP TABLE ax_dqerfassungsmethodegewaesserbegrenzung;
+		DROP TABLE ax_dqerfassungsmethodemarkantergelaendepunkt;
+		DROP TABLE ax_dqerfassungsmethodesekundaeresdgm;
+		DROP TABLE ax_dqerfassungsmethodestrukturiertegelaendepunkte;
+		DROP TABLE ax_entstehungsartoderklimastufewasserverhaeltnisse_bodensc;
+		DROP TABLE ax_entstehungsartoderklimastufewasserverhaeltnisse_musterl;
+		DROP TABLE ax_flaechezurzeitunbestimmbar;
+		DROP TABLE ax_funktionhgr_k_tnhgr;
+		DROP TABLE ax_funktionoa_k_tnfl;
+		DROP TABLE ax_funktionoa_k_tngr_all;
+		DROP TABLE ax_funktionoa_k_tngrerweitert_all;
+		DROP TABLE ax_gelaendekante;
+		DROP TABLE ax_geripplinie;
+		DROP TABLE ax_gewaesserbegrenzung;
+		DROP TABLE ax_identifikation;
+		DROP TABLE ax_kulturart_bodenschaetzung;
+		DROP TABLE ax_kulturart_musterlandesmusterundvergleichsstueck;
+		DROP TABLE ax_lagezurerdoberflaeche_bauteil;
+		DROP TABLE ax_markantergelaendepunkt;
+		DROP TABLE ax_merkmal_musterlandesmusterundvergleichsstueck;
+		DROP TABLE ax_musterlandesmusterundvergleichsstueck;
+		DROP TABLE ax_schweresystem_schwere;
+		DROP TABLE ax_sonstigeangaben_musterlandesmusterundvergleichsstueck;
+		DROP TABLE ax_strukturierterfasstegelaendepunkte;
+		DROP TABLE ax_verkehrsbedeutunginneroertlich;
+		DROP TABLE ax_verkehrsbedeutungueberoertlich;
+		DROP TABLE ax_verwendeteobjekte;
+		DROP TABLE ax_zustandsstufeoderbodenstufe_bodenschaetzung;
+		DROP TABLE ax_zustandsstufeoderbodenstufe_musterlandesmusterundvergle;
+		DROP TABLE ta_compositesolidcomponent_3d;
+		DROP TABLE ta_curvecomponent_3d;
+		DROP TABLE ta_pointcomponent_3d;
+		DROP TABLE ta_surfacecomponent_3d;
+
+		DELETE FROM aa_advstandardmodell WHERE wert IN ('DGM2','DGM25','DGM5','DGM50');
+		INSERT INTO aa_advstandardmodell(wert,beschreibung,dokumentation) VALUES ('BORIS','Bodenrichtwertobjektmodell','BORIS beinhaltet die Wertermittlungsinformationen der Gutachterausschüsse für Grundstückswerte der Bundesrepublik Deutschland.');
+		INSERT INTO aa_advstandardmodell(wert,beschreibung,dokumentation) VALUES ('DHM','DigitalesHoehenmodell','');
+		INSERT INTO aa_advstandardmodell(wert,beschreibung,dokumentation) VALUES ('GVM','GeometrischesVerbesserungsModell','');
+		INSERT INTO aa_advstandardmodell(wert,beschreibung,dokumentation) VALUES ('GeoBasis-DE','LandbedeckungLandnutzung','GeoBasis-DE beinhaltet die Geobasisdaten der Landbedeckung (LB) und der Landnutzung (LN) der Bundesrepublik Deutschland.');
+		INSERT INTO aa_advstandardmodell(wert,beschreibung,dokumentation) VALUES ('LoD1','LevelOfDetail1','');
+		INSERT INTO aa_advstandardmodell(wert,beschreibung,dokumentation) VALUES ('LoD2','LevelOfDetail2','');
+		INSERT INTO aa_advstandardmodell(wert,beschreibung,dokumentation) VALUES ('LoD3','LevelOfDetail3','');
+		DELETE FROM aa_art_themendefinition WHERE wert IN ('2000');
+		DELETE FROM ap_dateityp_3d WHERE wert IN ('6000');
+		UPDATE ap_dateityp_3d SET beschreibung='CityGML' WHERE wert='1000';
+		UPDATE ap_dateityp_3d SET beschreibung='VRML' WHERE wert='2000';
+		UPDATE ap_dateityp_3d SET beschreibung='kml' WHERE wert='3000';
+		UPDATE ap_dateityp_3d SET beschreibung='X3D' WHERE wert='4000';
+		UPDATE ap_dateityp_3d SET beschreibung='COLLADA' WHERE wert='5000';
+		UPDATE ap_dateityp_3d SET dokumentation='OGC-Standard' WHERE wert='1000';
+		UPDATE ap_dateityp_3d SET dokumentation='ISO-Standard' WHERE wert='2000';
+		UPDATE ap_dateityp_3d SET dokumentation='OGC-Standard' WHERE wert='3000';
+		UPDATE ap_dateityp_3d SET dokumentation='ISO-Standard' WHERE wert='4000';
+		UPDATE ax_sportart_bauwerkoderanlagefuersportfreizeitunderholung SET beschreibung='Ski' WHERE wert='1060';
+		UPDATE ax_sportart_bauwerkoderanlagefuersportfreizeitunderholung SET beschreibung='Eissport, Rollschuhlaufen' WHERE wert='1070';
+		UPDATE ax_sportart_bauwerkoderanlagefuersportfreizeitunderholung SET beschreibung='Eislauf, Eishockey' WHERE wert='1071';
+		UPDATE ax_sportart_bauwerkoderanlagefuersportfreizeitunderholung SET dokumentation='Reiten bedeutet, dass ein Stadion, ein Spielfeld oder eine Rennbahn zur Ausübung des Reitsports genutzt wird.' WHERE wert='1040';
+		UPDATE ax_sportart_bauwerkoderanlagefuersportfreizeitunderholung SET dokumentation='Ski bedeutet, dass ein Stadion zur Ausübung des Skisports genutzt wird.' WHERE wert='1060';
+		UPDATE ax_sportart_bauwerkoderanlagefuersportfreizeitunderholung SET dokumentation='Eissport, Rollschuhlaufen bedeutet, dass ein Bauwerk oder eine Anlage zur Ausübung des Eis- oder des Rollschuhsports genutzt wird.' WHERE wert='1070';
+		UPDATE ax_sportart_bauwerkoderanlagefuersportfreizeitunderholung SET dokumentation='Eislauf, Eishockey bedeutet, dass ein Bauwerk oder eine Anlage zur Ausübung des Eissports genutzt wird.' WHERE wert='1071';
+		UPDATE ax_sportart_bauwerkoderanlagefuersportfreizeitunderholung SET dokumentation='Rollschuhlaufen bedeutet, dass ein Bauwerk oder eine Anlage zur Ausübung des Rollschuhsports genutzt wird.' WHERE wert='1072';
+		INSERT INTO ax_sportart_bauwerkoderanlagefuersportfreizeitunderholung(wert,beschreibung,dokumentation) VALUES ('1120','Hundesport','Hundesport sind Sportanlagen für Hunde, die dem Training, Ausbildung, aber auch dem Wettkampf (keine Hunderennen!) dienen.');
+		UPDATE ax_produkt_transportanlage SET dokumentation='Brauchwasser ist ein für technische u. a. Zwecke verwendetes Wasser, das transportiert wird.' WHERE wert='1132';
+		UPDATE ax_produkt_transportanlage SET dokumentation='Fernwärme bezeichnet eine Wärmelieferung zur Heizung von Gebäuden mit Warmwasser.' WHERE wert='1140';
+		UPDATE ax_bauwerksfunktion_turm SET dokumentation='Leuchtturm ist ein als Schifffahrtszeichen errichteter hoher Turm.' WHERE wert='1006';
+		UPDATE ax_bauwerksfunktion_turm SET dokumentation='Sende-, Funkturm, Fernmeldeturm’ ist ein Bauwerk, ausgerüstet mit Sende - und Empfangsantennen zum Übertragen und Empfangen von Nachrichten aller Arten von Telekommunikation.' WHERE wert='1008';
+		UPDATE ax_speicherinhalt_vorratsbehaelterspeicherbauwerk SET dokumentation='Gas ist eine gasförmige oder flüssige Substanz, die gespeichert wird.' WHERE wert='1120';
+		UPDATE ax_speicherinhalt_vorratsbehaelterspeicherbauwerk SET dokumentation='Gülle ist ein Stoffgemisch, hauptsächlich aus Urin und Kot landwirtschaftlicher Nutztiere, das gelagert wird.' WHERE wert='1140';
+		UPDATE ax_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewer SET beschreibung='Schornstein' WHERE wert='1290';
+		UPDATE ax_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewer SET dokumentation='Biogasanlage ist eine Anlage, in der aus Biomasse Gas erzeugt wird.' WHERE wert='1215';
+		UPDATE ax_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewer SET dokumentation='Schornstein ist ein freistehend senkrecht hochgeführter Abzugskanal für die Rauchgase einer Feuerungsanlage oder für andere Abgase.' WHERE wert='1290';
+		UPDATE ax_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewer SET dokumentation='Bergbaubetrieb ist eine Fläche, die für die Förderung des Abbaugutes unter Tage genutzt wird' WHERE wert='1700';
+		INSERT INTO ax_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewer(wert,beschreibung,dokumentation) VALUES ('1275','Funknavigationsanlage','Funknavigationsanlage ist eine Vorrichtung zur Verkehrssicherung.');
+		INSERT INTO ax_bauwerksfunktion_bauwerkoderanlagefuerindustrieundgewer(wert,beschreibung,dokumentation) VALUES ('2530','Kraftwerk','Kraftwerk bezeichnet eine Fläche mit Bauwerken und sonstigen Einrichtungen zur Erzeugung von elektrischer Energie.');
+		UPDATE ax_bauwerksfunktion_bauwerkoderanlagefuersportfreizeitunde SET dokumentation='Stadion ist ein Bauwerk mit Tribünen und entsprechenden Einrichtungen, das vorwiegend zur Ausübung von bestimmten Sportarten dient.' WHERE wert='1440';
+		INSERT INTO ax_bauwerksfunktion_bauwerkoderanlagefuersportfreizeitunde(wert,beschreibung,dokumentation) VALUES ('1441','Stadion, überdacht','Stadion, überdacht ist ein Bauwerk mit Tribünen und entsprechenden Einrichtungen, das vorwiegend zur Ausübung von bestimmten Sportarten dient und ganz oder nahezu ganz überdacht ist.');
+		INSERT INTO ax_bauwerksfunktion_bauwerkoderanlagefuersportfreizeitunde(wert,beschreibung,dokumentation) VALUES ('1442','Stadion, nicht überdacht','Stadion, nicht überdacht ist ein Bauwerk mit Tribünen und entsprechenden Einrichtungen, das vorwiegend zur Ausübung von bestimmten Sportarten dient, aber ohne Dachflächen ist.');
+		INSERT INTO ax_bauwerksfunktion_bauwerkoderanlagefuersportfreizeitunde(wert,beschreibung,dokumentation) VALUES ('1610','Zoo','Zoo ist ein Gelände mit Tierschauhäusern und umzäunten Gehegen, auf dem Tiere gehalten und gezeigt werden.');
+		INSERT INTO ax_bauwerksfunktion_bauwerkoderanlagefuersportfreizeitunde(wert,beschreibung,dokumentation) VALUES ('1620','Safaripark, Wildpark','Safaripark, Wildpark, ist ein Gelände mit umzäunten Gehegen, in denen Tiere im Freien gehalten und gezeigt werden.');
+		INSERT INTO ax_bauwerksfunktion_bauwerkoderanlagefuersportfreizeitunde(wert,beschreibung,dokumentation) VALUES ('1630','Freizeitpark','Freizeitpark ist ein Gelände mit Karussells, Verkaufs- und Schaubuden und/oder Wildgattern, das der Freizeitgestaltung dient.');
+		INSERT INTO ax_bauwerksfunktion_bauwerkoderanlagefuersportfreizeitunde(wert,beschreibung,dokumentation) VALUES ('1640','Freilichtbühne','Freilichtbühne ist ein Anlage mit Bühnen und Zuschauerbänken für Aufführungen im Freien.');
+		INSERT INTO ax_bauwerksfunktion_bauwerkoderanlagefuersportfreizeitunde(wert,beschreibung,dokumentation) VALUES ('1650','Wassersportanlage','Wassersportanlage bezeichnet ein Areal welches beispielsweise zum Rudern, Segeln oder für Wasserski genutzt wird.');
+		INSERT INTO ax_zustand_bauwerkoderanlagefuerindustrieundgewerbe(wert,beschreibung,dokumentation) VALUES ('4000','Im Bau','Im Bau bedeutet, dass sich überwiegende Teile der Bauwerke oder Anlagen für Industrie und Gewerbe (Großbaustelle) im Bau befinden.');
+		UPDATE ax_bauwerksfunktion_sonstigesbauwerkodersonstigeeinrichtun SET dokumentation='Überdachungen sind i. d. R. an allen Seiten offen. Eine geschlossene Seite kann über eine besondere Gebäudelinie mit der Werteart Geschlossene Seite einer Überdachung nachgewiesen werden.' WHERE wert='1610';
+		UPDATE ax_bauwerksfunktion_sonstigesbauwerkodersonstigeeinrichtun SET dokumentation='Carports sind i. d. R. an allen Seiten offen. Eine geschlossene Seite kann über eine besondere Gebäudelinie mit der Werteart Geschlossene Seite einer Überdachung nachgewiesen werden.' WHERE wert='1611';
+		UPDATE ax_bauwerksfunktion_sonstigesbauwerkodersonstigeeinrichtun SET dokumentation='Meilenstein, historischer Grenzstein sind Steine von kulturgeschichtlicher Bedeutung, die am Rande von Verkehrswegen aufgestellt sind und Entfernungen in unterschiedlichen Maßeinheiten (z. B. Meilen, Kilometer oder Stunden) angeben oder als Grenzsteine vergangene Eigentumsverhältnisse dokumentieren.' WHERE wert='1770';
+		UPDATE ax_bauwerksfunktion_vorratsbehaelterspeicherbauwerk SET dokumentation='Gasometer ist ein volumenveränderbarer Niederdruckbehälter für Gas.' WHERE wert='1206';
+		UPDATE ax_bahnkategorie_gleis SET beschreibung='Seilbahn, Bergbahn' WHERE wert='1300';
+		UPDATE ax_bahnkategorie_gleis SET dokumentation='Eisenbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem im Nah- und Fernverkehr Personen befördert und/oder Güter transportiert werden.' WHERE wert='1100';
+		UPDATE ax_bahnkategorie_gleis SET dokumentation='Güterverkehr ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem im Nah- und Fernverkehr Güter transportiert werden.' WHERE wert='1102';
+		UPDATE ax_bahnkategorie_gleis SET dokumentation='S-Bahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, der zur schnellen Personenbeförderung in Ballungsräumen dient und meist auf eigenen Gleisen verläuft.' WHERE wert='1104';
+		UPDATE ax_bahnkategorie_gleis SET dokumentation='Stadtbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine elektrisch betriebene Schienenbahn zur Personenbeförderung im öffentlichen Nahverkehr fährt. Sie kann sowohl ober- als auch unterirdisch verlaufen.' WHERE wert='1200';
+		UPDATE ax_bahnkategorie_gleis SET dokumentation='Straßenbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine elektrisch betriebene Schienenbahn zur Personenbeförderung fährt. Sie verläuft i. d. R. oberirdisch.' WHERE wert='1201';
+		UPDATE ax_bahnkategorie_gleis SET dokumentation='U-Bahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine elektrisch betriebene Schienenbahn zur Personenbeförderung in Großstädten fährt. Sie verläuft i. d. R. unterirdisch.' WHERE wert='1202';
+		UPDATE ax_bahnkategorie_gleis SET dokumentation='Seilbahn, Bergbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine Schienenbahn große Höhenunterschiede überwindet.' WHERE wert='1300';
+		UPDATE ax_bahnkategorie_gleis SET dokumentation='Zahnradbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine Schienenbahn mittels Zahnradantrieb große Höhenunterschiede in stark geneigtem Gelände überwindet.' WHERE wert='1301';
+		UPDATE ax_bahnkategorie_gleis SET dokumentation='Standseilbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine Schienenbahn auf einer stark geneigten, meist kurzen und geraden Strecke verläuft. Mit Hilfe eines oder mehrerer Zugseile wird ein Schienenfahrzeug bergauf gezogen und gleichzeitig ein zweites bergab gelassen.' WHERE wert='1302';
+		UPDATE ax_bahnkategorie_gleis SET dokumentation='Museumsbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem ausschließlich Touristen in alten, meist restaurierten Zügen befördert werden.' WHERE wert='1400';
+		UPDATE ax_bahnkategorie_gleis SET dokumentation='Bahn im Freizeitpark ist die Bezeichnung für einen schienengebundenen Verkehrsweg innerhalb eines Freizeitparks.' WHERE wert='1500';
+		UPDATE ax_bahnkategorie_gleis SET dokumentation='Magnetschwebebahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem räderlose Schienenfahrzeuge mit Hilfe von Magnetfeldern an oder auf einer Fahrschiene schwebend entlanggeführt werden.' WHERE wert='1600';
+		UPDATE ax_bahnkategorie_gleis SET dokumentation='Sonstiges bedeutet, dass die Bahnkategorie bekannt, aber nicht in der Attributwertliste aufgeführt ist.' WHERE wert='9999';
+		INSERT INTO ax_bahnkategorie_gleis(wert,beschreibung,dokumentation) VALUES ('1101','Personenverkehr','Personenverkehr ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem im Nah- und Fernverkehr Personen transportiert werden.');
+		INSERT INTO ax_bahnkategorie_gleis(wert,beschreibung,dokumentation) VALUES ('1103','Betriebsverkehr','Betriebsverkehr ist die Bezeichnung für ein Gleis, das aus innerbetrieblichen Gründen erforderlich ist.');
+		UPDATE ax_art_strassenverkehrsanlage SET beschreibung='Anschlussstelle, Anschluss' WHERE wert='3003';
+		UPDATE ax_art_strassenverkehrsanlage SET beschreibung='Raststätte, Autohof' WHERE wert='5330';
+		UPDATE ax_art_strassenverkehrsanlage SET dokumentation='Anschlussstelle, Anschluss ist die verkehrliche Verknüpfung der Autobahn mit dem nachgeordneten Straßennetz.' WHERE wert='3003';
+		UPDATE ax_art_strassenverkehrsanlage SET dokumentation='Raststätte, Autohof ist eine Anlage an Verkehrsstraßen mit Bauwerken und Einrichtungen zur Versorgung und Erholung von Reisenden. Dazu gehören auch Autohöfe gemäß der Verwaltungsvorschriften zur Straßenverkehrsordnung (VwV-StVO).' WHERE wert='5330';
+		INSERT INTO ax_art_strassenverkehrsanlage(wert,beschreibung,dokumentation) VALUES ('6000','Busbahnhof','Busbahnhof ist eine Verkehrsanlage, die als zentraler Verknüpfungspunkt verschiedener Buslinien dient.');
+		UPDATE ax_zustand_bahnverkehrsanlage SET dokumentation='Im Bau bedeutet, dass sich überwiegende Teile der Bahnverkehrsanlage im Bau befinden.' WHERE wert='4000';
+		DELETE FROM ax_art_flugverkehrsanlage WHERE wert IN ('5520','5531','5540');
+		UPDATE ax_art_flugverkehrsanlage SET dokumentation='Segelfluggelände ist ein Flugplatz, der in der Luftfahrtkarte 1:500000 (ICAO) für den Segelflugsport ausgewiesen ist.' WHERE wert='5550';
+		INSERT INTO ax_art_flugverkehrsanlage(wert,beschreibung,dokumentation) VALUES ('5521','Verkehrslandeplatz','Verkehrslandeplatz ist ein Flugplatz, der im Luftfahrthandbuch als Flugplatz, Landeplatz oder Verkehrslandeplatz ausgewiesen ist.');
+		INSERT INTO ax_art_flugverkehrsanlage(wert,beschreibung,dokumentation) VALUES ('5522','Sonderlandeplatz','Sonderlandeplatz ist ein Flugplatz, der im Luftfahrthandbuch oder in den Bescheiden der zuständigen Luftfahrtbehörden als Sonderlandeplatz ausgewiesen ist.');
+		INSERT INTO ax_art_flugverkehrsanlage(wert,beschreibung,dokumentation) VALUES ('5530','Hubschrauberlandeplatz','Hubschrauberlandeplatz ist ein Flugplatz, der im Luftfahrthandbuch, in der Luftfahrtkarte 1:500000 (ICAO) oder aufgrund von Ländervorschriften als solcher ausgewiesen ist.');
+		INSERT INTO ax_art_flugverkehrsanlage(wert,beschreibung,dokumentation) VALUES ('5560','Wasserlandeplatz','Wasserlandeplatz ist ein Flugplatz, der im Luftfahrthandbuch als Sonderlandeplatz mit einem Start- und Landebahnoberflächentyp "Wasser" ausgewiesen ist.');
+		INSERT INTO ax_art_flugverkehrsanlage(wert,beschreibung,dokumentation) VALUES ('9998','Nach Quellenlage nicht zu spezifizieren','Nach Quellenlage nicht zu spezifizieren bedeutet, dass keine Aussage über die Werteart gemacht werden kann.');
+		UPDATE ax_bauwerksfunktion_bauwerkimverkehrsbereich SET dokumentation='Brücke ist ein Bauwerk , das einen Verkehrsweg, ein Gewässer oder einen Tierpfad (Grünbrücke) über ein natürliches oder künstliches Hindernis führt.' WHERE wert='1800';
+		UPDATE ax_bauwerksfunktion_bauwerkimverkehrsbereich SET dokumentation='Steg ist eine kleine Brücke einfacher Bauart.' WHERE wert='1820';
+		UPDATE ax_bauwerksfunktion_bauwerkimverkehrsbereich SET dokumentation='Schutzgalerie, Einhausung ist eine bauliche Einrichtung an Verkehrswegen zum Schutz gegen Lawinen, Schneeverwehungen, Steinschlägen sowie zum Schutz gegen Emission. 
+Schutzgalerien sind einseitige Überbauungen an Verkehrswegen, Einhausungen umschließen die Verkehrswege meist vollständig.' WHERE wert='1880';
+		UPDATE ax_bauwerksfunktion_bauwerkimgewaesserbereich SET dokumentation='Rückhaltebecken ist ein natürliches oder künstlich angelegtes Becken, ggf. mit Bauwerken und Einrichtungen, zur vorübergehenden Speicherung großer Wassermengen.' WHERE wert='2020';
+		UPDATE ax_bauwerksfunktion_bauwerkimgewaesserbereich SET dokumentation='Wehr ist ein festes oder mit beweglichen Teilen ausgestattetes Bauwerk im Gewässerbereich zur Regulierung des Wasserabflusses.' WHERE wert='2050';
+		UPDATE ax_bauwerksfunktion_bauwerkimgewaesserbereich SET dokumentation='Schöpfwerk ist eine Anlage, in der Pumpen Wasser einem höher gelegenen Vorfluter zuführen, u. a. zur künstlichen Entwässerung von landwirtschaftlich genutzten Flächen.' WHERE wert='2090';
+		UPDATE ax_bauwerksfunktion_bauwerkimgewaesserbereich SET dokumentation='Fischtreppeist eine Vorrichtung mit Stufen oder Wasserbecken für Fische, um Höhenunterschiede im Gewässer zu überwinden.' WHERE wert='2110';
+		UPDATE ax_bauwerksfunktion_bauwerkimgewaesserbereich SET dokumentation='Lahnung ist ein Bauwerk zum Küstenschutz und zur Landgewinnung zumeist im Wattenmeer. Es besteht aus doppelten Holzpflockreihen, mit dazwischen geschnürten Sträuchern, den sog. Faschinen. Bei ablaufendem Wasser sammeln sich hinter der Lahnung Sedimente und Schlick.' WHERE wert='2132';
+		INSERT INTO ax_bauwerksfunktion_bauwerkimgewaesserbereich(wert,beschreibung,dokumentation) VALUES ('2013','Wassertunnel, Wasserstollen, Druckstollen','Wassertunnel, Wasserstollen, Druckstollen ist ein in einen Berg oder Hügel getriebener unterirdischer Tunnel (Stollen), durch den Wasser hindurchgeführt wird. Dabei fließt das Wasser in einem Wassertunnel bzw. Wasserstollen in Richtung des gebauten Gefälles. In einem Druckstollen, der als Wasserleitung genutzt wird, baut sich durch die vollständige Füllung des Stollens ein hydrostatischer Wasserdruck auf, so dass das Wasser auch ansteigende Abschnitte überwinden kann.');
+		INSERT INTO ax_bauwerksfunktion_bauwerkimgewaesserbereich(wert,beschreibung,dokumentation) VALUES ('2085','Verschlussbauwerk','Verschlussbauwerk ist ein Bauwerk mit einem Verschlussmechanismus zur Regulierung des Wasserablaufs bzw. zum Schutz vor Hochwasser.');
+		INSERT INTO ax_art_einrichtungenfuerdenschiffsverkehr(wert,beschreibung,dokumentation) VALUES ('1470','Liegeplatz','Liegeplatz bezeichnet eine Stelle im Hafen oder am Ufer, an dem Wasserfahrzeuge vorübergehend oder dauerhaft verankert sind.');
+		INSERT INTO ax_zustand_bauwerkimverkehrsbereich(wert,beschreibung,dokumentation) VALUES ('4000','Im Bau','Im Bau bedeutet, dass sich überwiegende Teile von Bauwerk im Verkehrsbereich im Bau befinden.');
+		UPDATE ax_art_gewaessermerkmal SET dokumentation='Watt ist ein aus Sand oder Schlick bestehender Boden an flachen Gezeitenküsten und Flüssen, der bei Ebbe ganz oder teilweise trocken fällt.' WHERE wert='1650';
+		INSERT INTO ax_art_gewaessermerkmal(wert,beschreibung,dokumentation) VALUES ('1700','Bodden, Haff','Bodden, Haff ist ein vom offenen Meer durch Landzungen abgetrenntes Küstengewässer an der Ostsee.');
+		DELETE FROM ax_funktion_polder WHERE wert IN (' 7410',' 7420');
+		INSERT INTO ax_funktion_polder(wert,beschreibung,dokumentation) VALUES ('7410','Gesteuert','Gesteuert bedeutet, dass Polder regelmäßig zu einem bestimmten festgelegten Zeitpunkt geflutet wird (z.B. bei einem ausgewählten Pegelstand).');
+		INSERT INTO ax_funktion_polder(wert,beschreibung,dokumentation) VALUES ('7420','Ungesteuert','Ungesteuert bedeutet, dass die eingedeichte Fläche ereignisabhängig geflutet wird.');
+		INSERT INTO ax_zustand_vegetationsmerkmal(wert,beschreibung,dokumentation) VALUES ('6100','Waldverjüngungs-, Neuanpflanzungsfläche','Waldverjüngungs-, Neuanpflanzungsfläche bedeutet, dass sich der Wald durch Aufforstung, Naturverjüngung oder durch Anpflanzung neu bildet.');
+		INSERT INTO ax_bewuchs_vegetationsmerkmal(wert,beschreibung,dokumentation) VALUES ('1020','Baumbestand','Baumbestand beschreibt den Bewuchs einer Vegetationsfläche mit Bäumen.');
+		INSERT INTO ax_eigentuemerart_namensnummer(wert,beschreibung,dokumentation) VALUES ('5108','Bundesanstalt für Immobilienaufgaben','');
+		INSERT INTO ax_eigentuemerart_namensnummer(wert,beschreibung,dokumentation) VALUES ('5940','Eigenes Bundesland, Naturschutzverwaltung','');
+		UPDATE ax_blattart_buchungsblatt SET dokumentation='Ein Pseudoblatt ist ein Buchungsblatt, das die Buchung, die bereits vor Eintrag im Grundbuch Rechtskraft erlangt hat, enthält.' WHERE wert='3000';
+		UPDATE ax_anrede_person SET dokumentation='Frau ist eine natürliche, menschliche Person weiblichen Geschlechts.' WHERE wert='1000';
+		UPDATE ax_anrede_person SET dokumentation='Herr ist eine natürliche, menschliche Person männlichen Geschlechts.' WHERE wert='2000';
+		UPDATE ax_anrede_person SET dokumentation='Firma ist ein gewerbliches Unternehmen.' WHERE wert='3000';
+		INSERT INTO ax_artderrechtsgemeinschaft_namensnummer(wert,beschreibung,dokumentation) VALUES ('4010','Gesamtberechtigte gemäß § 428 BGB','');
+		INSERT INTO ax_artderrechtsgemeinschaft_namensnummer(wert,beschreibung,dokumentation) VALUES ('4020','Gesamtberechtigte gemäß § 432 BGB','');
+		INSERT INTO ax_artderrechtsgemeinschaft_namensnummer(wert,beschreibung,dokumentation) VALUES ('4030','Mitglieder eines nicht eingetragenen Vereins','');
+		INSERT INTO ax_artderrechtsgemeinschaft_namensnummer(wert,beschreibung,dokumentation) VALUES ('4040','Fortgesetzte Gütergemeinschaft','');
+		INSERT INTO ax_artderrechtsgemeinschaft_namensnummer(wert,beschreibung,dokumentation) VALUES ('4050','Beendete, nicht auseinandergesetzte Gütergemeinschaft','');
+		INSERT INTO ax_artderrechtsgemeinschaft_namensnummer(wert,beschreibung,dokumentation) VALUES ('4060','Errungenschaftsgemeinschaft','');
+		INSERT INTO ax_artderrechtsgemeinschaft_namensnummer(wert,beschreibung,dokumentation) VALUES ('4070','Fortgesetzte Errungenschaftsgemeinschaft','');
+		INSERT INTO ax_artderrechtsgemeinschaft_namensnummer(wert,beschreibung,dokumentation) VALUES ('4080','Beendete, nicht auseinandergesetzte Errungenschaftsgemeinschaft','');
+		INSERT INTO ax_artderrechtsgemeinschaft_namensnummer(wert,beschreibung,dokumentation) VALUES ('4090','Fahrnisgemeinschaft','');
+		INSERT INTO ax_artderrechtsgemeinschaft_namensnummer(wert,beschreibung,dokumentation) VALUES ('4100','Fortgesetzte Fahrnisgemeinschaft','');
+		INSERT INTO ax_artderrechtsgemeinschaft_namensnummer(wert,beschreibung,dokumentation) VALUES ('4110','Beendete, nicht auseinandergesetzte Fahrnisgemeinschaft','');
+		INSERT INTO ax_artderrechtsgemeinschaft_namensnummer(wert,beschreibung,dokumentation) VALUES ('4120','Eigentums- und Vermögensgemeinschaft nach FGB','');
+		INSERT INTO ax_artderrechtsgemeinschaft_namensnummer(wert,beschreibung,dokumentation) VALUES ('4130','Beendete, nicht auseinandergesetzte Eigentums- und Vermögensgemeinschaft nach FGB','');
+		INSERT INTO ax_artderrechtsgemeinschaft_namensnummer(wert,beschreibung,dokumentation) VALUES ('4140','Altrechtliche Gemeinschaft','');
+		UPDATE ax_buchungsart_buchungsstelle SET dokumentation='Das Wohnungseigentum kann nach Par. 3 Wohnungseigentumsgesetz (WEG) durch Vertrag der Miteigentümer oder nach Par. 8 WEG durch Erklärung des Eigentümers 
+begründet werden.
+Das entstehende Wohnungseigentum (Teileigentum) ist echtes Eigentum bürgerlichen Rechts in Form einer rechtlichen Verbindung von Miteigentum an Grundstück und Gebäude mit Sondereigentum an einer Wohnung bzw. Teileigentum an nicht zu Wohnzwecken dienenden Räumen.' WHERE wert='1301';
+		UPDATE ax_buchungsart_buchungsstelle SET dokumentation='Hierbei handelt es sich um die frei veräußerliche und vererbliche Befugnis zum Betrieb eines bestimmten Gewerbes, die mit dem Besitz einer Liegenschaft verbunden sein kann aber nicht zwingend an ein bestimmtes Grundstücks gebunden sein muss. Die nähere Bezeichnung des Nutzungsrechts ergibt sich aus dem Attribut Buchungstext.' WHERE wert='2107';
+		UPDATE ax_buchungsart_buchungsstelle SET dokumentation='Gemeinderecht ist das Recht zur Nutzung eines gemeinschaftlichen Grundstücks. Die näheren Angaben zu diesem Recht sind in privatrechtlichen Verträgen enthalten.' WHERE wert='2108';
+		INSERT INTO ax_buchungsart_buchungsstelle(wert,beschreibung,dokumentation) VALUES ('2206','Aufgeteiltes Recht Par. 3 Abs. 4 GBO (Untererbbaurecht)','Historisches Untererbbaurecht, welches gemäß § 3 Abs. 4 GBO aufgeteilt worden ist. Es handelt sich hier um eine Buchungsart für das Fiktive Blatt.');
+		INSERT INTO ax_buchungsart_buchungsstelle(wert,beschreibung,dokumentation) VALUES ('2306','Untererbbaurechtsanteil Par. 3 Abs. 4 GBO','Untererbbaurecht, welches gemäß § 3 Abs. 4 GBO aufgeteilt worden ist.');
+		UPDATE ax_klassifikation_hierarchiestufe3d_lagefestpunkt SET beschreibung='A' WHERE wert='1000';
+		UPDATE ax_klassifikation_hierarchiestufe3d_lagefestpunkt SET beschreibung='B' WHERE wert='2000';
+		UPDATE ax_klassifikation_hierarchiestufe3d_lagefestpunkt SET beschreibung='C' WHERE wert='3000';
+		UPDATE ax_klassifikation_hierarchiestufe3d_lagefestpunkt SET beschreibung='D' WHERE wert='4000';
+		UPDATE ax_klassifikation_hierarchiestufe3d_lagefestpunkt SET beschreibung='E' WHERE wert='5000';
+		DELETE FROM ax_punktstabilitaet WHERE wert IN ('8000');
+		UPDATE ax_punktstabilitaet SET beschreibung='Sehr gut' WHERE wert='1000';
+		UPDATE ax_punktstabilitaet SET beschreibung='Gut' WHERE wert='2000';
+		UPDATE ax_punktstabilitaet SET beschreibung='Befriedigend' WHERE wert='3000';
+		UPDATE ax_punktstabilitaet SET beschreibung='Ausreichend' WHERE wert='4000';
+		UPDATE ax_punktstabilitaet SET beschreibung='Mangelhaft' WHERE wert='5000';
+		UPDATE ax_punktstabilitaet SET beschreibung='Mangelhaft (Bergsenkungsgebiet)' WHERE wert='5100';
+		UPDATE ax_punktstabilitaet SET beschreibung='Mangelhaft (in rutschgefährdeter Hanglage)' WHERE wert='5200';
+		UPDATE ax_punktstabilitaet SET beschreibung='Mangelhaft (sehr nahe an Gewässer)' WHERE wert='5300';
+		UPDATE ax_punktstabilitaet SET beschreibung='Mangelhaft (instabiler Untergrund)' WHERE wert='5400';
+		UPDATE ax_punktstabilitaet SET beschreibung='Aus Wiederholungsmessungen nachgewiesen' WHERE wert='6000';
+		UPDATE ax_punktstabilitaet SET beschreibung='Nicht untersucht' WHERE wert='9998';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_geologischestabilitaet SET beschreibung='Sehr gut' WHERE wert='1000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_geologischestabilitaet SET beschreibung='Gut' WHERE wert='2000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_geologischestabilitaet SET beschreibung='Befriedigend' WHERE wert='3000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_geologischestabilitaet SET beschreibung='Ausreichend' WHERE wert='4000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_geologischestabilitaet SET beschreibung='Mangelhaft' WHERE wert='5000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_geologischestabilitaet SET beschreibung='Nicht untersucht' WHERE wert='9998';
+		UPDATE ax_klassifikation_ordnung_lagefestpunkt SET beschreibung='1. Ordnung' WHERE wert='1000';
+		UPDATE ax_klassifikation_ordnung_lagefestpunkt SET beschreibung='2. Ordnung' WHERE wert='2000';
+		UPDATE ax_klassifikation_ordnung_lagefestpunkt SET beschreibung='3. Ordnung' WHERE wert='3000';
+		UPDATE ax_klassifikation_ordnung_lagefestpunkt SET beschreibung='4. Ordnung' WHERE wert='4000';
+		UPDATE ax_klassifikation_ordnung_lagefestpunkt SET beschreibung='5. Ordnung' WHERE wert='5000';
+		UPDATE ax_klassifikation_ordnung_lagefestpunkt SET beschreibung='Nach Quellenlage nicht zu spezifizieren' WHERE wert='9998';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_guetedesvermarkungstra SET beschreibung='Sehr gut' WHERE wert='1000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_guetedesvermarkungstra SET beschreibung='Gut' WHERE wert='2000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_guetedesvermarkungstra SET beschreibung='Befriedigend' WHERE wert='3000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_guetedesvermarkungstra SET beschreibung='Ausreichend' WHERE wert='4000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_guetedesvermarkungstra SET beschreibung='Mangelhaft' WHERE wert='5000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_guetedesvermarkungstra SET beschreibung='Nicht bekannt' WHERE wert='9998';
+		UPDATE ax_ordnung_schwerefestpunkt SET beschreibung='1. Ordnung' WHERE wert='1000';
+		UPDATE ax_ordnung_schwerefestpunkt SET beschreibung='2. Ordnung' WHERE wert='2000';
+		UPDATE ax_ordnung_schwerefestpunkt SET beschreibung='3. Ordnung' WHERE wert='3000';
+		UPDATE ax_ordnung_schwerefestpunkt SET beschreibung='4. Ordnung' WHERE wert='4000';
+		UPDATE ax_ordnung_schwerefestpunkt SET beschreibung='Schweregrundnetzpunkt' WHERE wert='500';
+		UPDATE ax_ordnung_schwerefestpunkt SET beschreibung='Nach Quellenlage nicht zu spezifizieren' WHERE wert='9998';
+		UPDATE ax_funktion_lagefestpunkt SET beschreibung='Exzentrum' WHERE wert='2000';
+		UPDATE ax_skizzenart_skizze SET beschreibung='Einmessungsskizze' WHERE wert='1000';
+		UPDATE ax_skizzenart_skizze SET beschreibung='Sonstige Lageskizze' WHERE wert='2000';
+		UPDATE ax_skizzenart_skizze SET beschreibung='Sonstige Einmessungsskizze' WHERE wert='2100';
+		UPDATE ax_skizzenart_skizze SET beschreibung='Sonstige Ansichtszeichnung oder Foto' WHERE wert='2200';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_hoehenstabilitaetauswi SET beschreibung='Sehr gut' WHERE wert='1000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_hoehenstabilitaetauswi SET beschreibung='Gut' WHERE wert='2000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_hoehenstabilitaetauswi SET beschreibung='Befriedigend' WHERE wert='3000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_hoehenstabilitaetauswi SET beschreibung='Bedenklich' WHERE wert='4000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_hoehenstabilitaetauswi SET beschreibung='Mangelhaft' WHERE wert='5000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_hoehenstabilitaetauswi SET beschreibung='Nicht bekannt' WHERE wert='9998';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_guetedesbaugrundes SET beschreibung='Sehr gut' WHERE wert='1000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_guetedesbaugrundes SET beschreibung='Gut' WHERE wert='2000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_guetedesbaugrundes SET beschreibung='Befriedigend' WHERE wert='3000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_guetedesbaugrundes SET beschreibung='Ausreichend' WHERE wert='4000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_guetedesbaugrundes SET beschreibung='Mangelhaft' WHERE wert='5000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_guetedesbaugrundes SET beschreibung='Nicht untersucht' WHERE wert='9998';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_grundwasserschwankung SET beschreibung='Sehr gering (kleiner gleich 0,5 m)' WHERE wert='1000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_grundwasserschwankung SET beschreibung='Gering (größer 0,5 m und kleiner gleich 2 m)' WHERE wert='2000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_grundwasserschwankung SET beschreibung='Mäßig (größer 2 m und kleiner gleich 5 m)' WHERE wert='3000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_grundwasserschwankung SET beschreibung='Stark (größer 5 m und kleiner gleich 10 m)' WHERE wert='4000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_grundwasserschwankung SET beschreibung='Sehr stark (größer 10 m)' WHERE wert='5000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_grundwasserschwankung SET beschreibung='Nicht untersucht' WHERE wert='9998';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_topographieundumwelt SET beschreibung='Keine' WHERE wert='1000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_topographieundumwelt SET beschreibung='Geringe' WHERE wert='2000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_topographieundumwelt SET beschreibung='Mäßige' WHERE wert='3000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_topographieundumwelt SET beschreibung='Starke' WHERE wert='4000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_topographieundumwelt SET beschreibung='Sehr starke' WHERE wert='5000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_topographieundumwelt SET beschreibung='Nicht untersucht' WHERE wert='9998';
+		UPDATE ax_klassifikation_wertigkeit_lagefestpunkt SET beschreibung='Fundamentalpunkt' WHERE wert='1000';
+		UPDATE ax_klassifikation_wertigkeit_lagefestpunkt SET dokumentation='Punkt auf dem die Position (3D), die schwerebezogene Höhe und die Schwere hoch genau bestimmt worden sind.' WHERE wert='1000';
+		UPDATE ax_gnsstauglichkeit SET beschreibung='Vermutlich sehr gut' WHERE wert='1000';
+		UPDATE ax_gnsstauglichkeit SET beschreibung='Sehr gut' WHERE wert='1001';
+		UPDATE ax_gnsstauglichkeit SET beschreibung='Vermutlich gut' WHERE wert='3000';
+		UPDATE ax_gnsstauglichkeit SET beschreibung='Gut' WHERE wert='3001';
+		UPDATE ax_gnsstauglichkeit SET beschreibung='Vermutlich befriedigend' WHERE wert='3100';
+		UPDATE ax_gnsstauglichkeit SET beschreibung='Befriedigend' WHERE wert='3101';
+		UPDATE ax_gnsstauglichkeit SET beschreibung='Ungenügend' WHERE wert='5000';
+		UPDATE ax_gnsstauglichkeit SET beschreibung='Nicht untersucht' WHERE wert='9998';
+		UPDATE ax_gnsstauglichkeit SET dokumentation='Weitgehende Horizontfreiheit, Mehrwegeffekte nicht wahrscheinlich.' WHERE wert='1000';
+		UPDATE ax_gnsstauglichkeit SET dokumentation='Sehr gute Satelliten-Empfangseigenschaften in Messungen nachgewiesen.' WHERE wert='1001';
+		UPDATE ax_gnsstauglichkeit SET dokumentation='Eingeschränkte Horizontfreiheit.' WHERE wert='3000';
+		UPDATE ax_gnsstauglichkeit SET dokumentation='Eingeschränkte Horizontfreiheit, Tauglichkeit nachgewiesen.' WHERE wert='3001';
+		UPDATE ax_gnsstauglichkeit SET dokumentation='Mehrwegeffekte möglich.' WHERE wert='3100';
+		UPDATE ax_gnsstauglichkeit SET dokumentation='Mehrwegeffekte nachgewiesen.' WHERE wert='3101';
+		UPDATE ax_gnsstauglichkeit SET dokumentation='Festpunkt nicht geeignet für Satellitenmessverfahren.' WHERE wert='5000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_grundwasserstand SET beschreibung='Sehr tief (größer 10 m)' WHERE wert='1000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_grundwasserstand SET beschreibung='Tief (größer 5 m und kleiner gleich 10 m)' WHERE wert='2000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_grundwasserstand SET beschreibung='Normal (größer 2 m und kleiner gleich 5 m)' WHERE wert='3000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_grundwasserstand SET beschreibung='Hoch (größer 0,5 m und kleiner gleich 2 m)' WHERE wert='4000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_grundwasserstand SET beschreibung='Sehr hoch (kleiner gleich 0,5 m)' WHERE wert='5000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_grundwasserstand SET beschreibung='Abgesenkt' WHERE wert='9000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_grundwasserstand SET beschreibung='Nicht untersucht' WHERE wert='9998';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_vermutetehoehenstabili SET beschreibung='Sehr gut' WHERE wert='1000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_vermutetehoehenstabili SET beschreibung='Gut' WHERE wert='2000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_vermutetehoehenstabili SET beschreibung='Befriedigend' WHERE wert='3000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_vermutetehoehenstabili SET beschreibung='Ausreichend' WHERE wert='4000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_vermutetehoehenstabili SET beschreibung='Mangelhaft' WHERE wert='5000';
+		UPDATE ax_punktstabilitaet_hoehenfestpunkt_vermutetehoehenstabili SET beschreibung='Nicht untersucht' WHERE wert='9998';
+		INSERT INTO ax_punktstabilitaet_hoehenfestpunkt_vermutetehoehenstabili(wert,beschreibung,dokumentation) VALUES ('5100','Mangelhaft (Bergsenkungsgebiet)','');
+		INSERT INTO ax_punktstabilitaet_hoehenfestpunkt_vermutetehoehenstabili(wert,beschreibung,dokumentation) VALUES ('5200','Mangelhaft (in rutschgefährdeter Hanglage)','');
+		INSERT INTO ax_punktstabilitaet_hoehenfestpunkt_vermutetehoehenstabili(wert,beschreibung,dokumentation) VALUES ('5300','Mangelhaft (sehr nahe an Gewässer)','');
+		INSERT INTO ax_punktstabilitaet_hoehenfestpunkt_vermutetehoehenstabili(wert,beschreibung,dokumentation) VALUES ('5400','Mangelhaft (instabiler Untergrund)','');
+		UPDATE ax_ordnung_hoehenfestpunkt SET beschreibung='1. Ordnung' WHERE wert='1000';
+		UPDATE ax_ordnung_hoehenfestpunkt SET beschreibung='1. Ordnung - Netzverdichtung GPS (Niedersachsen)' WHERE wert='1001';
+		UPDATE ax_ordnung_hoehenfestpunkt SET beschreibung='2. Ordnung' WHERE wert='2000';
+		UPDATE ax_ordnung_hoehenfestpunkt SET beschreibung='3. Ordnung' WHERE wert='3000';
+		UPDATE ax_ordnung_hoehenfestpunkt SET beschreibung='3. Ordnung - nivellitisch bestimmter Bodenpunkt für Referenzstation' WHERE wert='3001';
+		UPDATE ax_ordnung_hoehenfestpunkt SET beschreibung='4. Ordnung' WHERE wert='4000';
+		UPDATE ax_artderflurstuecksgrenze_besondereflurstuecksgrenze SET beschreibung='Topographische Gewässerbegrenzung' WHERE wert='2100';
+		DELETE FROM ax_marke WHERE wert IN ('3010','3170','3180','3190');
+		UPDATE ax_marke SET beschreibung='Festlegung STN 1. Ordnung, Pfeilerkopf 30x30 cm, Bezugspunkt Platte 60x60 cm, Steinwürfel, Tonkegel' WHERE wert='2102';
+		UPDATE ax_marke SET beschreibung='Festlegung 2. bis 5. Ordnung, Bezugspunkt Kopf 16x16 oder 12x12 cm, Platte 30x30 cm' WHERE wert='2111';
+		UPDATE ax_marke SET beschreibung='3D-Bolzen in Kopffläche, einbetonierter Granitpfeiler 40x40x90 cm' WHERE wert='2266';
+		UPDATE ax_marke SET beschreibung='Gebohrter Granitstein (Bezugspunkt) über Tonrohr' WHERE wert='2601';
+		UPDATE ax_marke SET beschreibung='Gebohrter Granitstein über Tonrohr (Bezugspunkt)' WHERE wert='2602';
+		UPDATE ax_marke SET beschreibung='Gebohrter Granitstein (Bezugspunkt) über Platte' WHERE wert='2603';
+		UPDATE ax_marke SET beschreibung='Gebohrter Granitstein über Platte (Bezugspunkt)' WHERE wert='2604';
+		UPDATE ax_marke SET beschreibung='Gebohrter Granitstein (Bezugspunkt) über Eisenrohr' WHERE wert='2605';
+		UPDATE ax_marke SET beschreibung='Gebohrter Granitstein über Eisenrohr (Bezugspunkt)' WHERE wert='2606';
+		UPDATE ax_marke SET beschreibung='Festlegung Orientierungspunkt, Bezugspunkt Platte' WHERE wert='2710';
+		UPDATE ax_marke SET beschreibung='Platte, unterirdisch, mit Kopfbolzen' WHERE wert='2951';
+		UPDATE ax_marke SET beschreibung='Unterirdische Festlegung' WHERE wert='3000';
+		UPDATE ax_marke SET beschreibung='Mauerbolzen, horizontal eingebracht' WHERE wert='3210';
+		UPDATE ax_marke SET beschreibung='Mauerbolzen, vertikal eingebracht' WHERE wert='3220';
+		UPDATE ax_marke SET beschreibung='Höhenmarke' WHERE wert='3230';
+		INSERT INTO ax_marke(wert,beschreibung,dokumentation) VALUES ('2167','3D-Messingbolzen (Durchmesser 5 cm) mit Inschrift RFP HESSEN','');
+		INSERT INTO ax_marke(wert,beschreibung,dokumentation) VALUES ('2267','3D-Bolzen in Kopffläche, einbetonierter Granitpfeiler 25x25x100 cm','');
+		INSERT INTO ax_marke(wert,beschreibung,dokumentation) VALUES ('2268','3D-Bolzen in Kopffläche, einbetonierter Granitpfeiler 30x30x100 cm','');
+		INSERT INTO ax_marke(wert,beschreibung,dokumentation) VALUES ('2269','3D-Bolzen in Kopffläche, einbetonierter Granitpfeiler 50x50x100 cm','');
+		INSERT INTO ax_marke(wert,beschreibung,dokumentation) VALUES ('3011','Unterirdische Festlegung mit Achatkugel','');
+		INSERT INTO ax_marke(wert,beschreibung,dokumentation) VALUES ('3012','Unterirdische Festlegung mit Halbkugel','');
+		INSERT INTO ax_marke(wert,beschreibung,dokumentation) VALUES ('3013','Unterirdische Festlegung mit Diabaseinsatz','');
+		INSERT INTO ax_marke(wert,beschreibung,dokumentation) VALUES ('3014','Unterirdische Festlegung im Schacht','');
+		INSERT INTO ax_marke(wert,beschreibung,dokumentation) VALUES ('3015','Kleine unterirdische Festlegung','');
+		INSERT INTO ax_marke(wert,beschreibung,dokumentation) VALUES ('3231','Höhenmarke (Königlich Preußische Landesaufnahme)','');
+		INSERT INTO ax_marke(wert,beschreibung,dokumentation) VALUES ('3232','Höhenmarke (Königlich Sächsische Landesaufnahme)','');
+		INSERT INTO ax_marke(wert,beschreibung,dokumentation) VALUES ('3233','Höhenmarke (Reichsamt für Landesaufnahme)','');
+		UPDATE ax_genauigkeitsstufe_punktort SET beschreibung='Standardabweichung S größer 500 cm' WHERE wert='5000';
+		INSERT INTO ax_genauigkeitsstufe_punktort(wert,beschreibung,dokumentation) VALUES ('2400','Standardabweichung S kleiner gleich 20 cm','');
+		UPDATE ax_messmethode_schwere SET beschreibung='Absolutgravimetermessung' WHERE wert='1000';
+		UPDATE ax_messmethode_schwere SET beschreibung='Relativgravimetermessung' WHERE wert='2000';
+		UPDATE ax_koordinatenstatus_punktort SET dokumentation='Gültiger Wert in dem amtlichen Bezugssystem.' WHERE wert='1000';
+		UPDATE ax_koordinatenstatus_punktort SET dokumentation='Weiterer gültiger Wert in einem nicht-amtlichen Bezugssystem.' WHERE wert='2000';
+		UPDATE ax_koordinatenstatus_punktort SET dokumentation='Vorläufige Koordinaten bzw. vorläufige Höhe.' WHERE wert='3000';
+		UPDATE ax_koordinatenstatus_punktort SET dokumentation='Zu keiner Zeit gültig gewesene Koordinaten bzw. Höhe.' WHERE wert='4000';
+		UPDATE ax_koordinatenstatus_punktort SET dokumentation='Ein historischer, nicht mehr amtlicher oder gültiger Wert.' WHERE wert='5000';
+		UPDATE ax_koordinatenstatus_punktort SET dokumentation='Koordinaten bzw. Höhe, die sich als fehlerhaft herausgestellt haben.' WHERE wert='5100';
+		UPDATE ax_datenerhebung_schwere SET beschreibung='Mittels Freiluftreduktion über geringe Entfernung abgeleitet' WHERE wert='1000';
+		UPDATE ax_datenerhebung_schwere SET beschreibung='Mittels Freiluftreduktion über größere Entfernung abgeleitet' WHERE wert='2000';
+		UPDATE ax_datenerhebung_schwere SET beschreibung='Mittels Interpolation unter Verwendung einfacher Bougueranomalien ermittelt' WHERE wert='3000';
+		UPDATE ax_datenerhebung_schwere SET beschreibung='Durch Abschlag (-19*10^-8m*s^-2) aus Schwerewert im DHSN82 ermittelt' WHERE wert='3100';
+		UPDATE ax_datenerhebung_schwere SET beschreibung='Durch Transformation aus ISGN71 ermittelt' WHERE wert='3200';
+		UPDATE ax_datenerhebung_schwere SET beschreibung='Durch andere Methode ermittelt' WHERE wert='4000';
+		UPDATE ax_datenerhebung_schwere SET beschreibung='Methode unbekannt' WHERE wert='9998';
+		UPDATE ax_datenerhebung_schwere SET dokumentation='Höhenunterschied bis 1 m, Horizontalabstand bis 5 m' WHERE wert='1000';
+		UPDATE ax_datenerhebung_schwere SET dokumentation='Topografische Reduktion erfolgt nur als Plattenreduktion' WHERE wert='3000';
+		INSERT INTO ax_datenerhebung_schwere(wert,beschreibung,dokumentation) VALUES ('800','Mittels zentrisch gemessenem vertikalen Schweregradienten auf die Vermarkung abgeleitet','');
+		INSERT INTO ax_datenerhebung_schwere(wert,beschreibung,dokumentation) VALUES ('900','Mittels exzentrisch gemessenem vertikalen Schweregradienten abgeleitet','');
+		INSERT INTO ax_datenerhebung_schwere(wert,beschreibung,dokumentation) VALUES ('3050','Mittels Interpolation unter Verwendung verfeinerter Bougueranomalien ermittelt','Topografische Reduktion erfolgt als Platten- und Geländereduktion');
+		UPDATE ax_vertrauenswuerdigkeit_schwere SET beschreibung='Ausgleichung' WHERE wert='1100';
+		UPDATE ax_vertrauenswuerdigkeit_schwere SET beschreibung='Ohne Ausgleichung kontrolliert' WHERE wert='1300';
+		UPDATE ax_vertrauenswuerdigkeit_schwere SET beschreibung='Unkontrolliert' WHERE wert='1400';
+		UPDATE ax_vertrauenswuerdigkeit_schwere SET dokumentation='Die Identität der Anschlusspunkte ist überprüft. Die Zuverlässigkeitskriterien sind durch Ausgleichung und durch mathematisch-statistische Testverfahren festgestellt.' WHERE wert='1100';
+		UPDATE ax_vertrauenswuerdigkeit_schwere SET dokumentation='Die Zuverlässigkeitskriterien sind auf andere Weise (z. B. durch Vergleich von Schwereanomalien) festgestellt.' WHERE wert='1300';
+		UPDATE ax_schwereanomalie_schwere_art SET beschreibung='Geländereduktion' WHERE wert='1000';
+		UPDATE ax_schwereanomalie_schwere_art SET beschreibung='Freiluftanomalie' WHERE wert='2000';
+		UPDATE ax_schwereanomalie_schwere_art SET beschreibung='Faye-Anomalie' WHERE wert='3000';
+		UPDATE ax_schwereanomalie_schwere_art SET beschreibung='Schwereanomalie nach Molodenski' WHERE wert='3100';
+		UPDATE ax_schwereanomalie_schwere_art SET beschreibung='Verfeinerte Bougueranomalie' WHERE wert='4000';
+		UPDATE ax_schwereanomalie_schwere_art SET beschreibung='Einfache Bougueranomalie' WHERE wert='5000';
+		UPDATE ax_schwereanomalie_schwere_art SET beschreibung='Bougueranomalie im DHSN96 mit Freiluft- und Plattenreduktion' WHERE wert='6000';
+		UPDATE ax_schwereanomalie_schwere_art SET beschreibung='Unbekannt' WHERE wert='9998';
+		UPDATE ax_schwereanomalie_schwere_art SET dokumentation='Teil der topografischen Reduktion, der die Abweichung der Erdoberfläche von einer horizontalen Platte oder sphärischen Figur berücksichtigt.' WHERE wert='1000';
+		UPDATE ax_schwereanomalie_schwere_art SET dokumentation='Differenz zwischen dem mittels Freiluftreduktion auf das Geoid reduzierten Schwerewert und dem entsprechenden Wert der Normalschwere auf dem Niveauellipsoid.' WHERE wert='2000';
+		UPDATE ax_schwereanomalie_schwere_art SET dokumentation='Freiluftanomalie mit zusätzlich angebrachter Geländereduktion' WHERE wert='3000';
+		UPDATE ax_schwereanomalie_schwere_art SET dokumentation='Schwere im Oberflächenpunkt minus Normalschwere im zugeordneten Telluroidpunkt' WHERE wert='3100';
+		UPDATE ax_schwereanomalie_schwere_art SET dokumentation='Topografische Reduktion erfolgt als Plattenreduktion und Geländereduktion' WHERE wert='4000';
+		UPDATE ax_schwereanomalie_schwere_art SET dokumentation='Topografische Reduktion erfolgt nur als Plattenreduktion' WHERE wert='5000';
+		UPDATE ax_schwereanomalie_schwere_art SET dokumentation='Normalschwere im GRS80' WHERE wert='6000';
+		UPDATE ax_vertrauenswuerdigkeit_punktort SET dokumentation='Vertrauenswürdigkeitsstufe Ausgleichung: Die Vertrauenswürdigkeit ist durch Ausgleichung und durch mathematisch-statistische Testverfahren festgestellt. Bei den örtlichen Vermessungen sind die Anschlusspunkte auf Identität überprüft.' WHERE wert='1100';
+		UPDATE ax_vertrauenswuerdigkeit_punktort SET dokumentation='Vertrauenswürdigkeitsstufe Berechnung: Die Vertrauenswürdigkeit ist durch Berechnung überprüft. Bei den örtlichen Vermessungen sind die Anschlusspunkte auf Identität überprüft. Die Zuverlässigkeit ist durch Programm festgestellt bzw. ergibt sich durch die rechnerisch wirksam kontrollierte Ermittlung der Position (Doppelbestimmung).' WHERE wert='1200';
+		UPDATE ax_vertrauenswuerdigkeit_punktort SET dokumentation='Vertrauenswürdigkeitsstufe Bestimmungsverfahren: Die Vertrauenswürdigkeit ist durch die Art der Bestimmung der Position überprüft. Bei den örtlichen Vermessungen sind die Anschlusspunkte auf Identität überprüft. Die Position ist durch wirksame Kontrollen überprüft.' WHERE wert='1300';
+		UPDATE ax_schwerestatus_schwere SET beschreibung='Amtliche Schwere' WHERE wert='1000';
+		UPDATE ax_schwerestatus_schwere SET beschreibung='Weitere gültige Schwere' WHERE wert='2000';
+		UPDATE ax_schwerestatus_schwere SET beschreibung='Vorläufige Schwere' WHERE wert='3000';
+		UPDATE ax_schwerestatus_schwere SET beschreibung='Zu keiner Zeit gültig gewesene Schwere' WHERE wert='4000';
+		UPDATE ax_schwerestatus_schwere SET beschreibung='Historische Schwere' WHERE wert='5000';
+		UPDATE ax_schwerestatus_schwere SET beschreibung='Schwere, die sich als fehlerhaft herausgestellt hat' WHERE wert='5100';
+		UPDATE ax_schwerestatus_schwere SET dokumentation='Gültiger Wert in dem amtlichen Schwerebezugssystem.' WHERE wert='1000';
+		UPDATE ax_schwerestatus_schwere SET dokumentation='Weiterer gültiger Wert in einem nicht-amtlichen Schwerebezugssystem.' WHERE wert='2000';
+		UPDATE ax_schwerestatus_schwere SET dokumentation='Vorläufige Schwere.' WHERE wert='3000';
+		UPDATE ax_schwerestatus_schwere SET dokumentation='Zu keiner Zeit gültig gewesene Schwere.' WHERE wert='4000';
+		UPDATE ax_schwerestatus_schwere SET dokumentation='Ein historischer, nicht mehr amtlicher oder gültiger Wert.' WHERE wert='5000';
+		UPDATE ax_schwerestatus_schwere SET dokumentation='Schwere, die sich als fehlerhaft herausgestellt hat.' WHERE wert='5100';
+		UPDATE ax_li_processstep_punktort_description SET dokumentation='Erhebung beschreibt im Attribut stepDateTime den Erfassungszeitpunkt (Zeitpunkt der Messung), z. B. für Position, Lage oder Höhe.' WHERE wert='Erhebung';
+		UPDATE ax_li_processstep_punktort_description SET dokumentation='Berechnung beschreibt im Attribut stepDateTime den Auswertezeitpunkt, z. B. von Position, Lage oder Höhe.' WHERE wert='Berechnung';
+		UPDATE ax_genauigkeitsstufe_schwere SET beschreibung='Standardabweichung S kleiner 20*10^-8m*s^-2' WHERE wert='1000';
+		UPDATE ax_genauigkeitsstufe_schwere SET beschreibung='Standardabweichung S kleiner gleich 100*10^-8m*s^-2' WHERE wert='2000';
+		UPDATE ax_genauigkeitsstufe_schwere SET beschreibung='Standardabweichung S größer 100*10^-8m*s^-2' WHERE wert='3000';
+		INSERT INTO ax_genauigkeitsstufe_schwere(wert,beschreibung,dokumentation) VALUES ('900','Standardabweichung S kleiner gleich 12 * 10^-8m*s^-2','');
+		INSERT INTO ax_genauigkeitsstufe_schwere(wert,beschreibung,dokumentation) VALUES ('1500','Standardabweichung S kleiner gleich 50 * 10^-8m*s^-2','');
+		DELETE FROM ax_datenerhebung_punktort WHERE wert IN ('5150','5160','5170');
+		UPDATE ax_datenerhebung_punktort SET beschreibung='Aus sonstigen Unterlagen digitalisiert, Mit sonstigen geometrischen Bedingungen und/oder Homogenisierung (M größer gleich 1 zu 1000)' WHERE wert='4360';
+		UPDATE ax_datenerhebung_punktort SET beschreibung='Präzisionsnivellement' WHERE wert='5100';
+		UPDATE ax_datenerhebung_punktort SET beschreibung='Präzisionsnivellement, Messgenauigkeit 1.Ordnung' WHERE wert='5110';
+		UPDATE ax_datenerhebung_punktort SET beschreibung='Präzisionsnivellement, Messgenauigkeit 2.Ordnung' WHERE wert='5120';
+		UPDATE ax_datenerhebung_punktort SET beschreibung='Präzisionsnivellement, Messgenauigkeit 3.Ordnung' WHERE wert='5130';
+		UPDATE ax_datenerhebung_punktort SET beschreibung='Präzisionsnivellement, Messgenauigkeit 4.Ordnung' WHERE wert='5140';
+		UPDATE ax_datenerhebung_punktort SET beschreibung='Präzisionsnivellement (nur eine Messungsrichtung)' WHERE wert='5200';
+		UPDATE ax_datenerhebung_punktort SET beschreibung='Aus satellitengeodätischer Messung und Addition einer Höhenanomalie' WHERE wert='6000';
+		UPDATE ax_datenerhebung_punktort SET beschreibung='Mittels Höhenanomalie abgeleitet von gemessener ellipsoidischer Höhe' WHERE wert='6100';
+		UPDATE ax_datenerhebung_punktort SET beschreibung='Mittels Höhenanomalie abgeleitet von gemessener Normalhöhe' WHERE wert='6200';
+		UPDATE ax_qualitaet_hauskoordinate SET beschreibung='AmtlichMit (A)' WHERE wert='1000';
+		UPDATE ax_qualitaet_hauskoordinate SET beschreibung='Amtlich (B)' WHERE wert='2000';
+		UPDATE ax_qualitaet_hauskoordinate SET beschreibung='Katasterintern (C)' WHERE wert='3000';
+		UPDATE ax_qualitaet_hauskoordinate SET dokumentation='Amtliche Hausnummer, Koordinate liegt sicher innerhalb der erfassten Gebäudegeometrie.' WHERE wert='1000';
+		UPDATE ax_qualitaet_hauskoordinate SET dokumentation='Amtliche Hausnummer, Koordinate liegt sicher innerhalb der Flurstücksfläche, das Gebäude ist nicht sicher in der Örtlichkeit vorhanden.' WHERE wert='2000';
+		UPDATE ax_qualitaet_hauskoordinate SET dokumentation='Katasterinterne Hausnummer, die Koordinate liegt sicher innerhalb der erfassten Gebäudegeometrie.' WHERE wert='3000';
+		UPDATE ax_art_reservierung SET dokumentation='Eine Reservierung von Folgenummern zu einer Nummer darf sich nur auf aktuelle Flurstücke 11001 beziehen und nicht auf dauerhaft reservierte ausfallende Nummern, die keine aktuellen Flurstücke haben.' WHERE wert='3000';
+		INSERT INTO ax_lagezurerdoberflaeche_gebaeude(wert,beschreibung,dokumentation) VALUES ('1500','Beweglich, drehbar','Beweglich, drehbar bedeutet, dass ein Gebäude beweglich oder drehbar ist.');
+		UPDATE ax_zustand_gebaeude SET dokumentation='In behelfsmäßigem Zustand bedeutet, dass das Gebäude nur eingeschränkt bewohnt oder genutzt werden kann.' WHERE wert='1000';
+		UPDATE ax_zustand_gebaeude SET dokumentation='In ungenutztem Zustand bedeutet, dass das Gebäude nicht genutzt wird.' WHERE wert='2000';
+		UPDATE ax_zustand_gebaeude SET dokumentation='Teilweise zerstört bedeutet, dass sich der ursprüngliche Zustand des Gebäudes durch menschliche oder zeitliche Einwirkungen so verändert hat, dass eine Nutzung nur noch teilweise möglich ist.' WHERE wert='2300';
+		UPDATE ax_zustand_gebaeude SET dokumentation='Geplant und beantragt bedeutet, dass ein Gebäude geplant und dessen Errichtung beantragt ist.' WHERE wert='3000';
+		UPDATE ax_zustand_gebaeude SET dokumentation='Im Bau bedeutet, dass sich ein Gebäude im Bau befindet.' WHERE wert='4000';
+		UPDATE ax_dachgeschossausbau_gebaeude SET dokumentation='Nicht ausbaufähig bedeutet, dass sich das Dachgeschoss des Gebäudes nicht zum Ausbau zu Wohnzwecken eignet.' WHERE wert='1000';
+		UPDATE ax_dachgeschossausbau_gebaeude SET dokumentation='Ausbaufähig bedeutet, dass sich das Dachgeschoss des Gebäudes zum Ausbau zu Wohnzwecken eignet.' WHERE wert='2000';
+		UPDATE ax_dachgeschossausbau_gebaeude SET dokumentation='Ausgebaut bedeutet, dass das Dachgeschoss des Gebäudes zu Wohnzwecken ausgebaut ist.' WHERE wert='3000';
+		UPDATE ax_dachgeschossausbau_gebaeude SET dokumentation='Ausbaufähigkeit unklar bedeutet, dass für das Gebäude keine Aussage zur Ausbaufähigkeit des Dachgeschosses getroffen werden kann.' WHERE wert='4000';
+		UPDATE ax_dachform SET dokumentation='Flachdächer sind Dächer, die keine oder nureine geringe Dachneigung bis zu 10° (17,6%) aufweisen.' WHERE wert='1000';
+		UPDATE ax_dachform SET dokumentation='Ein Pultdach ist ein Dach mit nur einer geneigten Dachfläche. Die untere Kante bildet die Dachtraufe, die obere den Dachfirst. Die Neigung des Pultdaches beträgt mindestens 10°.' WHERE wert='2100';
+		UPDATE ax_dachform SET dokumentation='Ein versetztes Pultdach besteht aus zwei Pultdächern, deren Firste in der Höhe versetzt sind. Zwischen den Dachflächen entsteht immer eine Wandfläche.' WHERE wert='2200';
+		UPDATE ax_dachform SET dokumentation='Das Satteldach besteht aus zwei entgegengesetzt geneigten Dachflächen, die am Dachfirst aufeinander treffen.' WHERE wert='3100';
+		UPDATE ax_dachform SET dokumentation='Ein Walmdach hat nicht nur auf der Traufseite, sondern auch auf der Giebelseite geneigte Dachflächen, die als Walm bezeichnet werden. Ein vollständiger Walm ersetzt den Giebel und hat eine einheitliche Traufhöhe, das Dach hat also an allen vier Seiten Schrägen. In Abgrenzung zum Zeltdach besitzt ein Walmdach immer einen Dachfirst.' WHERE wert='3200';
+		UPDATE ax_dachform SET dokumentation='Ein Walm, dessen Traufe oberhalb der Traufe des Hauptdaches liegt, bildet ein Krüppelwalmdach. Es bleibt ein trapezförmiger Restgiebel erhalten.' WHERE wert='3300';
+		UPDATE ax_dachform SET dokumentation='Bei der Dachform Mansardendach sind die Dachflächen im unteren Bereich abgeknickt, so dass die untere Dachfläche über eine wesentlich steilere Neigung verfügt als die obere.' WHERE wert='3400';
+		UPDATE ax_dachform SET dokumentation='Ein Zeltdach zeichnet sich durch mindestens drei gegeneinander geneigte Dachflächen aus, die in einer Spitze zusammenlaufen. Abgrenzung zum Turmdach: Neigung des Zeltdachs < 45°.' WHERE wert='3500';
+		UPDATE ax_dachform SET dokumentation='Ein Kegeldach ist eine Dachform, die einem Kreiskegel entspricht.' WHERE wert='3600';
+		UPDATE ax_dachform SET dokumentation='Ein Kuppeldach beschreibt eine halbkugel- oder glockenförmige Dachform.' WHERE wert='3700';
+		UPDATE ax_dachform SET dokumentation='Ein Sheddach ist eine Dachform, bei der mehrere gleichartige pult- oder satteldachartige Dachaufbauten hintereinander angereiht werden.' WHERE wert='3800';
+		UPDATE ax_dachform SET dokumentation='Ein Bogendach besitzt eine Wölbung die kreis- oder elliptische Formen annehmen kann.' WHERE wert='3900';
+		UPDATE ax_dachform SET dokumentation='Ein Turmdach ist ein Zeltdach mit einer Neigung von mehr als 45°.' WHERE wert='4000';
+		UPDATE ax_dachform SET dokumentation='Die Dachform Mischform setzt sich aus mehreren Standarddachformen zusammen, wobei keine Dachform überwiegt.' WHERE wert='5000';
+		UPDATE ax_dachform SET dokumentation='Sonstiges Dach ist eine Dachform, die auch durch eine Zerlegung in Standarddachformen nicht modelliert werden kann.' WHERE wert='9999';
+		UPDATE ax_bauweise_gebaeude SET dokumentation='Freistehendes Einzelgebäude ist ein freistehendes Wohngebäude mit in der Regel bis zu 2½ Geschossen (auch Villa, Landhaus, Bungalow).' WHERE wert='1100';
+		UPDATE ax_bauweise_gebaeude SET dokumentation='Freistehender Gebäudeblock ist ein freistehendes Wohngebäude (Mehrfamilienhaus), in der Regel
+3 - 8-geschossig.' WHERE wert='1200';
+		UPDATE ax_bauweise_gebaeude SET dokumentation='Einzelgarage ist eine einzeln stehende oder angebaute einzelne Garage als Abstellmöglichkeit für ein Fahrzeug, meist einen Pkw (auch eine einzelne Garage in Garagenhöfen).' WHERE wert='1300';
+		UPDATE ax_bauweise_gebaeude SET dokumentation='Doppelgarage ist eine einzeln stehende oder angebaute Garage als Abstellmöglichkeit für zwei Fahrzeuge, meist zwei Pkw.' WHERE wert='1400';
+		UPDATE ax_bauweise_gebaeude SET dokumentation='Sammelgarage ist eine Garage mit Abstellmöglichkeit für mehr als zwei Fahrzeuge, meist Pkw.' WHERE wert='1500';
+		UPDATE ax_bauweise_gebaeude SET dokumentation='Doppelhaushälfte ist ein dreiseitig freistehendes Wohnhaus mit in der Regel bis zu 2½ Geschossen, an dem ein im allgemeinen gleichartiges Wohnhaus angebaut ist (etwa gleicher Baustil und ungefähr gleiche Baumaße).' WHERE wert='2100';
+		UPDATE ax_bauweise_gebaeude SET dokumentation='Reihenhaus ist eines von mehr als 2 gleichartig aneinandergebauten Wohnhäusern mit in der Regel bis zu 2½ Geschossen in einer geschlossenen Häuserzeile (etwa gleicher Baustil und ungefähr gleiche Baumaße).' WHERE wert='2200';
+		UPDATE ax_bauweise_gebaeude SET dokumentation='Haus in Reihe ist eines von mehr als zwei ungleichartigen, aneinandergebauten Wohnhäusern, in der Regel mit bis zu 2 ½ Geschossen (z. B. in geschlossener Bauweise errichtete Wohngebäude in alten Ortskernen).' WHERE wert='2300';
+		UPDATE ax_bauweise_gebaeude SET dokumentation='Gruppenhaus ist eines von mehr als 2 gleichartigen, aneinandergebauten Wohnhäusern mit in der Regel bis zu 2½ Geschossen, die so gegeneinander verschoben sind, dass keine gemeinsame Achse gegeben ist.' WHERE wert='2400';
+		UPDATE ax_bauweise_gebaeude SET dokumentation='Gebäudeblock in geschlossener Bauweise ist eines von mehreren aneinandergebauten Wohngebäuden (Mehrfamilienhäuser), in der Regel 3-8 geschossig; z. B. in Stadtkernen.' WHERE wert='2500';
+		UPDATE ax_bauweise_gebaeude SET dokumentation='Unter einer Offenen Halle ist eine Halle zu verstehen, bei der alle vier Seiten offen sind.
+Hallen, bei denen eine, zwei oder drei Seiten geschlossen sind, werden nur mit der entsprechenden Gebäudefunktion ohne Belegung der Bauweise erfasst. Die offenen Gebäudeseiten sind mit Besondere Gebäudelinie, Beschaffenheit Offene Gebäudelinie zu belegen.' WHERE wert='4000';
+		UPDATE ax_bauweise_gebaeude SET dokumentation='Sonstiges bedeutet, dass das Gebäude eine Bauweise aufweist, die bekannt, aber nicht in der Liste der Wertearten aufgeführt ist.' WHERE wert='9999';
+		UPDATE ax_gebaeudefunktion SET beschreibung='Wartungshalle' WHERE wert='2412';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Wohnheim ist ein Gebäude, das nach seiner baulichen Anlage und Ausstattung zur Unterbringung von Studenten, Arbeitern u. a. bestimmt ist.' WHERE wert='1020';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Kinderheim ist ein Gebäude, welches zur Unterbringung und Betreuung von Kindern, die vorübergehend oder dauerhaft getrennt von ihren leiblichen Eltern oder sonstigen Erziehungsberechtigten leben, dient.' WHERE wert='1021';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Seniorenheim ist ein Gebäude, welches zur Unterbringung, Betreuung und Pflege von Menschen dient.' WHERE wert='1022';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Schwesternwohnheim ist ein Gebäude, in dem Angehörige eines Ordens oder Pflegepersonal wohnen.' WHERE wert='1023';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Studenten-, Schülerwohnheim ist ein Gebäude, in welchem Studenten bzw. Schüler wohnen.' WHERE wert='1024';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gemischt genutztes Gebäude mit Wohnen ist ein Gebäude, in dem sowohl gewohnt wird, als auch Teile des Gebäudes zum Anbieten von Dienstleistungen, zur Durchführung von öffentlichen oder privaten Verwaltungsarbeiten, zur gewerblichen oder industriellen Tätigkeit genutzt werden.' WHERE wert='1100';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Wohngebäude mit Gemeinbedarf ist ein Gebäude, das vorrangig dem Wohnen als auch der Allgemeinheit, z. B. zur Versammlung, dient.' WHERE wert='1110';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Wohngebäude mit Handel und Dienstleistungen ist ein Gebäude, das vorrangig dem Wohnen als auch dem Anbieten von Arbeitsleistungen, die nicht im Zusammenhang mit der Produktion von materiellen Gütern stehen, dient.' WHERE wert='1120';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Wohn- und Verwaltungsgebäude ist ein Gebäude, in dem gewohnt wird und in dem sich Räume einer öffentlichen oder privaten Verwaltung befinden.' WHERE wert='1121';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Wohn- und Bürogebäude ist ein Gebäude, in dem gewohnt wird und in dem sich Büros mehrerer Unternehmen befinden.' WHERE wert='1122';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Wohngebäude mit Gewerbe und Industrie ist ein Gebäude, das vorrangig dem Wohnen und dem Anbieten von gewerblichen oder industriellen Tätigkeiten dient.' WHERE wert='1130';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Wohn- und Betriebsgebäude ist ein Gebäude, das sowohl zum Wohnen als auch zur Produktion von Gütern dient.' WHERE wert='1131';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Land- und forstwirtschaftliches Wohngebäude ist ein Gebäude, in dem Beschäftigte der Land- und Forstwirtschaft wohnen.' WHERE wert='1210';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Land- und forstwirtschaftliches Wohn- und Betriebsgebäude ist ein Gebäude, das zum Wohnen und zur Produktion von land- und forstwirtschaftlichen Gütern dient.' WHERE wert='1220';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Wohn- und Wirtschaftsgebäude ist ein Gebäude, in dem gewohnt wird und das zum Betrieb eines wirtschaftlichen Anwesens notwendig ist.' WHERE wert='1222';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude zur Freizeitgestaltung ist ein Gebäude, das der Ausübung von freizeitlichen Aktivitäten dient.' WHERE wert='1310';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Ferienhaus ist ein Gebäude, das zum vorübergehenden Aufenthalt von Gästen dient.' WHERE wert='1311';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Wochenendhaus ist ein Gebäude, in dem dauerhaftes Wohnen möglich, aber nicht gestattet ist. Es dient nur zum zeitlich begrenzten Aufenthalt in der Freizeit, beispielsweise am Wochenende oder im Urlaub und steht i. d. R. in einem besonders dafür ausgewiesenen Gebiet (Wochenendhausgebiet).' WHERE wert='1312';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gartenhaus ist ein eingeschossiges Gebäude in einfacher Ausführung und dient hauptsächlich der Unterbringung von Gartengeräten.' WHERE wert='1313';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude für Handel und Dienstleistungen ist ein Gebäude, in dem Arbeitsleistungen, die nicht der Produktion von materiellen Gütern dienen, angeboten werden. Dazu gehört u. a. der Handel (Ankauf, Transport, Verkauf) mit Gütern, Kapital oder Wissen.' WHERE wert='2010';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Markthalle ist ein Gebäude, in dem Marktstände fest oder vorübergehend aufgebaut sind.' WHERE wert='2053';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Laden ist ein Geschäft, in dem Waren des Einzelhandels angeboten und verkauft werden.' WHERE wert='2054';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude für Beherbergung ist ein Gebäude, das der Unterbringung von Gästen dient.' WHERE wert='2070';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Campingplatzgebäude ist ein Gebäude auf einem angelegten Platz, z. B. mit Strom- und Wasseranschlüssen sowie sanitären Einrichtungen.' WHERE wert='2074';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude für Bewirtung ist ein Gebäude, in dem die Möglichkeit besteht Mahlzeiten und Getränke einzunehmen.' WHERE wert='2080';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Hütte (ohne Übernachtungsmöglichkeit) ist ein Gebäude außerhalb von Ortschaften, meist in den Bergen, in dem Menschen Schutz suchen können und in dem die Möglichkeit besteht, Mahlzeiten und Getränke einzunehmen.' WHERE wert='2082';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Kantine ist ein Gebäude, das einem Unternehmen, einer Behörde oder einer öffentlichen Einrichtung zur Ausgabe von Mahlzeiten und Getränken dient.' WHERE wert='2083';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Festsaal ist ein Gebäude, in dem Feierlichkeiten ausgerichtet werden.' WHERE wert='2091';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Kino ist ein Gebäude, in dem Filme für ein Publikum abgespielt werden.' WHERE wert='2092';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Kegel-, Bowlinghalle ist ein Gebäude, in dem die Sportarten Kegeln oder Bowling ausgeübt werden.' WHERE wert='2093';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Spielkasino ist eine Einrichtung, in der öffentlich zugänglich staatlich konzessioniertes Glücksspiel betrieben wird.' WHERE wert='2094';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Brauerei ist ein Gebäude, in dem Getränke durch Gärung hergestellt werden.' WHERE wert='2113';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Brennerei ist ein Gebäude, in dem alkoholische Getränke durch Destillation hergestellt werden.' WHERE wert='2114';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Werkstatt ist ein Gebäude, in dem mit Werkzeugen und Maschinen Güter hergestellt oder repariert werden.' WHERE wert='2120';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Sägewerk ist ein Gebäude, in dem Holz zugeschnitten wird.' WHERE wert='2121';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Waschstraße, Waschanlage, Waschhalle ist ein Gebäude, in dem Fahrzeuge gereinigt werden.' WHERE wert='2131';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude für Vorratshaltung ist ein Gebäude, in dem Güter vorübergehend gelagert werden.' WHERE wert='2140';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Kühlhaus ist ein Gebäude, das zur Lagerung von Gütern mit niedriger Temperatur dient.' WHERE wert='2141';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Speichergebäude ist ein Gebäude zur Vorratshaltung.' WHERE wert='2142';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude zur Grundstoffgewinnung ist ein Gebäude zur Gewinnung von Grundstoffen (z.B. Erz oder Kohle).' WHERE wert='2170';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Bergwerk ist ein Gebäude zur Gewinnung von Rohstoffen aus der Erde.' WHERE wert='2171';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude für betriebliche Sozialeinrichtung ist ein Gebäude, in dem Arbeitnehmern betriebliche Zusatzangebote gewährt werden (z. B. Kinderbetreuung, Betriebssport oder Beratung).' WHERE wert='2180';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Sonstiges Gebäude für Gewerbe und Industrie ist ein Gebäude, das zum Anbieten von gewerblichen oder industriellen Tätigkeiten genutzt wird.' WHERE wert='2200';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Mühle ist ein Gebäude, das zum Mahlen, zum Sägen, zum Pumpen oder zur Erzeugung von Strom dient.' WHERE wert='2210';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Windmühle ist ein Gebäude, dessen wesentlicher Bestandteil die an einer Achse befestigten Flächen (Flügel, Schaufeln) sind, die von der Windkraft in Drehung versetzt werden.' WHERE wert='2211';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude für Handel und Dienstleistungen mit Wohnen ist ein Gebäude, in dem Arbeitsleistungen, die nicht der Produktion von materiellen Gütern dienen, angeboten werden und in dem zusätzlich gewohnt wird.' WHERE wert='2310';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude für Gewerbe und Industrie mit Wohnen ist ein Gebäude, das zum Anbieten von gewerblichen oder industriellen Tätigkeiten genutzt und in dem zusätzlich gewohnt wird.' WHERE wert='2320';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Betriebsgebäude zu Verkehrsanlagen (allgemein) ist ein Gebäude zur Aufrechterhaltung, Instandhaltung oder Überwachung von Verkehrsanlagen.' WHERE wert='2400';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Betriebsgebäude für Straßenverkehr ist ein Gebäude zur Aufrechterhaltung oder Instandhaltung des Straßenverkehrs.' WHERE wert='2410';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Wartungshalle ist ein Gebäude zur Wartung oder Instandsetzung.' WHERE wert='2412';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Betriebsgebäude für Schienenverkehr ist ein Gebäude zur Aufrechterhaltung oder Instandhaltung des Schienenverkehrs.' WHERE wert='2420';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Bahnwärterhaus ist ein Gebäude, das als Dienstwohnung für Bahnwärter dient.' WHERE wert='2421';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Lokschuppen, Wagenhalle ist ein Gebäude, das als Unterstellplatz für Schienenfahrzeuge dient.' WHERE wert='2422';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Betriebsgebäude des Güterbahnhofs ist ein Gebäude zur Aufrechterhaltung oder Überwachung des Güterzugverkehrs.' WHERE wert='2424';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Betriebsgebäude für Flugverkehr ist ein Gebäude zur Aufrechterhaltung oder Überwachung des Flugverkehrs.' WHERE wert='2430';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Betriebsgebäude für Schiffsverkehr ist ein Gebäude zur Aufrechterhaltung oder Überwachung des Schiffsverkehrs.' WHERE wert='2440';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Werft (Halle) ist ein Gebäude, in dem Schiffe gebaut und repariert werden.' WHERE wert='2441';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Dock (Halle) ist ein Gebäude, in dem Schiffe trockengelegt werden.' WHERE wert='2442';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Betriebsgebäude zur Schleuse ist ein Gebäude, in dem der Schleusenbetrieb gesteuert und überwacht wird.' WHERE wert='2443';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Bootshaus ist ein Gebäude, das als Unterstellplatz für kleinere Wasserfahrzeuge dient.' WHERE wert='2444';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Betriebsgebäude zur Seilbahn ist ein Gebäude, in dem der Seilbahnbetrieb gesteuert und überwacht wird.' WHERE wert='2450';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Spannwerk zur Drahtseilbahn ist ein Gebäude, in dem das Seil der Seilbahn gespannt und umgelenkt wird.' WHERE wert='2451';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude zum Parken ist ein Gebäude zum Abstellen von Fahrzeugen.' WHERE wert='2460';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Parkdeck ist ein Gebäude, in dem Fahrzeuge auf einer Etage abgestellt werden.' WHERE wert='2462';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Tiefgarage ist ein Bauwerk unter der Erdoberfläche, in dem Fahrzeuge abgestellt werden.' WHERE wert='2465';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude zur Versorgung ist ein Gebäude, das die Grundversorgung mit Wasser oder Energie sicherstellt.' WHERE wert='2500';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude zur Energieversorgung ist ein Gebäude, das die Grundversorgung mit Energie sicherstellt.' WHERE wert='2501';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude zur Wasserversorgung ist ein Gebäude, das die Grundversorgung mit Wasser sicherstellt.' WHERE wert='2510';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Wasserwerk ist ein Gebäude zur Aufbereitung und Bereitstellung von Trinkwasser.' WHERE wert='2511';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Pumpstation ist ein Gebäude an einem Rohrleitungssystem, in dem eine oder mehrere Pumpen zur Wasserversorgung eingebaut sind.' WHERE wert='2512';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude zur Elektrizitätsversorgung ist ein Gebäude, in dem Elektrizität erzeugt oder übertragen wird.' WHERE wert='2520';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Elektrizitätswerk ist ein Gebäude, in dem Elektrizität erzeugt wird.' WHERE wert='2521';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Umspannwerk ist ein Gebäude, in dem verschiedene Spannungsebenen des elektrischen Versorgungsnetzes miteinander verbunden werden.' WHERE wert='2522';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Kesselhaus ist ein Gebäude, in dem ein Dampfkessel mitsamt seiner Feuerung aufgestellt ist.' WHERE wert='2529';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude für Fernmeldewesen ist ein Gebäude, in dem sich Einrichtungen zur Telekommunikation befinden.' WHERE wert='2540';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude an unterirdischen Leitungen ist ein Gebäude, das zur Kontrolle von Versorgungsleitungen unter der Erde dient.' WHERE wert='2560';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude zur Gasversorgung ist ein Gebäude, in dem sich Gasanlagen befinden.' WHERE wert='2570';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gaswerk ist ein Gebäude, in dem technische Gase hergestellt, gespeichert und bereitgestellt werden.' WHERE wert='2571';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Heizwerk ist ein Gebäude zur zentralen Erzeugung von Wärme (z.B. für Warmwasserversorgung).' WHERE wert='2580';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude zur Versorgungsanlage ist ein Gebäude, in dem sich Anlagen zur Unterstützung von Versorgungseinrichtungen befinden.' WHERE wert='2590';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Pumpwerk (nicht für Wasserversorgung) ist ein Gebäude, in dem Wasser aus einem niedriger gelegenen Gewässer in ein höher gelegenes gepumpt wird.' WHERE wert='2591';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude zur Entsorgung ist ein Gebäude zur Beseitigung von Abwässern oder Abfällen.' WHERE wert='2600';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude zur Abwasserbeseitigung ist ein Gebäude zur Reinigung von verschmutztem Wasser oder zur Entsorgung von Fäkalien.' WHERE wert='2610';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude der Kläranlage ist ein Gebäude innerhalb einer Kläranlage.' WHERE wert='2611';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Toilette ist eine Einrichtung mit sanitären Vorrichtungen zur Aufnahme von Körperausscheidungen.' WHERE wert='2612';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude zur Abfallbehandlung ist ein Gebäude zur Behandlung von Abfällen.' WHERE wert='2620';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Müllbunker ist ein Gebäude, in dem Müll gelagert wird.' WHERE wert='2621';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude der Abfalldeponie ist ein Gebäude auf einer Fläche, die zur endgültigen Lagerung von Abfällen genutzt wird.' WHERE wert='2623';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Land- und forstwirtschaftliches Betriebsgebäude ist ein Gebäude zur Produktion von land- und forstwirtschaftlichen Gütern.' WHERE wert='2720';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Schuppen ist ein Gebäude in einfacher Ausführung, das als Abstellplatz oder als Lagerraum zur Unterbringung von Fahrzeugen, Geräten und Materialien der Land- und Forstwirtschaft verwendet wird.' WHERE wert='2723';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Scheune und Stall ist ein Gebäude, in dem landwirtschaftliche Güter gelagert werden (z.B. Stroh, Heu oder Getreide) und in dem auch Tiere untergebracht sein können.' WHERE wert='2726';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Stall für Tiergroßhaltung ist ein Gebäude zur Unterbringung einer großen Anzahl von Tieren.' WHERE wert='2727';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Reithalle ist ein Gebäude zum Ausüben des Reitsports.' WHERE wert='2728';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Wirtschaftsgebäude ist ein Gebäude, das zu wirtschaftlichen Zwecken dient (z.B. Lager- oder Produktionshallen).' WHERE wert='2729';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Jagdhaus, Jagdhütte ist ein Gebäude, das als Unterkunft bei der Jagd dient.' WHERE wert='2735';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gewächshaus, verschiebbar ist ein Gebäude mit lichtdurchlässigem Dach und Wänden, das durch künstliche Klimagestaltung der Aufzucht oder Produktion von Pflanzen dient und dabei z. B. auf Schienen hin- und her bewegt werden kann.' WHERE wert='2742';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Kreisverwaltung ist ein Gebäude, in dem sich die Verwaltung eines Landkreises befindet.' WHERE wert='3017';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Bezirksregierung ist ein Gebäude, in dem sich die Regierung eines Bezirks befindet.' WHERE wert='3018';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Finanzamt ist ein Gebäude, in dem sich eine örtliche Behörde der Finanzverwaltung befindet.' WHERE wert='3019';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Berufsbildende Schule ist ein Gebäude, in dem berufsbezogenes und fachgebundenes Wissen vermittelt wird.' WHERE wert='3022';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Veranstaltungsgebäude ist ein Gebäude, das hauptsächlich für kulturelle Zwecke wie z. B. Aufführungen, Ausstellungen, Konzerte genutzt wird.' WHERE wert='3036';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude für religiöse Zwecke ist ein Gebäude, das bei Gottesdiensten oder sonstigen religiösen Veranstaltungen als Versammlungsort dient.' WHERE wert='3040';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Synagoge ist ein Gebäude, in dem sich Personen jüdischen Glaubens zu Gottesdiensten, zum Schriftstudium und zur Unterweisung versammeln.' WHERE wert='3042';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gemeindehaus ist ein Gebäude, das Personen einer bestimmten Glaubensgemeinschaft zu verschiedenen Zwecken dient.' WHERE wert='3044';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Moschee ist ein Gebäude, in dem sich Personen muslimischen Glaubens zum Gebet versammeln und das als sozialer Treffpunkt dient.' WHERE wert='3046';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Tempel ist ein Gebäude, das Personen in der Ausübung ihrer Religion (z. B. Buddhisten, Hinduisten) als Versammlungsort dient.' WHERE wert='3047';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Kloster ist ein Gebäude, in dem Angehörige eines Ordens in einer auf die Ausübung ihrer Religion konzentrierten Lebensweise zusammenleben.' WHERE wert='3048';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Heilanstalt, Pflegeanstalt, Pflegestation ist ein Gebäude, das einer länger andauernden Behandlung von Patienten dient.' WHERE wert='3052';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Jugendfreizeitheim ist ein Gebäude der offenen Kinder- und Jugendarbeit.' WHERE wert='3061';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Freizeit-, Vereinsheim, Dorfgemeinschafts-, Bürgerhaus ist ein Gebäude zur gemeinschaftlichen Nutzung unterschiedlicher sozialer Gruppen.' WHERE wert='3062';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Seniorenfreizeitstätte ist ein Gebäude zur Ausübung seniorengerechter Freizeitaktivitäten.' WHERE wert='3063';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Obdachlosenheim ist ein Gebäude, in dem Obdachlose untergebracht sind und betreut werden.' WHERE wert='3064';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Asylbewerberheim ist ein Gebäude, in dem Asylbewerber ohne Aufenthaltsgenehmigung für Deutschland eine gewisse Zeit untergebracht sind.' WHERE wert='3066';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Friedhofsgebäude ist ein Gebäude, das zur Aufrechterhaltung des Friedhofbetriebes dient (z. B. Verwaltung, Leichenhalle, Krematorium).' WHERE wert='3080';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Trauerhalle ist ein Gebäude, welches für Bestattungszeremonien bestimmt ist und zur kurzzeitigen Aufbewahrung von Toten dienen kann.' WHERE wert='3081';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Krematorium ist ein Gebäude, in dem Feuerbestattungen durchgeführt werden.' WHERE wert='3082';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Bahnhofsgebäude ist ein Gebäude u. a. mit Wartebereich und Fahrkartenausgabe zur Abwicklung des Bahnverkehrs.' WHERE wert='3091';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Flughafengebäude ist ein Gebäude u. a. mit Wartebereich, Flugticket- und Gepäckschalter zur Abwicklung des Flugverkehrs.' WHERE wert='3092';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude zum U-Bahnhof ist ein Gebäude u. a. mit Wartebereich und Fahrkartenausgabe zur Abwicklung des U-Bahn-Verkehrs.' WHERE wert='3094';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude zum S-Bahnhof ist ein Gebäude u. a. mit Wartebereich und Fahrkartenausgabe zur Abwicklung des S-Bahn-Verkehrs.' WHERE wert='3095';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Empfangsgebäude Schifffahrt ist ein Gebäude u. a. mit Wartebereich, Fahrticket- und Gepäckschalter zur Abwicklung des Schiffsverkehrs.' WHERE wert='3098';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude für öffentliche Zwecke mit Wohnen ist ein Gebäude, das der Allgemeinheit dient und auch zum Wohnen genutzt wird.' WHERE wert='3100';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude zum Sportplatz ist ein Gebäude auf einer Fläche, die zur sportlichen Betätigung genutzt wird.' WHERE wert='3212';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Badegebäude ist ein Gebäude, in dem sich Anlagen zur Erholung und sportlichen Betätigung im Wasser befinden.' WHERE wert='3220';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude im Freibad ist ein Gebäude, das sich in einer Außenanlage mit Schwimmbecken und zugehörigen Einrichtungen (z. B. Umkleidekabinen) befindet.' WHERE wert='3222';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude im Stadion ist ein Gebäude, das sich in einer großen Anlage für sportliche Aktivitäten und Wettkämpfe befindet.' WHERE wert='3230';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude für Kurbetrieb ist ein Gebäude, in dem Maßnahmen zur Erholung oder Rehabilitation durchgeführt werden.' WHERE wert='3240';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Badegebäude für medizinische Zwecke ist ein Gebäude, in dem Bäder zur therapeutischen Anwendung durchgeführt werden.' WHERE wert='3241';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude im Zoo ist ein Gebäude, das sich in einer parkartigen Anlage zur Haltung und öffentlichen Zurschaustellung verschiedener Tierarten befindet.' WHERE wert='3260';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Empfangsgebäude des Zoos ist ein Gebäude, das sich im Eingangsbereich des Zoos befindet u. a. mit Wartebereich und Einlasskontrolle.' WHERE wert='3261';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Tierschauhaus ist ein Gebäude, in dem Tiere untergebracht sind und Besuchern gezeigt werden.' WHERE wert='3263';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Stall im Zoo ist ein Gebäude, das meist zur separaten Unterbringung der Zootiere dient.' WHERE wert='3264';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude im botanischen Garten ist ein Gebäude, das sich in einer parkartigen Anlage mit thematisch geordneter Anpflanzung befindet.' WHERE wert='3270';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Empfangsgebäude des botanischen Gartens ist ein Gebäude, das sich im Eingangsbereich des botanischen Gartens befindet u. a. mit Wartebereich und Einlasskontrolle.' WHERE wert='3271';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gewächshaus (Botanik) ist ein Gebäude, welches das geschützte und kontrollierte Kultivieren von Pflanzen ermöglicht.' WHERE wert='3272';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Pflanzenschauhaus ist ein Gebäude, in dem Pflanzen unterschiedlicher Klima- oder Vegetationszonen ausgestellt sind und Besuchern gezeigt werden.' WHERE wert='3273';
+		UPDATE ax_gebaeudefunktion SET dokumentation='Gebäude für andere Erholungseinrichtung ist ein Gebäude, das einer anderen Art der Erholung dient.' WHERE wert='3280';
+		INSERT INTO ax_gebaeudefunktion(wert,beschreibung,dokumentation) VALUES ('2095','Spielhalle','Spielhalle ist eine Einrichtung, in der durch die Spielverordnung geregeltes Automatenspiel betrieben wird.');
+		INSERT INTO ax_gebaeudefunktion(wert,beschreibung,dokumentation) VALUES ('3054','Rettungswache','Rettungswache ist ein Gebäude des Rettungsdienstes, in dem sich die Besatzungen der Rettungsdienstfahrzeuge in ihrer einsatzfreien Zeit aufhalten. Hier sind auch die Fahrzeuge und Geräte untergebracht.');
+		UPDATE ax_weitere_gebaeudefunktion SET beschreibung='Rettungsstelle, Notaufnahme' WHERE wert='1190';
+		UPDATE ax_weitere_gebaeudefunktion SET dokumentation='Toilette ist eine Einrichtung mit sanitären Vorrichtungen zur Aufnahme von Körperausscheidungen.' WHERE wert='1080';
+		UPDATE ax_weitere_gebaeudefunktion SET dokumentation='Tempel ist eine Einrichtung, die Personen in der Ausübung ihrer Religion (z. B. Buddhisten, Hinduisten) als Versammlungsort dient.' WHERE wert='1160';
+		UPDATE ax_weitere_gebaeudefunktion SET dokumentation='Rettungsstelle, Notaufnahme ist eine Anlaufstelle zur Akutversorgung und ist Teil der Notfallmedizin.' WHERE wert='1190';
+		UPDATE ax_weitere_gebaeudefunktion SET dokumentation='Supermarkt ist eine Einrichtung, in der sich ein Einzelhandelsgeschäft befindet, das Lebensmittel und andere Erzeugnisse des täglichen Bedarfs anbietet.' WHERE wert='1230';
+		UPDATE ax_weitere_gebaeudefunktion SET dokumentation='Geschäft ist eine Einrichtung, in der sich Räumlichkeiten befinden, in denen Waren oder Dienstleistungen gewerblich zum Verkauf angeboten werden.' WHERE wert='1240';
+		INSERT INTO ax_weitere_gebaeudefunktion(wert,beschreibung,dokumentation) VALUES ('1051','Spielhalle','Spielhalle ist eine Einrichtung, in der durch die Spielverordnung geregeltes Automatenspiel betrieben wird.');
+		INSERT INTO ax_beschaffenheit_besonderegebaeudelinie(wert,beschreibung,dokumentation) VALUES ('1100','Geschlossene Seite einer Überdachung','Überdachungen sind oftmals an einer oder mehreren Seiten geschlossen. Geschlossene Seite einer Überdachung weist eine geschlossene Seite einer Überdachung bzw. Carport nach.');
+		UPDATE ax_bauart_bauteil SET beschreibung='Auskragender Geschossteil / zurückspringendes Geschoss' WHERE wert='2500';
+		UPDATE ax_bauart_bauteil SET beschreibung='Auskragender Geschossteil' WHERE wert='2510';
+		UPDATE ax_bauart_bauteil SET beschreibung='Zurückspringendes Geschoss' WHERE wert='2520';
+		UPDATE ax_bauart_bauteil SET beschreibung='Durchfahrt an überbautem Verkehrsweg' WHERE wert='2620';
+		UPDATE ax_bauart_bauteil SET dokumentation='Ein geringergeschossiger Gebäudeteil hat eine niedrigere Geschosshöhe als der größte Teil des Gebäudes.' WHERE wert='1100';
+		UPDATE ax_bauart_bauteil SET dokumentation='Ein höhergeschossiger Gebäudeteil hat eine höhere Geschosshöhe als der größte Teil des Gebäudes.' WHERE wert='1200';
+		UPDATE ax_bauart_bauteil SET dokumentation='Hochhausgebäudeteil ist der Teil eine Gebäudes, welches die Definiton der Attributart Hochhaus beim AX_Gebaeude erfüllt.' WHERE wert='1300';
+		UPDATE ax_bauart_bauteil SET dokumentation='Die abweichende Geschosshöhe bezeichnet einen Bauteil, dessen Geschosshöhe von der Höhe anderer Bauteile des Gebäudes abweicht.' WHERE wert='1400';
+		UPDATE ax_bauart_bauteil SET dokumentation='Keller bezeichnet ein Geschoss, welches ganz oder zum Teil unter der Geländeoberfläche liegt.' WHERE wert='2000';
+		UPDATE ax_bauart_bauteil SET dokumentation='Tiefgarage ist ein Bauteil unter der Erdoberfläche, in dem Fahrzeuge abgestellt werden.' WHERE wert='2100';
+		UPDATE ax_bauart_bauteil SET dokumentation='Loggia ist ein Raum in einem Gebäude, der sich zum Außenraum öffnet.' WHERE wert='2300';
+		UPDATE ax_bauart_bauteil SET dokumentation='Wintergarten bezeichnet den fest umbauten Raum einer Terrasse.' WHERE wert='2350';
+		UPDATE ax_bauart_bauteil SET dokumentation='Arkade bezeichnet den durch Säulen getragenen Bogengang eines Gebäudes.' WHERE wert='2400';
+		UPDATE ax_bauart_bauteil SET dokumentation='Bei einem auskragenden Geschossteil bzw. zurückspringenden Geschoss kann keine eindeutige Zuordnung zu „auskragend“ oder „zurückspringend“ erfolgen.' WHERE wert='2500';
+		UPDATE ax_bauart_bauteil SET dokumentation='Bei einem auskragenden Geschossteil ragt ein Teil des Geschosses über den Umring hinaus, der durch das aufgehende Mauerwerk im Erdgeschoss definiert ist.' WHERE wert='2510';
+		UPDATE ax_bauart_bauteil SET dokumentation='Bei einem zurückspringenden Geschoss reicht ein Geschoss nicht bis zum Umring, der durch das aufgehende Mauerwerk im Erdgeschoss definiert ist.' WHERE wert='2520';
+		UPDATE ax_bauart_bauteil SET dokumentation='Durchfahrt ist eine Stelle, an der mit Fahrzeugen durch Gebäude gefahren werden kann.' WHERE wert='2610';
+		UPDATE ax_bauart_bauteil SET dokumentation='Durchfahrt an überbautem Verkehrsweg ist eine Stelle, an der mit Fahrzeugen durch Gebäude gefahren werden kann.' WHERE wert='2620';
+		UPDATE ax_bauart_bauteil SET dokumentation='Turm im Gebäude ist ein hochaufragendes Bauteil innerhalb eines Gebäudes.' WHERE wert='2720';
+		UPDATE ax_artdergebietsgrenze_gebietsgrenze SET dokumentation='Grenze der Bundesrepublik Deutschland begrenzt das Gebiet der Bundesrepublik Deutschland.' WHERE wert='7101';
+		INSERT INTO ax_artdergebietsgrenze_gebietsgrenze(wert,beschreibung,dokumentation) VALUES ('7100','Grenze eines Staates','Grenze eines Staates ist eine politische Grenze zwischen Staaten zur Sicherung der territorialen Integrität und der exakten Definition des räumlichen Geltungsbereichs staatlicher Rechtsordnungen.');
+		INSERT INTO ax_artdergebietsgrenze_gebietsgrenze(wert,beschreibung,dokumentation) VALUES ('7108','Grenze eines Kondominiums','Grenze eines Kondominiums begrenzt ein Gebiet, das unter gemeinsamer Verwaltung von zwei oder mehreren Staaten steht.');
+		UPDATE ax_sonstigeangaben_bodenschaetzung SET beschreibung='Acker-Hackrain (Hack)' WHERE wert='2400';
+		UPDATE ax_sonstigeangaben_bodenschaetzung SET beschreibung='Grünland-Hackrain (Hack)' WHERE wert='2500';
+		DELETE FROM ax_klassifizierung_bewertung WHERE wert IN ('2110');
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Hopfen (HOPF)' WHERE wert='2120';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Spargel (SPA)' WHERE wert='2130';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Sonstige Sonderkulturen (SOKU)' WHERE wert='2190';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Forstwirtschaftliche Nutzung (H)' WHERE wert='2200';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Weinbauliche Nutzung, allgemein (WG)' WHERE wert='2300';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Weingarten 1 (WG1)' WHERE wert='2310';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Weingarten 2 (WG2)' WHERE wert='2320';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Weingarten 3 (WG3)' WHERE wert='2330';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Weingarten 4 (WG4)' WHERE wert='2340';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Weingarten 5 (WG5)' WHERE wert='2350';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Weingarten 6 (WG6)' WHERE wert='2360';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Weingarten 7 (WG7)' WHERE wert='2370';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Weingarten 8 (WG8)' WHERE wert='2380';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Weingarten 9 (WG9)' WHERE wert='2390';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Gemüse-/Blumen- und Zierpflanzenbau (G)' WHERE wert='2410';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Obstbau (OBST)' WHERE wert='2420';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Baumschule (BSCH)' WHERE wert='2430';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Anbaufläche unter Glas (GLAS)' WHERE wert='2440';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Kleingarten (KLG)' WHERE wert='2450';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Weihnachtsbaumkultur (WEIH)' WHERE wert='2510';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Saatzucht (SAAT)' WHERE wert='2520';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Teichwirtschaft (TEIW)' WHERE wert='2530';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Abbauland der Land- und Forstwirtschaft (LFAB)' WHERE wert='2610';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Geringstland (GER)' WHERE wert='2620';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Unland (U)' WHERE wert='2630';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Moor (MO)' WHERE wert='2640';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Heide (HEI)' WHERE wert='2650';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Reet (RE)' WHERE wert='2700';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Reet I (RE1)' WHERE wert='2710';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Reet II (RE2)' WHERE wert='2720';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Reet III (RE3)' WHERE wert='2730';
+		UPDATE ax_klassifizierung_bewertung SET beschreibung='Nebenfläche des Betriebs der Land- und Forstwirtschaft (NF)' WHERE wert='2800';
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('1000','Grundvermögen','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('1370','Sonstige bebaute Grundstücke, sonstige Anlagen auf fremdem Grund und Boden (Energie-/Wärmegewinnung)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2000','Land- und forstwirtschaftliches Vermögen','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2100','Landwirtschaftliche Nutzung (LN)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2111','Ackerland (A)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2112','Acker-Grünland (AGr)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2113','Acker-Hack (HACK)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2114','Grünland (Gr)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2115','Grünland-Acker (GrA)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2116','Grünland-Hack (HACK)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2117','Wiese (W)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2118','Streuwiese (STR)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2119','Hutung (HU)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2400','Gärtnerische Nutzung/Gartenland (GN)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2411','Gemüsebau (GG)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2412','Blumen-/Zierpflanzenbau (GBZ)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2460','Gartenland (GL)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2500','Sonstige land- und forstwirtschaftliche Nutzung (SOLF)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2531','Karpfenteichwirtschaft (KA)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2532','Forellenteichwirtschaft (FO)','');
+		INSERT INTO ax_klassifizierung_bewertung(wert,beschreibung,dokumentation) VALUES ('2540','Binnenfischerei (BIFI)','');
+		UPDATE ax_bedeutung_grablochderbodenschaetzung SET beschreibung='Grabloch, bestimmend, lagerichtig (innerhalb der zugehörigen bodengeschätzten Fläche)' WHERE wert='1100';
+		UPDATE ax_bedeutung_grablochderbodenschaetzung SET beschreibung='Grabloch, bestimmend, lagerichtig (außerhalb der zugehörigen bodengeschätzten Fläche)' WHERE wert='1200';
+		UPDATE ax_bedeutung_grablochderbodenschaetzung SET beschreibung='Grabloch, bestimmend, nicht lagerichtig (innerhalb der zugehörigen bodengeschätzten Fläche)' WHERE wert='1300';
+		UPDATE ax_bedeutung_grablochderbodenschaetzung SET beschreibung='Grabloch für Muster- und Vergleichsstück' WHERE wert='2000';
+		UPDATE ax_bedeutung_grablochderbodenschaetzung SET beschreibung='Grabloch, nicht bestimmend, lagerichtig' WHERE wert='3000';
+		DELETE FROM ax_bodenart_bodenschaetzung WHERE wert IN ('9330','9340');
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Sand mit Moor (SMo)' WHERE wert='6110';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Lehmiger Sand mit Moor (lSMo)' WHERE wert='6120';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Lehm mit Moor (LMo)' WHERE wert='6130';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Ton mit Moor (TMo)' WHERE wert='6140';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Moor mit Sand (MoS)' WHERE wert='6210';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Moor mit lehmigem Sand (MolS)' WHERE wert='6220';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Moor mit Lehm (MoL)' WHERE wert='6230';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Moor mit Ton (MoT)' WHERE wert='6240';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Ton auf stark lehmigem Sand (T/SL)' WHERE wert='7510';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Ton auf lehmigem Sand (T/lS)' WHERE wert='7520';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Ton auf anlehmigem Sand (T/Sl)' WHERE wert='7530';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Schwerer Lehm auf lehmigem Sand (LT/lS)' WHERE wert='7610';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Schwerer Lehm auf anlehmigem Sand (LT/Sl)' WHERE wert='7620';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Lehm auf anlehmigem Sand (L/Sl)' WHERE wert='7710';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Moor auf lehmigem Sand (Mo/lS)' WHERE wert='8220';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Lehm und Moor, Bodenwechsel (L+Mo)' WHERE wert='9120';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Lehmiger Sand, steinig (lSg)' WHERE wert='9130';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Lehm, steinig (Lg)' WHERE wert='9140';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Lehmiger Sand und Steine/Blöcke (lS+St)' WHERE wert='9150';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Lehm und Steine/Blöcke (L+St)' WHERE wert='9160';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Steine/Blöcke und lehmiger Sand (St+lS)' WHERE wert='9170';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Steine/Blöcke und Lehm (St+L)' WHERE wert='9180';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Lehmiger Sand und Felsen (lS+Fe)' WHERE wert='9190';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Lehm und Felsen (L+Fe)' WHERE wert='9200';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Felsen und lehmiger Sand (Fe+lS)' WHERE wert='9210';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Felsen und Lehm (Fe+L)' WHERE wert='9220';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Sand auf lehmigem Sand (S/lS)' WHERE wert='9310';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Lehmiger Sand mit Mergel (lSMe)' WHERE wert='9370';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Lehmiger Sand mit Moor auf Mergel (lSMo/Me)' WHERE wert='9380';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Anlehmiger Sand mit Moor (SlMo)' WHERE wert='9390';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Lehm mit Moor auf Mergel (LMo/Me)' WHERE wert='9420';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Moor mit Lehm auf Mergel (MoL/Me)' WHERE wert='9460';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='Moor mit Mergel (MoMe)' WHERE wert='9470';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='LößDiluvium (LöD)' WHERE wert='9480';
+		UPDATE ax_bodenart_bodenschaetzung SET beschreibung='AlluviumDiluvium (AlD)' WHERE wert='9490';
+		INSERT INTO ax_bodenart_bodenschaetzung(wert,beschreibung,dokumentation) VALUES ('7100','Sand auf stark lehmigem Sand (S/SL)','');
+		INSERT INTO ax_bodenart_bodenschaetzung(wert,beschreibung,dokumentation) VALUES ('7200','Anlehmiger Sand auf sandigem Lehm (Sl/sL)','');
+		INSERT INTO ax_bodenart_bodenschaetzung(wert,beschreibung,dokumentation) VALUES ('7300','Lehmiger Sand auf Lehm (lS/L)','');
+		INSERT INTO ax_bodenart_bodenschaetzung(wert,beschreibung,dokumentation) VALUES ('7410','Stark lehmiger Sand auf schwerem Lehm (SL/LT)','');
+		INSERT INTO ax_bodenart_bodenschaetzung(wert,beschreibung,dokumentation) VALUES ('7420','Stark lehmiger Sand auf Sand (SL/S)','');
+		INSERT INTO ax_bodenart_bodenschaetzung(wert,beschreibung,dokumentation) VALUES ('7500','Ton auf sandigem Lehm (T/sL)','');
+		INSERT INTO ax_bodenart_bodenschaetzung(wert,beschreibung,dokumentation) VALUES ('7600','Schwerer Lehm auf stark lehmigem Sand (LT/SL)','');
+		INSERT INTO ax_bodenart_bodenschaetzung(wert,beschreibung,dokumentation) VALUES ('7700','Lehm auf lehmigem Sand (L/lS)','');
+		INSERT INTO ax_bodenart_bodenschaetzung(wert,beschreibung,dokumentation) VALUES ('7810','Sandiger Lehm auf anlehmigem Sand (sL/Sl)','');
+		INSERT INTO ax_bodenart_bodenschaetzung(wert,beschreibung,dokumentation) VALUES ('7820','Sandiger Lehm auf Ton (sL/T)','');
+		UPDATE ax_landschaftstyp SET beschreibung='Gebirge, Bergland, Hügelland' WHERE wert='1100';
+		UPDATE ax_landschaftstyp SET beschreibung='Berg, Berge' WHERE wert='1200';
+		UPDATE ax_landschaftstyp SET beschreibung='Becken, Senke' WHERE wert='1300';
+		UPDATE ax_landschaftstyp SET beschreibung='Tal, Niederung' WHERE wert='1400';
+		UPDATE ax_landschaftstyp SET beschreibung='(Tief-) Ebene, Flachland' WHERE wert='1500';
+		UPDATE ax_landschaftstyp SET beschreibung='Plateau, Hochfläche' WHERE wert='1600';
+		UPDATE ax_landschaftstyp SET beschreibung='Wald-, Heidelandschaft' WHERE wert='1900';
+		UPDATE ax_landschaftstyp SET beschreibung='Siedlungs-, Wirtschaftslandschaft' WHERE wert='2200';
+		UPDATE ax_landschaftstyp SET beschreibung='Küstenlandschaft' WHERE wert='2500';
+		UPDATE ax_landschaftstyp SET dokumentation='Gebirge, Bergland, Hügelland bezeichnet eine zusammenhängende größere Erhebung der Erdoberfläche. Es besteht aus einzelnen Bergen und Hochflächen, die durch Täler und Senken gegliedert sind.' WHERE wert='1100';
+		UPDATE ax_landschaftstyp SET dokumentation='Berg, Berge bezeichnet eine über die Umgebung deutlich herausragende Geländeerhebung, einzeln oder als Teil eines Gebirges.' WHERE wert='1200';
+		UPDATE ax_landschaftstyp SET dokumentation='Becken, Senke bezeichnet ein gegenüber der Umgebung tiefer liegendes Land.' WHERE wert='1300';
+		UPDATE ax_landschaftstyp SET dokumentation='Tal, Niederung bezeichnet im Bergland einen langgestreckten oder gewundenen, unterschiedlich tiefen und breiten Einschnitt im Gelände mit gleichsinnig gerichtetem Gefälle einschließlich des dazu gehörigen Talraumes, im Flachland eine offene Hohlform. Ferner zählen hierzu auch (talähnliche) Talungen und glaziale Rinnen, die beide kein gleichsinniges Gefälle aufweisen.' WHERE wert='1400';
+		UPDATE ax_landschaftstyp SET dokumentation='(Tief-) Ebene, Flachland ist ein Teil der Erdoberfläche mit geringen Höhenunterschieden in einer Höhenlage bis 200- 300 m über NHN.' WHERE wert='1500';
+		UPDATE ax_landschaftstyp SET dokumentation='Plateau, Hochfläche, bezeichnet einen Teil der Erdoberfläche mit fehlenden oder kaum wahrnehmbaren Höhenunterschieden in einer Höhenlage ab etwa 200-300 m über NHN.' WHERE wert='1600';
+		UPDATE ax_landschaftstyp SET dokumentation='Wald-, Heidelandschaft ist eine größere zusammenhängende, mit Bäumen bestandene Fläche (Wald) einschließlich darin befindlicher Lichtungen. Hierzu gehören viele ehemalige Heiden, die heute vorwiegend ökonomisch genutzte monokulturartige Forste mit meist Fichten- oder Kiefernbeständen bilden.' WHERE wert='1900';
+		UPDATE ax_landschaftstyp SET dokumentation='Siedlungs-, Wirtschaftslandschaft ist eine durch Siedlungsverdichtung oder spezielle Wirtschaftsorientierung geprägte Landschaft.' WHERE wert='2200';
+		UPDATE ax_landschaftstyp SET dokumentation='Moorlandschaft ist eine durch heutige und ehemalige Moore gekennzeichnete Landschaft.' WHERE wert='2300';
+		UPDATE ax_landschaftstyp SET dokumentation='Küstenlandschaft enthält jene auf dem Festland gelegenen Gebiete, die dem Meer abgerungen worden sind (Polder, Marschen), deren Entstehung dem Meer zu verdanken ist (Nehrungen, Haken) oder deren Küste durch das Meer geformt wird (Steilküste, Strände, Halbinseln).' WHERE wert='2500';
+		INSERT INTO ax_landschaftstyp(wert,beschreibung,dokumentation) VALUES ('2600','Historische Landschaft','Historische Landschaft bedeutet, dass eine Landschaft auf ein administratives Territorium zurückzuführen ist, das (meist) in den Grenzen um 1792 dargestellt ist. Historische Landschaften liegen oft im Gebiet von mehreren Landschaftstypen.');
+		INSERT INTO ax_behoerde(wert,beschreibung,dokumentation) VALUES ('2600','Bauaufsicht','');
+		UPDATE ax_administrative_funktion SET dokumentation='Bundesrepublik ist die Bezeichnung Deutschlands und ist aus der Gesamtheit der deutschen Länder (Gliedstaaten) gebildet.' WHERE wert='1001';
+		UPDATE ax_administrative_funktion SET dokumentation='Land ist ein teilsouveräner Gliedstaat der Bundesrepublik Deutschland.' WHERE wert='2001';
+		UPDATE ax_administrative_funktion SET dokumentation='Freistaat ist ein teilsouveräner Gliedstaat der Bundesrepublik Deutschland (historisch gewachsene Bezeichnung für Land).' WHERE wert='2002';
+		UPDATE ax_administrative_funktion SET dokumentation='Freie und Hansestadt ist eine historisch gewachsene Bezeichnung.' WHERE wert='2003';
+		UPDATE ax_administrative_funktion SET dokumentation='Regierungsbezirk ist ein Verwaltungsbezirk innerhalb eines Landes, welcher mehrere Stadt- und Landkreise umfasst.' WHERE wert='3001';
+		UPDATE ax_administrative_funktion SET dokumentation='Freie Hansestadt ist eine historisch gewachsene Bezeichnung.' WHERE wert='3002';
+		UPDATE ax_administrative_funktion SET dokumentation='Bezirk ist ein abgegrenztes Gebiet einer Stadt.' WHERE wert='3003';
+		UPDATE ax_administrative_funktion SET dokumentation='Stadt (Bremerhaven) ist die Bezeichnung der kreisfreien Stadt Bremerhaven.' WHERE wert='3004';
+		UPDATE ax_administrative_funktion SET dokumentation='Kreis ist eine mehrere Gemeinden bzw. Städte umfassende kommunale Verwaltungseinheit.' WHERE wert='4001';
+		UPDATE ax_administrative_funktion SET dokumentation='Landkreis ist eine mehrere Gemeinden bzw. Städte umfassende kommunale Verwaltungseinheit.' WHERE wert='4002';
+		UPDATE ax_administrative_funktion SET dokumentation='Kreisfreie Stadt ist eine kommunale Verwaltungseinheit, die keinem Kreis oder Landkreis angehört.' WHERE wert='4003';
+		UPDATE ax_administrative_funktion SET dokumentation='Ortsteil ist ein räumlich abgegrenzter Bereich einer Gemeinde.' WHERE wert='4008';
+		UPDATE ax_administrative_funktion SET dokumentation='Verbandsfreie Gemeinde ist eine kreisangehörige Gebietskörperschaft, die keiner Verbandsgemeinde angehört.' WHERE wert='5002';
+		UPDATE ax_administrative_funktion SET dokumentation='Große kreisangehörige Stadt ist eine kreisangehörige Stadt, die bestimmte Verwaltungsfunktionen vom Landkreis/Kreis übernimmt.
+
+Hinweis: Unterscheidung zu 6013 Große kreisangehoerige Stadt aufgrund länderspezifischer Anforderungen.' WHERE wert='5004';
+		UPDATE ax_administrative_funktion SET dokumentation='Verwaltungsgemeinschaft ist eine kommunale Verwaltungskooperation zwischen Gemeinden.' WHERE wert='5006';
+		UPDATE ax_administrative_funktion SET dokumentation='Amt ist eine kommunale Verwaltungskooperation zwischen Gemeinden.' WHERE wert='5007';
+		UPDATE ax_administrative_funktion SET dokumentation='Samtgemeinde ist eine kommunale Verwaltungskooperation zwischen Gemeinden.' WHERE wert='5008';
+		UPDATE ax_administrative_funktion SET dokumentation='Gemeinde, die sich einer erfüllenden Gemeinde bedient ist eine Gemeinde, die Verwaltungsfunktionen von einer anderen Gemeinde erfüllen lässt.' WHERE wert='5012';
+		UPDATE ax_administrative_funktion SET dokumentation='Erfüllende Gemeinde ist eine Gemeinde, die Verwaltungsfunktionen für andere Gemeinden erfüllt.' WHERE wert='5013';
+		UPDATE ax_administrative_funktion SET dokumentation='Gemeinde ist unterste selbständige Verwaltungseinheit.' WHERE wert='6001';
+		UPDATE ax_administrative_funktion SET dokumentation='Ortsgemeinde ist eine Gemeinde, die einer Verbandsgemeinde angehört.' WHERE wert='6002';
+		UPDATE ax_administrative_funktion SET dokumentation='Stadt ist eine Gemeinde, die den Titel Stadt trägt.' WHERE wert='6003';
+		UPDATE ax_administrative_funktion SET dokumentation='Kreisangehörige Stadt ist eine Stadt, die einem Landkreis/Kreis angehört.' WHERE wert='6004';
+		UPDATE ax_administrative_funktion SET dokumentation='Große Kreisstadt ist eine kreisangehörige Stadt, die bestimmte Verwaltungsfunktionen vom Landkreis/Kreis übernimmt.' WHERE wert='6005';
+		UPDATE ax_administrative_funktion SET dokumentation='Amtsangehörige Stadt ist eine kreisangehörige Stadt, die einem Amt angehört.' WHERE wert='6006';
+		UPDATE ax_administrative_funktion SET dokumentation='Amtsangehörige Landgemeinde‘ ist eine kreisangehörige Gemeinde, die einem Amt angehört.' WHERE wert='6007';
+		UPDATE ax_administrative_funktion SET dokumentation='Amtsangehörige Gemeinde ist eine kreisangehörige Gemeinde, die einem Amt angehört.' WHERE wert='6008';
+		UPDATE ax_administrative_funktion SET dokumentation='Kreisangehörige Gemeinde ist eine Gemeinde, die einem Landkreis/Kreis angehört.' WHERE wert='6009';
+		UPDATE ax_administrative_funktion SET dokumentation='Mitgliedsgemeinde einer Verwaltungsgemeinschaft ist eine kreisangehörige Gemeinde bzw. Stadt, die einer Verwaltungsgemeinschaft angehört.' WHERE wert='6010';
+		UPDATE ax_administrative_funktion SET dokumentation='Mitgliedsgemeinde ist eine Gemeinde, die Teil einer Verwaltungskooperation ist.' WHERE wert='6011';
+		UPDATE ax_administrative_funktion SET dokumentation='Markt ist eine kreisangehörige Gemeinde, die den Titel Markt trägt.' WHERE wert='6012';
+		UPDATE ax_administrative_funktion SET dokumentation='Große kreisangehoerige Stadt ist eine kreisangehörige Stadt, die bestimmte Verwaltungsfunktionen vom Landkreis/Kreis übernimmt.
+
+Hinweis: Unterscheidung zu 5004 Große kreisangehörige Stadt aufgrund länderspezifischer Anforderungen.' WHERE wert='6013';
+		UPDATE ax_administrative_funktion SET dokumentation='Kreisangehörige Gemeinde, die die Bezeichnung Stadt führt ist eine Gemeinde, die den Titel Stadt führt und einem Landkreis/Kreis angehört.' WHERE wert='6014';
+		UPDATE ax_administrative_funktion SET dokumentation='Gemeindefreies Gebiet ist ein Gebiet, das zu keiner Gemeinde gehört.' WHERE wert='6015';
+		UPDATE ax_administrative_funktion SET dokumentation='Gemeindeteil ist ein räumlich abgetrennter Bereich einer Gemeinde.' WHERE wert='7001';
+		UPDATE ax_administrative_funktion SET dokumentation='Gemarkung ist eine Flächeneinheit des Katasters.' WHERE wert='7003';
+		UPDATE ax_administrative_funktion SET dokumentation='Stadtteil ist ein räumlich abgetrennter Bereich einer Stadt.' WHERE wert='7004';
+		UPDATE ax_administrative_funktion SET dokumentation='Stadtbezirk ist ein abgegrenztes Gebiet einer Stadt.' WHERE wert='7005';
+		UPDATE ax_administrative_funktion SET dokumentation='Ortsteil ist ein räumlich abgetrennter Bereich einer Gemeinde.' WHERE wert='7007';
+		UPDATE ax_administrative_funktion SET dokumentation='Kondominium ist ein Gebiet, welches unter der gemeinsamen Verwaltung mehrerer Staaten steht.' WHERE wert='8001';
+		INSERT INTO ax_administrative_funktion(wert,beschreibung,dokumentation) VALUES ('3005','Regierungsvertretung','Regierungsvertretung ist eine Bezeichung von Referaten des Niedersächsischen Ministeriums für Inneres und Sport.');
+		INSERT INTO ax_administrative_funktion(wert,beschreibung,dokumentation) VALUES ('5001','Verbandsgemeinde','Verbandsgemeinde ist eine kommunale Verwaltungskooperation zwischen Gemeinden.');
+		INSERT INTO ax_administrative_funktion(wert,beschreibung,dokumentation) VALUES ('5003','Verwaltungsverband','Verwaltungsverband ist eine kommunale Verwaltungskooperation zwischen Gemeinden.');
+		INSERT INTO ax_administrative_funktion(wert,beschreibung,dokumentation) VALUES ('5009','Gemeindeverwaltungsverband','Gemeindeverwaltungsverband ist eine kommunale Verwaltungskooperation zwischen Gemeinden.');
+		INSERT INTO ax_administrative_funktion(wert,beschreibung,dokumentation) VALUES ('5014','Einheitsgemeinde','Einheitsgemeinde ist die Bezeichnung für eine bestimmte länderspezifische Form eines kommunalen Gemeindetyps in Deutschland.');
+		INSERT INTO ax_administrative_funktion(wert,beschreibung,dokumentation) VALUES ('6016','Gemeindefreier Bezirk','');
+		INSERT INTO ax_administrative_funktion(wert,beschreibung,dokumentation) VALUES ('6017','Landeshauptstadt','');
+		INSERT INTO ax_administrative_funktion(wert,beschreibung,dokumentation) VALUES ('6018','Bergstadt','');
+		INSERT INTO ax_administrative_funktion(wert,beschreibung,dokumentation) VALUES ('6019','Hansestadt','');
+		INSERT INTO ax_administrative_funktion(wert,beschreibung,dokumentation) VALUES ('6020','Inselgemeinde','');
+		INSERT INTO ax_administrative_funktion(wert,beschreibung,dokumentation) VALUES ('6021','Flecken','');
+		UPDATE ax_bezeichnung_verwaltungsgemeinschaft SET dokumentation='Verbandsgemeinde umfasst in Rheinland-Pfalz das Gebiet einer Verbandsgemeinde, das aus benachbarten Gemeinden desselben Landkreises 
+gebildet wird.' WHERE wert='2000';
+		UPDATE ax_artderfestlegung_schutzgebietnachnaturumweltoderbodensc SET dokumentation='Biosphärenreservat ist ein rechtsverbindlich festgesetztes einheitlich zu schützendes und zu entwickelndes Gebiet, das 
+1. großräumig und für bestimmte Landschaftstypen charakteristisch ist, 
+2. in wesentlichen Teilen seines Gebietes die Voraussetzungen eines Naturschutzgebietes, im Übrigen überwiegend eines Landschaftsschutzgebietes erfüllt, 
+3. vornehmlich der Erhaltung, Entwicklung oder Wiederherstellung einer durch hergebrachte vielfältige Nutzung geprägten Landschaft und der darin historisch gewachsenen Arten- und Biotopvielfalt, einschließlich Wild- und frühere Kulturformen wirtschaftlich genutzter oder nutzbarer Tier- und Pflanzenarten dient und 
+4. beispielhaft der Entwicklung und Erprobung von Naturgütern besonders schonenden Wirtschaftsweise dient.' WHERE wert='1690';
+		UPDATE ax_zone_schutzzone SET dokumentation='Regenerationszone ist eine räumlich begrenzte Fläche eines Biosphärenreservates, für die die Fachverwaltung besondere Schutzbestimmungen festgelegt hat.
+
+Nach §25 Abschnitt 3 des Bundesnaturschutzgesetzes (BNatSchG *Stand:1.03.2010) darf die „Regenerationszone“ nicht mehr verwendet werden.' WHERE wert='1090';
+		UPDATE ax_artderfestlegung_bauraumoderbodenordnungsrecht SET beschreibung='Flurbereinigung (Par. 1 und 37 FlurbG)' WHERE wert='2110';
+		INSERT INTO ax_artderfestlegung_bauraumoderbodenordnungsrecht(wert,beschreibung,dokumentation) VALUES ('2115','Flurbereinigung nach Par. 1 in Kombination mit Par. 87 FlurbG','');
+		INSERT INTO ax_artderfestlegung_bauraumoderbodenordnungsrecht(wert,beschreibung,dokumentation) VALUES ('2190','Neuvermessungsgebiet innerhalb des Bodenordnungsgebietes','');
+		INSERT INTO ax_artderfestlegung_bauraumoderbodenordnungsrecht(wert,beschreibung,dokumentation) VALUES ('2900','Verfahren nach dem hessischen Grenzbereinigungsgesetz','');
+		INSERT INTO ax_artderfestlegung_anderefestlegungnachwasserrecht(wert,beschreibung,dokumentation) VALUES ('1443','Vorläufig gesichertes Überschwemmungsgebiet','Entsprechend des Hamburgischen Wassergesetzes (HWaG) für den Begriff "Vorläufige Sicherung".');
+		INSERT INTO ax_artderfestlegung_sonstigesrecht(wert,beschreibung,dokumentation) VALUES ('4730','Militärbrache','Militärbrache ist eine ehemals militärisch genutzte Fläche, die aktuell nicht mehr militärisch genutzt wird.');
+		INSERT INTO ax_artderfestlegung_naturumweltoderbodenschutzrecht(wert,beschreibung,dokumentation) VALUES ('1635','Gesicherte Altlast','');
+		INSERT INTO ax_artderfestlegung_naturumweltoderbodenschutzrecht(wert,beschreibung,dokumentation) VALUES ('1636','Gesicherte schädliche Bodenveränderung','');
+		INSERT INTO ax_artderfestlegung_naturumweltoderbodenschutzrecht(wert,beschreibung,dokumentation) VALUES ('1644','Abstandszone, Störfallbetrieb','');
+		UPDATE ax_datenformat_benutzer SET dokumentation='NAS (Normbasierte Austauschschnittstelle) ist eine Datenschnittstelle zum Austausch von Geoinformationen, die im Rahmen der Modellierung des AAA-Modells definiert wurde.' WHERE wert='1000';
+		UPDATE ax_datenformat_benutzer SET dokumentation='DXF (Drawing Interchange Format) ist ein spezifiziertes Dateiformat zum CAD-Datenaustausch. Es enthält neben Geometrien und Fachinformationen auch Angaben für eine einfache graphische Darstellung.' WHERE wert='2000';
+		UPDATE ax_datenformat_benutzer SET dokumentation='TIFF (Tagged Image File Format) ist ein Dateiformat zur verlustfreien Speicherung von Bilddaten.' WHERE wert='3000';
+		UPDATE ax_datenformat_benutzer SET dokumentation='GeoTIFF ist ein Dateiformat zur verlustfreien Speicherung von Bilddaten mit eingebetteten Informationen zur Georeferenzierung.' WHERE wert='4000';
+		INSERT INTO ax_datenformat_benutzer(wert,beschreibung,dokumentation) VALUES ('5000','PDF','Das Portable Document Format (PDF) ist ein plattformunabhängiges Dateiformat für Dokumente, das vom Unternehmen Adobe Systems entwickelt wurde.');
+		INSERT INTO ax_datenformat_benutzer(wert,beschreibung,dokumentation) VALUES ('6000','Shape','Shape ist ein von der Firma ESRI entwickeltes Format für Geodaten.');
+		UPDATE ax_art_bereichzeitlich SET dokumentation='Stichtagsbezogen ohne Historie selektiert die Differenzdaten zwischen letzter erfolgreicher Datenabgabe und Stichzeitpunkt, in der Sekundärdatenbank ist stets nur der aktuelle Stand der Daten verfügbar.' WHERE wert='1000';
+		UPDATE ax_art_bereichzeitlich SET dokumentation='Stichtagsbezogen mit Historie selektiert die Differenzdaten zwischen letzter erfolgreicher Datenabgabe und Stichzeitpunkt, in der Sekundärdatenbank werden zumindest temporär auch untergegangene Objekte und Objektversionen vorgehalten.' WHERE wert='1100';
+		UPDATE ax_art_bereichzeitlich SET dokumentation='Fallbezogen ohne Historie selektiert alle Änderungen zwischen letzter erfolgreicher Datenabgabe und Stichzeitpunkt, in der Sekundärdatenbank ist stets nur der aktuelle Stand der Daten verfügbar.' WHERE wert='3000';
+		UPDATE ax_art_bereichzeitlich SET dokumentation='Fallbezogen mit Historie selektiert alle Änderungen zwischen letzter erfolgreicher Datenabgabe und Stichzeitpunkt, in der Sekundärdatenbank werden zumindest temporär auch untergegangene Objekte und Objektversionen vorgehalten.' WHERE wert='3100';
+		UPDATE ax_ausgabemedium_benutzer SET dokumentation='Analog ist eine Abgabe der Daten in ausgedruckter Form.' WHERE wert='1000';
+		UPDATE ax_ausgabemedium_benutzer SET dokumentation='CD-R ist eine CD, die nur einmal bespielbar ist. (Compact Disc Recordable)' WHERE wert='2000';
+		UPDATE ax_ausgabemedium_benutzer SET dokumentation='DVD ist ein CD ähnlicher Datenträger mit größerer Speicherkapazität.' WHERE wert='3000';
+		UPDATE ax_ausgabemedium_benutzer SET dokumentation='E-Mail ist die Abgabe der Daten in einer briefähnlichen Nachricht auf elektronischem Weg in Computernetzwerken.' WHERE wert='4000';
+		UPDATE ax_art_dammwalldeich SET dokumentation='Binnendeich ist ein Deich an kleineren Wasserläufen, der Überschwemmungen durch ablaufendes Oberflächenwasser verhindern soll.' WHERE wert='1980';
+		UPDATE ax_art_dammwalldeich SET dokumentation='Wall ist ein meist künstlich aus Erde und Feldsteinen oder Torf errichtetes, langgestrecktes und schmales Landschaftselement, das oft ein- oder beidseitig von Aushubgräben begleitet wird und keinen nennenswerten Bewuchs trägt.' WHERE wert='1990';
+		UPDATE ax_art_dammwalldeich SET dokumentation='Knick oder auch Wallhecke ist ein Wall, der mit Sträuchern in Heckenform und einzeln stehenden Bäumen bewachsen ist. Knicks sind landschaftsprägend und können der Grenzmarkierung, Einfriedung und dem Schutz gegen Winderosion dienen.' WHERE wert='2000';
+		UPDATE ax_berechnungsmethode SET beschreibung='Polynomansatz' WHERE wert='5340';
+		UPDATE ax_funktion_stehendesgewaesser SET dokumentation='See ist eine natürliche oder künstlich angelegte, größere, stehende oder nahezu stehende Wasserfläche, die im allgemeinen Sprachgebrauch als See anzusehen ist (z. B. Stausee, Speicherbecken).' WHERE wert='8610';
+		UPDATE ax_funktion_stehendesgewaesser SET dokumentation='Teich ist eine natürliche oder künstlich angelegte, stehende oder nahezu stehende Wasserfläche, die im allgemeinen Sprachgebrauch als Teich anzusehen ist.' WHERE wert='8620';
+		UPDATE ax_funktion_stehendesgewaesser SET dokumentation='Baggersee ist ein künstlich geschaffenes Gewässer, aus dem Bodenmaterial gefördert wird oder wurde.' WHERE wert='8640';
+		UPDATE ax_funktion_stehendesgewaesser SET dokumentation='Sonstiges bedeutet, dass die Funktion des Stehenden Gewässers bekannt, aber nicht in der Werteliste aufgeführt ist.' WHERE wert='9999';
+		UPDATE ax_schifffahrtskategorie SET dokumentation='Binnenwasserstraße ist ein oberirdisches Gewässer oder Küstengewässer, das gesetzlich für den Personen- und/oder Güterverkehr mit Schiffen bestimmt ist. Binnengewässer im Küstengebiet sind gegen das Küstengewässer gesetzlich abgegrenzt. Die Binnenwasserstraße ist ein Gewässer 1. Ordnung.' WHERE wert='1000';
+		UPDATE ax_schifffahrtskategorie SET dokumentation='Seewasserstraße ist ein als Wasserstraße gesetzlich festgelegter Teil eines Küstengewässers. Die Seewasserstraße ist ein Gewässer 1. Ordnung.' WHERE wert='2000';
+		UPDATE ax_schifffahrtskategorie SET dokumentation='Landesgewässer mit Verkehrsordnung ist eine Wasserstraße, die keine Binnenwasserstraße ist. Die Schiffbarkeit wird durch eine Landesverkehrsordnung geregelt. Das Landesgewässer mit Verkehrsordnung ist ein Gewässer 1. Ordnung.' WHERE wert='3000';
+		UPDATE ax_schifffahrtskategorie_kanal SET dokumentation='Binnenwasserstraße ist ein oberirdisches Gewässer oder Küstengewässer, das gesetzlich für den Personen- und/oder Güterverkehr mit Schiffen bestimmt ist. Binnengewässer im Küstengebiet sind gegen das Küstengewässer gesetzlich abgegrenzt. Die Binnenwasserstraße ist ein Gewässer 1. Ordnung.' WHERE wert='1000';
+		UPDATE ax_schifffahrtskategorie_kanal SET dokumentation='Seewasserstraße ist ein als Wasserstraße gesetzlich festgelegter Teil eines Küstengewässers. Die Seewasserstraße ist ein Gewässer 1. Ordnung.' WHERE wert='2000';
+		UPDATE ax_schifffahrtskategorie_kanal SET dokumentation='Landesgewässer mit Verkehrsordnung ist eine Wasserstraße, die keine Binnenwasserstraße ist. Die Schiffbarkeit wird durch eine Landesverkehrsordnung geregelt. Das Landesgewässer mit Verkehrsordnung ist ein Gewässer 1. Ordnung.' WHERE wert='3000';
+		UPDATE ax_funktion_fliessgewaesser SET dokumentation='Fluss ist ein natürliches, fließendes Gewässer (ggf. auch mit begradigten, kanalisierten Teilstücken), das wegen seiner Größe und Bedeutung im allgemeinen Sprachgebrauch als Fluss angesprochen wird.' WHERE wert='8200';
+		UPDATE ax_funktion_fliessgewaesser SET dokumentation='Altarm bezeichnet eine an einem Ende des Fließgewässers abgeschnittene Strecke eines Flusses.' WHERE wert='8220';
+		UPDATE ax_funktion_fliessgewaesser SET dokumentation='Kanal bezeichnet einen künstlich angelegten Wasserlauf.' WHERE wert='8300';
+		UPDATE ax_funktion_fliessgewaesser SET dokumentation='Graben ist ein ständig oder zeitweise fließendes, künstlich angelegtes oder natürliches Gewässer, das im allgemeinen Sprachgebrauch als Graben anzusehen ist.' WHERE wert='8400';
+		UPDATE ax_funktion_fliessgewaesser SET dokumentation='Fleet ist die Bezeichnung für eine noch vorhandene, aber stark veränderte oder überhaupt erst künstlich angelegte Wasserverbindung in Hamburg sowie in Bremen - ehemals für einen marschtypischen Entwässerungsgraben genutzte Bezeichnung.' WHERE wert='8410';
+		UPDATE ax_funktion_fliessgewaesser SET dokumentation='Bach ist ein natürliches, fließendes Gewässer, das wegen seiner geringen Größe und Bedeutung im allgemeinen Sprachgebrauch als Bach anzusehen ist.' WHERE wert='8500';
+		UPDATE ax_funktion_hafenbecken SET dokumentation='Sportboothafenbecken sind Wasserflächen, die dem Anlegen und Festmachen von Sportbooten dienen.' WHERE wert='8810';
+		UPDATE ax_zustand_wohnbauflaeche SET dokumentation='Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.' WHERE wert='8000';
+		UPDATE ax_artderbebauung_wohnbauflaeche SET dokumentation='Geschlossen beschreibt die Bebauung von Wohnbaufläche, die vorwiegend durch zusammenhängende Gebäude charakterisiert wird. Die Gebäudeabdeckung ist in der Regel > 50 Prozent der Wohnbaufläche.' WHERE wert='2000';
+		UPDATE ax_zustand_flaechebesondererfunktionalerpraegung SET dokumentation='Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.' WHERE wert='8000';
+		UPDATE ax_funktion_flaechegemischternutzung SET dokumentation='Gebäude- und Freifläche, Mischnutzung mit Wohnen bezeichnet eine Fläche, die Wohn- und anderen Nutzungen zugleich dient, und bei der die Wohn- oder andere Nutzung von nicht ganz untergeordneter Bedeutung ist.' WHERE wert='2100';
+		UPDATE ax_funktion_flaechegemischternutzung SET dokumentation='Wohnen mit Öffentlich beschreibt eine baulich geprägte Fläche, die sowohl für Wohnzwecke als auch der Allgemeinheit dient. Es dominieren die Wohnzwecke.' WHERE wert='2110';
+		UPDATE ax_funktion_flaechegemischternutzung SET dokumentation='Wohnen mit Handel und Dienstleistungen beschreibt eine baulich geprägte Fläche, die sowohl für Wohnzwecke als auch für Handels- und/oder Dienstleistungsbetrieben dient. Es dominieren die Wohnzwecke.' WHERE wert='2120';
+		UPDATE ax_funktion_flaechegemischternutzung SET dokumentation='Wohnen mit Gewerbe und Industrie beschreibt eine baulich geprägte Fläche, die sowohl für Wohnzwecke als auch für Gewerbe- und/oder Industriebetrieben dienen. Es dominieren die Wohnzwecke.' WHERE wert='2130';
+		UPDATE ax_funktion_flaechegemischternutzung SET dokumentation='Öffentlich mit Wohnen beschreibt eine baulich geprägte Fläche, die sowohl für Wohnzwecke als auch der Allgemeinheit dient. Es dominieren die Zwecke für die Allgemeinheit.' WHERE wert='2140';
+		UPDATE ax_funktion_flaechegemischternutzung SET dokumentation='Handel und Dienstleistungen mit Wohnen beschreibt eine baulich geprägte Fläche, die sowohl für Wohnzwecke als auch für Handels- und/oder Dienstleistungsbetrieben dient. Es dominieren die Zwecke für Handel und Dienstleistung.' WHERE wert='2150';
+		UPDATE ax_funktion_flaechegemischternutzung SET dokumentation='Gewerbe und Industrie mit Wohnen‘ beschreibt eine baulich geprägte Fläche, die sowohl für Wohnzwecke als auch für Gewerbe- und/oder Industriebetrieben dienen. Es dominieren die Zwecke für Gewerbe und Industrie.' WHERE wert='2160';
+		UPDATE ax_funktion_flaechegemischternutzung SET dokumentation='Gebäude- und Freifläche Land- und Forstwirtschaft bezeichnet eine Fläche, die vorwiegend der Land- und Forstwirtschaft dient, einschließlich des Wohnteils.' WHERE wert='2700';
+		UPDATE ax_funktion_flaechegemischternutzung SET dokumentation='Wohnen ist eine Fläche zu Wohnzwecken, die mit einer Fläche der land- und forstwirtschaftlichen Nutzung in Verbindung steht.' WHERE wert='2710';
+		UPDATE ax_funktion_flaechegemischternutzung SET dokumentation='Betrieb ist eine Fläche, die betrieblichen Zwecken in der Land- und Forstwirtschaft dient.' WHERE wert='2720';
+		UPDATE ax_funktion_flaechegemischternutzung SET dokumentation='Wohnen und Betrieb ist eine Fläche, die sowohl Wohn- als auch betrieblichen Zwecken in der Land- und Forstwirtschaft dient.' WHERE wert='2730';
+		UPDATE ax_funktion_flaechegemischternutzung SET dokumentation='Landwirtschaftliche Betriebsfläche’ ist eine bebaute oder unbebaute Fläche, die dem landwirtschaftlichen Betrieb ohne eine Wohnnutzung dient.' WHERE wert='6800';
+		UPDATE ax_funktion_flaechegemischternutzung SET dokumentation='Forstwirtschaftliche Betriebsfläche bezeichnet eine bebaute oder unbebaute Fläche, die dem forstwirtschaftlichen Betrieb ohne eine Wohnnutzung dient.' WHERE wert='7600';
+		INSERT INTO ax_funktion_flaechegemischternutzung(wert,beschreibung,dokumentation) VALUES ('1200','Parken','Parken bezeichnet eine Fläche, die vorwiegend dem Abstellen von Fahrzeugen dient und zu diesem Zweck ggf. mit Gebäuden, Bauwerken, Anlagen oder Kennzeichnungen versehen ist.');
+		INSERT INTO ax_funktion_flaechegemischternutzung(wert,beschreibung,dokumentation) VALUES ('3000','Fischereiwirtschaftsfläche','Fischereiwirtschaftsfläche bezeichnet Flächen/Areale, die dem (gewerblichen) Fangen oder Züchten von Fischen und anderen Wassertieren/ im Wasser lebenden Organismen zur Nahrungsgewinnung und Weiterverarbeitung dienen.');
+		INSERT INTO ax_funktion_flaechegemischternutzung(wert,beschreibung,dokumentation) VALUES ('3001','Fischereiwirtschaftsfläche mit Fischzucht, Muschelzucht','Fischereiwirtschaftsfläche mit Fischzucht, Muschelzucht bezeichnet Flächen/Areale, die dem (gewerblichen) Züchten/der kontrollierten Aufzucht von im Wasser lebenden Organismen, insbesondere Fischen und Muscheln, zur Nahrungsgewinnung und Weiterverarbeitung dienen.');
+		INSERT INTO ax_funktion_flaechegemischternutzung(wert,beschreibung,dokumentation) VALUES ('3002','Fischereiwirtschaftsfläche mit Algenzucht','Fischereiwirtschaftsfläche mit Algenzucht bezeichnet Flächen/Areale, die dem (gewerblichen) Züchten/der kontrollierten Aufzucht von im Wasser lebenden Organismen, insbesondere Algen, zur Nahrungsgewinnung und Weiterverarbeitung dienen.');
+		INSERT INTO ax_funktion_flaechegemischternutzung(wert,beschreibung,dokumentation) VALUES ('3003','Fischereiwirtschaftsfläche mit Fischzucht, Muschelzucht und Algenzucht','Fischereiwirtschaftsfläche mit Fischzucht, Muschelzucht und Algenzucht bezeichnet Flächen/Areale, die dem (gewerblichen) Züchten/der kontrollierten Aufzucht von im Wasser lebenden Organismen, insbesondere Fisch, Muscheln und Algen, zur Nahrungsgewinnung und Weiterverarbeitung dienen.');
+		INSERT INTO ax_funktion_flaechegemischternutzung(wert,beschreibung,dokumentation) VALUES ('6810','Landwirtschaftliche Betriebsfläche für Tierhaltung','Landwirtschaftliche Betriebsfläche für Tierhaltung’ bezeichnet eine bebaute oder unbebaute Fläche, die vorwiegend dem landwirtschaftlichen Betrieb, primär der Tierhaltung, dient. Diese umfasst auch die Gebäude- und Freiflächen.');
+		INSERT INTO ax_funktion_flaechegemischternutzung(wert,beschreibung,dokumentation) VALUES ('6820','Landwirtschaftliche Betriebsfläche für pflanzliche Produktion','Landwirtschaftliche Betriebsfläche für pflanzliche Produktion’ bezeichnet eine bebaute oder unbebaute Fläche, die vorwiegend dem landwirtschaftlichen Betrieb, primär der pflanzlichen Produktion, dient. Diese umfasst auch die Gebäude- und Freiflächen.');
+		INSERT INTO ax_funktion_flaechegemischternutzung(wert,beschreibung,dokumentation) VALUES ('6830','Landwirtschaftliche Betriebsfläche für Tierhaltung und pflanzliche Produktion','Landwirtschaftliche Betriebsfläche für Tierhaltung und pflanzliche Produktion’ bezeichnet eine bebaute oder unbebaute Fläche, die vorwiegend dem landwirtschaftlichen Betrieb, primär der Tierhaltung und der pflanzlichen Produktion, dient. Diese umfasst auch die Gebäude- und Freiflächen.');
+		UPDATE ax_foerdergut_industrieundgewerbeflaeche SET dokumentation='Kohlensäure ist eine schwache Säure, die durch Lösung von Kohlendioxid in Wasser entsteht und gefördert
+wird.' WHERE wert='4000';
+		UPDATE ax_zustand_sportfreizeitunderholungsflaeche SET dokumentation='Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.' WHERE wert='8000';
+		UPDATE ax_funktion_flaechebesondererfunktionalerpraegung SET beschreibung='Regierung und Verwaltung' WHERE wert='1110';
+		UPDATE ax_funktion_flaechebesondererfunktionalerpraegung SET beschreibung='Bildung und Wissenschaft' WHERE wert='1120';
+		UPDATE ax_funktion_flaechebesondererfunktionalerpraegung SET dokumentation='Öffentliche Zwecke bezeichnet eine Fläche, die vorwiegend der Erfüllung öffentlicher Aufgaben und dem Gemeinwesen dient.' WHERE wert='1100';
+		UPDATE ax_funktion_flaechebesondererfunktionalerpraegung SET dokumentation='Regierung und Verwaltung bezeichnet eine Fläche auf der vorwiegend Gebäude der öffentlichen Regierung und Verwaltung, z. B. Rathaus, Gericht, Kreisverwaltung stehen.' WHERE wert='1110';
+		UPDATE ax_funktion_flaechebesondererfunktionalerpraegung SET dokumentation='Bildung und Wissenschaft bezeichnet eine Fläche, auf der vorwiegend Gebäude stehen, in denen geistige, kulturelle und soziale Fähigkeiten vermittelt werden und/oder wissenschaftliche Forschung betrieben wird (z.B. Schulen, Universitäten, Institute).' WHERE wert='1120';
+		UPDATE ax_funktion_flaechebesondererfunktionalerpraegung SET dokumentation='Kultur’ bezeichnet eine Fläche auf der vorwiegend Anlagen und Gebäude für kulturelle Zwecke, z.B. Konzert- und Museumsgebäude, Bibliotheken, Theater, Schlösser und Burgen stehen.' WHERE wert='1130';
+		UPDATE ax_funktion_flaechebesondererfunktionalerpraegung SET dokumentation='Parken bezeichnet eine Fläche die vorwiegend dem Abstellen von Fahrzeugen dient und zu diesem Zweck ggf. mit Gebäuden, Bauwerken, Anlagen oder Kennzeichnungen versehen ist.' WHERE wert='1200';
+		UPDATE ax_funktion_flaechebesondererfunktionalerpraegung SET dokumentation='Historische Anlage ist eine Fläche mit historischen Anlagen, z. B. historischen Stadtmauern und -türmen, Denkmälern und Ausgrabungsstätten, sofern keine konkretere Nutzungszuordnung möglich ist.' WHERE wert='1300';
+		UPDATE ax_funktion_flaechebesondererfunktionalerpraegung SET dokumentation='Burg-, Festungsanlage ist eine Fläche mit historischen Wehranlagen.' WHERE wert='1310';
+		UPDATE ax_funktion_flaechebesondererfunktionalerpraegung SET dokumentation='Schlossanlage ist eine Fläche, die der Ansiedlung des Adels dient oder diente.' WHERE wert='1320';
+		INSERT INTO ax_funktion_flaechebesondererfunktionalerpraegung(wert,beschreibung,dokumentation) VALUES ('1180','Medien und Kommunikation','Medien und Kommunikation bezeichnet eine Fläche auf der vorwiegend Anlagen und Gebäude für die Erzeugung und Verbreitung von Printmedien, Hörfunk, Film und Fernsehen sowie Internet und Telefonie stehen.');
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET beschreibung='Gebäude- und Freifläche Sport' WHERE wert='4101';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET beschreibung='Golf' WHERE wert='4110';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET beschreibung='Reitsport' WHERE wert='4140';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET beschreibung='Tennis' WHERE wert='4170';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET beschreibung='Gebäude- und Freifläche Freizeit, Zoologie' WHERE wert='4211';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET beschreibung='Freilichtbühne' WHERE wert='4240';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET beschreibung='Verkehrsübungsplatz, Testgelände, Fahrsicherheit' WHERE wert='4270';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET beschreibung='Modellfluggelände' WHERE wert='4290';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET beschreibung='Schwimmen' WHERE wert='4320';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET beschreibung='Gebäude- und Freifläche Erholung, Bad' WHERE wert='4321';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET beschreibung='Gebäude- und Freifläche Erholung, Camping' WHERE wert='4331';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET beschreibung='Siedlungsgrünfläche' WHERE wert='4410';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET beschreibung='Gebäude- und Freifläche Grünanlage, Botanik' WHERE wert='4431';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Sportanlage ist eine Fläche mit Bauwerken und Einrichtungen, die zur Ausübung von (Wettkampf-)Sport und für Zuschauer bestimmt ist.' WHERE wert='4100';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Gebäude- und Freifläche Sport ist eine bebaute Fläche, die dem Sport dient.' WHERE wert='4101';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Golf ist eine Fläche mit Bauwerken und Einrichtungen, die zur Ausübung des Golfsports genutzt wird.' WHERE wert='4110';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Sportplatz ist eine Freianlage, die sowohl dem organisierten Wettkampfsport als auch nicht wettkampforientierten Sport-, Bewegungs- und Freizeitaktivitäten dient. Auf einem Sportplatz können verschiedene Sportarten betrieben werden.' WHERE wert='4120';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Rennbahn ist eine, je nach Art des Rennens, verschiedenartig gestaltete Strecke (oval, gerade, kurvig), auf der Rennen stattfinden.' WHERE wert='4130';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Reitsport bezeichnet eine Fläche mit Bauwerken und Einrichtungen, die zur Ausübung des Reitsports genutzt wird.' WHERE wert='4140';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Schießanlage ist eine Fläche zum Übungs- und Wettkampfschießen.' WHERE wert='4150';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Eis-, Rollschuhbahn ist eine künstlich angelegte Bahn zum Eislaufen oder Rollschuhfahren.' WHERE wert='4160';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Tennis ist eine Fläche mit Bauwerken und Einrichtungen, die zur Ausübung des Tennissports genutzt wird.' WHERE wert='4170';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Freizeitanlage bezeichnet eine Fläche, die vorwiegend der Freizeitgestaltung oder dazu dient, Tiere zu zeigen.' WHERE wert='4200';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Gebäude- und Freifläche Freizeit, Zoologie ist eine öffentliche Fläche mit Gebäuden und Bauwerken sowie den unmittelbar zu den Gebäuden gehörigen Freiflächen, in denen Tiere gehalten und gezeigt werden.' WHERE wert='4211';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Freilichtbühne ist eine Anlage mit Bühne und Zuschauerbänken für Aufführungen im Freien.' WHERE wert='4240';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Freilichtmuseum ist eine volkskundliche Museumsanlage, in der Wohnformen oder historische 
+Betriebsformen in ihrer natürlichen Umgebung im Freien dargestellt sind.' WHERE wert='4250';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Verkehrsübungsplatz, Testgelände, Fahrsicherheit ist eine Fläche, die Übungs- und Erprobungszwecken dient.' WHERE wert='4270';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Modellfluggelände ist eine Fläche, die zur Ausübung des Modellflugsports dient.' WHERE wert='4290';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Gebäude- und Freifläche Erholung ist eine öffentliche Fläche mit Gebäuden und Bauwerken sowie den unmittelbar zu den Gebäuden gehörigen Freiflächen, die zur Erholung bestimmt sind.' WHERE wert='4301';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Schwimmen ist eine Anlage mit Wasserfläche sowie Anlagen an Ufern von Gewässern für den Badebetrieb und Schwimmsport.' WHERE wert='4320';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Gebäude- und Freifläche Erholung, Bad bezeichnet eine öffentliche Fläche, auf der vorwiegend Anlagen und Gebäude zur Erholung, für den Badebetrieb und den Schwimmsport vorhanden sind.' WHERE wert='4321';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Gebäude- und Freifläche Erholung, Camping bezeichnet eine Fläche, auf der vorwiegend Anlagen und Gebäude zur Erholung sowie für den Betrieb eines Campingplatzes vorhanden sind.' WHERE wert='4331';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Grünanlage ist in erster Linie eine Anlage mit Bäumen, Sträuchern, Rasenflächen, Blumenrabatten und Wegen, die vor allem der Erholung und Verschönerung des Stadtbildes dient.' WHERE wert='4400';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Siedlungsgrünfläche ist eine unbebaute Wiese, Rasenfläche und Parkanlage in Städten und Siedlungen.' WHERE wert='4410';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Botanischer Garten ist ein der Öffentlichkeit zugänglicher Garten zum Studium der Pflanzenwelt; systematisch geordnete Sammlung in Freiland und Gewächshäusern (Warmhäuser).' WHERE wert='4430';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Gebäude- und Freifläche Grünanlage, Botanik ist eine öffentliche Fläche mit Gebäuden und Bauwerken, in der Pflanzen der Öffentlichkeit zugänglich gemacht werden.' WHERE wert='4431';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Kleingarten (Schrebergarten) ist eine Anlage von Gartengrundstücken, die im Unterschied zu Gartenbauland vorwiegend der Freizeit und Erholung dient.' WHERE wert='4440';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Wochenendplatz sind Flächen, die der Freizeitgestaltung dienen.' WHERE wert='4450';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Garten sind Flächen, die nicht im unmittelbaren Zusammenhang mit Wohnbauflächen stehen und nicht dem Bundeskleingartengesetz unterliegen. Der Garten dient, im Gegensatz zum Vorgarten oder Ziergarten, hauptsächlich der Erzeugung von Nutzpflanzen, wie z.B. Kräutern, Obst und Gemüse als Nahrungsmittel zum privaten Gebrauch.' WHERE wert='4460';
+		UPDATE ax_funktion_sportfreizeitunderholungsflaeche SET dokumentation='Sonstiges bedeutet, dass die Funktion der Sport-, Freizeit- und Erholungsfläche bekannt, diese aber nicht in der Werteliste aufgeführt ist.' WHERE wert='9999';
+		INSERT INTO ax_funktion_sportfreizeitunderholungsflaeche(wert,beschreibung,dokumentation) VALUES ('1200','Parken','Parken bezeichnet eine Fläche die vorwiegend dem Abstellen von Fahrzeugen dient und zu diesem Zweck ggf. mit Gebäuden, Bauwerken, Anlagen oder Kennzeichnungen versehen ist.');
+		INSERT INTO ax_funktion_sportfreizeitunderholungsflaeche(wert,beschreibung,dokumentation) VALUES ('4235','Kletteranlage','Kletteranlage ist eine Fläche mit Bauwerken und Einrichtungen, die zur Ausübung des Klettersports genutzt wird.');
+		INSERT INTO ax_funktion_sportfreizeitunderholungsflaeche(wert,beschreibung,dokumentation) VALUES ('4275','Go-Kart-Bahn','Go-Kart-Bahn umfasst eine abgegrenzte Strecke mit Anlagen und Gebäuden, die zur Ausübung des Kartrennsports genutzt wird. Hierzu gehören Indoor- und Outdoor-Kartbahnen.');
+		INSERT INTO ax_funktion_sportfreizeitunderholungsflaeche(wert,beschreibung,dokumentation) VALUES ('4295','Gelände für Luftsportgeräte','Gelände für Luftsportgeräte ist eine Fläche auf der Ultraleichtflug-, Hängegleiter-, Gleitsegel-, Sprungfallschirm-, Gleitflug- und Freiballonaktivitäten ausgeübt werden.');
+		UPDATE ax_lagergut_industrieundgewerbeflaeche SET beschreibung='Kohle, Erz und Salz' WHERE wert='2000';
+		UPDATE ax_lagergut_industrieundgewerbeflaeche SET beschreibung='Erdreich' WHERE wert='4000';
+		UPDATE ax_lagergut_industrieundgewerbeflaeche SET dokumentation='Baustoffe sind sämtliche im Bauwesen verwendete Materialien, die als Lagergut aufbewahrt werden.' WHERE wert='1000';
+		UPDATE ax_lagergut_industrieundgewerbeflaeche SET dokumentation='Kohle, Erz und Salz sind durch Bergbau oder Tagebau gewonnene Abbaugüter, die für eine Weiterverwendung (vorübergehend) gelagert werden.' WHERE wert='2000';
+		UPDATE ax_lagergut_industrieundgewerbeflaeche SET dokumentation='Öl ist eine organische Flüssigkeit, die als Rohstoff gewonnen wird und in der Industrie vielseitige Verwendung findet.' WHERE wert='3000';
+		UPDATE ax_lagergut_industrieundgewerbeflaeche SET dokumentation='Erdreich bezeichnet eine Fläche auf der Erdreich gelagert wird. Erdreich im vorliegenden Sinne bezeichnet Oberflächenmaterial, das überwiegend aus Mutterboden (Humusanteil, feine Korngrößen) besteht.' WHERE wert='4000';
+		UPDATE ax_lagergut_industrieundgewerbeflaeche SET dokumentation='Schutt ist eine nicht verfestigte Anhäufung von Trümmerstücken.' WHERE wert='5000';
+		UPDATE ax_lagergut_industrieundgewerbeflaeche SET dokumentation='Schlacke ist ein Rückstand aus einem Schmelz- oder Verbrennungsprozess.' WHERE wert='6000';
+		UPDATE ax_lagergut_industrieundgewerbeflaeche SET dokumentation='Abraum sind unbrauchbare Boden- und Gesteinsmassen.' WHERE wert='7000';
+		UPDATE ax_lagergut_industrieundgewerbeflaeche SET dokumentation='Schrott, Altmaterial sind Wertstoffe, die als Sekundärrohstoffe dienen.' WHERE wert='8000';
+		UPDATE ax_lagergut_industrieundgewerbeflaeche SET dokumentation='Sonstiges bedeutet, dass das Lagergut bekannt, dieses aber in der Werteliste nicht aufgeführt ist.' WHERE wert='9999';
+		INSERT INTO ax_lagergut_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('9000','Gas','Gas bezeichnet den Aggregatzustand einer Materie ohne bestimmte Gestalt.');
+		UPDATE ax_zustand_halde SET dokumentation='Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.' WHERE wert='8000';
+		UPDATE ax_zustand_bergbaubetrieb SET dokumentation='Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.' WHERE wert='8000';
+		DELETE FROM ax_abbaugut_tagebaugrubesteinbruch WHERE wert IN ('1006','1013','2011','2014','5007');
+		UPDATE ax_primaerenergie_industrieundgewerbeflaeche SET dokumentation='Gezeiten bedeutet, dass das Kraftwerk die kinetische Energie der Meeresgezeiten in elektrische Energie umwandet.' WHERE wert='5000';
+		INSERT INTO ax_primaerenergie_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('7500','Biomasse','Biomasse sind organische Substanzen (z.B. Pflanzen, Futtermittelabfälle, Gülle), die verbrannt und/oder vergärt werden, um Energie zu gewinnen.');
+		DELETE FROM ax_abbaugut_bergbaubetrieb WHERE wert IN ('3004','3010');
+		INSERT INTO ax_abbaugut_bergbaubetrieb(wert,beschreibung,dokumentation) VALUES ('1003','Kaolin','Kaolin ist ein Abbaugut, das aus weißem, erdigem Gestein, fast reinem Aluminiumsilikat (kieselsaure Tonerde) besteht.');
+		UPDATE ax_zustand_flaechegemischternutzung SET dokumentation='Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.' WHERE wert='8000';
+		UPDATE ax_zustand_industrieundgewerbeflaeche SET dokumentation='Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.' WHERE wert='8000';
+		INSERT INTO ax_zustand_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('4000','Im Bau','Im Bau bedeutet, dass sich überwiegende Teile der Industrie- und Gewerbefläche im Bau befinden.');
+		UPDATE ax_funktion_friedhof SET beschreibung='Parkfriedhof' WHERE wert='9403';
+		UPDATE ax_funktion_friedhof SET dokumentation='Gebäude- und Freifläche Friedhof ist eine bebaute oder unbebaute Fläche, die der Bestattung von Verstorbenen dient. Die Friedhofskapelle, das Krematorium oder Leichenhalle sind in der Nutzung Friedhof inbegriffen.' WHERE wert='9401';
+		UPDATE ax_funktion_friedhof SET dokumentation='Friedhof (ohne Gebäude) umfasst eingefriedete Flächen für Gräber.' WHERE wert='9402';
+		UPDATE ax_funktion_friedhof SET dokumentation='Parkfriedhof ist ein Friedhof, der als Park angelegt ist.' WHERE wert='9403';
+		INSERT INTO ax_funktion_friedhof(wert,beschreibung,dokumentation) VALUES ('1200','Parken','Parken bezeichnet eine Fläche die vorwiegend dem Abstellen von Fahrzeugen dient und zu diesem Zweck ggf. mit Gebäuden, Bauwerken, Anlagen oder Kennzeichnungen versehen ist.');
+		UPDATE ax_zustand_friedhof SET dokumentation='Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.' WHERE wert='8000';
+		UPDATE ax_lagergut_halde SET beschreibung='Erdreich' WHERE wert='4000';
+		UPDATE ax_lagergut_halde SET dokumentation='Baustoffe sind sämtliche im Bauwesen verwendete Materialien, die als Lagergut aufbewahrt werden.' WHERE wert='1000';
+		UPDATE ax_lagergut_halde SET dokumentation='Kohle ist ein Lagergut, das durch Inkohlung (Umwandlungsprozess pflanzlicher Substanzen) entstanden ist.' WHERE wert='2000';
+		UPDATE ax_lagergut_halde SET dokumentation='Erdreich bezeichnet eine Fläche auf der Erdreich gelagert wird. Erdreich im vorliegenden Sinne bezeichnet Oberflächenmaterial, das überwiegend aus Mutterboden (Humusanteil, feine Korngrößen) besteht.' WHERE wert='4000';
+		UPDATE ax_lagergut_halde SET dokumentation='Schutt ist eine nicht verfestigte Anhäufung von Trümmerstücken.' WHERE wert='5000';
+		UPDATE ax_lagergut_halde SET dokumentation='Schlacke ist ein Rückstand aus einem Schmelz- oder Verbrennungsprozess.' WHERE wert='6000';
+		UPDATE ax_lagergut_halde SET dokumentation='Abraum sind unbrauchbare Boden- und Gesteinsmassen.' WHERE wert='7000';
+		UPDATE ax_lagergut_halde SET dokumentation='Schrott, Altmaterial sind Wertstoffe, die als Sekundärrohstoffe dienen.' WHERE wert='8000';
+		UPDATE ax_lagergut_halde SET dokumentation='Sonstiges bedeutet, dass das Lagergut bekannt, dieses aber in der Werteliste nicht aufgeführt ist.' WHERE wert='9999';
+		DELETE FROM ax_funktion_industrieundgewerbeflaeche WHERE wert IN ('2510');
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET beschreibung='Freie Berufe und weitere Dienstleistungen' WHERE wert='1410';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET beschreibung='Lagerfläche' WHERE wert='1740';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET beschreibung='Logistik und Transport' WHERE wert='1750';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET beschreibung='Forschung und Entwicklung' WHERE wert='1760';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET beschreibung='Betriebsfläche Versorgungsanlage, Öl' WHERE wert='2552';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Freie Berufe und weitere Dienstleistungen bezeichnet eine Fläche mit Gebäuden und Einrichtungen welche zur Ausübung freier Berufe wie auch weiterer Dienstleistungen genutzt wird.' WHERE wert='1410';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Bank, Kredit bezeichnet eine Fläche mit Gebäuden und Einrichtungen der Bank- oder Kreditunternehmen.' WHERE wert='1420';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Versicherung bezeichnet eine Fläche mit Gebäuden und Einrichtungen der Versicherungsgesellschaften.' WHERE wert='1430';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Handel bezeichnet Anlagen mit Einzelhandels- und Dienstleistungsbetrieben, die durch einheitliche Verwaltung, auf das Einzugsgebiet abgestimmter Anbieter und durch umfangreiche Parkmöglichkeiten geprägt sind.' WHERE wert='1440';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Beherbergung bezeichnet eine Fläche mit Gebäuden und Einrichtungen für das gewerbliche Angebot der Unterbringung von Personen.' WHERE wert='1460';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Restauration bezeichnet eine Fläche mit Gebäuden und Einrichtungen für das gewerbliche Angebot der gastronomischen Versorgung.' WHERE wert='1470';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Vergnügung bezeichnet eine Fläche mit Gebäuden und Einrichtungen, in denen Möglichkeiten zur unterhaltsamen Freizeitgestaltung angeboten werden.' WHERE wert='1480';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Industrie und Gewerbe bezeichnet Flächen, auf denen vorwiegend Industrie- und Gewerbebetriebe vorhanden sind. Darin sind Gebäude- und Freiflächen und die Betriebsfläche Lagerfläche enthalten.' WHERE wert='1700';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Darin sind die Gebäude- und Freiflächen der folgenden Differenzierung enthalten ohne die Betriebsfläche Lagerfläche.' WHERE wert='1701';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Produktion bezeichnet eine Fläche, auf der vorwiegend Produktionsbetriebe vorhanden sind.' WHERE wert='1710';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Handwerk bezeichnet eine Fläche, auf der vorwiegend Handwerksbetriebe vorhanden sind.' WHERE wert='1720';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Tankstelle bezeichnet eine Fläche, auf der sich Gebäude und Einrichtungen befinden, an denen Kraftfahrzeuge mit den benötigten Kraftstoffen versorgt werden.' WHERE wert='1730';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Lagerfläche bezeichnet Areale, auf denen inner- und außerhalb von Gebäuden wirtschaftliche Güter gelagert werden, ohne Zusammenhang zu weiteren Wertearten.' WHERE wert='1740';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Logistik und Transport umfasst Flächen mit Gebäuden und Einrichtungen, die sich mit der Planung, Steuerung und Durchführung von Güter-, Informations- und Personenströmen befassen. Hierzu gehören Speditionen, Bus- und Taxiunternehmen, Kurier-, Express- und Paketdienste.' WHERE wert='1750';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Forschung und Entwicklung bezeichnet eine Fläche, auf der sich vorwiegend industrielle Forschungs- und Entwicklungseinrichtungen befinden.' WHERE wert='1760';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Grundstoff bezeichnet eine Fläche mit Produktionsbetrieben, die Ausgangsmaterialien für die weiterverarbeitende Industrie produzieren.' WHERE wert='1770';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Betriebliche Sozialeinrichtung bezeichnet eine Fläche innerhalb eines Betriebes mit Gebäuden und Einrichtungen für soziale Zwecke.' WHERE wert='1780';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Werft bezeichnet eine Fläche mit Gebäuden und sonstigen Einrichtungen zum Bau oder zur Reparatur von Schiffen.' WHERE wert='1790';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Versorgungsanlage bezeichnet eine Fläche, auf der vorwiegend Anlagen und Gebäude zur Versorgung mit Elektrizität, Wärme und Wasser vorhanden sind.' WHERE wert='2500';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Gaswerk bezeichnet eine Fläche mit Gebäuden und Einrichtungen zur Aufbereitung von Erdgas.' WHERE wert='2560';
+		UPDATE ax_funktion_industrieundgewerbeflaeche SET dokumentation='Funk- und Fernmeldeanlage bezeichnet eine Fläche, auf der vorwiegend Anlagen und Gebäude zur elektronischen Informationsübertragung stehen.' WHERE wert='2580';
+		INSERT INTO ax_funktion_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('1200','Parken','Parken bezeichnet eine Fläche die vorwiegend dem Abstellen von Fahrzeugen dient und zu diesem Zweck ggf. mit Gebäuden, Bauwerken, Anlagen oder Kennzeichnungen versehen ist.');
+		INSERT INTO ax_funktion_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('1801','Nahrungs-, Futter-, Genussmittel','Nahrungs-, Futter-, Genussmittel bezeichnet Flächen zur Fertigung von Erzeugnissen der Landwirtschaft, Forstwirtschaft sowie die Herstellung verschiedener Halbwaren, die noch keine Nahrungs- Futter- oder Genussmittel darstellen.');
+		INSERT INTO ax_funktion_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('1802','Textil, Bekleidung, Lederwaren','Textil, Bekleidung, Lederwaren bezeichnet Flächen auf denen primär Textil, Bekleidung und Lederwaren wie nachfolgend beschrieben gefertigt oder verarbeitet werden. Textilwaren umfasst Spinnstoffaufbereitung und Spinnerei, Weberei, Veredlung von Textilien und Bekleidung, sowie die Herstellung von konfektionierten Textilwaren. Bekleidung umfasst alle Schneiderarbeiten aus allen Materialien für alle Bekleidungsartikel und Bekleidungszubehör. Lederwaren umfasst das Zurichten und Färben von Pelzen und die Verarbeitung von Fellen zu Leder durch Gerben und Zurichten sowie die Weiterverarbeitung des Leders zu Gebrauchsgegenständen.');
+		INSERT INTO ax_funktion_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('1803','Holz-, Naturfaser-, Verpackungsprodukte','Holz-, Naturfaser-, Verpackungsprodukte bezeichnet Flächen auf denen primär Holz-, Naturfaser- oder Verpackungsprodukte wie nachfolgend beschrieben gefertigt oder verarbeitet werden. Holzprodukte umfassen die Herstellung von Bauholz, Sperrholz, Furniere, Verpackungsmittel, Lagerbehälter und Ladungsträger, Bodenbeläge, Fachwerk, vorgefertigte Gebäude. Naturfaserprodukte sind Veredelungen von Holz- und Zellprodukten. Verpackungsprodukte umfasst Flächen für die Fertigung von Verpackungsmaterial aus bspw. Papier, Karton, Pappe und Holz.');
+		INSERT INTO ax_funktion_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('1804','Print-, Audio-, Videoprodukte','Print-, Audio-, Videoprodukte bezeichnet Flächen auf denen primär die Erstellung, Bearbeitung oder Vervielfältigung von bespielten Ton-, Bild- und Datenträgern erfolgt.');
+		INSERT INTO ax_funktion_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('1805','Mineralölverarbeitung, Kokerei','Mineralölverarbeitung, Kokerei bezeichnet Flächen auf denen primär Rohöl und Kohle zu gebrauchsfertigen Erzeugnissen verarbeitet werden. Das vorherrschende Verfahren ist die Mineralölverarbeitung durch Trennung von Rohöl in Teilerzeugnisse anhand von Verfahren wie Spaltung und Destillation.');
+		INSERT INTO ax_funktion_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('1806','Chemie-, Pharma-, Kunststoffprodukte','Chemie-, Pharma-, Kunststoffprodukte bezeichnet Flächen auf denen primär Chemische, Pharma- und Kunststoffprodukte wie nachfolgend beschrieben gefertigt oder verarbeitet werden. Chemische Produkte umfasst die Verarbeitung organischer und anorganischer Rohstoffe in einem chemischen Verfahren zu chemischen Erzeugnissen. Pharmaprodukte umfasst die Herstellung von pharmazeutischen Grundstoffen und pharmazeutischen Spezialitäten wie auch die Herstellung von Arzneimitteln chemischen und botanischen Ursprungs. Kunststoffprodukte umfasst die Herstellung von Harzen, Kunststoffen und nicht vulkanisierbaren thermoplastischen Elastomeren sowie das Mischen von Harzen nach Kundenwunsch und die Herstellung von synthetischen Harzen nach eigener Spezifikation.');
+		INSERT INTO ax_funktion_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('1807','Mineralische Bau- und Werkstoffe','Mineralische Bau- und Werkstoffe bezeichnet Flächen auf denen primär Bau- und Werkstoffe wie nachfolgend beschrieben gefertigt oder verarbeitet werden. Baustoffe umfassen den Großhandel mit Steinen, Sand, Kies, Schotter, Zement, Mörtel, Dämmplatten sowie Fertigteilbauten aus mineralischen Stoffen, z. B. Garagen. Werkstoffe umfasst die Herstellung von Waren unter Verwendung von Stoffen mineralischen Ursprungs bezogen auf die Herstellung von Glas und Erzeugnissen daraus, keramischen Erzeugnissen, Ziegeln und Erzeugnissen aus gebranntem Ton sowie Zement und Gips, verarbeiteten Naturstein und sonstigen Mineralerzeugnissen.');
+		INSERT INTO ax_funktion_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('1808','Metallerzeugung und -verarbeitung','Metallerzeugung und –verarbeitung umfasst die Flächen für die Tätigkeiten des Schmelzens und Legierens von Eisenmetallen und NE-Metallen aus Erz, Roheisen oder Schrott mit elektrometallurgischen und anderen metallurgischen Verfahren wie auch Flächen für die Herstellung von Metalllegierungen und Superlegierungen durch Zugabe anderer chemischer Elemente zu reinen Metallen.');
+		INSERT INTO ax_funktion_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('1809','Technik, Elektrik, Elektronik','Technik, Elektrik, Elektronik umfasst Flächen für die Herstellung von Datenverarbeitungsgeräten, sowie elektronischen und optischen Erzeugnissen.');
+		INSERT INTO ax_funktion_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('1810','Maschinenbau','Maschinenbau umfasst Flächen für den Bau von Maschinen, die mechanisch oder durch Wärme auf Materialien einwirken oder an Materialien Vorgänge durchführen, einschließlich ihrer mechanischen Bestandteile, die Kraft erzeugen und anwenden, sowie spezieller Teile dafür.');
+		INSERT INTO ax_funktion_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('1811','Fahrzeugbau','Fahrzeugbau umfassen die Flächen für die Herstellung von Raum-, Luft-, Wasser- Schienen- und Strassenfahrzeugen zur Personen- oder Güterbeförderung wie auch die Flächen zur Herstellung verschiedener Teile und Zubehör.');
+		INSERT INTO ax_funktion_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('1812','Möbel und sonstige Konsumgüter','Möbel und sonstige Konsumgüter bezeichnet Flächen auf denen primär Möbel und sonstige Konsumgüter wie nachfolgend beschrieben gefertigt oder verarbeitet werden. Möbel umfassen die Herstellung von Möbeln aller Art und verwandten Erzeugnissen aus beliebigem Material, außer Stein, Beton und Keramik, für alle Einsatzbereiche und die verschiedensten Zwecke. Sonstige Konsumgüter umfasst die Fertigung von weiteren Waren vor allem für den privaten Ge- oder Verbrauch.');
+		INSERT INTO ax_funktion_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('2700','Förderanlage','Förderanlage bezeichnet eine Fläche mit Einrichtungen zur Förderung von Rohstoffen und Energieträgern.');
+		INSERT INTO ax_funktion_industrieundgewerbeflaeche(wert,beschreibung,dokumentation) VALUES ('2701','Gebäude- und Freifläche Förderanlage','Gebäude- und Freifläche Förderanlage bezeichnet eine Fläche, auf der vorwiegend Anlagen und Gebäude zur 
+Förderung von Rohstoffen und Energieträgern vorhanden sind.');
+		UPDATE ax_zustand_tagebaugrubesteinbruch SET dokumentation='Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.' WHERE wert='8000';
+		UPDATE ax_vegetationsmerkmal_gehoelz SET dokumentation='Latschenkiefer beschreibt den Bewuchs einer Vegetationsfläche mit Latschenkiefer.' WHERE wert='1400';
+		UPDATE ax_vegetationsmerkmal_wald SET beschreibung='Laubholz mit Nadelbäumen' WHERE wert='1310';
+		UPDATE ax_vegetationsmerkmal_wald SET beschreibung='Nadelholz mit Laubbäumen' WHERE wert='1320';
+		UPDATE ax_vegetationsmerkmal_wald SET dokumentation='Laubholz mit Nadelbäumen beschreibt den Bewuchs einer Vegetationsfläche mit Laub- und Nadelbäumen. Dabei dominieren die Laubbäume das Erscheinungsbild.' WHERE wert='1310';
+		UPDATE ax_vegetationsmerkmal_wald SET dokumentation='Nadelholz mit Laubbäumen beschreibt den Bewuchs einer Vegetationsfläche mit Nadel- und Laubbäumen. Dabei dominieren die Nadelbäume das Erscheinungsbild.' WHERE wert='1320';
+		UPDATE ax_vegetationsmerkmal_landwirtschaft SET beschreibung='Gartenbauland' WHERE wert='1030';
+		UPDATE ax_vegetationsmerkmal_landwirtschaft SET beschreibung='Rebfläche' WHERE wert='1040';
+		UPDATE ax_vegetationsmerkmal_landwirtschaft SET beschreibung='Obst- und Nussplantage' WHERE wert='1050';
+		UPDATE ax_vegetationsmerkmal_landwirtschaft SET beschreibung='Obst- und Nussbaumplantage' WHERE wert='1051';
+		UPDATE ax_vegetationsmerkmal_landwirtschaft SET beschreibung='Obst- und Nussstrauchplantage' WHERE wert='1052';
+		UPDATE ax_vegetationsmerkmal_landwirtschaft SET dokumentation='Ackerland ist eine Fläche für den Anbau von Feldfrüchten (z.B. Getreide, Hülsenfrüchte, Hackfrüchte) und Beerenfrüchten (z.B. Erdbeeren).' WHERE wert='1010';
+		UPDATE ax_vegetationsmerkmal_landwirtschaft SET dokumentation='Gartenbauland ist eine Fläche, die dem gewerbsmäßigen Anbau von Gartengewächsen (Gemüse, Obst und Blumen) sowie für die Aufzucht von Kulturpflanzen dient.' WHERE wert='1030';
+		UPDATE ax_vegetationsmerkmal_landwirtschaft SET dokumentation='Rebfläche ist eine mit speziellen Vorrichtungen ausgestattete Agrarfläche, auf der Weinstöcke angepflanzt sind.' WHERE wert='1040';
+		UPDATE ax_vegetationsmerkmal_landwirtschaft SET dokumentation='Obst- und Nussplantage ist eine Fläche, die vorwiegend dem Intensivanbau dient und mit Obst-, Nussbäumen oder -sträuchern bepflanzt ist. Im Unterschied zu Streuobst handelt es sich hierbei um gleichmäßige und dichter angelegte Monokulturen.' WHERE wert='1050';
+		UPDATE ax_vegetationsmerkmal_landwirtschaft SET dokumentation='Obst- und Nussbaumplantage ist eine landwirtschaftliche Fläche, die vorwiegend dem Intensivanbau dient und mit Obst- oder Nussbäumen bepflanzt ist.' WHERE wert='1051';
+		UPDATE ax_vegetationsmerkmal_landwirtschaft SET dokumentation='Obst- und Nussstrauchplantage ist eine landwirtschaftliche Fläche, die vorwiegend dem Intensivanbau dient und mit Obst- oder Nusssträuchern bepflanzt ist.' WHERE wert='1052';
+		INSERT INTO ax_vegetationsmerkmal_landwirtschaft(wert,beschreibung,dokumentation) VALUES ('1014','Hanf','Hanf beschreibt den Bewuchs einer Agrarfläche mit Nutzhanf.');
+		INSERT INTO ax_vegetationsmerkmal_landwirtschaft(wert,beschreibung,dokumentation) VALUES ('1022','Salzweide','Salzweide ist eine vom Meer periodisch überflutete Weidefläche, in der eine Salzpflanzenvegetation gedeiht. Dieser Bereich bildet den natürlichen Übergang vom Meer zum Festland.');
+		INSERT INTO ax_vegetationsmerkmal_landwirtschaft(wert,beschreibung,dokumentation) VALUES ('1060','Weihnachtsbaumkultur','Weihnachtsbaumkultur bezeichnet eine landwirtschaftliche Fläche, die vorrangig mit Weihnachtsbäumen bepflanzt ist.');
+		INSERT INTO ax_vegetationsmerkmal_landwirtschaft(wert,beschreibung,dokumentation) VALUES ('1100','Kurzumtriebsplantage','Kurzumtriebsplantagen sind Flächen, auf denen Baumarten mit dem Ziel baldiger Holzentnahme angepflanzt werden und deren Bestände eine Umtriebszeit von nicht länger als 20 Jahren haben.');
+		UPDATE ax_funktion_unlandvegetationsloseflaeche SET dokumentation='Bebaute Gewässerbegleitfläche bezeichnet eine bebaute Fläche, die einem Gewässer zugeordnet wird. Sie ist nicht Bestandteil der Gewässerfläche.' WHERE wert='1110';
+		UPDATE ax_funktion_unlandvegetationsloseflaeche SET dokumentation='Unbebaute Gewässerbegleitfläche bezeichnet eine unbebaute Fläche, die einem Gewässer zugeordnet wird. Sie ist nicht Bestandteil der Gewässerfläche.' WHERE wert='1120';
+		UPDATE ax_funktion_unlandvegetationsloseflaeche SET dokumentation='Naturnahe Fläche ist eine nicht zum Anbau von Kulturpflanzen genutzte Fläche, die mit Pflanzen bewachsen ist.' WHERE wert='1300';
+		UPDATE ax_funktion_gehoelz SET dokumentation='Windschutz ist ein dichter Gehölzbestand, der die angrenzenden Flächen oder Objekte vor Wind schützt.' WHERE wert='1000';
+		UPDATE ax_bahnkategorie SET dokumentation='Güterverkehr ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem im Nah- und / oder Fernverkehr Güter transportiert werden.' WHERE wert='1102';
+		UPDATE ax_bahnkategorie SET dokumentation='Straßenbahn ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem eine elektrisch betriebene Schienenbahn zur Personenbeförderung fährt. Sie verläuft i. d. R. oberirdisch.' WHERE wert='1201';
+		INSERT INTO ax_bahnkategorie(wert,beschreibung,dokumentation) VALUES ('1101','Personenverkehr','Personenverkehr ist die Bezeichnung für einen schienengebundenen Verkehrsweg, auf dem im Nah- und / oder Fernverkehr Personen transportiert werden.');
+		INSERT INTO ax_bahnkategorie(wert,beschreibung,dokumentation) VALUES ('1103','Betriebsverkehr','Betriebsverkehr ist die Bezeichnung für eine Bahnverkehrsanlage, das aus innerbetrieblichen Gründen erforderlich ist.');
+		UPDATE ax_funktion_weg SET dokumentation='Fahrweg ist ein Weg, auf dem das Befahren mit Fahrzeugen möglich ist.' WHERE wert='5210';
+		UPDATE ax_funktion_weg SET dokumentation='Hauptwirtschaftsweg ist ein Weg mit fester Fahrbahndecke zur Erschließung eines oder mehrerer Grundstücke, der für den Kraftverkehr zu jeder Jahreszeit befahrbar ist. Dazu gehören auch Lkw-befahrbare Wege im Wald, die dem forstwirtschaftlichen Holztransport zu jeder Zeit dienen.' WHERE wert='5211';
+		UPDATE ax_funktion_weg SET dokumentation='Wirtschaftsweg ist ein leicht- oder unbefestigter Weg zur Erschließung land- und forstwirtschaftlicher Flächen.' WHERE wert='5212';
+		UPDATE ax_funktion_weg SET dokumentation='Gang ist ein schmaler Fußweg.' WHERE wert='5230';
+		UPDATE ax_funktion_weg SET dokumentation='Reitweg ist ein besonders ausgebauter Weg, auf dem ausschließlich das Reiten zugelassen ist.' WHERE wert='5260';
+		UPDATE ax_funktion_weg SET dokumentation='Sonstiges bedeutet, dass die Funktion des Wegs bekannt, diese aber nicht in der Werteliste aufgeführt ist.' WHERE wert='9999';
+		INSERT INTO ax_funktion_weg(wert,beschreibung,dokumentation) VALUES ('5270','Begleitfläche Weg','Begleitfläche Weg bezeichnet eine unbebaute Fläche, die einem Weg zugeordnet wird.');
+		UPDATE ax_funktion_bahnverkehr SET beschreibung='Begleitfläche Bahnverkehr' WHERE wert='2322';
+		UPDATE ax_funktion_bahnverkehr SET dokumentation='Begleitfläche Bahnverkehr bezeichnet eine unbebaute Fläche, die dem Bahnverkehr zugeordnet wird. Die Begleitfläche Bahnverkehr ist nicht Bestandteil der Gleisanlagen.' WHERE wert='2322';
+		INSERT INTO ax_funktion_bahnverkehr(wert,beschreibung,dokumentation) VALUES ('1200','Parken','Betriebsfläche Bahnverkehr bezeichnet bebaute oder unbebaute Flächen, die vorwiegend der Versorgung, Unterhaltung und Instandhaltung des Bahnverkehrs dienen.');
+		INSERT INTO ax_funktion_bahnverkehr(wert,beschreibung,dokumentation) VALUES ('2323','Betriebsfläche Bahnverkehr','Betriebsfläche Bahnverkehr bezeichnet bebaute oder unbebaute Flächen, die vorwiegend der Versorgung, Unterhaltung und Instandhaltung des Bahnverkehrs dienen.');
+		INSERT INTO ax_funktion_bahnverkehr(wert,beschreibung,dokumentation) VALUES ('2324','Trasse, Streckengleisbett','Trasse, Streckengleisbett ist ein befestigtes, dem allgemeinen Schienenverkehr dienendes Gleisbett einschließlich der auf Brücken oder in Tunneln verlaufenden Abschnitte.');
+		UPDATE ax_besonderefahrstreifen SET dokumentation='Mit Radweg bedeutet, dass parallel zur Objektart ein Radweg verläuft, der aber nicht als eigenständiges Objekt erfasst wird.' WHERE wert='1000';
+		UPDATE ax_besonderefahrstreifen SET dokumentation='Mit Fußweg bedeutet, dass parallel zur Objektart ein Fußweg verläuft, der aber nicht als eigenständiges Objekt erfasst wird.' WHERE wert='2000';
+		UPDATE ax_besonderefahrstreifen SET dokumentation='Mit Rad- und Fußweg bedeutet, dass parallel zur Objektart Objektart ein Rad- und Fußweg verläuft, der aber nicht als eigenständiges Objekt erfasst wird.' WHERE wert='3000';
+		UPDATE ax_zustand_bahnverkehr SET dokumentation='Außer Betrieb, stillgelegt, verlassen bedeutet, dass sich die Bahnverkehrsfläche nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.' WHERE wert='2100';
+		UPDATE ax_zustand_bahnverkehr SET dokumentation='Im Bau bedeutet, dass sich überwiegende Teile des Bahnverkehrs im Bau befinden.' WHERE wert='4000';
+		INSERT INTO ax_zustand_bahnverkehr(wert,beschreibung,dokumentation) VALUES ('8000','Erweiterung, Neuansiedlung','Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		UPDATE ax_befestigung_fahrwegachse SET beschreibung='Leicht befestigt' WHERE wert='1000';
+		UPDATE ax_befestigung_fahrwegachse SET dokumentation='Leicht befestigt bedeutet, dass Fahrwegachse mit einem Belag versehen ist.' WHERE wert='1000';
+		UPDATE ax_befestigung_fahrwegachse SET dokumentation='Unbefestigt bedeutet, dass Fahrwegachse nicht mit einem Belag versehen ist.' WHERE wert='2000';
+		INSERT INTO ax_spurweite(wert,beschreibung,dokumentation) VALUES ('9997','Attribut trifft nicht zu','Attribut trifft nicht zu bedeutet, dass keiner der in der Werteliste aufgeführten Attributwerte dem vorliegenden Sachverhalt entspricht.');
+		UPDATE ax_zustand_schiffsverkehr SET dokumentation='Im Bau bedeutet, dass sich überwiegende Teile von Schiffsverkehr im Bau befinden.' WHERE wert='4000';
+		INSERT INTO ax_zustand_schiffsverkehr(wert,beschreibung,dokumentation) VALUES ('8000','Erweiterung, Neuansiedlung','Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		UPDATE ax_funktion_platz SET beschreibung='Raststätte, Autohof' WHERE wert='5330';
+		UPDATE ax_funktion_platz SET dokumentation='Parkplatz bezeichnet eine Fläche, auf der vorwiegend Anlagen und Gebäude zum Abstellen von Fahrzeugen stehen.' WHERE wert='5310';
+		UPDATE ax_funktion_platz SET dokumentation='Rastplatz ist eine Anlage zum Rasten der Verkehrsteilnehmer mit unmittelbarem Anschluss zur Straße ohne Versorgungseinrichtung, ggf. mit Toiletten.' WHERE wert='5320';
+		UPDATE ax_funktion_platz SET dokumentation='Raststätte, Autohof ist eine Anlage an Verkehrsstraßen mit Bauwerken und Einrichtungen zur Versorgung und Erholung von Reisenden. Dazu gehören auch Autohöfe gemäß der Verwaltungsvorschriften zur Straßenverkehrsordnung (VwV-StVO).' WHERE wert='5330';
+		UPDATE ax_funktion_platz SET dokumentation='Marktplatz ist ein Platz, auf dem Markt abgehalten wird.' WHERE wert='5340';
+		INSERT INTO ax_funktion_platz(wert,beschreibung,dokumentation) VALUES ('5360','Busbahnhof','Busbahnhof ist eine Verkehrsanlage, die als zentraler Verknüpfungspunkt verschiedener Buslinien dient.');
+		DELETE FROM ax_art_flugverkehr WHERE wert IN ('5510','5520','5540');
+		UPDATE ax_art_flugverkehr SET beschreibung='Hubschrauberlandeplatz' WHERE wert='5530';
+		UPDATE ax_art_flugverkehr SET dokumentation='Internationaler Flughafen ist ein Verkehrsflughafen, der im Luftfahrthandbuch als solcher ausgewiesen ist.' WHERE wert='5511';
+		UPDATE ax_art_flugverkehr SET dokumentation='Regionalflughafen ist ein Verkehrsflughafen der gemäß Raumordnungsgesetz als Regionalflughafen eingestuft ist, bzw. als Flughafen, Verkehrsflughafen oder Regionalflughafen im Luftfahrthandbuch ausgewiesen ist.' WHERE wert='5512';
+		UPDATE ax_art_flugverkehr SET dokumentation='Hubschrauberlandeplatz ist ein Flugplatz, der im Luftfahrthandbuch, in der Luftfahrtkarte 1:500000 (ICAO) oder aufgrund von Ländervorschriften als solcher ausgewiesen ist.' WHERE wert='5530';
+		UPDATE ax_art_flugverkehr SET dokumentation='Segelfluggelände ist ein Flugplatz, der in der Luftfahrtkarte 1:500000 (ICAO) für den Segelflugsport ausgewiesen ist.' WHERE wert='5550';
+		INSERT INTO ax_art_flugverkehr(wert,beschreibung,dokumentation) VALUES ('5513','Sonderflughafen','Sonderflughafen ist ein Flughafen, der im Luftfahrthandbuch als solcher ausgewiesen ist.');
+		INSERT INTO ax_art_flugverkehr(wert,beschreibung,dokumentation) VALUES ('5521','Verkehrslandeplatz','Verkehrslandeplatz ist ein Flugplatz, der im Luftfahrthandbuch als Flugplatz, Landeplatz oder Verkehrslandeplatz ausgewiesen ist.');
+		INSERT INTO ax_art_flugverkehr(wert,beschreibung,dokumentation) VALUES ('5522','Sonderlandeplatz','Sonderlandeplatz ist ein Flugplatz, der im Luftfahrthandbuch oder in den Bescheiden der zuständigen Luftfahrtbehörden als Sonderlandeplatz ausgewiesen ist.');
+		UPDATE ax_elektrifizierung SET dokumentation='Elektrifiziert bedeutet, dass den Schienenfahrzeugen über eine Oberleitung oder eine Stromschiene längs des Fahrweges elektrische Energie zugeführt werden kann.' WHERE wert='1000';
+		UPDATE ax_zustand SET dokumentation='Außer Betrieb, stillgelegt, verlassen bedeutet, dass sich die Objektart nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.' WHERE wert='2100';
+		UPDATE ax_zustand SET dokumentation='Im Bau bedeutet, dass die Objektart noch nicht fertiggestellt ist.' WHERE wert='4000';
+		UPDATE ax_oberflaechenmaterial_strasse SET dokumentation='Beton bedeutet, dass die Oberfläche von der Objektart aus Beton besteht.' WHERE wert='1220';
+		UPDATE ax_oberflaechenmaterial_strasse SET dokumentation='Bitumen, Asphalt bedeutet, dass die Oberfläche von der Objektart aus Bitumen bzw. Asphalt besteht.' WHERE wert='1230';
+		UPDATE ax_oberflaechenmaterial_strasse SET dokumentation='Pflaster bedeutet, dass die Oberfläche von der Objektart gepflastert ist.' WHERE wert='1240';
+		UPDATE ax_oberflaechenmaterial_strasse SET dokumentation='Gestein, zerkleinert bedeutet, dass die Oberfläche von der Objektart aus Schotter, Splitt, Sand oder aus einem Gemisch dieser Materialen besteht.' WHERE wert='1250';
+		INSERT INTO ax_funktion_flugverkehr(wert,beschreibung,dokumentation) VALUES ('1200','Parken','Parken bezeichnet eine Fläche, die vorwiegend dem Abstellen von Fahrzeugen dient und zu diesem Zweck ggf. mit Gebäuden, Bauwerken, Anlagen oder Kennzeichnungen versehen ist.');
+		INSERT INTO ax_funktion_flugverkehr(wert,beschreibung,dokumentation) VALUES ('5502','Begleitfläche Flugverkehr','Begleitfläche Flugverkehr bezeichnet eine unbebaute Fläche, die dem Flugverkehr zugeordnet wird. Hierzu gehören z.B. Grünflächen neben den Flugverkehrsflächen.');
+		INSERT INTO ax_funktion_flugverkehr(wert,beschreibung,dokumentation) VALUES ('5503','Betriebsfläche Flugverkehr','Betriebsfläche Flugverkehr bezeichnet bebaute oder unbebaute Flächen, die vorwiegend der Versorgung und Unterhaltung des Flugverkehrs dienen.');
+		UPDATE ax_funktion_wegachse SET dokumentation='Hauptwirtschaftsweg ist ein Weg mit fester Fahrbahndecke zur Erschließung eines oder mehrerer Grundstücke, der für den Kraftverkehr zu jeder Jahreszeit befahrbar ist. Dazu gehören auch Lkw-befahrbare Wege im Wald, die dem forstwirtschaftlichen Holztransport zu jeder Zeit dienen.' WHERE wert='5211';
+		INSERT INTO ax_funktion_wegachse(wert,beschreibung,dokumentation) VALUES ('5240','Radweg','Radweg ist ein Weg, der als besonders gekennzeichneter und abgegrenzter Teil einer Straße oder mit selbständiger Linienführung für den Fahrradverkehr bestimmt ist.');
+		INSERT INTO ax_funktion_wegachse(wert,beschreibung,dokumentation) VALUES ('5250','Rad- und Fußweg','Rad- und Fußweg ist ein Weg, der als besonders gekennzeichneter und abgegrenzter Teil einer Straße oder mit selbständiger Linienführung ausschließlich für den Fahrrad- und Fußgängerverkehr bestimmt ist.');
+		UPDATE ax_zustand_strasse SET dokumentation='Außer Betrieb, stillgelegt, verlassen bedeutet, dass sich die Straßenverkehrsfläche nicht mehr in regelmäßiger, der Bestimmung entsprechenden Nutzung befindet.' WHERE wert='2100';
+		UPDATE ax_zustand_strasse SET dokumentation='Im Bau bedeutet, dass sich überwiegende Teile des Straßenverkehrs im Bau befinden.' WHERE wert='4000';
+		INSERT INTO ax_zustand_strasse(wert,beschreibung,dokumentation) VALUES ('8000','Erweiterung, Neuansiedlung','Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		DELETE FROM ax_markierung_wegachse WHERE wert IN ('1403');
+		UPDATE ax_zustand_flugverkehr SET dokumentation='Im Bau bedeutet, dass sich überwiegende Teile von Flugverkehr im Bau befinden.' WHERE wert='4000';
+		INSERT INTO ax_zustand_flugverkehr(wert,beschreibung,dokumentation) VALUES ('8000','Erweiterung, Neuansiedlung','Erweiterung, Neuansiedlung bedeutet, dass die Fläche in ihrer Nutzung gemäß der Objektart erweitert wird und eine Fertigstellung absehbar ist.');
+		UPDATE ax_nutzung_flugverkehr SET dokumentation='Zivil bedeutet, dass Flugverkehr privaten oder öffentlichen Zwecken dient und nicht militärisch genutzt wird.' WHERE wert='1000';
+		UPDATE ax_funktion_schiffsverkehr SET beschreibung='Gebäude- und Freifläche zu Verkehrsanlagen, Schifffahrt' WHERE wert='2341';
+		INSERT INTO ax_funktion_schiffsverkehr(wert,beschreibung,dokumentation) VALUES ('1200','Parken','Parken bezeichnet eine Fläche, die vorwiegend dem Abstellen von Fahrzeugen dient und zu diesem Zweck ggf. mit Gebäuden, Bauwerken, Anlagen oder Kennzeichnungen versehen ist.');
+		INSERT INTO ax_funktion_schiffsverkehr(wert,beschreibung,dokumentation) VALUES ('2342','Begleitfläche Schiffsverkehr','Begleitfläche Schiffverkehr bezeichnet eine unbebaute Fläche, die dem Schiffverkehr zugeordnet wird. Hierzu zählt z.B. Ufer.');
+		INSERT INTO ax_funktion_schiffsverkehr(wert,beschreibung,dokumentation) VALUES ('5600','Betriebsfläche Schiffsverkehr','Betriebsfläche Schiffsverkehr bezeichnet bebaute oder unbebaute Flächen die landseitigen dem Betrieb des Schiffsverkehrs dienen.');
+		UPDATE ax_funktion_strasse SET beschreibung='Begleitfläche Straßenverkehr' WHERE wert='2312';
+		UPDATE ax_funktion_strasse SET dokumentation='Begleitfläche Straßenverkehr bezeichnet eine unbebaute Fläche, die einer Straße zugeordnet wird. Die Begleitfläche Straßenverkehr ist nicht Bestandteil der Fahrbahn.' WHERE wert='2312';
+		UPDATE ax_funktion_strasse SET dokumentation='Straßenentwässerungsanlage ist der zur Entwässerung dienende Bestandteil der Verkehrsanlage.' WHERE wert='2313';
+		INSERT INTO ax_funktion_strasse(wert,beschreibung,dokumentation) VALUES ('2314','Betriebsfläche Straßenverkehr','Betriebsfläche Straßenverkehr bezeichnet bebaute oder unbebaute Flächen, die vorwiegend der Versorgung und Unterhaltung der Verkehrsflächen des Straßenverkehrs dienen. Hierzu gehören z.B. Straßenmeistereien.');
+		INSERT INTO ax_funktion_strasse(wert,beschreibung,dokumentation) VALUES ('2315','Fahrbahn','Fahrbahn bezeichnet Flächen, die den zusammenhängenden, befestigten Teil der Straße bilden, als Verkehrsraum dienen und mit Fahrzeugen befahren werden dürfen. Zur Fahrbahn gehören auch Stand- und Kriechspuren.');
+		UPDATE ax_widmung_strasse SET beschreibung='Nicht öffentliche Straße' WHERE wert='9997';
+		UPDATE ax_widmung_strasse SET beschreibung='Sonstige öffentliche Straße' WHERE wert='9999';
+		UPDATE ax_widmung_strasse SET dokumentation='Nicht öffentliche Straße bedeutet, dass hier ein Straßenverkehr erlaubt ist, dieser aber nur zweckgebunden, z. B. in einem Krankenhausgelände, durchgeführt wird.' WHERE wert='9997';
+		UPDATE ax_widmung_strasse SET dokumentation='Sonstige öffentliche Straße bedeutet, dass es sich um eine öffentliche Straße handelt, die aber keiner der vorhandenen Widmung zugewiesen werden kann.' WHERE wert='9999';
+		DELETE FROM ax_wirtschaftsart WHERE wert IN ('Historische Anlage','Betriebsfläche','Gebäude- und Freifläche','Übungsgelände');
+		UPDATE ax_wirtschaftsart SET dokumentation='Erholungsfläche wird aggregiert aus den Nutzungsartkennungen 18000 und 18400 und deren weiteren Untergliederungen.' WHERE wert='Erholungsfläche';
+		UPDATE ax_wirtschaftsart SET dokumentation='Friedhof wird aggregiert aus der Nutzungsartkennung 19000 und deren weitere Untergliederung.' WHERE wert='Friedhof';
+		UPDATE ax_wirtschaftsart SET dokumentation='Verkehrsfläche wird aggregiert aus den Nutzungsartkennungen 21000, 22000, 23000, 24000, 25000 und 26000 und deren weiteren Untergliederungen.' WHERE wert='Verkehrsfläche';
+		UPDATE ax_wirtschaftsart SET dokumentation='Landwirtschaftsfläche wird aggregiert aus der Nutzungsartkennung 31000 und deren weitere Untergliederung.' WHERE wert='Landwirtschaftsfläche';
+		UPDATE ax_wirtschaftsart SET dokumentation='Waldfläche wird aggregiert aus der Nutzungsartkennung 32000 und deren weitere Untergliederung.' WHERE wert='Waldfläche';
+		UPDATE ax_wirtschaftsart SET dokumentation='Unland wird aggregiert aus der Nutzungsartkennung 37000 und deren weitere Untergliederung.' WHERE wert='Unland';
+		UPDATE ax_wirtschaftsart SET dokumentation='Wasserfläche wird aggregiert aus den Nutzungsartkennungen 41000, 42000, 43000 und 44000 und deren weiteren Untergliederungen.' WHERE wert='Wasserfläche';
+		INSERT INTO ax_wirtschaftsart(wert,beschreibung,dokumentation) VALUES ('Wohnbaufläche',NULL,'Wohnbaufläche wird aggregiert aus der Nutzungsartkennung 11000 und deren weitere Untergliederung.');
+		INSERT INTO ax_wirtschaftsart(wert,beschreibung,dokumentation) VALUES ('Industrie- und Gewerbefläche',NULL,'Industrie- und Gewerbefläche wird aggregiert aus den Nutzungsartkennungen 12000, 12100, 13000, 14000 und 15000 und deren weiteren Untergliederungen.');
+		INSERT INTO ax_wirtschaftsart(wert,beschreibung,dokumentation) VALUES ('Mischnutzung',NULL,'Mischnutzung wird aggregiert aus den Nutzungsartkennungen 16000 und 17000 und deren weiteren Untergliederungen.');
+		INSERT INTO ax_wirtschaftsart(wert,beschreibung,dokumentation) VALUES ('Gebäude- und Freifläche Land- und Forstwirtschaft',NULL,'Gebäude- und Freifläche Land- und Forstwirtschaft wird aggregiert aus den Nutzungsartkennungen 16200 und deren weiteren Untergliederungen.');
+		INSERT INTO ax_wirtschaftsart(wert,beschreibung,dokumentation) VALUES ('Sonstige Vegetationsfläche',NULL,'Sonstige Vegetationsfläche wird aggregiert aus den Nutzungsartkennungen 33000, 34000, 35000 und 36000 und deren weiteren Untergliederungen.');
+
+		UPDATE alkis_version SET version=100;
 
 		r := alkis_string_append(r, 'ALKIS-Schema migriert');
 	END IF;
 
-	IF ver>19 THEN
-		RAISE EXCEPTION 'ALKIS-Schema % nicht unterstützt (bis 19).', ver;
+	IF ver>100 THEN
+		RAISE EXCEPTION 'ALKIS-Schema % nicht unterstützt (bis 100).', ver;
 	END IF;
 
 	--
