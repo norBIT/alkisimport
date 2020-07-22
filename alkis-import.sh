@@ -776,6 +776,7 @@ EOF
 
 	"temp "*)
 		TEMP=${src#temp }
+		TMPDIR=$TEMP
 		if ! [ -d "$TEMP" ]; then
 			mkdir -p "$TEMP"
 		fi
