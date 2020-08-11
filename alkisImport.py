@@ -55,6 +55,11 @@ alkisImportDlgBase = uic.loadUiType(os.path.join(BASEDIR, 'alkisImportDlg.ui'))[
 aboutDlgBase = uic.loadUiType(os.path.join(BASEDIR, 'about.ui'))[0]
 sys.path.pop(0)
 
+TEMP = os.getenv("TEMP")
+if not TEMP:
+    from tempfile import gettempdir
+    TEMP = gettempdir()
+
 # Felder als String interpretieren (d.h. führende Nullen nicht abschneiden)
 os.putenv("GML_FIELDTYPES", "ALWAYS_STRING")
 
@@ -857,6 +862,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 break
 
             GDAL_MAJOR = int(m.group(1))
+            GDAL_MINOR = int(m.group(2))
 
             self.psql = which("psql")
             if not self.psql:
@@ -1010,7 +1016,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         self.status("{} wird extrahiert.".format(fn))
                         app.processEvents()
 
-                        src = os.path.join(os.getenv("TEMP"), os.path.basename(src))
+                        src = os.path.join(TEMP, os.path.basename(src))
 
                         f_in = gzip.open(fn)
                         f_out = open(src, "wb")
@@ -1040,7 +1046,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         self.status("{} wird extrahiert.".format(fn))
                         app.processEvents()
 
-                        src = os.path.join(os.getenv("TEMP"), os.path.basename(src))
+                        src = os.path.join(TEMP, os.path.basename(src))
 
                         zipf = ZipFile(fn, "r")
                         f_in = zipf.open(zipf.infolist()[0].filename)
@@ -1077,8 +1083,12 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         "-update",
                         "-append",
                         "-progress",
-                        "PG:{} active_schema={}','{}".format(conn, self.schema, self.pgschema)
                     ]
+
+                    if GDAL_MAJOR < 3 or (GDAL_MAJOR==3 and GDAL_MINOR<1):
+                        args.append("PG:{} active_schema={}','{}".format(conn, self.schema, self.pgschema))
+                    else:
+                        args.append("PG:{0} schemas='{1},{2}' active_schema={1}".format(conn, self.schema, self.pgschema))
 
                     if int(self.leGT.text() or '0') >= 1:
                         args.extend(["-gt", self.leGT.text()])

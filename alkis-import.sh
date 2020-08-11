@@ -594,13 +594,21 @@ EOF
 
 	"pgschema "*)
 		PGSCHEMA=${src#pgschema }
-		DST="${DST/ active_schema=*/} active_schema=$SCHEMA','$PGSCHEMA"
+		if [ $major -lt 3 ] || [ $major -eq 3 -a $minor -lt 1 ]; then
+			DST="${DST/ active_schema=*/} active_schema=$SCHEMA','$PGSCHEMA"
+		else
+			DST="${DST/ active_schema=*/} active_schema=$SCHEMA schemas=$SCHEMA,$PGSCHEMA"
+		fi
 		continue
 		;;
 
 	"schema "*)
 		SCHEMA=${src#schema }
-		DST="${DST/ active_schema=*/} active_schema=$SCHEMA','$PGSCHEMA"
+		if [ $major -lt 3 ] || [ $major -eq 3 -a $minor -lt 1 ]; then
+			DST="${DST/ active_schema=*/} active_schema=$SCHEMA','$PGSCHEMA"
+		else
+			DST="${DST/ active_schema=*/} active_schema=$SCHEMA schemas=$SCHEMA,$PGSCHEMA"
+		fi
 		continue
 		;;
 
