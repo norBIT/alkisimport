@@ -70,7 +70,14 @@ INSERT INTO eigner(bestdnr,pk,ab,namensnr,ea,antverh,name,name1,name2,name3,name
 		NULL AS ea,
 		zaehler||'/'||nenner AS antverh,
 		substr(coalesce( p.nachnameoderfirma, '(' || (SELECT beschreibung FROM ax_artderrechtsgemeinschaft_namensnummer WHERE wert=artderrechtsgemeinschaft) || ')' ), 1, 4 ) AS name,
-		alkis_truncate(coalesce( p.nachnameoderfirma || coalesce(', ' || p.vorname, ''), '(' || (SELECT beschreibung FROM ax_artderrechtsgemeinschaft_namensnummer WHERE wert=artderrechtsgemeinschaft) || ')', '(Verschiedene)' ), 200) AS name1,
+		alkis_truncate(
+                  coalesce(
+	            p.nachnameoderfirma || coalesce(', ' || p.vorname, ''),
+		    coalesce((SELECT beschreibung FROM ax_artderrechtsgemeinschaft_namensnummer WHERE wert=artderrechtsgemeinschaft), 'Verschiedene') ||
+	              coalesce(': ' || nn.beschriebDerRechtsgemeinschaft, '')
+		  ),
+	          200
+	        ) AS name1,
 		alkis_truncate(coalesce('geb. '||p.geburtsname||', ','') || '* ' || p.geburtsdatum, 200) AS name2,
 		alkis_truncate(an.strasse || coalesce(' ' || an.hausnummer,''), 200) AS name3,
 		alkis_truncate( coalesce(an.postleitzahlpostzustellung||' ','')||an.ort_post, 200) AS name4,
