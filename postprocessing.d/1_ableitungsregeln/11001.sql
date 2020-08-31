@@ -75,12 +75,12 @@ SELECT
 	WHEN horizontaleausrichtung='linksbündig' THEN st_translate(point, len, 0.0)
 	ELSE point
 	END AS point,
-	text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell
+	text,signaturnummer,drehwinkel,'zentrisch' AS horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell
 FROM (
 	SELECT
 		gml_id,
 		point,
-		CASE WHEN lenn>lenz THEN lenn ELSE lenz END AS len,
+		greatest(lenz, lenn) AS len,
 		text,
 		signaturnummer,
 		drehwinkel,
@@ -119,12 +119,12 @@ SELECT
 	WHEN horizontaleausrichtung='linksbündig' THEN st_translate(point, len, 0.0)
 	ELSE point
 	END AS point,
-	text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell
+	text,signaturnummer,drehwinkel,'zentrisch' AS horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell
 FROM (
 	SELECT
 		gml_id,
 		point,
-		CASE WHEN lenn>lenz THEN lenn ELSE lenz END AS len,
+		greatest(lenz, lenn) AS len,
 		text,
 		signaturnummer,
 		drehwinkel,
@@ -169,7 +169,7 @@ FROM (
 	SELECT
 		gml_id,
 		point,
-		CASE WHEN lenn>lenz THEN lenn ELSE lenz END AS len,
+		greatest(lenz, lenn) AS len,
 		signaturnummer,
 		modell,
 		drehwinkel,
