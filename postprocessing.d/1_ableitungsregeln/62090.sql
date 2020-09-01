@@ -12,9 +12,9 @@ SELECT
 	gml_id,
 	'Topographie' AS thema,
 	'ax_besondererhoehenpunkt' AS layer,
-	wkb_geometry AS point,
+	st_multi(wkb_geometry) AS point,
 	0 AS drehwinkel,
 	'BE3000' AS signaturnummer,
 	advstandardmodell||sonstigesmodell
 FROM ax_besondererhoehenpunkt
-WHERE endet IS NULL;
+WHERE endet IS NULL AND gml_id LIKE 'DEBE%';
