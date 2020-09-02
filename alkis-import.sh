@@ -550,48 +550,6 @@ EOF
 		continue
 		;;
 
-	OCI:*)
-		DST=$src
-		DB=${src#OCI:}
-		user=${DB%%/*}
-		DRIVER=OCI
-		sql() {
-			local r
-			pushd "$B/oci" >/dev/null
-			if [ -f "$1" ]; then
-				sqlplus "$DB" @$1 $EPSG
-				r=$?
-			else
-				echo "$1 not found"
-				return 1
-			fi
-			popd >/dev/null
-			return $?
-		}
-		export -f sql
-		runsql() {
-			sqlplus "$DB" <<EOF
-whenever sqlerror exit 1
-$1;
-commit;
-quit;
-EOF
-		}
-		export -f runsql
-		dump() {
-			exp "$DB" file=$1.dmp log=$1-export.log owner=$user statistics=none
-		}
-		restore() {
-			if ! [ -f "$1.dmp" -a -r "$1.dmp" ]; then
-				echo "$P: $1.dmp nicht gefunden oder nicht lesbar." >&2
-				return 1
-			fi
-
-			imp "$DB" file=$1.dmp log=$1-import.log fromuser=$user touser=$user
-		}
-		continue
-		;;
-
 	"pgschema "*)
 		PGSCHEMA=${src#pgschema }
 		if [ $major -lt 3 ] || [ $major -eq 3 -a $minor -lt 1 ]; then

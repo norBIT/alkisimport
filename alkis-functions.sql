@@ -312,7 +312,9 @@ BEGIN
 	FOR c IN SELECT table_name FROM information_schema.columns
 		   WHERE column_name='gml_id'
 		     AND substr(table_name,1,3) IN ('ax_','ap_','ks_','aa_')
-		     AND NOT table_name IN ('ax_tatsaechlichenutzung','ax_klassifizierung','ax_ausfuehrendestellen') LOOP
+		     AND NOT table_name IN ('ax_tatsaechlichenutzung','ax_klassifizierung','ax_ausfuehrendestellen')
+		     AND table_schema=current_schema
+	LOOP
 		sql := sql || delim || 'SELECT gml_id,beginnt,endet,''' || c.table_name || ''' AS table_name FROM ' || c.table_name;
 		delim := ' UNION ';
 	END LOOP;
