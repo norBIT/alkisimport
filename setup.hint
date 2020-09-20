@@ -2,4 +2,4 @@ sdesc: "norGIS ALKIS Import"
 ldesc: "norGIS ALKIS Import"
 maintainer: JuergenFischer
 category: Desktop
-requires: pyqt5 psql sip-qt5 gdal
+requires: pyqt5 sip-qt5 gdal
