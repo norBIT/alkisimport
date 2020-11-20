@@ -33680,4 +33680,48 @@
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
+  <GMLFeatureClass>
+    <Name>delete</Name>
+    <ElementPath>Delete</ElementPath>
+    <PropertyDefn>
+      <Name>typeName</Name>
+      <ElementPath>typeName</ElementPath>
+      <Type>String</Type>
+    </PropertyDefn>
+    <PropertyDefn>
+      <Name>FeatureId</Name>
+      <ElementPath>FeatureId</ElementPath>
+      <Type>String</Type>
+    </PropertyDefn>
+    <PropertyDefn>
+      <Name>context</Name>
+      <ElementPath>context</ElementPath>
+      <Type>String</Type>
+    </PropertyDefn>
+    <PropertyDefn>
+      <Name>safeToIgnore</Name>
+      <ElementPath>safeToIgnore</ElementPath>
+      <Type>String</Type>
+    </PropertyDefn>
+    <PropertyDefn>
+      <Name>replacedBy</Name>
+      <ElementPath>replacedBy</ElementPath>
+      <Type>String</Type>
+    </PropertyDefn>
+    <PropertyDefn>
+      <Name>anlass</Name>
+      <ElementPath>anlass</ElementPath>
+      <Type>StringList</Type>
+    </PropertyDefn>
+    <PropertyDefn>
+      <Name>endet</Name>
+      <ElementPath>endet</ElementPath>
+      <Type>String</Type>
+    </PropertyDefn>
+    <PropertyDefn>
+      <Name>ignored</Name>
+      <ElementPath>ignored</ElementPath>
+      <Type>String</Type>
+    </PropertyDefn>
+  </GMLFeatureClass>
 </GMLFeatureClassList>

@@ -19,13 +19,15 @@
 ^OGR: OGROpen\(.*\) succeeded as NAS\.\s*$
 ^OGR: OGROpen\(PG:.*\) succeeded as PostgreSQL\.\s*$
 ^GDAL: In GDALDestroy - unloading GDAL shared library\.\s*$
-^psql:.*: (NOTICE|HINWEIS):  (function|aggregate|Funktion|Aggregatfunktion) ([^.]+\.)?alkis_accum\(anyarray\) (does not exist, skipping|existiert nicht, wird \S+bersprungen)
-^psql:.*: (NOTICE|HINWEIS):  (function|Funktion) ([^.]+\.)?alkis_(drop\(\)|dropobject\(text\)|delete\(\)|mviews\(\)|update_schema\(\)|set_schema\(text\)) (does not exist, skipping|existiert nicht, wird \S+bersprungen)$
-^psql:.*: (NOTICE|HINWEIS):  Dropping (table|view|sequence) 
-^psql:.*: (NOTICE|HINWEIS):  gserialized_gist_joinsel: jointype 4 not supported\s*$
-^psql:.*: (NOTICE|HINWEIS):  (geometry|LWGEOM)_gist_joinsel called with incorrect join type\s*$
-^psql:.*: (NOTICE|HINWEIS):  no non-null\/empty features, unable to compute statistics\s*$
-^psql:.*: (NOTICE|HINWEIS):  no notnull values, invalid stats\*$
+^psql:.*: (NOTICE|HINWEIS):\s+(function|aggregate|Funktion|Aggregatfunktion) ([^.]+\.)?alkis_accum\(anyarray\) (does not exist, skipping|existiert nicht, wird \S+bersprungen)
+^psql:.*: (NOTICE|HINWEIS):\s+(function|Funktion) ([^.]+\.)?alkis_(drop\(\)|dropobject\(text\)|delete\(\)|mviews\(\)|update_schema\(\)|set_schema\(text\)) (does not exist, skipping|existiert nicht, wird \S+bersprungen)$
+^psql:.*: (NOTICE|HINWEIS):\s+(trigger|Trigger)\s+\S+_insert.*(does not exist, skipping|existiert nicht, wird \S+bersprungen)
+^psql:.*: (NOTICE|HINWEIS):\s+Dropping (table|view|sequence) 
+^psql:.*: (NOTICE|HINWEIS):\s+gserialized_gist_joinsel: jointype 4 not supported\s*$
+^psql:.*: (NOTICE|HINWEIS):\s+(geometry|LWGEOM)_gist_joinsel called with incorrect join type\s*$
+^psql:.*: (NOTICE|HINWEIS):\s+no non-null\/empty features, unable to compute statistics\s*$
+^psql:.*: (NOTICE|HINWEIS):\s+no notnull values, invalid stats\*$
+^\s+(DROP TRIGGER IF EXISTS|CREATE TRIGGER) \S+_insert
 ^CONTEXT:  PL\/pgSQL-Funktion (pg_temp_\d+\.)?(alkis|alb)_.* Zeile \d+ bei RAISE
 ^CONTEXT:  SQL statement in PL\/PgSQL function "alkis_(update_schema|set_comments)" near line \d+\s*$
 ^CONTEXT:  SQL statement "ALTER TABLE alkis_(flaechen|linien|schriften) ADD PRIMARY KEY \(katalog,signaturnummer\)"
@@ -52,7 +54,7 @@
 ^LINE 2:   SELECT st_force_2d\(\$1\);\s*$
 ^LINE 2:   SELECT st_force_collection\(\$1\);\s*$
 ^LINE 2:   SELECT force_collection\(\$1\);\s*$
-^               \^\\r\s*$
+^\s+\^\\r\s*$
 ^HINT:  Keine Funktion stimmt mit dem angegebenen Namen und den Argumenttypen .*berein. Sie m.*ssen m.*glicherweise ausdr.*ckliche Typumwandlungen hinzuf.*gen.\s*$
 ^psql:alkis-update.sql:.*: NOTICE:  ALTER TABLE \/ ADD PRIMARY KEY will create implicit index "alkis_(flaechen|linien|schriften)_pkey" for table "alkis_(flaechen|linien|schriften)"
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*(gel\S+scht|geleert)\..*$
@@ -79,7 +81,7 @@ ERROR:  table "alkis_(stricharten|stricharten_i|schriften|randlinie|linien|linie
 ERROR:  sequence "alkis_(farben|konturen|linie|randlinie|strichart|stricharten|stricharten_i)_id_seq" does not exist
 SQL( statement|-Anweisung) \S+SELECT\s+alkis_dropobject\('alkis_konturen'\)
 ^.*(ERROR|FEHLER):.*application_name
-^\s+(alkis_createklassifizierung|alkis_createnutzung|alkis_checkflurstueck|alkis_createausfuehrendestellen|ax_besondereflurstuecksgrenze|alkis_create_bcrs|alkis_boeschung|alb_update_schema|deletehist)\s*$
+^\s+(alkis_createklassifizierung|alkis_createnutzung|alkis_checkflurstueck|alkis_createausfuehrendestellen|ax_besondereflurstuecksgrenze|alkis_create_bcrs|alkis_boeschung|alb_update_schema|deletehist|format)\s*$
 ^ ax_klassifizierung und ax_klassifizierungsschluessel erzeugt\.\s*$
 ^ ax_tatsaechlichenutzung und ax_tatsaechlichenutzungsschluessel erzeugt\.\s*$
 ^ ax_ausfuehrendestellen erzeugt\.\s*$

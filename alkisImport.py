@@ -25,7 +25,7 @@ from io import open
 
 import sip
 for c in ["QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"]:
-        sip.setapi(c, 2)
+    sip.setapi(c, 2)
 
 import sys
 import os
@@ -38,12 +38,12 @@ from zipfile import ZipFile
 from itertools import islice
 
 try:
-    from PyQt4.QtCore import QSettings, QProcess, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QElapsedTimer, QByteArray
+    from PyQt4.QtCore import QSettings, QProcess, QDir, QFileInfo, Qt, QDateTime, QElapsedTimer, QByteArray
     from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox, QFont, QIntValidator, QListWidgetItem
     from PyQt4.QtSql import QSqlDatabase, QSqlQuery
     from PyQt4 import uic
 except ImportError:
-    from PyQt5.QtCore import QSettings, QProcess, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QElapsedTimer, QByteArray
+    from PyQt5.QtCore import QSettings, QProcess, QDir, QFileInfo, Qt, QDateTime, QElapsedTimer, QByteArray
     from PyQt5.QtGui import QIcon, QFont, QIntValidator
     from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMessageBox, QListWidgetItem
     from PyQt5.QtSql import QSqlDatabase, QSqlQuery
@@ -76,6 +76,8 @@ os.putenv("OGR_SKIP", "GML,SEGY")
 os.putenv("NAS_INDICATOR", "NAS-Operationen;AAA-Fachschema;aaa.xsd;aaa-suite;adv/gid/6.0")
 
 os.putenv("PGCLIENTENCODING", "UTF8")
+
+os.putenv("OGR_PG_RETRIEVE_FID", "OFF")
 
 os.putenv("NAS_GFS_TEMPLATE", os.path.join(BASEDIR, "alkis-schema.gfs"))
 
@@ -169,6 +171,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.cbFnbruch.setCurrentIndex(0 if s.value("fnbruch", True, type=bool) else 1)
         self.cbPgVerdraengen.setCurrentIndex(1 if s.value("pgverdraengen", False, type=bool) else 0)
         self.cbxUseCopy.setChecked(s.value("usecopy", True, type=bool))
+        self.cbxAvoidDupes.setChecked(s.value("avoiddupes", False, type=bool))
         self.cbxCreate.setChecked(False)
         self.cbxClean.setChecked(False)
         self.cbxHistorie.setDisabled(True)
@@ -481,12 +484,12 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         if QMessageBox.question(self, "norGIS-ALKIS-Import", "Laufenden Import abbrechen?", QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
             self.canceled = True
 
-    def keep(self, l):
+    def keep(self, line):
         if not self.reFilter:
             self.loadRe()
 
         for r in self.reFilter:
-            if r.match(l):
+            if r.match(line):
                 return False
 
         return True
@@ -558,11 +561,11 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 lines[0] = current + lines[0]
             current = ""
 
-        for l in lines:
-            if self.keep(l):
-                self.log("> {}|".format(l.rstrip()))
+        for line in lines:
+            if self.keep(line):
+                self.log("> {}|".format(line.rstrip()))
             else:
-                self.logDb(l)
+                self.logDb(line)
 
         return current + lastline
 
@@ -627,6 +630,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             "-v", "parent_schema={}".format(self.parentschema if self.parentschema else self.schema),
             "-v", "alkis_fnbruch={}".format("true" if self.fnbruch else "false"),
             "-v", "alkis_pgverdraengen={}".format("true" if self.pgverdraengen else "false"),
+            "-v", "alkis_avoiddupes={}".format("true" if self.avoiddupes else "false"),
             "-v", "alkis_hist={}".format("true" if self.historie else "false"),
             "-v", "ON_ERROR_STOP=1",
             "-v", "ECHO=errors",
@@ -723,6 +727,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         s.setValue("skipfailures", self.cbxSkipFailures.isChecked())
         s.setValue("usecopy", self.cbxUseCopy.isChecked())
+
+        self.avoiddupes = self.cbxAvoidDupes.isChecked()
+        s.setValue("avoiddupes", self.avoiddupes)
 
         self.fnbruch = self.cbFnbruch.currentIndex() == 0
         s.setValue("fnbruch", self.fnbruch)
@@ -988,7 +995,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         break
 
                     if not self.rund(conn, "postupdate"):
-                                                break
+                        break
 
                 ok = self.rund(conn, "preprocessing")
 
@@ -1038,7 +1045,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                             src += ".xml"
 
                         if src not in sizes:
-                            logDb("Größe der Datei {} nicht gefunden.".format(src))
+                            self.logDb("Größe der Datei {} nicht gefunden.".format(src))
                             break
 
                         size = sizes[src]
@@ -1085,7 +1092,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         "-progress",
                     ]
 
-                    if GDAL_MAJOR < 3 or (GDAL_MAJOR==3 and GDAL_MINOR<1):
+                    if GDAL_MAJOR < 3 or (GDAL_MAJOR == 3 and GDAL_MINOR < 1):
                         args.append("PG:{} active_schema={}','{}".format(conn, self.schema, self.pgschema))
                     else:
                         args.append("PG:{0} schemas='{1},{2}' active_schema={1}".format(conn, self.schema, self.pgschema))

@@ -35,7 +35,7 @@
         <item row="2" column="1">
          <widget class="QLineEdit" name="lePORT">
           <property name="inputMask">
-           <string>99999</string>
+           <string>99999; </string>
           </property>
           <property name="text">
            <string/>
@@ -182,6 +182,33 @@
         <string>Importeinstellungen</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
+        <item row="2" column="1">
+         <widget class="QComboBox" name="cbEPSG">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Transaktionsgröße</string>
+          </property>
+          <property name="buddy">
+           <cstring>leGT</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Koordinatensystem</string>
+          </property>
+          <property name="buddy">
+           <cstring>cbEPSG</cstring>
+          </property>
+         </widget>
+        </item>
         <item row="4" column="1">
          <widget class="QComboBox" name="cbPgVerdraengen">
           <item>
@@ -206,33 +233,6 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_10">
-          <property name="text">
-           <string>Transaktionsgröße</string>
-          </property>
-          <property name="buddy">
-           <cstring>leGT</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QComboBox" name="cbEPSG">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>Koordinatensystem</string>
-          </property>
-          <property name="buddy">
-           <cstring>cbEPSG</cstring>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="0">
          <widget class="QLabel" name="label_8">
           <property name="text">
@@ -240,6 +240,36 @@
           </property>
           <property name="buddy">
            <cstring>cbFnbruch</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QComboBox" name="cbFnbruch">
+          <item>
+           <property name="text">
+            <string>Mit Bruchstrich</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Mit Schrägstrich</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QLineEdit" name="leGT">
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="maxLength">
+           <number>32767</number>
+          </property>
+          <property name="cursorPosition">
+           <number>0</number>
           </property>
          </widget>
         </item>
@@ -266,37 +296,14 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="cbxAvoidDupes">
+            <property name="text">
+             <string>Duplikate ignorieren</string>
+            </property>
+           </widget>
+          </item>
          </layout>
-        </item>
-        <item row="5" column="1">
-         <widget class="QLineEdit" name="leGT">
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="maxLength">
-           <number>32767</number>
-          </property>
-          <property name="cursorPosition">
-           <number>0</number>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QComboBox" name="cbFnbruch">
-          <item>
-           <property name="text">
-            <string>Mit Bruchstrich</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Mit Schrägstrich</string>
-           </property>
-          </item>
-         </widget>
         </item>
         <item row="0" column="0" colspan="2">
          <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -609,6 +616,7 @@
   <tabstop>cbxSkipFailures</tabstop>
   <tabstop>cbxClearProtocol</tabstop>
   <tabstop>cbxUseCopy</tabstop>
+  <tabstop>cbxAvoidDupes</tabstop>
   <tabstop>lstFiles</tabstop>
   <tabstop>pbAdd</tabstop>
   <tabstop>pbAddDir</tabstop>

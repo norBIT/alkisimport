@@ -28,8 +28,11 @@ export OGR_SETFIELD_NUMERIC_WARNING=ON
 # Mindestlänge für Kreisbogensegmente
 export OGR_ARC_MINLENGTH=0.1
 
-# Verhindern, das der GML-Treiber übernimmt
+# Verhindern, dass der GML-Treiber übernimmt
 export OGR_SKIP=GML,SEGY
+
+# ogc_fid bei Einfügungen nicht abfragen
+export OGR_PG_RETRIEVE_FID=NO
 
 # Headerkennungen die NAS-Daten identifizieren
 export NAS_INDICATOR="NAS-Operationen;AAA-Fachschema;aaa.xsd;aaa-suite;adv/gid/6.0"
@@ -42,6 +45,7 @@ export PGCLIENTENCODING=UTF8
 export EPSG=25832
 export CRS="-a_srs EPSG:$EPSG"
 export FNBRUCH=true
+export AVOIDDUPES=false
 export HISTORIE=true
 export PGVERDRAENGEN=false
 export SCHEMA=public
@@ -470,6 +474,7 @@ EOF
 			psql -X -P pager=off \
 				-v alkis_pgverdraengen=$PGVERDRAENGEN \
 				-v alkis_fnbruch=$FNBRUCH \
+				-v alkis_avoiddupes=$AVOIDDUPES \
 				-v alkis_hist=$HISTORIE \
 				-v alkis_epsg=$EPSG \
 				-v alkis_schema=$SCHEMA \
@@ -492,6 +497,7 @@ EOF
 			psql -X -P pager=off \
 				-v alkis_pgverdraengen=$PGVERDRAENGEN \
 				-v alkis_fnbruch=$FNBRUCH \
+				-v alkis_avoiddupes=$AVOIDDUPES \
 				-v alkis_hist=$HISTORIE \
 				-v alkis_epsg=$EPSG \
 				-v alkis_schema=$SCHEMA \
@@ -581,6 +587,24 @@ EOF
 			;;
 		*)
 			echo "$P: Ungültiger Wert $HISTORIE (true or false erwartet)"
+			exit 1
+			;;
+		esac
+
+		continue
+		;;
+
+	"avoiddupes "*)
+		AVOIDDUPES=${src#avoiddupes }
+		case "$AVOIDDUPES" in
+		an|on|true|an)
+			AVOIDDUPES=true
+			;;
+		aus|off|false)
+			AVOIDDUPES=false
+			;;
+		*)
+			echo "$P: Ungültiger Wert $AVOIDDUPES (true or false erwartet)"
 			exit 1
 			;;
 		esac
