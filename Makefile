@@ -2,24 +2,40 @@ PKG=alkis-import
 VERSION = 3.0
 P=$(shell cat .pkg-$(VERSION) || echo 1)
 
-O4W=osgeo4w/apps/$(PKG)
+M=osgeo4w/main
+T=osgeo4w/testing
 
 all:
 
 package:
-	mkdir -p osgeo4w/apps/$(PKG)/preprocessing.d osgeo4w/apps/$(PKG)/postprocessing.d osgeo4w/bin osgeo4w/etc/postinstall osgeo4w/etc/preremove
-	git archive --format=tar --prefix=$(O4W)/ HEAD | tar -xf -
-	cp alkis-import.cmd osgeo4w/bin/$(PKG).cmd
-	cp postinstall.bat osgeo4w/etc/postinstall/$(PKG).cmd
-	cp preremove.bat osgeo4w/etc/preremove/$(PKG).cmd
-	perl -i -pe 's/#VERSION#/$(VERSION)-$(P)/' osgeo4w/apps/$(PKG)/about.ui osgeo4w/apps/$(PKG)/alkisImportDlg.ui
-	! [ -f osgeo4w/$(PKG)-$(VERSION)-$(P).tar.bz2 ]
-	tar -C osgeo4w --remove-files -cjf osgeo4w/$(PKG)-$(VERSION)-$(P).tar.bz2 apps bin etc
+	mkdir -p {$(M),$(T)}/{apps/$(PKG)/{preprocessing,postprocessing}.d,bin,etc/{postinstall,preremove}}
+
+	git archive --format=tar --prefix=$(M)/apps/$(PKG)/ HEAD | tar -xf -
+	cp alkis-import.cmd $(M)/bin/$(PKG).cmd
+	cp postinstall.bat $(M)/etc/postinstall/$(PKG).cmd
+	cp preremove.bat $(M)/etc/preremove/$(PKG).cmd
+	perl -i -pe 's/#VERSION#/$(VERSION)-$(P)/' $(M)/apps/$(PKG)/{about.ui,alkisImportDlg.ui}
+	! [ -f $(M)/$(PKG)-$(VERSION)-$(P).tar.bz2 ]
+	tar -C $(M) --remove-files -cjf $(M)/$(PKG)-$(VERSION)-$(P).tar.bz2 apps bin etc
+	cp setup.hint $(M)/setup.hint
+
+	git archive --format=tar --prefix=$(T)/apps/$(PKG)/ HEAD | tar -xf -
+	cp alkis-import-testing.cmd $(T)/bin/$(PKG).cmd
+	cp postinstall-testing.bat $(T)/etc/postinstall/$(PKG).cmd
+	cp preremove.bat $(T)/etc/preremove/$(PKG).cmd
+	perl -i -pe 's/#VERSION#/$(VERSION)-$(P)/' $(T)/apps/$(PKG)/{about.ui,alkisImportDlg.ui}
+	! [ -f $(T)/$(PKG)-$(VERSION)-$(P).tar.bz2 ]
+	tar -C $(T) --remove-files -cjf $(T)/$(PKG)-$(VERSION)-$(P).tar.bz2 apps bin etc
+	cp setup-testing.hint $(T)/setup.hint
 
 osgeo4w: package
-	for i in x86 x86_64; do rsync setup.hint osgeo4w/$(PKG)-$(VERSION)-$(P).tar.bz2 upload.osgeo.org:osgeo4w/$$i/release/$(PKG)/; done
+	for i in x86 x86_64; do rsync $(M)/setup.hint $(M)/$(PKG)-$(VERSION)-$(P).tar.bz2 upload.osgeo.org:osgeo4w/$$i/release/$(PKG)/; done
 	wget -O - https://upload.osgeo.org/cgi-bin/osgeo4w-regen.sh
 	wget -O - https://upload.osgeo.org/cgi-bin/osgeo4w-promote.sh
+
+	rsync $(T)/setup.hint $(T)/$(PKG)-$(VERSION)-$(P).tar.bz2 upload.osgeo.org:osgeo4w/testing/x86_64/release/$(PKG)/
+	wget -O - https://upload.osgeo.org/cgi-bin/osgeo4w-regen-testing.sh
+
 	echo $$(( $(P) + 1 )) >.pkg-$(VERSION)
 
 archive:
