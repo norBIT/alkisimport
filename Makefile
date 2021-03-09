@@ -29,11 +29,11 @@ package:
 	cp setup-testing.hint $(T)/setup.hint
 
 osgeo4w: package
-	for i in x86 x86_64; do rsync $(M)/setup.hint $(M)/$(PKG)-$(VERSION)-$(P).tar.bz2 upload.osgeo.org:osgeo4w/$$i/release/$(PKG)/; done
+	for i in x86 x86_64; do rsync --chmod=D775,F664 $(M)/setup.hint $(M)/$(PKG)-$(VERSION)-$(P).tar.bz2 upload.osgeo.org:osgeo4w/$$i/release/$(PKG)/; done
 	wget -O - https://upload.osgeo.org/cgi-bin/osgeo4w-regen.sh
 	wget -O - https://upload.osgeo.org/cgi-bin/osgeo4w-promote.sh
 
-	rsync $(T)/setup.hint $(T)/$(PKG)-$(VERSION)-$(P).tar.bz2 upload.osgeo.org:osgeo4w/testing/x86_64/release/$(PKG)/
+	rsync --chmod=D775,F664 $(T)/setup.hint $(T)/$(PKG)-$(VERSION)-$(P).tar.bz2 upload.osgeo.org:osgeo4w/testing/x86_64/release/$(PKG)/
 	wget -O - https://upload.osgeo.org/cgi-bin/osgeo4w-regen-testing.sh
 
 	echo $$(( $(P) + 1 )) >.pkg-$(VERSION)
