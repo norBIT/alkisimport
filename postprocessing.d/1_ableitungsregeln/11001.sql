@@ -60,7 +60,7 @@ SELECT
 FROM ax_flurstueck o
 LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='ZAE_NEN' AND t.endet IS NULL
 LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='ZAE_NEN' AND d.endet IS NULL
-WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN NULL ELSE '4111' END,'4113','4122') OR coalesce(o.nenner,'0')='0');
+WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,CASE WHEN :alkis_fnbruch THEN '4115' ELSE '4113' END) IN ('4113','4122') OR coalesce(o.nenner,'0')='0');
 
 -- Zähler
 -- Bruchdarstellung
@@ -102,7 +102,7 @@ FROM (
 		FROM ax_flurstueck o
 		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
 		LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
-		WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123') AND coalesce(o.nenner,'0')<>'0')
+		WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,CASE WHEN :alkis_fnbruch THEN '4115' ELSE '4113' END) IN ('4115','4123') AND coalesce(o.nenner,'0')<>'0')
 	) AS foo
 ) AS foo;
 
@@ -146,7 +146,7 @@ FROM (
 		FROM ax_flurstueck o
 		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
 		LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
-		WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123') AND coalesce(o.nenner,'0')<>'0')
+		WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,CASE WHEN :alkis_fnbruch THEN '4115' ELSE '4113' END) IN ('4115','4123') AND coalesce(o.nenner,'0')<>'0')
 	) AS foo
 	WHERE NOT text IS NULL
 ) AS foo;
@@ -187,7 +187,7 @@ FROM (
 		FROM ax_flurstueck o
 		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
 		LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
-		WHERE o.endet IS NULL AND coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123') AND coalesce(o.nenner,'0')<>'0'
+		WHERE o.endet IS NULL AND coalesce(t.signaturnummer,CASE WHEN :alkis_fnbruch THEN '4115' ELSE '4113' END) IN ('4115','4123') AND coalesce(o.nenner,'0')<>'0'
 	) AS bruchstrich0 WHERE lenz>0 AND lenn>0
 ) AS bruchstrich1;
 

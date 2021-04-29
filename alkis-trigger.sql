@@ -144,7 +144,7 @@ BEGIN
 		IF n=0 THEN
 			s := 'SELECT count(*),min(beginnt) FROM ' || NEW.typename || ' WHERE gml_id=''' || substr(NEW.featureid, 1, 16) || ''' AND endet IS NULL';
 			EXECUTE s INTO n, beginnt;
-			IF n=1 OR (n=0 AND NEW.context='delete') THEN
+			IF n=0 THEN
 				RAISE NOTICE '%: Kein Objekt gefunden [%:%]', NEW.featureid, NEW.context, n;
 				NEW.ignored=true;
 				RETURN NEW;
