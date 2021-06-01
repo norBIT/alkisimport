@@ -720,6 +720,7 @@ EOF
 
 		echo "CREATE $(bdate)"
 		pushd "$B" >/dev/null
+		rund prepare
 		rund precreate
 		sql alkis-init.sql
 		rund postcreate
@@ -736,6 +737,7 @@ EOF
 
 		echo "CLEAN $(bdate)"
 		pushd "$B" >/dev/null
+		rund prepare
 		rund preclean
 		sql alkis-clean.sql
 		rund postclean
@@ -756,6 +758,7 @@ EOF
 
 		echo "UPDATE $(bdate)"
 		pushd "$B" >/dev/null
+		rund prepare
 		rund preupdate
 		sql alkis-update.sql
 		rund postupdate

@@ -23,9 +23,12 @@ from __future__ import unicode_literals
 from builtins import str
 from io import open
 
-import sip
-for c in ["QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"]:
-    sip.setapi(c, 2)
+try:
+    import sip
+    for c in ["QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"]:
+        sip.setapi(c, 2)
+except ImportError:
+    pass
 
 import sys
 import os
@@ -436,7 +439,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         save = QFileDialog.getSaveFileName(self, "Protokolldatei angeben", ".", "Protokoll-Dateien (*.log)")
         if isinstance(save, tuple):
             save = save[0]
-        if save is None:
+        if save is None or save == "":
             return
 
         f = open(save, "w", encoding="utf-8")
@@ -945,6 +948,11 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.pbProgress.setRange(0, 10000)
                 self.pbProgress.setValue(0)
 
+                ok = self.rund(conn, "prepare")
+                if not ok:
+                    self.log("Vorbereitung schlug fehl.")
+                    break
+
                 if self.cbxCreate.isChecked():
                     if self.parentschema == "" or self.parentschema == self.schema:
                         if not self.rund(conn, "precreate"):
@@ -998,6 +1006,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         break
 
                 ok = self.rund(conn, "preprocessing")
+                if not ok:
+                    self.log("Preprocessing schlug fehl.")
+                    break
 
                 self.pbProgress.setVisible(True)
 
