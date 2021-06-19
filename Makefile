@@ -3,7 +3,7 @@ VERSION = 3.0
 P=$(shell cat .pkg-$(VERSION) || echo 1)
 
 M=osgeo4w/main
-T=osgeo4w/testing
+T=osgeo4w/v2
 
 all:
 
@@ -20,21 +20,21 @@ package:
 	cp setup.hint $(M)/setup.hint
 
 	git archive --format=tar --prefix=$(T)/apps/$(PKG)/ HEAD | tar -xf -
-	cp alkis-import-testing.cmd $(T)/bin/$(PKG).cmd
-	cp postinstall-testing.bat $(T)/etc/postinstall/$(PKG).cmd
+	cp alkis-import-osgeo4w-v2.cmd $(T)/bin/$(PKG).cmd
+	cp postinstall-osgeo4w-v2.bat $(T)/etc/postinstall/$(PKG).cmd
 	cp preremove.bat $(T)/etc/preremove/$(PKG).cmd
 	perl -i -pe 's/#VERSION#/$(VERSION)-$(P)/' $(T)/apps/$(PKG)/{about.ui,alkisImportDlg.ui}
 	! [ -f $(T)/$(PKG)-$(VERSION)-$(P).tar.bz2 ]
 	tar -C $(T) --remove-files -cjf $(T)/$(PKG)-$(VERSION)-$(P).tar.bz2 apps bin etc
-	cp setup-testing.hint $(T)/setup.hint
+	cp setup-osgeo4w-v2.hint $(T)/setup.hint
 
 osgeo4w: package
 	for i in x86 x86_64; do rsync --chmod=D775,F664 $(M)/setup.hint $(M)/$(PKG)-$(VERSION)-$(P).tar.bz2 upload.osgeo.org:osgeo4w/$$i/release/$(PKG)/; done
 	wget -O - https://download.osgeo.org/cgi-bin/osgeo4w-regen.sh
 	wget -O - https://download.osgeo.org/cgi-bin/osgeo4w-promote.sh
 
-	rsync --chmod=D775,F664 $(T)/setup.hint $(T)/$(PKG)-$(VERSION)-$(P).tar.bz2 upload.osgeo.org:osgeo4w/testing/x86_64/release/$(PKG)/
-	wget -O - https://download.osgeo.org/cgi-bin/osgeo4w-regen-testing.sh
+	rsync --chmod=D775,F664 $(T)/setup.hint $(T)/$(PKG)-$(VERSION)-$(P).tar.bz2 upload.osgeo.org:osgeo4w/v2/x86_64/release/$(PKG)/
+	wget -O - https://download.osgeo.org/cgi-bin/osgeo4w-regen-v2.sh
 
 	echo $$(( $(P) + 1 )) >.pkg-$(VERSION)
 
