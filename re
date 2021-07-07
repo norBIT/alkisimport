@@ -55,7 +55,8 @@
 ^LINE 2:   SELECT st_force_collection\(\$1\);\s*$
 ^LINE 2:   SELECT force_collection\(\$1\);\s*$
 ^\s+\^\\r\s*$
-^HINT:  Keine Funktion stimmt mit dem angegebenen Namen und den Argumenttypen .*berein. Sie m.*ssen m.*glicherweise ausdr.*ckliche Typumwandlungen hinzuf.*gen.\s*$
+^HINT:  Keine Funktion stimmt mit dem angegebenen Namen und den Argumenttypen .*berein. Sie m.*ssen m.*glicherweise ausdr.*ckliche Typumwandlungen hinzuf.*gen\.\s*$
+^HINT:  No function matches the given name and argument types. You might need to add explicit type casts\.\s*$
 ^psql:alkis-update.sql:.*: NOTICE:  ALTER TABLE \/ ADD PRIMARY KEY will create implicit index "alkis_(flaechen|linien|schriften)_pkey" for table "alkis_(flaechen|linien|schriften)"
 ^.*(Tabelle|Sicht|Sequenz|Funktion|Constraint|Index).*(gel\S+scht|geleert)\..*$
 ^\s+(addgeometrycolumn|alkis_clean|alkis_drop|alkis_dropobject|alkis_create_bsrs|alkis_set_comments|alkis_update_schema|alkis_besondereflurstuecksgrenze|alkis_fixareas|alkis_inherit|version|postgis_version|\?column\?|alkis_set_schema|create_trigger)\s*$
@@ -123,5 +124,6 @@ SQL( statement|-Anweisung) \S+SELECT\s+alkis_dropobject\('alkis_konturen'\)
 (OGR2OGR|Warning 1|GDALVectorTranslate): Skipping field 'zustaendigeStelle|AX_Dienststelle_Schluessel|land' not found in destination layer 'ax_flurstueck'\.
 (OGR2OGR|Warning 1|GDALVectorTranslate): Skipping field 'identifier' not found in destination layer '(ax|ap|ks|aa)_.*'\.
 (OGR2OGR|Warning 1|GDALVectorTranslate): Value '(?P<intvalue>\d+).0+' of field ax_gebaeude\.grundflaeche parsed incompletely to integer (?P=intvalue)\.
+Warning 1: Unable to find driver SEGY to unload from GDAL SKIP environment variable\.
 GDALVectorTranslate: Unable to write feature \d+ into layer
 ^Warning 6: Progress turned off as fast feature count is not available\.

@@ -502,7 +502,10 @@ CREATE VIEW v_haeuser AS
     st_x(point) AS x_coord,
     st_y(point) AS y_coord,
     strshl,
-    ha_nr
+    strname,
+    ha_nr,
+    gemshl,
+    gemname
   FROM (
     SELECT
       g.ogc_fid * 268435456::bigint + o.ogc_fid AS ogc_fid,
@@ -512,4 +515,7 @@ CREATE VIEW v_haeuser AS
     FROM ax_lagebezeichnungmithausnummer o
     JOIN ax_gebaeude g ON ARRAY[o.gml_id] <@ g.zeigtauf AND g.endet IS NULL
     WHERE o.endet IS NULL
-  ) AS foo;
+  ) AS foo
+  LEFT OUTER JOIN str_shl USING (strshl)
+  LEFT OUTER JOIN gem_shl USING (gemshl)
+;
