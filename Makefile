@@ -12,8 +12,8 @@ package:
 
 	git archive --format=tar --prefix=$(M)/apps/$(PKG)/ HEAD | tar -xf -
 	cp alkis-import.cmd $(M)/bin/$(PKG).cmd
-	cp postinstall.bat $(M)/etc/postinstall/$(PKG).cmd
-	cp preremove.bat $(M)/etc/preremove/$(PKG).cmd
+	cp postinstall.bat $(M)/etc/postinstall/$(PKG).bat
+	cp preremove.bat $(M)/etc/preremove/$(PKG).bat
 	perl -i -pe 's/#VERSION#/$(VERSION)-$(P)/' $(M)/apps/$(PKG)/{about.ui,alkisImportDlg.ui}
 	! [ -f $(M)/$(PKG)-$(VERSION)-$(P).tar.bz2 ]
 	tar -C $(M) --remove-files -cjf $(M)/$(PKG)-$(VERSION)-$(P).tar.bz2 apps bin etc
@@ -21,8 +21,8 @@ package:
 
 	git archive --format=tar --prefix=$(T)/apps/$(PKG)/ HEAD | tar -xf -
 	cp alkis-import-osgeo4w-v2.cmd $(T)/bin/$(PKG).cmd
-	cp postinstall-osgeo4w-v2.bat $(T)/etc/postinstall/$(PKG).cmd
-	cp preremove.bat $(T)/etc/preremove/$(PKG).cmd
+	cp postinstall-osgeo4w-v2.bat $(T)/etc/postinstall/$(PKG).bat
+	cp preremove.bat $(T)/etc/preremove/$(PKG).bat
 	perl -i -pe 's/#VERSION#/$(VERSION)-$(P)/' $(T)/apps/$(PKG)/{about.ui,alkisImportDlg.ui}
 	! [ -f $(T)/$(PKG)-$(VERSION)-$(P).tar.bz2 ]
 	tar -C $(T) --remove-files -cjf $(T)/$(PKG)-$(VERSION)-$(P).tar.bz2 apps bin etc
