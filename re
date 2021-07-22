@@ -54,6 +54,7 @@
 ^LINE 2:   SELECT st_force_2d\(\$1\);\s*$
 ^LINE 2:   SELECT st_force_collection\(\$1\);\s*$
 ^LINE 2:   SELECT force_collection\(\$1\);\s*$
+^LINE 2:   SELECT intersection\(\$1,\$2\);\s*$
 ^\s+\^\\r\s*$
 ^HINT:  Keine Funktion stimmt mit dem angegebenen Namen und den Argumenttypen .*berein. Sie m.*ssen m.*glicherweise ausdr.*ckliche Typumwandlungen hinzuf.*gen\.\s*$
 ^HINT:  No function matches the given name and argument types. You might need to add explicit type casts\.\s*$
