@@ -44,6 +44,7 @@ export CRS="-a_srs EPSG:$EPSG"
 export FNBRUCH=true
 export AVOIDDUPES=false
 export HISTORIE=true
+export QUITTIERUNG=false
 export PGVERDRAENGEN=false
 export SCHEMA=public
 export PARENTSCHEMA=
@@ -220,12 +221,12 @@ import() {
 		;;
 	esac
 
-	echo "RUNNING: ogr2ogr -f $DRIVER $opt -update -append \"$DST\" $CRS \"$dst1\"" | sed -Ee 's/password=\S+/password=*removed*/'
+	echo "RUNNING: ogr2ogr -f $DRIVER $opt $sf_opt -update -append \"$DST\" $CRS \"$dst1\"" | sed -Ee 's/password=\S+/password=*removed*/'
 	ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst1"
 	local r=$?
 	t1=$(bdate +%s)
 
-	progress "$dst" $s $t0 $t1 $r
+	progress "$dst" "$dst1" $s $t0 $t1 $r
 
 	[ $rm == 1 ] && rm -fv "$dst"
 	trap "" EXIT
@@ -251,6 +252,19 @@ process() {
 			if [ "$r" -ne 0 ]; then
 				return $r
 			fi
+
+			if [ "$QUITTIERUNG" = "true" ]; then
+				n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_sequences WHERE schemaname='${SCHEMA//\'/\'\'}' AND sequencename='alkis_quittierungen_seq'" "$DB")
+				n=${n//[	 ]}
+				if [ $n -eq 0 ]; then
+					runsql "CREATE SEQUENCE $SCHEMA.alkis_quittierungen_seq"
+				fi
+
+				quittierungsnr=$(psql -A -X -t -c "SELECT nextval('$SCHEMA.alkis_quittierungen_seq')" "$DB")
+				quittierungsnr=${quittierungsnr//[	 ]}
+				export quittierungsnr
+				export quittierungsi=0
+			fi
 		fi
 
 		export job
@@ -264,10 +278,11 @@ process() {
 
 progress() {
 	local file=$1
-	local size=$2
-	local t0=$3
-	local t1=$4
-	local r=$5
+	local dst=$2
+	local size=$3
+	local t0=$4
+	local t1=$5
+	local r=$6
 	local elapsed
 	local total_elapsed
 	local total_size
@@ -284,6 +299,17 @@ progress() {
 	done_size=$(( total_size - remaining_size ))
 	remaining_time=$(( remaining_size * total_elapsed / done_size ))
 	eta=$(( t1 + remaining_time ))
+
+	if [ -n "$quittierungsnr" ]; then
+		if [ $r == 0 ]; then
+			success=true
+		else
+			success=false
+		fi
+		python3 $B/quittierung.py . "$dst" "$(printf "ID_%08d" $quittierungsi)" $quittierungsnr $success
+		(( ++quittierungsi ))
+	fi
+
 
 	if [ $r -ne 0 ]; then
 		(( errors++ )) || true
@@ -310,6 +336,8 @@ total_size=$total_size
 remaining_size=$remaining_size
 last_time=$t1
 errors=$errors
+quittierungsnr=$quittierungsnr
+quittierungsi=$quittierungsi
 EOF
 
 	rm -f $lock
@@ -581,6 +609,24 @@ EOF
 		continue
 		;;
 
+	"quittierung "*)
+		QUITTIERUNG=${src#quittierung }
+		case "$QUITTIERUNG" in
+		an|on|true|an)
+			QUITTIERUNG=true
+			;;
+		aus|off|false)
+			QUITTIERUNG=false
+			;;
+		*)
+			echo "$P: Ungültiger Wert $QUITTIERUNG (true oder false erwartet)"
+			exit 1
+			;;
+		esac
+		continue
+		;;
+
+
 	"historie "*)
 		HISTORIE=${src#historie }
 		case "${HISTORIE,,}" in
@@ -591,7 +637,7 @@ EOF
 			HISTORIE=false
 			;;
 		*)
-			echo "$P: Ungültiger Wert $HISTORIE (true or false erwartet)"
+			echo "$P: Ungültiger Wert $HISTORIE (true oder false erwartet)"
 			exit 1
 			;;
 		esac
@@ -609,7 +655,7 @@ EOF
 			AVOIDDUPES=false
 			;;
 		*)
-			echo "$P: Ungültiger Wert $AVOIDDUPES (true or false erwartet)"
+			echo "$P: Ungültiger Wert $AVOIDDUPES (true oder false erwartet)"
 			exit 1
 			;;
 		esac
@@ -627,7 +673,7 @@ EOF
 			USECOPY=OFF
 			;;
 		*)
-			echo "$P: Ungültiger Wert $USECOPY (true or false erwartet)"
+			echo "$P: Ungültiger Wert $USECOPY (true oder false erwartet)"
 			exit 1
 			;;
 		esac
@@ -645,7 +691,7 @@ EOF
 			FNBRUCH=false
 			;;
 		*)
-			echo "$P: Ungültiger Wert $FNBRUCH (true or false erwartet)"
+			echo "$P: Ungültiger Wert $FNBRUCH (true oder false erwartet)"
 			exit 1
 			;;
 		esac
@@ -663,7 +709,7 @@ EOF
 			PGVERDRAENGEN=false
 			;;
 		*)
-			echo "$P: Ungültiger Wert $PGVERDRAENGEN (true or false erwartet)"
+			echo "$P: Ungültiger Wert $PGVERDRAENGEN (true oder false erwartet)"
 			exit 1
 			;;
 		esac

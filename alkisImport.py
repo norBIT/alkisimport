@@ -176,6 +176,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.cbxClean.setChecked(False)
         self.cbxHistorie.setDisabled(True)
         self.cbxHistorie.setChecked(s.value("historie", True, type=bool))
+        self.cbxQuittierung.setChecked(s.value("quittierung", False, type=bool))
 
         self.cbEPSG.addItem("UTM32N", "25832")
         self.cbEPSG.addItem("UTM33N", "25833")
@@ -740,6 +741,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.historie = self.cbxHistorie.isChecked()
         s.setValue("historie", self.historie)
 
+        self.quittierung = self.cbxQuittierung.isChecked()
+        s.setValue("quittierung", self.quittierung)
+
         self.epsg = int(self.cbEPSG.itemData(self.cbEPSG.currentIndex()))
         s.setValue("epsg", self.epsg)
 
@@ -759,6 +763,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.lstFiles.itemSelectionChanged.disconnect(self.selChanged)
 
         QApplication.setOverrideCursor(Qt.WaitCursor)
+
+        id_quittierung = None
+        i_quittierung = 0
 
         while True:
             t0 = QElapsedTimer()
@@ -1088,106 +1095,122 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         src = fn
                         size = sizes[fn]
 
-                    try:
-                        os.unlink(src[:-4] + ".gfs")
-                    except OSError:
-                        pass
+                    if ok:
+                        try:
+                            os.unlink(src[:-4] + ".gfs")
+                        except OSError:
+                            pass
 
-                    # if size==623 or size==712:
-                    #    item.setSelected(True)
-                    #    self.log("Kurze Datei {} übersprungen.".format(fn))
-                    #    continue
+                        # if size==623 or size==712:
+                        #    item.setSelected(True)
+                        #    self.log("Kurze Datei {} übersprungen.".format(fn))
+                        #    continue
 
-                    args = [
-                        self.ogr2ogr,
-                        "-f", "PostgreSQL",
-                        "-update",
-                        "-append",
-                        "-progress",
-                    ]
+                        args = [
+                            self.ogr2ogr,
+                            "-f", "PostgreSQL",
+                            "-update",
+                            "-append",
+                            "-progress",
+                        ]
 
-                    if GDAL_MAJOR < 3 or (GDAL_MAJOR == 3 and GDAL_MINOR < 1):
-                        args.append("PG:{} active_schema={}','{}".format(conn, self.schema, self.pgschema))
-                    else:
-                        args.append("PG:{0} schemas='{1},{2}' active_schema={1}".format(conn, self.schema, self.pgschema))
+                        if GDAL_MAJOR < 3 or (GDAL_MAJOR == 3 and GDAL_MINOR < 1):
+                            args.append("PG:{} active_schema={}','{}".format(conn, self.schema, self.pgschema))
+                        else:
+                            args.append("PG:{0} schemas='{1},{2}' active_schema={1}".format(conn, self.schema, self.pgschema))
 
-                    if int(self.leGT.text() or '0') >= 1:
-                        args.extend(["-gt", self.leGT.text()])
+                        if int(self.leGT.text() or '0') >= 1:
+                            args.extend(["-gt", self.leGT.text()])
 
-                    if GDAL_MAJOR >= 3:
-                        if self.epsg == 131466 or self.epsg == 131467 or self.epsg == 131468:
-                            args.extend(["-a_srs", os.path.join(BASEDIR, "{}.wkt2".format(self.epsg))])
+                        if GDAL_MAJOR >= 3:
+                            if self.epsg == 131466 or self.epsg == 131467 or self.epsg == 131468:
+                                args.extend(["-a_srs", os.path.join(BASEDIR, "{}.wkt2".format(self.epsg))])
+
+                            elif self.epsg == 31466 or self.epsg == 31467 or self.epsg == 31468:
+                                args.extend([
+                                    "-s_srs", os.path.join(BASEDIR, "1{}.wkt2".format(self.epsg)),
+                                    "-t_srs", "EPSG:{}".format(self.epsg)
+                                ])
+
+                            elif self.epsg == 13068:
+                                args.extend([
+                                    "-ct", "+proj=pipeline +step +inv +proj=utm +zone=33 +ellps=GRS80 +step +inv +proj=hgridshift +grids=ntv2berlin20130508.GSB +step +proj=cass +lat_0=52.4186482777778 +lon_0=13.6272036666667 +x_0=40000 +y_0=10000 +ellps=bessel +step +proj=axisswap +order=2",
+                                    "-a_srs", "EPSG:3068"
+                                ])
+
+                            else:
+                                args.extend(["-a_srs", "EPSG:{}".format(self.epsg)])
+
+                        elif self.epsg == 131466 or self.epsg == 131467 or self.epsg == 131468:
+                            args.extend(["-a_srs", "+init=custom:{}".format(self.epsg)])
+                            os.putenv("PROJ_LIB", ".")
 
                         elif self.epsg == 31466 or self.epsg == 31467 or self.epsg == 31468:
                             args.extend([
-                                "-s_srs", os.path.join(BASEDIR, "1{}.wkt2".format(self.epsg)),
-                                "-t_srs", "EPSG:{}".format(self.epsg)
+                                "-s_srs", "+init=custom:1{}".format(self.epsg),
+                                "-t_srs", "+init=custom:{}".format(self.epsg)
                             ])
+                            os.putenv("PROJ_LIB", ".")
 
                         elif self.epsg == 13068:
                             args.extend([
-                                "-ct", "+proj=pipeline +step +inv +proj=utm +zone=33 +ellps=GRS80 +step +inv +proj=hgridshift +grids=ntv2berlin20130508.GSB +step +proj=cass +lat_0=52.4186482777778 +lon_0=13.6272036666667 +x_0=40000 +y_0=10000 +ellps=bessel +step +proj=axisswap +order=2",
-                                "-a_srs", "EPSG:3068"
+                                "-s_srs", "EPSG:25833",
+                                "-t_srs", "+init=custom:3068",
                             ])
+                            os.putenv("PROJ_LIB", ".")
 
                         else:
                             args.extend(["-a_srs", "EPSG:{}".format(self.epsg)])
 
-                    elif self.epsg == 131466 or self.epsg == 131467 or self.epsg == 131468:
-                        args.extend(["-a_srs", "+init=custom:{}".format(self.epsg)])
-                        os.putenv("PROJ_LIB", ".")
+                        if self.cbxSkipFailures.isChecked() or fn in checked:
+                            args.extend(["-skipfailures", "--config", "PG_USE_COPY", "NO"])
+                        else:
+                            args.extend(["--config", "PG_USE_COPY", "YES" if self.cbxUseCopy.isChecked() else "NO"])
 
-                    elif self.epsg == 31466 or self.epsg == 31467 or self.epsg == 31468:
-                        args.extend([
-                            "-s_srs", "+init=custom:1{}".format(self.epsg),
-                            "-t_srs", "+init=custom:{}".format(self.epsg)
-                        ])
-                        os.putenv("PROJ_LIB", ".")
+                        args.extend(["-nlt", "CONVERT_TO_LINEAR", "-ds_transaction"])
 
-                    elif self.epsg == 13068:
-                        args.extend([
-                            "-s_srs", "EPSG:25833",
-                            "-t_srs", "+init=custom:3068",
-                        ])
-                        os.putenv("PROJ_LIB", ".")
+                        args.append(src)
 
-                    else:
-                        args.extend(["-a_srs", "EPSG:{}".format(self.epsg)])
+                        self.status("{} mit {} wird importiert...".format(fn, self.memunits(size)))
 
-                    if self.cbxSkipFailures.isChecked() or fn in checked:
-                        args.extend(["-skipfailures", "--config", "PG_USE_COPY", "NO"])
-                    else:
-                        args.extend(["--config", "PG_USE_COPY", "YES" if self.cbxUseCopy.isChecked() else "NO"])
+                        t1 = QElapsedTimer()
+                        t1.start()
 
-                    args.extend(["-nlt", "CONVERT_TO_LINEAR", "-ds_transaction"])
+                        ok = self.runProcess(args)
 
-                    args.append(src)
+                        try:
+                            os.unlink(src[:-4] + ".gfs")
+                        except OSError:
+                            pass
 
-                    self.status("{} mit {} wird importiert...".format(fn, self.memunits(size)))
+                        elapsed = t1.elapsed()
 
-                    t1 = QElapsedTimer()
-                    t1.start()
+                        if elapsed > 0:
+                            throughput = " ({}/s)".format(self.memunits(size * 1000 / elapsed))
+                        else:
+                            throughput = ""
 
-                    ok = self.runProcess(args)
+                        self.log("{} mit {} in {} importiert{}".format(
+                            fn,
+                            self.memunits(size),
+                            self.timeunits(elapsed),
+                            throughput
+                        ))
 
-                    try:
-                        os.unlink(src[:-4] + ".gfs")
-                    except OSError:
-                        pass
+                    elif self.quittierung:
+                        self.status("{} mit {} wurde übersprungen...".format(fn, self.memunits(size)))
+                        self.log("{} mit {} wurde übersprungen...".format(fn, self.memunits(size)))
 
-                    elapsed = t1.elapsed()
+                    if self.quittierung:
+                        self.db.exec_("CREATE SEQUENCE \"{}\".alkis_quittierungen_seq".format(self.schema.replace('"', '""')))
 
-                    if elapsed > 0:
-                        throughput = " ({}/s)".format(self.memunits(size * 1000 / elapsed))
-                    else:
-                        throughput = ""
+                        if id_quittierung is None:
+                            qry = self.db.exec_("SELECT nextval('\"{}\".alkis_quittierungen_seq')".format(self.schema.replace('"', '""').replace("'", "''")))
+                            if qry and qry.next():
+                                id_quittierung = qry.value(0)
 
-                    self.log("{} mit {} in {} importiert{}".format(
-                        fn,
-                        self.memunits(size),
-                        self.timeunits(elapsed),
-                        throughput
-                    ))
+                        self.runProcess([sys.executable, os.path.join(BASEDIR, "quittierung.py"), ".", src, "ID_{:08d}".format(i_quittierung), str(id_quittierung), "true" if ok else "false"])
+                        i_quittierung += 1
 
                     item.setSelected(ok)
                     if src != fn and os.path.exists(src):
@@ -1207,7 +1230,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
                     app.processEvents()
 
-                    if not ok:
+                    if not ok and not self.quittierung:
                         self.status("Fehler bei {}.".format(fn))
                         break
 

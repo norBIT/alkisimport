@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1764</width>
+    <width>1073</width>
     <height>822</height>
    </rect>
   </property>
@@ -331,6 +331,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="cbxQuittierung">
+            <property name="text">
+             <string>Quittierung erzeugen</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>
@@ -609,6 +616,7 @@
   <tabstop>cbxCreate</tabstop>
   <tabstop>cbxClean</tabstop>
   <tabstop>cbxHistorie</tabstop>
+  <tabstop>cbxQuittierung</tabstop>
   <tabstop>cbEPSG</tabstop>
   <tabstop>cbFnbruch</tabstop>
   <tabstop>cbPgVerdraengen</tabstop>
