@@ -517,25 +517,28 @@ EOF
 				echo "$P: $1.backup nicht gefunden oder nicht lesbar." >&2
 				return 1
 			fi
-			pg_restore -Fc -c "$1.backup" | psql -X "$DB"
+			pg_restore -Fc -c -d "$DB" --schema=$SCHEMA "$1.backup"
 		}
 		export DB
 		log() {
 			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname='${SCHEMA//\'/\'\'}'" "$DB")
-			n=${n//[	 ]}
+			n=${n//[	 
+]}
 			if [ $n -eq 0 ]; then
 				psql -X -q -c "CREATE SCHEMA \"${SCHEMA//\"/\"\"}\"" "$DB"
 			fi
 
 			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname='${SCHEMA//\'/\'\'}'" "$DB")
-			n=${n//[	 ]}
+			n=${n//[	 
+]}
 			if [ $n -eq 0 ]; then
 				echo "Schema $SCHEMA nicht erzeugt" >&2
 				exit 1
 			fi
 
 			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_tables WHERE schemaname='${SCHEMA//\'/\'\'}' AND tablename='alkis_importlog'" "$DB")
-			n=${n//[	 ]}
+			n=${n//[	 
+]}
 			if [ $n -eq 0 ]; then
 				psql -X -q -c "CREATE TABLE \"${SCHEMA//\"/\"\"}\".alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" "$DB"
 			fi
