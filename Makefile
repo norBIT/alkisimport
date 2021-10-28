@@ -26,6 +26,7 @@ package:
 	perl -i -pe 's/#VERSION#/$(VERSION)-$(P)/' $(T)/apps/$(PKG)/{about.ui,alkisImportDlg.ui}
 	! [ -f $(T)/$(PKG)-$(VERSION)-$(P).tar.bz2 ]
 	tar -C $(T) --remove-files -cjf $(T)/$(PKG)-$(VERSION)-$(P).tar.bz2 apps bin etc
+	tar -cjf $(T)/$(PKG)-$(VERSION)-$(P)-src.tar.bz2 -T /dev/null
 	cp setup-osgeo4w-v2.hint $(T)/setup.hint
 
 osgeo4w: package
@@ -33,7 +34,7 @@ osgeo4w: package
 	wget -O - https://download.osgeo.org/cgi-bin/osgeo4w-regen.sh
 	wget -O - https://download.osgeo.org/cgi-bin/osgeo4w-promote.sh
 
-	rsync --chmod=D775,F664 $(T)/setup.hint $(T)/$(PKG)-$(VERSION)-$(P).tar.bz2 upload.osgeo.org:osgeo4w/v2/x86_64/release/$(PKG)/
+	rsync --chmod=D775,F664 $(T)/setup.hint $(T)/$(PKG)-$(VERSION)-$(P){,-src}.tar.bz2 upload.osgeo.org:osgeo4w/v2/x86_64/release/$(PKG)/
 	wget -O - https://download.osgeo.org/cgi-bin/osgeo4w-regen-v2.sh
 
 	echo $$(( $(P) + 1 )) >.pkg-$(VERSION)
