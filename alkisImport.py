@@ -1224,12 +1224,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     ok = self.rund(conn, "postprocessing")
 
                 if ok:
-                    self.status("VACUUM...")
-                    ok = self.db.exec_("VACUUM")
-                    if ok:
-                        self.log("VACUUM abgeschlossen.")
-
-                if ok:
                     self.log("Import nach {} erfolgreich beendet.".format(self.timeunits(t0.elapsed())))
                 else:
                     self.log("Import nach {} abgebrochen.".format(self.timeunits(t0.elapsed())))
