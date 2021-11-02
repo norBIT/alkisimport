@@ -72,9 +72,6 @@ os.putenv("OGR_SETFIELD_NUMERIC_WARNING", "ON")
 # Mindestlänge für Kreisbogensegmente
 os.putenv("OGR_ARC_MINLENGTH", "0.1")
 
-# Verhindern, dass andere GML-Treiber übernehmen
-os.putenv("OGR_SKIP", "GML,SEGY")
-
 # Headerkennungen die NAS-Daten identifizieren
 os.putenv("NAS_INDICATOR", "NAS-Operationen;AAA-Fachschema;aaa.xsd;aaa-suite;adv/gid/6.0")
 
@@ -871,6 +868,12 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.log("Mindestens GDAL 2.3 erforderlich")
                 break
 
+            # Verhindern, dass andere GML-Treiber übernehmen
+            if int(m.group(1)) < 3 or (int(m.group(1)) == 3 and int(m.group(2)) < 3):
+                os.putenv("OGR_SKIP", "GML,SEGY")
+            else:
+                os.putenv("OGR_SKIP", "GML")
+
             GDAL_MAJOR = int(m.group(1))
             GDAL_MINOR = int(m.group(2))
 
@@ -1191,7 +1194,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         os.unlink(src)
 
                     s = s + size
-                    self.pbProgress.setValue(10000 * s / ts)
+                    self.pbProgress.setValue(int(10000 * s / ts))
 
                     remaining_data = ts - s
                     remaining_time = remaining_data * t0.elapsed() / s
@@ -1199,7 +1202,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     self.alive.setText("Noch {} in etwa {}\nETA: {} -".format(
                         self.memunits(remaining_data),
                         self.timeunits(remaining_time),
-                        QDateTime.currentDateTime().addMSecs(remaining_time).toString(Qt.ISODate)
+                        QDateTime.currentDateTime().addMSecs(int(remaining_time)).toString(Qt.ISODate)
                     ))
 
                     app.processEvents()

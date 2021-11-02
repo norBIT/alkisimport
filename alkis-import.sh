@@ -28,9 +28,6 @@ export OGR_SETFIELD_NUMERIC_WARNING=ON
 # Mindestlänge für Kreisbogensegmente
 export OGR_ARC_MINLENGTH=0.1
 
-# Verhindern, dass der GML-Treiber übernimmt
-export OGR_SKIP=GML,SEGY
-
 # ogc_fid bei Einfügungen nicht abfragen
 export OGR_PG_RETRIEVE_FID=NO
 
@@ -365,6 +362,13 @@ minor=${minor%%.*}
 if [ $major -lt 2 ] || [ $major -eq 2 -a $minor -lt 3 ]; then
 	echo "$P: erfordert GDAL >=2.3" >&2
 	exit 1
+fi
+
+# Verhindern, dass andere GML-Treiber übernehmen
+if [ $major -lt 3 ] || [ $major -eq 3 -a $minor -lt 3 ]; then
+	export OGR_SKIP=GML,SEGY
+else
+	export OGR_SKIP=GML
 fi
 
 export CPL_DEBUG

@@ -420,10 +420,28 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP AGGREGATE IF EXISTS :"parent_schema".alkis_accum(anyarray);
+CREATE OR REPLACE FUNCTION pg_temp.create_accum() RETURNS void AS $$
+BEGIN
+  CREATE AGGREGATE alkis_accum (anycompatiblearray) (
+    sfunc = array_cat,
+    stype = anycompatiblearray,
+    initcond = '{}'
+  );
+EXCEPTION
+  WHEN duplicate_function THEN
+    -- pass
+  WHEN OTHERS THEN
+    BEGIN
+      CREATE AGGREGATE alkis_accum (anyarray) (
+        sfunc = array_cat,
+        stype = anyarray,
+        initcond = '{}'
+      );
+    EXCEPTION
+      WHEN duplicate_function THEN
+        -- pass
+    END;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE AGGREGATE :"parent_schema".alkis_accum (anyarray) (
-	sfunc = array_cat,
-	stype = anyarray,
-	initcond = '{}'
-);
+SELECT pg_temp.create_accum();
