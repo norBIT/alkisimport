@@ -48,6 +48,7 @@ export PGVERDRAENGEN=false
 export SCHEMA=public
 export PARENTSCHEMA=
 export PGSCHEMA=public
+export USECOPY=YES
 
 B=${0%/*}   # BASEDIR
 if [ "$0" = "$B" ]; then
@@ -208,7 +209,7 @@ import() {
 	if [ -n "$sfre" ] && eval [[ "$src" =~ "$sfre" ]]; then
 		opt="$opt -skipfailures"
 	fi
-	opt="$opt -ds_transaction --config PG_USE_COPY YES -nlt CONVERT_TO_LINEAR"
+	opt="$opt -ds_transaction --config PG_USE_COPY $USECOPY -nlt CONVERT_TO_LINEAR"
 
 	case "$MACHTYPE" in
 	*-cygwin|*msys)
@@ -254,7 +255,7 @@ process() {
 
 		export job
 		export progress
-		parallel --line-buffer --halt soon,fail=1 --jobs=$JOBS import <$job
+		parallel --tag --line-buffer --halt soon,fail=1 --jobs=$JOBS import <$job
 		r=$?
 		rm $job
 	fi
@@ -521,7 +522,7 @@ EOF
 				echo "$P: $1.backup nicht gefunden oder nicht lesbar." >&2
 				return 1
 			fi
-			pg_restore -Fc -c "$1.backup" | psql -X "$DB"
+			pg_restore -Fc -c -d "$DB" "$1.backup"
 		}
 		export DB
 		log() {
@@ -582,7 +583,7 @@ EOF
 
 	"historie "*)
 		HISTORIE=${src#historie }
-		case "$HISTORIE" in
+		case "${HISTORIE,,}" in
 		an|on|true|an)
 			HISTORIE=true
 			;;
@@ -600,7 +601,7 @@ EOF
 
 	"avoiddupes "*)
 		AVOIDDUPES=${src#avoiddupes }
-		case "$AVOIDDUPES" in
+		case "${AVOIDDUPES,,}" in
 		an|on|true|an)
 			AVOIDDUPES=true
 			;;
@@ -616,9 +617,27 @@ EOF
 		continue
 		;;
 
+	"usecopy "*)
+		USECOPY=${src#usecopy }
+		case "${USECOPY,,}" in
+		an|on|true|an)
+			USECOPY=ON
+			;;
+		aus|off|false)
+			USECOPY=OFF
+			;;
+		*)
+			echo "$P: Ungültiger Wert $USECOPY (true or false erwartet)"
+			exit 1
+			;;
+		esac
+
+		continue
+		;;
+
 	"fnbruch "*)
 		FNBRUCH=${src#fnbruch }
-		case "$FNBRUCH" in
+		case "${FNBRUCH,,}" in
 		an|on|true|an)
 			FNBRUCH=true
 			;;
@@ -636,7 +655,7 @@ EOF
 
 	"pgverdraengen "*)
 		PGVERDRAENGEN=${src#pgverdraengen }
-		case "$PGVERDRAENGEN" in
+		case "${PGVERDRAENGEN,,}" in
 		an|on|true|an)
 			PGVERDRAENGEN=true
 			;;
@@ -919,3 +938,5 @@ if [ "$src" == "error" ]; then
 	echo "WARNUNG: VERZEICHNIS $tmpdir WIRD NACH FEHLER NICHT GELÖSCHT."
 	exit 1
 fi
+
+echo
