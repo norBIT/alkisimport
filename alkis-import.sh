@@ -527,20 +527,23 @@ EOF
 		export DB
 		log() {
 			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname='${SCHEMA//\'/\'\'}'" "$DB")
-			n=${n//[	 ]}
+			n=${n//[	 
+]}
 			if [ $n -eq 0 ]; then
 				psql -X -q -c "CREATE SCHEMA \"${SCHEMA//\"/\"\"}\"" "$DB"
 			fi
 
 			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname='${SCHEMA//\'/\'\'}'" "$DB")
-			n=${n//[	 ]}
+			n=${n//[	 
+]}
 			if [ $n -eq 0 ]; then
 				echo "Schema $SCHEMA nicht erzeugt" >&2
 				exit 1
 			fi
 
 			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_tables WHERE schemaname='${SCHEMA//\'/\'\'}' AND tablename='alkis_importlog'" "$DB")
-			n=${n//[	 ]}
+			n=${n//[	 
+]}
 			if [ $n -eq 0 ]; then
 				psql -X -q -c "CREATE TABLE \"${SCHEMA//\"/\"\"}\".alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" "$DB"
 			fi
@@ -792,7 +795,7 @@ EOF
 
 	"temp "*)
 		TEMP=${src#temp }
-		TMPDIR=$TEMP
+		tmpdir=$TEMP
 		if ! [ -d "$TEMP" ]; then
 			mkdir -p "$TEMP"
 		fi
