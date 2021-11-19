@@ -793,8 +793,11 @@ EOF
 	"temp "*)
 		TEMP=${src#temp }
 		tmpdir=$TEMP
-		if ! [ -d "$TEMP" ]; then
+		if ! [ -d "$TEMP" ]
+		then
 			mkdir -p "$TEMP"
+		else
+			rm -f $TEMP/*
 		fi
 		continue
 		;;
