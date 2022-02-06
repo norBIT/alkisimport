@@ -32,6 +32,10 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$ LANGUAGE plpgsql IMMUTABLE STRICT;
 
+CREATE OR REPLACE FUNCTION alkis_round(double precision) RETURNS varchar AS $$
+        SELECT regexp_replace(regexp_replace(round($1::numeric,9)::text, E'(\\.\\d*[1-9])0+$', E'\\1'), E'\\.0+$', '');
+$$ LANGUAGE 'sql' IMMUTABLE;
+
 CREATE OR REPLACE FUNCTION alkis_flsnrk(f ax_flurstueck) RETURNS varchar AS $$
 BEGIN
 	RETURN
