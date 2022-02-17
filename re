@@ -28,7 +28,7 @@
 ^psql:.*: (NOTICE|HINWEIS):\s+no non-null\/empty features, unable to compute statistics\s*$
 ^psql:.*: (NOTICE|HINWEIS):\s+PostGIS: Unable to compute statistics for .*: No non-null\/empty features\s*$
 ^psql:.*: (NOTICE|HINWEIS):\s+no notnull values, invalid stats\*$
-^psql:.*: (WARNUNG|WARNING):\s+.*(only superuser can vacuum it|nur Superuser kann sie vacuumen)\s*$
+^psql:.*: (WARNUNG|WARNING):\s+.*(only (superuser|table or database owner) can vacuum it|nur Superuser kann sie vacuumen)\s*$
 ^\s+(DROP TRIGGER IF EXISTS|CREATE TRIGGER) \S+_insert
 ^CONTEXT:  PL\/pgSQL-Funktion (pg_temp_\d+\.)?(alkis|alb)_.* Zeile \d+ bei RAISE
 ^CONTEXT:  SQL statement in PL\/PgSQL function "alkis_(update_schema|set_comments)" near line \d+\s*$
