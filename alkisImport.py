@@ -1124,11 +1124,11 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
                         if GDAL_MAJOR >= 3:
                             if self.epsg == 131466 or self.epsg == 131467 or self.epsg == 131468:
-                                args.extend(["-a_srs", os.path.join(BASEDIR, "{}.wkt2".format(self.epsg))])
+                                args.extend(["-a_srs", os.path.join(BASEDIR, "{}.prj".format(self.epsg))])
 
                             elif self.epsg == 31466 or self.epsg == 31467 or self.epsg == 31468:
                                 args.extend([
-                                    "-s_srs", os.path.join(BASEDIR, "1{}.wkt2".format(self.epsg)),
+                                    "-s_srs", os.path.join(BASEDIR, "1{}.prj".format(self.epsg)),
                                     "-t_srs", "EPSG:{}".format(self.epsg)
                                 ])
 

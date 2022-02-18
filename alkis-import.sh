@@ -723,13 +723,13 @@ EOF
 		if [ $major -ge 3 ]; then
 			case "$EPSG" in
 			13146[678]|3068)
-				export CRS="-a_srs '$B/$EPSG.wkt2'"
+				export CRS="-a_srs $B/$EPSG.prj"
 				;;
 			13068)
 				export CRS="-ct '+proj=pipeline +step +inv +proj=utm +zone=33 +ellps=GRS80 +step +inv +proj=hgridshift +grids=ntv2berlin20130508.GSB +step +proj=cass +lat_0=52.4186482777778 +lon_0=13.6272036666667 +x_0=40000 +y_0=10000 +ellps=bessel +step +proj=axisswap +order=2' -a_srs EPSG:3068"
 				;;
 			3146[678])
-				export CRS="-s_srs '$B/1$EPSG.wkt2' -t_srs 'EPSG:$EPSG"
+				export CRS="-s_srs $B/1$EPSG.prj -t_srs EPSG:$EPSG"
 				;;
 			*)
 				;;
