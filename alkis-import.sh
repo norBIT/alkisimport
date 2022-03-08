@@ -289,7 +289,7 @@ progress() {
 	local remaining_size
 	local errors=0
 
-	lockfile $lock
+	lockfile -l1 $lock
 	[ -f $progress ] && . $progress
 
 	start_time=${start_time:-$t0}
@@ -345,7 +345,7 @@ EOF
 export -f progress
 
 final() {
-	lockfile $lock
+	lockfile -l1 $lock
 	start_time=0
 	last_time=0
 	! [ -f $progress ] || . $progress
@@ -572,6 +572,8 @@ EOF
 			if [ $n -eq 0 ]; then
 				psql -X -q -c "CREATE TABLE \"${SCHEMA//\"/\"\"}\".alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" "$DB"
 			fi
+
+			rm -f $lock
 
 			tee $1 |
 			(
@@ -899,7 +901,10 @@ EOF
 		log=$(bdate +$src)
 
 		echo "LOGGING TO $log $(bdate)"
+		lockfile -l1 $lock
 		exec 3>&1 4>&2 > >(log $log) 2>&1
+		lockfile -l1 $lock
+		rm -f $lock
 
 		echo "LOG $(bdate)"
 		echo 'Import-Version: $Format:%h$'
