@@ -10,6 +10,7 @@ parser = et.XMLParser(remove_blank_text=True)
 chunkSize = 1000
 key = "geaenderteObjekte"
 
+
 def usage(msg=None):
     print("Usage: {} verzeichnis eingabe gml_id impid status".format(sys.argv[0]), file=sys.stderr)
     if msg is not None:
@@ -20,6 +21,7 @@ def usage(msg=None):
     print("  impid: Quittierungskennung", file=sys.stderr)
     print("  status: true, wenn Portion erfolgreich verarbeitet wurde, sonst false", file=sys.stderr)
     sys.exit(1)
+
 
 if len(sys.argv) != 6:
     usage()
@@ -43,7 +45,7 @@ while i < 10 and p < 0:
     p = header.find("<{}>".format(key).encode("utf-8"))
 
 if p < 0:
-    usage("<{}> nicht in den ersten {} Bytes der Datei {} gefunden.".format(key, 10*chunkSize, inputfile))
+    usage("<{}> nicht in den ersten {} Bytes der Datei {} gefunden.".format(key, 10 * chunkSize, inputfile))
 
 header = header[:p]
 
@@ -61,7 +63,7 @@ while i < 10 and p < 0:
     p = footer.find("</{}>".format(key).encode("utf-8"))
 
 if p < 0:
-    usage("</{}> nicht in den letzten {} Bytes der Datei {} gefunden.".format(key, 10*chunkSize, inputfile))
+    usage("</{}> nicht in den letzten {} Bytes der Datei {} gefunden.".format(key, 10 * chunkSize, inputfile))
 
 nba = et.fromstring(header + footer[(p + 3 + len(key)):], parser)
 
@@ -83,17 +85,20 @@ if os.path.exists(outputfile):
     if status == "false":
         q.find('.//gesamtNBAErfolgreich', nba.nsmap).text = status
 
-    erfolgreich = q.find('.//portionNBAErfolgreich', nba.nsmap)
+    last = q.findall("portionNBAErfolgreich", namespaces=q.nsmap)[-1]
 
 else:
     q = et.Element("AX_NBAQuittierung", nsmap=nba.nsmap)
+
+    e = nba.find('.//allgemeineAngaben/AX_K_Benutzungsergebnis/empfaenger', nba.nsmap)
+    if e is not None:
+        q.append(e)
 
     af = et.SubElement(q, "ausgabeform", nsmap=nba.nsmap)
     af.text = "application/xml"
     q.append(af)
 
     for n in [
-        './/allgemeineAngaben/AX_K_Benutzungsergebnis/empfaenger',
         './/portionskennung/AX_Portionskennung/profilkennung',
         './/antragsnummer',
         './/auftragsnummer'
@@ -106,13 +111,15 @@ else:
     erfolg.text = status
     q.append(erfolg)
 
-    erfolgreich = et.SubElement(q, "portionNBAErfolgreich", nsmap=nba.nsmap)
+    last = erfolg
 
     protokoll = et.SubElement(q, 'uebernahmeprotokoll', nsmap=nba.nsmap)
     protokoll.text = 'a.A.'
     q.append(protokoll)
 
-portion = et.SubElement(erfolgreich, 'AX_PortionErfolgreich', attrib={"{%s}id" % nba.nsmap['gml']: gml_id}, nsmap=nba.nsmap)
+erfolgreich = et.SubElement(q, "portionNBAErfolgreich", nsmap=nba.nsmap)
+
+portion = et.SubElement(erfolgreich, 'AX_Portion_Erfolgreich', attrib={"{%s}id" % nba.nsmap['gml']: gml_id}, nsmap=nba.nsmap)
 portion.append(nba.find('.//portionskennung', nba.nsmap))
 
 pe = et.SubElement(portion, 'erfolgreich', nsmap=nba.nsmap)
@@ -120,8 +127,10 @@ pe.text = status
 portion.append(pe)
 
 protokoll = et.SubElement(portion, 'uebernahmeprotokoll', nsmap=nba.nsmap)
-protokoll.text = 'Portion ohne Fehlermeldung übernommen' if status=="true" else 'Fehlermeldungen beim Import der Portion'
+protokoll.text = 'Portion ohne Fehlermeldung übernommen' if status == "true" else 'Fehlermeldungen beim Import der Portion'
 portion.append(protokoll)
+
+last.addnext(erfolgreich)
 
 f = open(outputfile, "wb")
 f.write(et.tostring(q, pretty_print=True, xml_declaration=True, encoding="UTF-8"))
