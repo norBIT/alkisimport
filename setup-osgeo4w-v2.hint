@@ -1,5 +1,0 @@
-sdesc: "norGIS ALKIS Import"
-ldesc: "norGIS ALKIS Import"
-maintainer: JuergenFischer
-category: Desktop
-requires: python3-pyqt5 python3-sip gdal
