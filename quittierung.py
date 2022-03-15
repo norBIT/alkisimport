@@ -4,6 +4,7 @@ import sys
 import os
 from datetime import datetime
 from lxml import etree as et
+from copy import deepcopy
 
 parser = et.XMLParser(remove_blank_text=True)
 
@@ -105,7 +106,7 @@ else:
     ]:
         e = nba.find(n, nba.nsmap)
         if e is not None:
-            q.append(e)
+            q.append(deepcopy(e))
 
     erfolg = et.SubElement(q, "gesamtNBAErfolgreich", nsmap=nba.nsmap)
     erfolg.text = status
