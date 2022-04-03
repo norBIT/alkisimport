@@ -40,9 +40,11 @@ CREATE OR REPLACE FUNCTION alkis_flsnrk(f ax_flurstueck) RETURNS varchar AS $$
 BEGIN
 	RETURN
 		CASE
-		WHEN f.gml_id LIKE 'DESL%' OR f.gml_id LIKE 'DETH%' THEN
+		WHEN f.gml_id LIKE 'DESL%' THEN
 			to_char(alkis_toint(f.zaehler),'fm0000') || '/' || to_char(coalesce(alkis_toint(f.nenner),0),'fm0000')
-		WHEN f.gml_id LIKE 'DESN%' THEN
+		WHEN f.gml_id LIKE 'DETH%' THEN
+			to_char(alkis_toint(f.zaehler),'fm00000') || '/' || to_char(coalesce(alkis_toint(f.nenner),0),'fm0000')
+		WHEN f.gml_id LIKE 'DESN%' OR f.gml_id LIKE 'DETH%' THEN
 			to_char(alkis_toint(f.zaehler),'fm00000') || '/' || substring(f.flurstueckskennzeichen,15,4)
 		ELSE
 			to_char(alkis_toint(f.zaehler),'fm00000') || '/' || to_char(coalesce(mod(alkis_toint(f.nenner),1000)::int,0),'fm000')

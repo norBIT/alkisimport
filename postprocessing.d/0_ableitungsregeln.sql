@@ -69,22 +69,22 @@ Links/Rechts:
 	61003 ax_dammwalldeich					Wall-, Knick kante
 
 Länder:
-BB	Brandenburg
-BE	Berlin
-BW	Baden-Württemberg
-BY	Bayern
-HB	Bremen
-HE	Hessen
-HH	Hamburg
-MV	Mecklenburg-Vorpommern
-NI	Niedersachsen
-NW	Nordrhein-Westfalen
-RP	Rheinland-Pfalz
-SH	Schleswig-Holstein
-SL	Saarland
-SN	Sachsen
-ST	Sachsen-Anhalt
-TH	Thüringen
+BB	Brandenburg			12
+BE	Berlin				11
+BW	Baden-Württemberg		08
+BY	Bayern				09
+HB	Bremen				04
+HE	Hessen				06
+HH	Hamburg				02
+MV	Mecklenburg-Vorpommern		13
+NI	Niedersachsen			03
+NW	Nordrhein-Westfalen		05
+RP	Rheinland-Pfalz			07
+SH	Schleswig-Holstein		01
+SL	Saarland			10
+SN	Sachsen				14
+ST	Sachsen-Anhalt			15
+TH	Thüringen			16
 */
 
 SET client_encoding TO 'UTF8';
