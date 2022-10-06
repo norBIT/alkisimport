@@ -472,7 +472,7 @@ CREATE VIEW v_eigentuemer AS
     ,fs.flsnr
     ,fs.amtlflsfl
     ,(SELECT gemarkung FROM gema_shl WHERE gema_shl.gemashl=fs.gemashl) AS gemarkung
-    ,(SELECT array_to_string( array_agg( DISTINCT str_shl.strname || coalesce(' '||strassen.hausnr,'') ) || CASE WHEN lagebez IS NULL THEN ARRAY[lagebez] ELSE '{}'::text[] END, E'\n')
+    ,(SELECT array_to_string( array_agg( DISTINCT str_shl.strname || coalesce(' '||strassen.hausnr,'') ) || CASE WHEN lagebez IS NOT NULL THEN ARRAY[lagebez] ELSE '{}'::text[] END, E'\n')
       FROM strassen
       LEFT OUTER JOIN str_shl ON strassen.strshl=str_shl.strshl
       WHERE strassen.flsnr=fs.flsnr AND strassen.ff_stand=0
