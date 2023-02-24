@@ -141,9 +141,9 @@ import() {
 
 	t0=$(bdate +%s)
 
-	case $src in
+	case "${src,,}" in
 	*.zip)
-		dst=${src%.zip}.xml
+		dst=${src%.???}.xml
 		dst="$tmpdir/${dst//\//_}"
 		echo "DECOMPRESS $(bdate): $src"
 		if [ -e "$dst" ]; then
@@ -164,7 +164,7 @@ import() {
 			return 1
 		fi
 
-		dst=${src%.gz}
+		dst=${src%.??}
 		dst="$tmpdir/${dst//\//_}"
 		echo "DECOMPRESS $(bdate): $src"
 		if [ -e "$dst" ]; then
@@ -194,7 +194,7 @@ import() {
 		;;
 	esac
 
-	[ -f "${dst%.xml}.gfs" ] && rm -v "${dst%.xml}.gfs"
+	[ -f "${dst%.???}.gfs" ] && rm -v "${dst%.???}.gfs"
 
 	if ! [ -f "$dst" -a -r "$dst" ]; then
 		echo "$src => $dst"
@@ -422,7 +422,7 @@ export jobi=0
 rm -f $lock
 while read src
 do
-	case $src in
+	case "${src,,}" in
 	""|"#"*)
 		# Leerzeilen und Kommentare ignorieren
 		continue
@@ -441,7 +441,7 @@ do
 					continue
 				fi
 
-				case "$file" in
+				case "${file,,}" in
 				*.xml.zip)
 					if ! s=$(zcat "$file" | wc -c); then
 						s=0
