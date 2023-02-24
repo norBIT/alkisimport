@@ -69,7 +69,7 @@ BEGIN
 	END IF;
 
 	IF NEW.context='delete' THEN
-		NEW.endet := to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"');
+		SELECT endet INTO NEW.endet FROM pg_temp.deletedate;
 
 	ELSIF NEW.context='update' THEN
 		IF NEW.endet IS NULL THEN

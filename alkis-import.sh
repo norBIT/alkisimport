@@ -221,8 +221,17 @@ import() {
 		;;
 	esac
 
+	if ffdate=$(python3 $B/ffdate.py "$dst1"); then
+		opt="$opt -doo \"PRELUDE_STATEMENTS=CREATE TEMPORARY TABLE deletedate AS SELECT '$ffdate'::character(20) AS endet\""
+	elif (( $? == 2 )); then
+		:
+	else
+		echo "Konnte Portionsdatum nicht bestimmen"
+		return 1
+	fi
+
 	echo "RUNNING: ogr2ogr -f $DRIVER $opt $sf_opt -update -append \"$DST\" $CRS \"$dst1\"" | sed -Ee 's/password=\S+/password=*removed*/'
-	ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst1"
+	eval ogr2ogr -f $DRIVER $opt $sf_opt -update -append \"$DST\" $CRS \"$dst1\"
 	local r=$?
 	t1=$(bdate +%s)
 
