@@ -39,6 +39,7 @@ import re
 
 from zipfile import ZipFile
 from itertools import islice
+from ffdate import getdate
 
 try:
     from PyQt4.QtCore import QSettings, QProcess, QDir, QFileInfo, Qt, QDateTime, QElapsedTimer, QByteArray
@@ -1171,6 +1172,14 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                             args.extend(["--config", "PG_USE_COPY", "YES" if self.cbxUseCopy.isChecked() else "NO"])
 
                         args.extend(["-nlt", "CONVERT_TO_LINEAR", "-ds_transaction"])
+
+                        try:
+                            ffdate = getdate(src)
+                            if ffdate is not None:
+                                args.extend(["-doo", f"PRELUDE_STATEMENTS=CREATE TEMPORARY TABLE deletedate AS SELECT '{ffdate}'::character(20) AS endet"])
+                                self.log(f"{fn}: Fortführungsdatum {ffdate}")
+                        except Exception as e:
+                            pass
 
                         args.append(src)
 
