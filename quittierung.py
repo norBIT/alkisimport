@@ -1,5 +1,21 @@
 #!/usr/bin/env python3
 
+"""
+***************************************************************************
+    quittierung.py
+    --------------
+    Date                 : Feb 2022
+    Copyright            : (C) 2022-2023 by Jürgen Fischer
+    Email                : jef at norbit dot de
+***************************************************************************
+*                                                                         *
+*   This program is free software; you can redistribute it and/or modify  *
+*   it under the terms of the GNU General Public License as published by  *
+*   the Free Software Foundation; either version 2 of the License, or     *
+*   (at your option) any later version.                                   *
+*                                                                         *
+***************************************************************************
+"""
 import sys
 import os
 from datetime import datetime
@@ -57,10 +73,14 @@ fl = f.tell()
 
 i = 0
 p = -1
-while i < 10 and p < 0:
-    f.seek(fl - i * chunkSize, 0)
+while i < 10 and p < 0 and fl > 0:
+    pos = fl - i * chunkSize
+    if pos < 0:
+        chunkSize += pos
+        pos = 0
+    f.seek(pos, 0)
     i += 1
-    footer = footer + f.read(chunkSize)
+    footer = f.read(chunkSize) + footer
     p = footer.find("</{}>".format(key).encode("utf-8"))
 
 if p < 0:
