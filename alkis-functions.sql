@@ -18,12 +18,14 @@ CREATE FUNCTION pg_temp.alkis_set_schema(t TEXT) RETURNS varchar AS $$
 DECLARE
 	i integer;
 BEGIN
-	BEGIN
-		EXECUTE 'CREATE SCHEMA ' || quote_ident(t);
-		RAISE NOTICE 'Schema % angelegt.', t;
-	EXCEPTION WHEN duplicate_schema OR unique_violation THEN
-		-- skip
-	END;
+	IF NOT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname=t) THEN
+		BEGIN
+			EXECUTE 'CREATE SCHEMA ' || quote_ident(t);
+			RAISE NOTICE 'Schema % angelegt.', t;
+		EXCEPTION WHEN duplicate_schema OR unique_violation THEN
+			-- skip
+		END;
+	END IF;
 
 	PERFORM set_config('search_path', quote_ident(t) || ', ' || current_setting('search_path'), false);
 
