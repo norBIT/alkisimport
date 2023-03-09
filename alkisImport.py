@@ -558,7 +558,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         if current != "" and len(lines) > 0:
             if r.startswith("\n"):
-                lines.prepend(current)
+                lines.insert(0, current)
             else:
                 lines[0] = current + lines[0]
             current = ""
