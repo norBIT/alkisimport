@@ -23,7 +23,8 @@ SELECT
 	ELSE 0
 	END AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_strassenverkehr;
+FROM ax_strassenverkehr
+WHERE endet IS NULL;
 
 -- Straßenverkehr, Funktion
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)

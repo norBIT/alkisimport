@@ -8,7 +8,7 @@ from __future__ import unicode_literals
     alkisImport.py
     ---------------------
     Date                 : Sep 2012
-    Copyright            : (C) 2012-2020 by Jürgen E. Fischer
+    Copyright            : (C) 2012-2023 by Jürgen Fischer
     Email                : jef at norbit dot de
 ***************************************************************************
 *                                                                         *
@@ -23,9 +23,12 @@ from __future__ import unicode_literals
 from builtins import str
 from io import open
 
-import sip
-for c in ["QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"]:
+try:
+    import sip
+    for c in ["QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"]:
         sip.setapi(c, 2)
+except ImportError:
+    pass
 
 import sys
 import os
@@ -38,12 +41,12 @@ from zipfile import ZipFile
 from itertools import islice
 
 try:
-    from PyQt4.QtCore import QSettings, QProcess, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QElapsedTimer, QByteArray
+    from PyQt4.QtCore import QSettings, QProcess, QDir, QFileInfo, Qt, QDateTime, QElapsedTimer, QByteArray
     from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox, QFont, QIntValidator, QListWidgetItem
     from PyQt4.QtSql import QSqlDatabase, QSqlQuery
     from PyQt4 import uic
 except ImportError:
-    from PyQt5.QtCore import QSettings, QProcess, QFile, QDir, QFileInfo, QIODevice, Qt, QDateTime, QElapsedTimer, QByteArray
+    from PyQt5.QtCore import QSettings, QProcess, QDir, QFileInfo, Qt, QDateTime, QElapsedTimer, QByteArray
     from PyQt5.QtGui import QIcon, QFont, QIntValidator
     from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMessageBox, QListWidgetItem
     from PyQt5.QtSql import QSqlDatabase, QSqlQuery
@@ -55,6 +58,11 @@ alkisImportDlgBase = uic.loadUiType(os.path.join(BASEDIR, 'alkisImportDlg.ui'))[
 aboutDlgBase = uic.loadUiType(os.path.join(BASEDIR, 'about.ui'))[0]
 sys.path.pop(0)
 
+TEMP = os.getenv("TEMP")
+if not TEMP:
+    from tempfile import gettempdir
+    TEMP = gettempdir()
+
 # Felder als String interpretieren (d.h. führende Nullen nicht abschneiden)
 os.putenv("GML_FIELDTYPES", "ALWAYS_STRING")
 
@@ -64,19 +72,20 @@ os.putenv("OGR_SETFIELD_NUMERIC_WARNING", "ON")
 # Mindestlänge für Kreisbogensegmente
 os.putenv("OGR_ARC_MINLENGTH", "0.1")
 
-# Verhindern, dass andere GML-Treiber übernehmen
-os.putenv("OGR_SKIP", "GML,SEGY")
-
 # Headerkennungen die NAS-Daten identifizieren
 os.putenv("NAS_INDICATOR", "NAS-Operationen;AAA-Fachschema;aaa.xsd;aaa-suite;adv/gid/6.0")
 
 os.putenv("PGCLIENTENCODING", "UTF8")
 
+os.putenv("OGR_PG_RETRIEVE_FID", "OFF")
+
 os.putenv("NAS_GFS_TEMPLATE", os.path.join(BASEDIR, "alkis-schema.gfs"))
 
 os.putenv("NAS_NO_RELATION_LAYER", "YES")
 os.putenv("NAS_SKIP_CORRUPTED_FEATURES", "YES")
-os.putenv("TABLES", "aa_aktivitaet,aa_antrag,aa_antragsgebiet,aa_meilenstein,aa_projektsteuerung,aa_vorgang,ap_darstellung,ap_fpo,ap_kpo_3d,ap_lpo,ap_lto,ap_ppo,ap_pto,au_koerperobjekt_3d,au_mehrfachlinienobjekt_3d,au_punkthaufenobjekt_3d,au_trianguliertesoberflaechenobjekt_3d,au_umringobjekt_3d,ax_abgeleitetehoehenlinie,ax_abschlussflaeche3d,ax_abschnitt,ax_anderefestlegungnachstrassenrecht,ax_anderefestlegungnachwasserrecht,ax_anschrift,ax_ast,ax_aufnahmepunkt,ax_bahnstrecke,ax_bahnverkehr,ax_bahnverkehrsanlage,ax_baublock,ax_bauraumoderbodenordnungsrecht,ax_bauraumoderbodenordnungsrechtgrundbuch,ax_bauteil,ax_bauteil3d,ax_bauwerk3d,ax_bauwerkimgewaesserbereich,ax_bauwerkimverkehrsbereich,ax_bauwerkoderanlagefuerindustrieundgewerbe,ax_bauwerkoderanlagefuersportfreizeitunderholung,ax_benutzer,ax_benutzergruppemitzugriffskontrolle,ax_benutzergruppenba,ax_bergbaubetrieb,ax_besondereflurstuecksgrenze,ax_besonderegebaeudelinie,ax_besondererbauwerkspunkt,ax_besonderergebaeudepunkt,ax_besonderertopographischerpunkt,ax_bewertung,ax_bodenflaeche3d,ax_bodenschaetzung,ax_boeschungkliff,ax_boeschungsflaeche,ax_buchungsblatt,ax_buchungsblattbezirk,ax_buchungsstelle,ax_bundesland,ax_dachflaeche3d,ax_dammwalldeich,ax_denkmalschutzrecht,ax_dhmgitter,ax_dienststelle,ax_duene,ax_einrichtungenfuerdenschiffsverkehr,ax_einrichtunginoeffentlichenbereichen,ax_einschnitt,ax_fahrbahnachse,ax_fahrwegachse,ax_felsenfelsblockfelsnadel,ax_fenster3d,ax_firstlinie,ax_flaeche3d,ax_flaechebesondererfunktionalerpraegung,ax_flaechegemischternutzung,ax_fliessgewaesser,ax_flugverkehr,ax_flugverkehrsanlage,ax_flurstueck,ax_flurstueckgrundbuch,ax_forstrecht,ax_fortfuehrungsfall,ax_fortfuehrungsfallgrundbuch,ax_fortfuehrungsnachweisdeckblatt,ax_friedhof,ax_gebaeude,ax_gebaeudeausgestaltung,ax_gebaeudeinstallation3d,ax_gebiet_bundesland,ax_gebiet_kreis,ax_gebiet_nationalstaat,ax_gebiet_regierungsbezirk,ax_gebiet_verwaltungsgemeinschaft,ax_gebietsgrenze,ax_gehoelz,ax_gemarkung,ax_gemarkungsteilflur,ax_gemeinde,ax_gemeindeteil,ax_georeferenziertegebaeudeadresse,ax_gewaesserachse,ax_gewaessermerkmal,ax_gewaesserstationierungsachse,ax_gewann,ax_gleis,ax_grablochderbodenschaetzung,ax_grenzpunkt,ax_grenzuebergang,ax_hafen,ax_hafenbecken,ax_halde,ax_heide,ax_heilquellegasquelle,ax_historischesbauwerkoderhistorischeeinrichtung,ax_historischesflurstueck,ax_historischesflurstueckalb,ax_historischesflurstueckohneraumbezug,ax_hoehenfestpunkt,ax_hoehenlinie,ax_hoehleneingang,ax_industrieundgewerbeflaeche,ax_insel,ax_kanal,ax_klassifizierungnachstrassenrecht,ax_klassifizierungnachwasserrecht,ax_kleinraeumigerlandschaftsteil,ax_kommunalesgebiet,ax_kommunalesteilgebiet,ax_kondominium,ax_kreisregion,ax_lagebezeichnungkatalogeintrag,ax_lagebezeichnungmithausnummer,ax_lagebezeichnungmitpseudonummer,ax_lagebezeichnungohnehausnummer,ax_lagefestpunkt,ax_landschaft,ax_landwirtschaft,ax_leitung,ax_material3d,ax_meer,ax_moor,ax_musterundvergleichsstueck,ax_namensnummer,ax_nationalstaat,ax_naturumweltoderbodenschutzrecht,ax_netzknoten,ax_nullpunkt,ax_ortslage,ax_person,ax_personengruppe,ax_platz,ax_polder,ax_punkt3d,ax_punktkennunguntergegangen,ax_punktkennungvergleichend,ax_punktortag,ax_punktortau,ax_punktortta,ax_punktwolke3d,ax_referenzstationspunkt,ax_regierungsbezirk,ax_reservierung,ax_schifffahrtsliniefaehrverkehr,ax_schiffsverkehr,ax_schleuse,ax_schutzgebietnachnaturumweltoderbodenschutzrecht,ax_schutzgebietnachwasserrecht,ax_schutzzone,ax_schwere,ax_schwerefestpunkt,ax_seilbahnschwebebahn,ax_sicherungspunkt,ax_sickerstrecke,ax_siedlungsflaeche,ax_skizze,ax_soll,ax_sonstigervermessungspunkt,ax_sonstigesbauwerkodersonstigeeinrichtung,ax_sonstigesrecht,ax_sportfreizeitunderholungsflaeche,ax_stehendesgewaesser,ax_strasse,ax_strassenachse,ax_strassenverkehr,ax_strassenverkehrsanlage,ax_strukturlinie3d,ax_sumpf,ax_tagebaugrubesteinbruch,ax_tagesabschnitt,ax_testgelaende,ax_textur3d,ax_topographischelinie,ax_transportanlage,ax_tuer3d,ax_turm,ax_unlandvegetationsloseflaeche,ax_untergeordnetesgewaesser,ax_vegetationsmerkmal,ax_verband,ax_vertretung,ax_verwaltung,ax_verwaltungsgemeinschaft,ax_vorratsbehaelterspeicherbauwerk,ax_wald,ax_wandflaeche3d,ax_wasserlauf,ax_wasserspiegelhoehe,ax_weg,ax_wegpfadsteig,ax_wirtschaftlicheeinheit,ax_wohnbauflaeche,ax_wohnplatz,ks_bauraumoderbodenordnungsrecht,ks_bauwerkanlagenfuerverundentsorgung,ks_bauwerkimgewaesserbereich,ks_bauwerkoderanlagefuerindustrieundgewerbe,ks_einrichtungenundanlageninoeffentlichenbereichen,ks_einrichtungimbahnverkehr,ks_einrichtungimstrassenverkehr,ks_einrichtunginoeffentlichenbereichen,ks_kommunalerbesitz,ks_sonstigesbauwerk,ks_sonstigesbauwerkodersonstigeeinrichtung,ks_strassenverkehrsanlage,ks_topographischeauspraegung,ks_vegetationsmerkmal,ks_verkehrszeichen,lb_binnengewaesser,lb_eis,lb_festgestein,lb_hochbauundbaulichenebenflaeche,lb_holzigevegetation,lb_krautigevegetation,lb_lockermaterial,lb_meer,lb_tiefbau,ln_abbau,ln_aquakulturundfischereiwirtschaft,ln_bahnverkehr,ln_bestattung,ln_flugverkehr,ln_forstwirtschaft,ln_freiluftundnaherholung,ln_freizeitanlage,ln_gewerblichedienstleistungen,ln_industrieundverarbeitendesgewerbe,ln_kulturundunterhaltung,ln_lagerung,ln_landwirtschaft,ln_oeffentlicheeinrichtungen,ln_ohnenutzung,ln_schiffsverkehr,ln_schutzanlage,ln_sportanlage,ln_strassenundwegeverkehr,ln_versorgungundentsorgung,ln_wasserwirtschaft,ln_wohnnutzung")
+
+with open(os.path.join(BASEDIR, "tables.lst"), "r", encoding="utf-8") as f:
+    os.putenv("TABLES", f.read())
 
 os.putenv("LIST_ALL_TABLES", "YES")
 
@@ -165,10 +174,12 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.cbFnbruch.setCurrentIndex(0 if s.value("fnbruch", True, type=bool) else 1)
         self.cbPgVerdraengen.setCurrentIndex(1 if s.value("pgverdraengen", False, type=bool) else 0)
         self.cbxUseCopy.setChecked(s.value("usecopy", True, type=bool))
+        self.cbxAvoidDupes.setChecked(s.value("avoiddupes", False, type=bool))
         self.cbxCreate.setChecked(False)
         self.cbxClean.setChecked(False)
         self.cbxHistorie.setDisabled(True)
         self.cbxHistorie.setChecked(s.value("historie", True, type=bool))
+        self.cbxQuittierung.setChecked(s.value("quittierung", False, type=bool))
 
         self.cbEPSG.addItem("UTM32N", "25832")
         self.cbEPSG.addItem("UTM33N", "25833")
@@ -429,7 +440,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         save = QFileDialog.getSaveFileName(self, "Protokolldatei angeben", ".", "Protokoll-Dateien (*.log)")
         if isinstance(save, tuple):
             save = save[0]
-        if save is None:
+        if save is None or save == "":
             return
 
         f = open(save, "w", encoding="utf-8")
@@ -477,12 +488,12 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         if QMessageBox.question(self, "norGIS-ALKIS-Import", "Laufenden Import abbrechen?", QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
             self.canceled = True
 
-    def keep(self, l):
+    def keep(self, line):
         if not self.reFilter:
             self.loadRe()
 
         for r in self.reFilter:
-            if r.match(l):
+            if r.match(line):
                 return False
 
         return True
@@ -554,11 +565,11 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 lines[0] = current + lines[0]
             current = ""
 
-        for l in lines:
-            if self.keep(l):
-                self.log("> {}|".format(l.rstrip()))
+        for line in lines:
+            if self.keep(line):
+                self.log("> {}|".format(line.rstrip()))
             else:
-                self.logDb(l)
+                self.logDb(line)
 
         return current + lastline
 
@@ -623,6 +634,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             "-v", "parent_schema={}".format(self.parentschema if self.parentschema else self.schema),
             "-v", "alkis_fnbruch={}".format("true" if self.fnbruch else "false"),
             "-v", "alkis_pgverdraengen={}".format("true" if self.pgverdraengen else "false"),
+            "-v", "alkis_avoiddupes={}".format("true" if self.avoiddupes else "false"),
             "-v", "alkis_hist={}".format("true" if self.historie else "false"),
             "-v", "ON_ERROR_STOP=1",
             "-v", "ECHO=errors",
@@ -720,6 +732,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         s.setValue("skipfailures", self.cbxSkipFailures.isChecked())
         s.setValue("usecopy", self.cbxUseCopy.isChecked())
 
+        self.avoiddupes = self.cbxAvoidDupes.isChecked()
+        s.setValue("avoiddupes", self.avoiddupes)
+
         self.fnbruch = self.cbFnbruch.currentIndex() == 0
         s.setValue("fnbruch", self.fnbruch)
 
@@ -728,6 +743,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         self.historie = self.cbxHistorie.isChecked()
         s.setValue("historie", self.historie)
+
+        self.quittierung = self.cbxQuittierung.isChecked()
+        s.setValue("quittierung", self.quittierung)
 
         self.epsg = int(self.cbEPSG.itemData(self.cbEPSG.currentIndex()))
         s.setValue("epsg", self.epsg)
@@ -748,6 +766,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.lstFiles.itemSelectionChanged.disconnect(self.selChanged)
 
         QApplication.setOverrideCursor(Qt.WaitCursor)
+
+        id_quittierung = None
+        i_quittierung = 0
 
         while True:
             t0 = QElapsedTimer()
@@ -857,7 +878,14 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.log("Mindestens GDAL 2.3 erforderlich")
                 break
 
+            # Verhindern, dass andere GML-Treiber übernehmen
+            if int(m.group(1)) < 3 or (int(m.group(1)) == 3 and int(m.group(2)) < 3):
+                os.putenv("OGR_SKIP", "GML,SEGY")
+            else:
+                os.putenv("OGR_SKIP", "GML")
+
             GDAL_MAJOR = int(m.group(1))
+            GDAL_MINOR = int(m.group(2))
 
             self.psql = which("psql")
             if not self.psql:
@@ -933,6 +961,11 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.pbProgress.setRange(0, 10000)
                 self.pbProgress.setValue(0)
 
+                ok = self.rund(conn, "prepare")
+                if not ok:
+                    self.log("Vorbereitung schlug fehl.")
+                    break
+
                 if self.cbxCreate.isChecked():
                     if self.parentschema == "" or self.parentschema == self.schema:
                         if not self.rund(conn, "precreate"):
@@ -983,9 +1016,12 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         break
 
                     if not self.rund(conn, "postupdate"):
-                                                break
+                        break
 
                 ok = self.rund(conn, "preprocessing")
+                if not ok:
+                    self.log("Preprocessing schlug fehl.")
+                    break
 
                 self.pbProgress.setVisible(True)
 
@@ -1011,7 +1047,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         self.status("{} wird extrahiert.".format(fn))
                         app.processEvents()
 
-                        src = os.path.join(os.getenv("TEMP"), os.path.basename(src))
+                        src = os.path.join(TEMP, os.path.basename(src))
 
                         f_in = gzip.open(fn)
                         f_out = open(src, "wb")
@@ -1033,7 +1069,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                             src += ".xml"
 
                         if src not in sizes:
-                            logDb("Größe der Datei {} nicht gefunden.".format(src))
+                            self.logDb("Größe der Datei {} nicht gefunden.".format(src))
                             break
 
                         size = sizes[src]
@@ -1041,7 +1077,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         self.status("{} wird extrahiert.".format(fn))
                         app.processEvents()
 
-                        src = os.path.join(os.getenv("TEMP"), os.path.basename(src))
+                        src = os.path.join(TEMP, os.path.basename(src))
 
                         zipf = ZipFile(fn, "r")
                         f_in = zipf.open(zipf.infolist()[0].filename)
@@ -1062,109 +1098,129 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         src = fn
                         size = sizes[fn]
 
-                    try:
-                        os.unlink(src[:-4] + ".gfs")
-                    except OSError:
-                        pass
+                    if ok:
+                        try:
+                            os.unlink(src[:-4] + ".gfs")
+                        except OSError:
+                            pass
 
-                    # if size==623 or size==712:
-                    #    item.setSelected(True)
-                    #    self.log("Kurze Datei {} übersprungen.".format(fn))
-                    #    continue
+                        # if size==623 or size==712:
+                        #    item.setSelected(True)
+                        #    self.log("Kurze Datei {} übersprungen.".format(fn))
+                        #    continue
 
-                    args = [
-                        self.ogr2ogr,
-                        "-f", "PostgreSQL",
-                        "-update",
-                        "-append",
-                        "-progress",
-                        "PG:{} active_schema={}','{}".format(conn, self.schema, self.pgschema)
-                    ]
+                        args = [
+                            self.ogr2ogr,
+                            "-f", "PostgreSQL",
+                            "-update",
+                            "-append",
+                            "-progress",
+                        ]
 
-                    if int(self.leGT.text() or '0') >= 1:
-                        args.extend(["-gt", self.leGT.text()])
+                        if GDAL_MAJOR < 3 or (GDAL_MAJOR == 3 and GDAL_MINOR < 1):
+                            args.append("PG:{} active_schema={}','{}".format(conn, self.schema, self.pgschema))
+                        else:
+                            args.append("PG:{0} schemas='{1},{2}' active_schema={1}".format(conn, self.schema, self.pgschema))
 
-                    if GDAL_MAJOR >= 3:
-                        if self.epsg == 131466 or self.epsg == 131467 or self.epsg == 131468:
-                            args.extend(["-a_srs", os.path.join(BASEDIR, "{}.wkt2".format(self.epsg))])
+                        if int(self.leGT.text() or '0') >= 1:
+                            args.extend(["-gt", self.leGT.text()])
+
+                        if GDAL_MAJOR >= 3:
+                            if self.epsg == 131466 or self.epsg == 131467 or self.epsg == 131468:
+                                args.extend(["-a_srs", os.path.join(BASEDIR, "{}.prj".format(self.epsg))])
+
+                            elif self.epsg == 31466 or self.epsg == 31467 or self.epsg == 31468:
+                                args.extend([
+                                    "-s_srs", os.path.join(BASEDIR, "1{}.prj".format(self.epsg)),
+                                    "-t_srs", "EPSG:{}".format(self.epsg)
+                                ])
+
+                            elif self.epsg == 13068:
+                                args.extend([
+                                    "-ct", "+proj=pipeline +step +inv +proj=utm +zone=33 +ellps=GRS80 +step +inv +proj=hgridshift +grids=ntv2berlin20130508.GSB +step +proj=cass +lat_0=52.4186482777778 +lon_0=13.6272036666667 +x_0=40000 +y_0=10000 +ellps=bessel +step +proj=axisswap +order=2",
+                                    "-a_srs", "EPSG:3068"
+                                ])
+
+                            else:
+                                args.extend(["-a_srs", "EPSG:{}".format(self.epsg)])
+
+                        elif self.epsg == 131466 or self.epsg == 131467 or self.epsg == 131468:
+                            args.extend(["-a_srs", "+init=custom:{}".format(self.epsg)])
+                            os.putenv("PROJ_LIB", ".")
 
                         elif self.epsg == 31466 or self.epsg == 31467 or self.epsg == 31468:
                             args.extend([
-                                "-s_srs", os.path.join(BASEDIR, "1{}.wkt2".format(self.epsg)),
-                                "-t_srs", "EPSG:{}".format(self.epsg)
+                                "-s_srs", "+init=custom:1{}".format(self.epsg),
+                                "-t_srs", "+init=custom:{}".format(self.epsg)
                             ])
+                            os.putenv("PROJ_LIB", ".")
 
                         elif self.epsg == 13068:
                             args.extend([
-                                "-ct", "+proj=pipeline +step +inv +proj=utm +zone=33 +ellps=GRS80 +step +inv +proj=hgridshift +grids=ntv2berlin20130508.GSB +step +proj=cass +lat_0=52.4186482777778 +lon_0=13.6272036666667 +x_0=40000 +y_0=10000 +ellps=bessel +step +proj=axisswap +order=2",
-                                "-a_srs", "EPSG:3068"
+                                "-s_srs", "EPSG:25833",
+                                "-t_srs", "+init=custom:3068",
                             ])
+                            os.putenv("PROJ_LIB", ".")
 
                         else:
                             args.extend(["-a_srs", "EPSG:{}".format(self.epsg)])
 
-                    elif self.epsg == 131466 or self.epsg == 131467 or self.epsg == 131468:
-                        args.extend(["-a_srs", "+init=custom:{}".format(self.epsg)])
-                        os.putenv("PROJ_LIB", ".")
+                        if self.cbxSkipFailures.isChecked() or fn in checked:
+                            args.extend(["-skipfailures", "--config", "PG_USE_COPY", "NO"])
+                        else:
+                            args.extend(["--config", "PG_USE_COPY", "YES" if self.cbxUseCopy.isChecked() else "NO"])
 
-                    elif self.epsg == 31466 or self.epsg == 31467 or self.epsg == 31468:
-                        args.extend([
-                            "-s_srs", "+init=custom:1{}".format(self.epsg),
-                            "-t_srs", "+init=custom:{}".format(self.epsg)
-                        ])
-                        os.putenv("PROJ_LIB", ".")
+                        args.extend(["-nlt", "CONVERT_TO_LINEAR", "-ds_transaction"])
 
-                    elif self.epsg == 13068:
-                        args.extend([
-                            "-s_srs", "EPSG:25833",
-                            "-t_srs", "+init=custom:3068",
-                        ])
-                        os.putenv("PROJ_LIB", ".")
+                        args.append(src)
 
-                    else:
-                        args.extend(["-a_srs", "EPSG:{}".format(self.epsg)])
+                        self.status("{} mit {} wird importiert...".format(fn, self.memunits(size)))
 
-                    if self.cbxSkipFailures.isChecked() or fn in checked:
-                        args.extend(["-skipfailures", "--config", "PG_USE_COPY", "NO"])
-                    else:
-                        args.extend(["--config", "PG_USE_COPY", "YES" if self.cbxUseCopy.isChecked() else "NO"])
+                        t1 = QElapsedTimer()
+                        t1.start()
 
-                    args.extend(["-nlt", "CONVERT_TO_LINEAR", "-ds_transaction"])
+                        ok = self.runProcess(args)
 
-                    args.append(src)
+                        try:
+                            os.unlink(src[:-4] + ".gfs")
+                        except OSError:
+                            pass
 
-                    self.status("{} mit {} wird importiert...".format(fn, self.memunits(size)))
+                        elapsed = t1.elapsed()
 
-                    t1 = QElapsedTimer()
-                    t1.start()
+                        if elapsed > 0:
+                            throughput = " ({}/s)".format(self.memunits(size * 1000 / elapsed))
+                        else:
+                            throughput = ""
 
-                    ok = self.runProcess(args)
+                        self.log("{} mit {} in {} importiert{}".format(
+                            fn,
+                            self.memunits(size),
+                            self.timeunits(elapsed),
+                            throughput
+                        ))
 
-                    try:
-                        os.unlink(src[:-4] + ".gfs")
-                    except OSError:
-                        pass
+                    elif self.quittierung:
+                        self.status("{} mit {} wurde übersprungen...".format(fn, self.memunits(size)))
+                        self.log("{} mit {} wurde übersprungen...".format(fn, self.memunits(size)))
 
-                    elapsed = t1.elapsed()
+                    if self.quittierung:
+                        self.db.exec_("CREATE SEQUENCE \"{}\".alkis_quittierungen_seq".format(self.schema.replace('"', '""')))
 
-                    if elapsed > 0:
-                        throughput = " ({}/s)".format(self.memunits(size * 1000 / elapsed))
-                    else:
-                        throughput = ""
+                        if id_quittierung is None:
+                            qry = self.db.exec_("SELECT nextval('\"{}\".alkis_quittierungen_seq')".format(self.schema.replace('"', '""').replace("'", "''")))
+                            if qry and qry.next():
+                                id_quittierung = qry.value(0)
 
-                    self.log("{} mit {} in {} importiert{}".format(
-                        fn,
-                        self.memunits(size),
-                        self.timeunits(elapsed),
-                        throughput
-                    ))
+                        self.runProcess([sys.executable, os.path.join(BASEDIR, "quittierung.py"), ".", src, "ID_{:08d}".format(i_quittierung), str(id_quittierung), "true" if ok else "false"])
+                        i_quittierung += 1
 
                     item.setSelected(ok)
                     if src != fn and os.path.exists(src):
                         os.unlink(src)
 
                     s = s + size
-                    self.pbProgress.setValue(10000 * s / ts)
+                    self.pbProgress.setValue(int(10000 * s / ts))
 
                     remaining_data = ts - s
                     remaining_time = remaining_data * t0.elapsed() / s
@@ -1172,12 +1228,12 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     self.alive.setText("Noch {} in etwa {}\nETA: {} -".format(
                         self.memunits(remaining_data),
                         self.timeunits(remaining_time),
-                        QDateTime.currentDateTime().addMSecs(remaining_time).toString(Qt.ISODate)
+                        QDateTime.currentDateTime().addMSecs(int(remaining_time)).toString(Qt.ISODate)
                     ))
 
                     app.processEvents()
 
-                    if not ok:
+                    if not ok and not self.quittierung:
                         self.status("Fehler bei {}.".format(fn))
                         break
 
@@ -1195,12 +1251,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
                 if ok:
                     ok = self.rund(conn, "postprocessing")
-
-                if ok:
-                    self.status("VACUUM...")
-                    ok = self.db.exec_("VACUUM")
-                    if ok:
-                        self.log("VACUUM abgeschlossen.")
 
                 if ok:
                     self.log("Import nach {} erfolgreich beendet.".format(self.timeunits(t0.elapsed())))

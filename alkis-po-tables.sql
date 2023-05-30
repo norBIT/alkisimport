@@ -5,7 +5,7 @@
  * Author:   Jürgen E. Fischer jef@norbit.de                               *
  *                                                                         *
  ***************************************************************************
- * Copyright (c) 2013-2020 Jürgen E. Fischer (jef@norbit.de)               *
+ * Copyright (c) 2013-2023 Juergen E. Fischer (jef@norbit.de)              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -153,7 +153,7 @@ CREATE TABLE alkis_signaturkataloge(id INTEGER PRIMARY KEY, name VARCHAR);
 CREATE TABLE alkis_strichart(id INTEGER PRIMARY KEY,laenge DOUBLE PRECISION,einzug DOUBLE PRECISION,abstand DOUBLE PRECISION[]);
 CREATE TABLE alkis_stricharten(id INTEGER PRIMARY KEY);
 CREATE TABLE alkis_stricharten_i(id INTEGER PRIMARY KEY,stricharten INTEGER,i INTEGER,strichart INTEGER,FOREIGN KEY (stricharten) REFERENCES alkis_stricharten(id),FOREIGN KEY (strichart) REFERENCES alkis_strichart(id));
-CREATE TABLE alkis_farben(id INTEGER PRIMARY KEY,name VARCHAR,c INTEGER,y INTEGER,m INTEGER,k INTEGER,r INTEGER,g INTEGER,b INTEGER,umn VARCHAR,UNIQUE(c,y,m,k));
+CREATE TABLE alkis_farben(id INTEGER PRIMARY KEY,name VARCHAR,c INTEGER,y INTEGER,m INTEGER,k INTEGER,r INTEGER,g INTEGER,b INTEGER,umn VARCHAR);
 CREATE TABLE alkis_randlinie(id INTEGER PRIMARY KEY,farbe INTEGER,strichart INTEGER,strichstaerke DOUBLE PRECISION,abschluss VARCHAR,scheitel VARCHAR,FOREIGN KEY (farbe) REFERENCES alkis_farben(id),FOREIGN KEY (strichart) REFERENCES alkis_strichart(id));
 CREATE TABLE alkis_schriften(katalog INTEGER,signaturnummer VARCHAR,darstellungsprioritaet INTEGER,name VARCHAR[],seite INTEGER,art VARCHAR,stil VARCHAR,grad_pt INTEGER,horizontaleausrichtung VARCHAR,vertikaleausrichtung VARCHAR,farbe INTEGER,alignment_umn CHAR(2),alignment_dxf INTEGER,sperrung_pt INTEGER,effekt VARCHAR,position TEXT,PRIMARY KEY (katalog,signaturnummer),FOREIGN KEY (katalog) REFERENCES alkis_signaturkataloge(id),FOREIGN KEY (farbe) REFERENCES alkis_farben(id));
 CREATE TABLE alkis_linien(katalog INTEGER,signaturnummer VARCHAR,darstellungsprioritaet INTEGER,name VARCHAR[],seite INTEGER,PRIMARY KEY (katalog,signaturnummer),FOREIGN KEY (katalog) REFERENCES alkis_signaturkataloge(id));

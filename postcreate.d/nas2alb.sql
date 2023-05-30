@@ -5,7 +5,7 @@
  * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
  *                                                                         *
  ***************************************************************************
- * Copyright (c) 2012-2020, Jürgen E. Fischer <jef@norbit.de>              *
+ * Copyright (c) 2012-2023, Jürgen E. Fischer <jef@norbit.de>              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -472,7 +472,7 @@ CREATE VIEW v_eigentuemer AS
     ,fs.flsnr
     ,fs.amtlflsfl
     ,(SELECT gemarkung FROM gema_shl WHERE gema_shl.gemashl=fs.gemashl) AS gemarkung
-    ,(SELECT array_to_string( array_agg( DISTINCT str_shl.strname || coalesce(' '||strassen.hausnr,'') ) || CASE WHEN lagebez IS NULL THEN ARRAY[lagebez] ELSE '{}'::text[] END, E'\n')
+    ,(SELECT array_to_string( array_agg( DISTINCT str_shl.strname || coalesce(' '||strassen.hausnr,'') ) || CASE WHEN lagebez IS NOT NULL THEN ARRAY[lagebez] ELSE '{}'::text[] END, E'\n')
       FROM strassen
       LEFT OUTER JOIN str_shl ON strassen.strshl=str_shl.strshl
       WHERE strassen.flsnr=fs.flsnr AND strassen.ff_stand=0
@@ -502,7 +502,10 @@ CREATE VIEW v_haeuser AS
     st_x(point) AS x_coord,
     st_y(point) AS y_coord,
     strshl,
-    ha_nr
+    strname,
+    ha_nr,
+    gemshl,
+    gemname
   FROM (
     SELECT
       g.ogc_fid * 268435456::bigint + o.ogc_fid AS ogc_fid,
@@ -512,4 +515,7 @@ CREATE VIEW v_haeuser AS
     FROM ax_lagebezeichnungmithausnummer o
     JOIN ax_gebaeude g ON ARRAY[o.gml_id] <@ g.zeigtauf AND g.endet IS NULL
     WHERE o.endet IS NULL
-  ) AS foo;
+  ) AS foo
+  LEFT OUTER JOIN str_shl USING (strshl)
+  LEFT OUTER JOIN gem_shl USING (gemshl)
+;

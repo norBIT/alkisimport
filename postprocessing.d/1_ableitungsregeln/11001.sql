@@ -60,7 +60,14 @@ SELECT
 FROM ax_flurstueck o
 LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='ZAE_NEN' AND t.endet IS NULL
 LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='ZAE_NEN' AND d.endet IS NULL
-WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN NULL ELSE '4111' END,'4113','4122') OR coalesce(o.nenner,'0')='0');
+WHERE o.endet IS NULL AND (
+	CASE
+	WHEN :alkis_fnbruch
+	THEN coalesce(t.signaturnummer,'4115') IN ('4113','4122')
+	ELSE coalesce(t.signaturnummer,'4113') NOT IN ('4115', '4123')
+	END
+	OR coalesce(o.nenner,'0')='0'
+);
 
 -- Zähler
 -- Bruchdarstellung
@@ -75,12 +82,12 @@ SELECT
 	WHEN horizontaleausrichtung='linksbündig' THEN st_translate(point, len, 0.0)
 	ELSE point
 	END AS point,
-	text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell
+	text,signaturnummer,drehwinkel,'zentrisch' AS horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell
 FROM (
 	SELECT
 		gml_id,
 		point,
-		CASE WHEN lenn>lenz THEN lenn ELSE lenz END AS len,
+		greatest(lenz, lenn) AS len,
 		text,
 		signaturnummer,
 		drehwinkel,
@@ -102,7 +109,13 @@ FROM (
 		FROM ax_flurstueck o
 		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
 		LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
-		WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123') AND coalesce(o.nenner,'0')<>'0')
+		WHERE o.endet IS NULL AND
+			CASE
+			WHEN :alkis_fnbruch
+			THEN coalesce(t.signaturnummer,'4115') NOT IN ('4113','4122')
+			ELSE coalesce(t.signaturnummer,'4113') IN ('4115', '4123')
+			END
+			AND coalesce(o.nenner,'0')<>'0'
 	) AS foo
 ) AS foo;
 
@@ -119,12 +132,12 @@ SELECT
 	WHEN horizontaleausrichtung='linksbündig' THEN st_translate(point, len, 0.0)
 	ELSE point
 	END AS point,
-	text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell
+	text,signaturnummer,drehwinkel,'zentrisch' AS horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell
 FROM (
 	SELECT
 		gml_id,
 		point,
-		CASE WHEN lenn>lenz THEN lenn ELSE lenz END AS len,
+		greatest(lenz, lenn) AS len,
 		text,
 		signaturnummer,
 		drehwinkel,
@@ -146,7 +159,13 @@ FROM (
 		FROM ax_flurstueck o
 		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
 		LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
-		WHERE o.endet IS NULL AND (coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123') AND coalesce(o.nenner,'0')<>'0')
+		WHERE o.endet IS NULL AND
+			CASE
+			WHEN :alkis_fnbruch
+			THEN coalesce(t.signaturnummer,'4115') NOT IN ('4113','4122')
+			ELSE coalesce(t.signaturnummer,'4113') IN ('4115', '4123')
+			END AND
+			coalesce(o.nenner,'0')<>'0'
 	) AS foo
 	WHERE NOT text IS NULL
 ) AS foo;
@@ -169,7 +188,7 @@ FROM (
 	SELECT
 		gml_id,
 		point,
-		CASE WHEN lenn>lenz THEN lenn ELSE lenz END AS len,
+		greatest(lenz, lenn) AS len,
 		signaturnummer,
 		modell,
 		drehwinkel,
@@ -187,7 +206,13 @@ FROM (
 		FROM ax_flurstueck o
 		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
 		LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
-		WHERE o.endet IS NULL AND coalesce(t.signaturnummer,'4111') IN (CASE WHEN :alkis_fnbruch THEN '4111' ELSE NULL END,'4115','4123') AND coalesce(o.nenner,'0')<>'0'
+		WHERE o.endet IS NULL AND
+			CASE
+			WHEN :alkis_fnbruch
+			THEN coalesce(t.signaturnummer,'4115') NOT IN ('4113','4122')
+			ELSE coalesce(t.signaturnummer,'4113') IN ('4115', '4123')
+			END AND
+			coalesce(o.nenner,'0')<>'0'
 	) AS bruchstrich0 WHERE lenz>0 AND lenn>0
 ) AS bruchstrich1;
 

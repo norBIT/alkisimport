@@ -2,5 +2,8 @@ alkisImport.py export-subst
 alkis-import.sh export-subst
 .gitattributes export-ignore
 .gitignore export-ignore
-oci export-ignore
-postprocessing.d/1_ableitungsregeln/kom.txt export-ignore
+setup.hint export-ignore
+preremove.bat export-ignore
+postinstall.bat export-ignore
+README.md export-ignore
+*.in export-ignore

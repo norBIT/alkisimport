@@ -5,7 +5,7 @@
  * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
  *                                                                         *
  ***************************************************************************
- * Copyright (c) 2014-2020, Jürgen E. Fischer <jef@norbit.de>              *
+ * Copyright (c) 2014-2023, Jürgen E. Fischer <jef@norbit.de>              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -142,7 +142,7 @@ CREATE VIEW v_bauteil_bauart AS
 	SELECT
 		wert::int AS wert
 		,beschreibung AS bezeichner
-		,(SELECT kennung FROM alkis_elemente WHERE name='ax_bauteil') AS kennung
+		,'31002' AS kennung
 		,'ax_bauteil'::text AS objektart
 	FROM ax_bauart_bauteil;
 
@@ -151,7 +151,7 @@ CREATE VIEW v_klass_strass_adf AS
 	SELECT
 		wert::int AS wert
 		,beschreibung AS bezeichner
-		,(SELECT kennung FROM alkis_elemente WHERE name='ax_klassifizierungnachstrassenrecht') AS kennung
+		,'71001' AS kennung
 		,'ax_klassifizierungnachstrassenrecht'::text AS objektart
 	FROM ax_artderfestlegung_klassifizierungnachstrassenrecht;
 
@@ -160,7 +160,7 @@ CREATE VIEW v_klass_wasser_adf AS
 	SELECT
 		wert::int AS wert
 		,beschreibung AS bezeichner
-		,(SELECT kennung FROM alkis_elemente WHERE name='ax_klassifizierungnachwasserrecht') AS kennung
+		,'71003' AS kennung
 		,'ax_klassifizierungnachwasserrecht'::text AS objektart
 	FROM ax_artderfestlegung_klassifizierungnachwasserrecht;
 
@@ -169,7 +169,7 @@ CREATE VIEW v_andstrass_adf AS
 	SELECT
 		wert::int AS wert
 		,beschreibung AS bezeichner
-		,(SELECT kennung FROM alkis_elemente WHERE name='ax_anderefestlegungnachstrassenrecht') AS kennung
+		,'71002' AS kennung
 		,'ax_anderefestlegungnachstrassenrecht'::text AS objektart
 	FROM ax_artderfestlegung_anderefestlegungnachstrassenrecht;
 
@@ -178,7 +178,7 @@ CREATE VIEW v_umweltrecht_adf AS
 	SELECT
 		wert::int AS wert
 		,beschreibung AS bezeichner
-		,(SELECT kennung FROM alkis_elemente WHERE name='ax_naturumweltoderbodenschutzrecht') AS kennung
+		,'71006' AS kennung
 		,'ax_naturumweltoderbodenschutzrecht'::text AS objektart
 	FROM ax_artderfestlegung_naturumweltoderbodenschutzrecht;
 
@@ -187,7 +187,7 @@ CREATE VIEW v_denkmal_adf AS
 	SELECT
 		wert::int AS wert
 		,beschreibung AS bezeichner
-		,(SELECT kennung FROM alkis_elemente WHERE name='ax_denkmalschutzrecht') AS kennung
+		,'71009'AS kennung
 		,'ax_denkmalschutzrecht'::text AS objektart
 	FROM ax_artderfestlegung_denkmalschutzrecht;
 
@@ -196,6 +196,6 @@ CREATE VIEW v_sonstrecht_adf AS
 	SELECT
 		wert::int AS wert
 		,beschreibung AS bezeichner
-		,(SELECT kennung FROM alkis_elemente WHERE name='ax_sonstigesrecht') AS kennung
+		,'71011' AS kennung
 		,'ax_sonstigesrecht'::text AS objektart
 	FROM ax_artderfestlegung_sonstigesrecht;

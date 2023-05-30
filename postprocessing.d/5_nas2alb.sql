@@ -69,7 +69,7 @@ DELETE FROM eign_shl;
 INSERT INTO eign_shl(b,eignerart)
 	SELECT
 		wert AS b,
-		beschreibung AS eignerart
+		substr(beschreibung,1,60) AS eignerart
 	FROM ax_buchungsart_buchungsstelle;
 
 ---

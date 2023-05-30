@@ -45,4 +45,3 @@ FROM (
 	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='NAM' AND d.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS n WHERE NOT text IS NULL;
-

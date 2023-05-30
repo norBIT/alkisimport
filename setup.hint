@@ -1,5 +1,5 @@
-sdesc: "norGIS ALKIS Import (GeoInfoDok 7)"
-ldesc: "norGIS ALKIS Import (GEoInfoDok 7)"
+sdesc: "norGIS ALKIS Import (GeoInfoDok @GID@)"
+ldesc: "norGIS ALKIS Import (GeoInfoDok @GID@)"
 maintainer: JuergenFischer
 category: Desktop
-requires: pyqt5 psql sip-qt5 gdal-dev
+requires: python3-pyqt5 python3-sip gdal psql

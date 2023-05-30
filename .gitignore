@@ -1,3 +1,7 @@
 *.pyc
 alkisImportDlg.py
 .pkg
+*.gfs
+*.log
+*.xml
+*.zip

@@ -77,7 +77,7 @@ INSERT INTO po_zeigtauf_hausnummer
 
 ANALYZE po_zeigtauf_hausnummer;
 
--- Kommt in Bayern auch ohne zeigtAuf Turm/Gebäude/Flurstück vor
+-- Normalerweise nur zeigtAuf Turm/Gebäude/Flurstück (kommt aber zumindest in Bayern und NRW auch ohne vor)
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	gml_id,
@@ -99,6 +99,6 @@ FROM (
 	LEFT OUTER JOIN po_zeigtauf_hausnummer gt ON o.gml_id=gt.zeigtauf
 	LEFT OUTER JOIN ap_pto tx ON ARRAY[o.gml_id] <@ tx.dientzurdarstellungvon AND tx.endet IS NULL AND tx.art='HNR'
 	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL AND d.art='HNR'
-	WHERE o.endet IS NULL AND (gt.zeigtauf IS NOT NULL OR o.gml_id LIKE 'DEBY%')
+	WHERE o.endet IS NULL
 ) AS foo
 WHERE text IS NOT NULL;

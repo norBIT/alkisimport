@@ -6,7 +6,8 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 SELECT alkis_dropobject('alkis_klassifizierungen');
 CREATE TABLE alkis_klassifizierungen(
-	element VARCHAR PRIMARY KEY,
+	name VARCHAR PRIMARY KEY,
+	kennung VARCHAR,
 	funktionsfeld VARCHAR,
 	prefix VARCHAR,
 	ackerzahl VARCHAR,
@@ -14,11 +15,11 @@ CREATE TABLE alkis_klassifizierungen(
 	enumeration VARCHAR
 );
 
-INSERT INTO alkis_klassifizierungen(element, prefix, funktionsfeld, bodenzahl, ackerzahl, enumeration) VALUES
-	('ax_bodenschaetzung',			'b', 'nutzungsart',		'bodenzahlodergruenlandgrundzahl',	'ackerzahlodergruenlandzahl',	'ax_nutzungsart_bodenschaetzung'),
-	('ax_bewertung',			'B', 'klassifizierung',		'NULL::varchar',			'NULL::varchar',		'ax_klassifizierung_bewertung'),
-	('ax_klassifizierungnachwasserrecht',	'W', 'artderfestlegung',	'NULL::varchar',			'NULL::varchar',		'ax_artderfestlegung_klassifizierungnachwasserrecht'),
-	('ax_klassifizierungnachstrassenrecht',	'S', 'artderfestlegung',	'NULL::varchar',			'NULL::varchar',		'ax_artderfestlegung_klassifizierungnachstrassenrecht');
+INSERT INTO alkis_klassifizierungen(name, kennung, prefix, funktionsfeld, bodenzahl, ackerzahl, enumeration) VALUES
+	('ax_bodenschaetzung',			'72001', 'b', 'nutzungsart',		'bodenzahlodergruenlandgrundzahl',	'ackerzahlodergruenlandzahl',	'ax_nutzungsart_bodenschaetzung'),
+	('ax_bewertung',			'72004', 'B', 'klassifizierung',	'NULL::varchar',			'NULL::varchar',		'ax_klassifizierung_bewertung'),
+	('ax_klassifizierungnachwasserrecht',	'71003', 'W', 'artderfestlegung',	'NULL::varchar',			'NULL::varchar',		'ax_artderfestlegung_klassifizierungnachwasserrecht'),
+	('ax_klassifizierungnachstrassenrecht',	'71001', 'S', 'artderfestlegung',	'NULL::varchar',			'NULL::varchar',		'ax_artderfestlegung_klassifizierungnachstrassenrecht');
 
 SELECT alkis_dropobject('alkis_createklassifizierung');
 CREATE FUNCTION pg_temp.alkis_createklassifizierung() RETURNS varchar AS $$
@@ -45,8 +46,7 @@ BEGIN
 			bodenzahl,
 			ackerzahl,
 			enumeration
-		FROM alkis_elemente e
-		JOIN alkis_klassifizierungen ON e.name=alkis_klassifizierungen.element
+		FROM alkis_klassifizierungen
 	LOOP
 		res := alkis_string_append(res, alkis_fixareas(r.name));
 

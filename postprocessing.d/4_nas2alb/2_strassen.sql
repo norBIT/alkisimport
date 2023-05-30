@@ -14,8 +14,8 @@ INSERT INTO str_shl(strshl,strname,gemshl)
 		to_char(alkis_toint(land),'fm00')||regierungsbezirk||to_char(alkis_toint(kreis),'fm00')||to_char(alkis_toint(gemeinde),'fm000') AS gemshl
 	FROM ax_lagebezeichnungkatalogeintrag a
 	WHERE endet IS NULL
-	  -- Nur nötig, weil im Katalog doppelte Einträge vorkommen
-	  AND NOT EXISTS (SELECT * FROM ax_lagebezeichnungkatalogeintrag b WHERE b.endet IS NULL AND a.schluesselgesamt=b.schluesselgesamt AND b.beginnt<a.beginnt);
+	  -- Nur nötig, weil im Katalog doppelte Einträge vorkommen, deren Schlüssel auch noch unterschiedlich mit Leerzeichen aufgefüllt sind
+	  AND NOT EXISTS (SELECT * FROM ax_lagebezeichnungkatalogeintrag b WHERE b.endet IS NULL AND trim(a.schluesselgesamt)=trim(b.schluesselgesamt) AND b.beginnt<a.beginnt);
 
 INSERT INTO str_shl(strshl,strname,gemshl)
 	SELECT gemshl||'   -'||row_number() OVER (PARTITION BY gemshl)+(SELECT count(*) FROM str_shl s WHERE s.gemshl=a.gemshl) AS strshl,strname,gemshl FROM (

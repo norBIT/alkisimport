@@ -16,7 +16,8 @@ SELECT
 	st_multi(wkb_geometry) AS polygon,
 	25151401 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_flaechegemischternutzung;
+FROM ax_flaechegemischternutzung
+WHERE endet IS NULL;
 
 -- Name, Fläche gemischter Nutzung
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)

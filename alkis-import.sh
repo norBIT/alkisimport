@@ -6,7 +6,7 @@
 # Author:   Jürgen E. Fischer <jef@norbit.de>
 #
 ############################################################################
-# Copyright (c) 2012-2020, Jürgen E. Fischer <jef@norbit.de>
+# Copyright (c) 2012-2023, Jürgen E. Fischer <jef@norbit.de>
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -28,25 +28,27 @@ export OGR_SETFIELD_NUMERIC_WARNING=ON
 # Mindestlänge für Kreisbogensegmente
 export OGR_ARC_MINLENGTH=0.1
 
-# Verhindern, das der GML-Treiber übernimmt
-export OGR_SKIP=GML,SEGY
+# ogc_fid bei Einfügungen nicht abfragen
+export OGR_PG_RETRIEVE_FID=NO
 
 # Headerkennungen die NAS-Daten identifizieren
 export NAS_INDICATOR="NAS-Operationen;AAA-Fachschema;aaa.xsd;aaa-suite;adv/gid/6.0"
 export NAS_SKIP_CORRUPTED_FEATURES=YES
 export LIST_ALL_TABLES=YES
-export TABLES="aa_aktivitaet,aa_antrag,aa_antragsgebiet,aa_meilenstein,aa_projektsteuerung,aa_vorgang,ap_darstellung,ap_fpo,ap_kpo_3d,ap_lpo,ap_lto,ap_ppo,ap_pto,au_koerperobjekt_3d,au_mehrfachlinienobjekt_3d,au_punkthaufenobjekt_3d,au_trianguliertesoberflaechenobjekt_3d,au_umringobjekt_3d,ax_abgeleitetehoehenlinie,ax_abschlussflaeche3d,ax_abschnitt,ax_anderefestlegungnachstrassenrecht,ax_anderefestlegungnachwasserrecht,ax_anschrift,ax_ast,ax_aufnahmepunkt,ax_bahnstrecke,ax_bahnverkehr,ax_bahnverkehrsanlage,ax_baublock,ax_bauraumoderbodenordnungsrecht,ax_bauraumoderbodenordnungsrechtgrundbuch,ax_bauteil,ax_bauteil3d,ax_bauwerk3d,ax_bauwerkimgewaesserbereich,ax_bauwerkimverkehrsbereich,ax_bauwerkoderanlagefuerindustrieundgewerbe,ax_bauwerkoderanlagefuersportfreizeitunderholung,ax_benutzer,ax_benutzergruppemitzugriffskontrolle,ax_benutzergruppenba,ax_bergbaubetrieb,ax_besondereflurstuecksgrenze,ax_besonderegebaeudelinie,ax_besondererbauwerkspunkt,ax_besonderergebaeudepunkt,ax_besonderertopographischerpunkt,ax_bewertung,ax_bodenflaeche3d,ax_bodenschaetzung,ax_boeschungkliff,ax_boeschungsflaeche,ax_buchungsblatt,ax_buchungsblattbezirk,ax_buchungsstelle,ax_bundesland,ax_dachflaeche3d,ax_dammwalldeich,ax_denkmalschutzrecht,ax_dhmgitter,ax_dienststelle,ax_duene,ax_einrichtungenfuerdenschiffsverkehr,ax_einrichtunginoeffentlichenbereichen,ax_einschnitt,ax_fahrbahnachse,ax_fahrwegachse,ax_felsenfelsblockfelsnadel,ax_fenster3d,ax_firstlinie,ax_flaeche3d,ax_flaechebesondererfunktionalerpraegung,ax_flaechegemischternutzung,ax_fliessgewaesser,ax_flugverkehr,ax_flugverkehrsanlage,ax_flurstueck,ax_flurstueckgrundbuch,ax_forstrecht,ax_fortfuehrungsfall,ax_fortfuehrungsfallgrundbuch,ax_fortfuehrungsnachweisdeckblatt,ax_friedhof,ax_gebaeude,ax_gebaeudeausgestaltung,ax_gebaeudeinstallation3d,ax_gebiet_bundesland,ax_gebiet_kreis,ax_gebiet_nationalstaat,ax_gebiet_regierungsbezirk,ax_gebiet_verwaltungsgemeinschaft,ax_gebietsgrenze,ax_gehoelz,ax_gemarkung,ax_gemarkungsteilflur,ax_gemeinde,ax_gemeindeteil,ax_georeferenziertegebaeudeadresse,ax_gewaesserachse,ax_gewaessermerkmal,ax_gewaesserstationierungsachse,ax_gewann,ax_gleis,ax_grablochderbodenschaetzung,ax_grenzpunkt,ax_grenzuebergang,ax_hafen,ax_hafenbecken,ax_halde,ax_heide,ax_heilquellegasquelle,ax_historischesbauwerkoderhistorischeeinrichtung,ax_historischesflurstueck,ax_historischesflurstueckalb,ax_historischesflurstueckohneraumbezug,ax_hoehenfestpunkt,ax_hoehenlinie,ax_hoehleneingang,ax_industrieundgewerbeflaeche,ax_insel,ax_kanal,ax_klassifizierungnachstrassenrecht,ax_klassifizierungnachwasserrecht,ax_kleinraeumigerlandschaftsteil,ax_kommunalesgebiet,ax_kommunalesteilgebiet,ax_kondominium,ax_kreisregion,ax_lagebezeichnungkatalogeintrag,ax_lagebezeichnungmithausnummer,ax_lagebezeichnungmitpseudonummer,ax_lagebezeichnungohnehausnummer,ax_lagefestpunkt,ax_landschaft,ax_landwirtschaft,ax_leitung,ax_material3d,ax_meer,ax_moor,ax_musterundvergleichsstueck,ax_namensnummer,ax_nationalstaat,ax_naturumweltoderbodenschutzrecht,ax_netzknoten,ax_nullpunkt,ax_ortslage,ax_person,ax_personengruppe,ax_platz,ax_polder,ax_punkt3d,ax_punktkennunguntergegangen,ax_punktkennungvergleichend,ax_punktortag,ax_punktortau,ax_punktortta,ax_punktwolke3d,ax_referenzstationspunkt,ax_regierungsbezirk,ax_reservierung,ax_schifffahrtsliniefaehrverkehr,ax_schiffsverkehr,ax_schleuse,ax_schutzgebietnachnaturumweltoderbodenschutzrecht,ax_schutzgebietnachwasserrecht,ax_schutzzone,ax_schwere,ax_schwerefestpunkt,ax_seilbahnschwebebahn,ax_sicherungspunkt,ax_sickerstrecke,ax_siedlungsflaeche,ax_skizze,ax_soll,ax_sonstigervermessungspunkt,ax_sonstigesbauwerkodersonstigeeinrichtung,ax_sonstigesrecht,ax_sportfreizeitunderholungsflaeche,ax_stehendesgewaesser,ax_strasse,ax_strassenachse,ax_strassenverkehr,ax_strassenverkehrsanlage,ax_strukturlinie3d,ax_sumpf,ax_tagebaugrubesteinbruch,ax_tagesabschnitt,ax_testgelaende,ax_textur3d,ax_topographischelinie,ax_transportanlage,ax_tuer3d,ax_turm,ax_unlandvegetationsloseflaeche,ax_untergeordnetesgewaesser,ax_vegetationsmerkmal,ax_verband,ax_vertretung,ax_verwaltung,ax_verwaltungsgemeinschaft,ax_vorratsbehaelterspeicherbauwerk,ax_wald,ax_wandflaeche3d,ax_wasserlauf,ax_wasserspiegelhoehe,ax_weg,ax_wegpfadsteig,ax_wirtschaftlicheeinheit,ax_wohnbauflaeche,ax_wohnplatz,ks_bauraumoderbodenordnungsrecht,ks_bauwerkanlagenfuerverundentsorgung,ks_bauwerkimgewaesserbereich,ks_bauwerkoderanlagefuerindustrieundgewerbe,ks_einrichtungenundanlageninoeffentlichenbereichen,ks_einrichtungimbahnverkehr,ks_einrichtungimstrassenverkehr,ks_einrichtunginoeffentlichenbereichen,ks_kommunalerbesitz,ks_sonstigesbauwerk,ks_sonstigesbauwerkodersonstigeeinrichtung,ks_strassenverkehrsanlage,ks_topographischeauspraegung,ks_vegetationsmerkmal,ks_verkehrszeichen,lb_binnengewaesser,lb_eis,lb_festgestein,lb_hochbauundbaulichenebenflaeche,lb_holzigevegetation,lb_krautigevegetation,lb_lockermaterial,lb_meer,lb_tiefbau,ln_abbau,ln_aquakulturundfischereiwirtschaft,ln_bahnverkehr,ln_bestattung,ln_flugverkehr,ln_forstwirtschaft,ln_freiluftundnaherholung,ln_freizeitanlage,ln_gewerblichedienstleistungen,ln_industrieundverarbeitendesgewerbe,ln_kulturundunterhaltung,ln_lagerung,ln_landwirtschaft,ln_oeffentlicheeinrichtungen,ln_ohnenutzung,ln_schiffsverkehr,ln_schutzanlage,ln_sportanlage,ln_strassenundwegeverkehr,ln_versorgungundentsorgung,ln_wasserwirtschaft,ln_wohnnutzung"
 
 export PGCLIENTENCODING=UTF8
 
 export EPSG=25832
 export CRS="-a_srs EPSG:$EPSG"
 export FNBRUCH=true
+export AVOIDDUPES=false
 export HISTORIE=true
+export QUITTIERUNG=false
 export PGVERDRAENGEN=false
 export SCHEMA=public
 export PARENTSCHEMA=
 export PGSCHEMA=public
+export USECOPY=YES
 
 B=${0%/*}   # BASEDIR
 if [ "$0" = "$B" ]; then
@@ -61,6 +63,7 @@ export P=${0##*/}  # PROGNAME
 
 export NAS_GFS_TEMPLATE=$B/alkis-schema.gfs
 export NAS_NO_RELATION_LAYER=YES
+export TABLES=$(<$B/tables.lst)
 
 bdate() {
 	local t=${1:-+%F %T}
@@ -138,9 +141,9 @@ import() {
 
 	t0=$(bdate +%s)
 
-	case $src in
+	case ${src,,} in
 	*.zip)
-		dst=${src%.zip}.xml
+		dst=${src%.???}.xml
 		dst="$tmpdir/${dst//\//_}"
 		echo "DECOMPRESS $(bdate): $src"
 		if [ -e "$dst" ]; then
@@ -161,7 +164,7 @@ import() {
 			return 1
 		fi
 
-		dst=${src%.gz}
+		dst=${src%.??}
 		dst="$tmpdir/${dst//\//_}"
 		echo "DECOMPRESS $(bdate): $src"
 		if [ -e "$dst" ]; then
@@ -191,7 +194,7 @@ import() {
 		;;
 	esac
 
-	[ -f "${dst%.xml}.gfs" ] && rm -v "${dst%.xml}.gfs"
+	[ -f "${dst%.???}.gfs" ] && rm -v "${dst%.???}.gfs"
 
 	if ! [ -f "$dst" -a -r "$dst" ]; then
 		echo "$src => $dst"
@@ -207,7 +210,7 @@ import() {
 	if [ -n "$sfre" ] && eval [[ "$src" =~ "$sfre" ]]; then
 		opt="$opt -skipfailures"
 	fi
-	opt="$opt -ds_transaction --config PG_USE_COPY YES -nlt CONVERT_TO_LINEAR"
+	opt="$opt -ds_transaction --config PG_USE_COPY $USECOPY -nlt CONVERT_TO_LINEAR"
 
 	case "$MACHTYPE" in
 	*-cygwin|*msys)
@@ -218,12 +221,12 @@ import() {
 		;;
 	esac
 
-	echo "RUNNING: ogr2ogr -f $DRIVER $opt -update -append \"$DST\" $CRS \"$dst1\"" | sed -Ee 's/password=\S+/password=*removed*/'
+	echo "RUNNING: ogr2ogr -f $DRIVER $opt $sf_opt -update -append \"$DST\" $CRS \"$dst1\"" | sed -Ee 's/password=\S+/password=*removed*/'
 	ogr2ogr -f $DRIVER $opt $sf_opt -update -append "$DST" $CRS "$dst1"
 	local r=$?
 	t1=$(bdate +%s)
 
-	progress "$dst" $s $t0 $t1 $r
+	progress "$dst" "$dst1" $s $t0 $t1 $r
 
 	[ $rm == 1 ] && rm -fv "$dst"
 	trap "" EXIT
@@ -249,11 +252,24 @@ process() {
 			if [ "$r" -ne 0 ]; then
 				return $r
 			fi
+
+			if [ "$QUITTIERUNG" = "true" ]; then
+				n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_sequences WHERE schemaname='${SCHEMA//\'/\'\'}' AND sequencename='alkis_quittierungen_seq'" "$DB")
+				n=${n//[	 ]}
+				if [ $n -eq 0 ]; then
+					runsql "CREATE SEQUENCE $SCHEMA.alkis_quittierungen_seq"
+				fi
+
+				quittierungsnr=$(psql -A -X -t -c "SELECT nextval('$SCHEMA.alkis_quittierungen_seq')" "$DB")
+				quittierungsnr=${quittierungsnr//[	 ]}
+				export quittierungsnr
+				export quittierungsi=0
+			fi
 		fi
 
 		export job
 		export progress
-		parallel --line-buffer --halt soon,fail=1 --jobs=$JOBS import <$job
+		parallel --tag --line-buffer --halt soon,fail=1 --jobs=$JOBS import <$job
 		r=$?
 		rm $job
 	fi
@@ -262,17 +278,18 @@ process() {
 
 progress() {
 	local file=$1
-	local size=$2
-	local t0=$3
-	local t1=$4
-	local r=$5
+	local dst=$2
+	local size=$3
+	local t0=$4
+	local t1=$5
+	local r=$6
 	local elapsed
 	local total_elapsed
 	local total_size
 	local remaining_size
 	local errors=0
 
-	lockfile $lock
+	lockfile -l1 $lock
 	[ -f $progress ] && . $progress
 
 	start_time=${start_time:-$t0}
@@ -282,6 +299,17 @@ progress() {
 	done_size=$(( total_size - remaining_size ))
 	remaining_time=$(( remaining_size * total_elapsed / done_size ))
 	eta=$(( t1 + remaining_time ))
+
+	if [ -n "$quittierungsnr" ]; then
+		if [ $r == 0 ]; then
+			success=true
+		else
+			success=false
+		fi
+		python3 $B/quittierung.py . "$dst" "$(printf "ID_%08d" $quittierungsi)" $quittierungsnr $success
+		(( ++quittierungsi ))
+	fi
+
 
 	if [ $r -ne 0 ]; then
 		(( errors++ )) || true
@@ -308,6 +336,8 @@ total_size=$total_size
 remaining_size=$remaining_size
 last_time=$t1
 errors=$errors
+quittierungsnr=$quittierungsnr
+quittierungsi=$quittierungsi
 EOF
 
 	rm -f $lock
@@ -315,7 +345,7 @@ EOF
 export -f progress
 
 final() {
-	lockfile $lock
+	lockfile -l1 $lock
 	start_time=0
 	last_time=0
 	! [ -f $progress ] || . $progress
@@ -363,6 +393,13 @@ if [ $major -lt 2 ] || [ $major -eq 2 -a $minor -lt 3 ]; then
 	exit 1
 fi
 
+# Verhindern, dass andere GML-Treiber übernehmen
+if [ $major -lt 3 ] || [ $major -eq 3 -a $minor -lt 3 ]; then
+	export OGR_SKIP=GML,SEGY
+else
+	export OGR_SKIP=GML
+fi
+
 export CPL_DEBUG
 export B
 export DRIVER
@@ -385,7 +422,7 @@ export jobi=0
 rm -f $lock
 while read src
 do
-	case $src in
+	case ${src,,} in
 	""|"#"*)
 		# Leerzeilen und Kommentare ignorieren
 		continue
@@ -404,7 +441,7 @@ do
 					continue
 				fi
 
-				case "$file" in
+				case "${file,,}" in
 				*.xml.zip)
 					if ! s=$(zcat "$file" | wc -c); then
 						s=0
@@ -470,6 +507,7 @@ EOF
 			psql -X -P pager=off \
 				-v alkis_pgverdraengen=$PGVERDRAENGEN \
 				-v alkis_fnbruch=$FNBRUCH \
+				-v alkis_avoiddupes=$AVOIDDUPES \
 				-v alkis_hist=$HISTORIE \
 				-v alkis_epsg=$EPSG \
 				-v alkis_schema=$SCHEMA \
@@ -492,6 +530,7 @@ EOF
 			psql -X -P pager=off \
 				-v alkis_pgverdraengen=$PGVERDRAENGEN \
 				-v alkis_fnbruch=$FNBRUCH \
+				-v alkis_avoiddupes=$AVOIDDUPES \
 				-v alkis_hist=$HISTORIE \
 				-v alkis_epsg=$EPSG \
 				-v alkis_schema=$SCHEMA \
@@ -511,7 +550,7 @@ EOF
 				echo "$P: $1.backup nicht gefunden oder nicht lesbar." >&2
 				return 1
 			fi
-			pg_restore -Fc -c "$1.backup" | psql -X "$DB"
+			pg_restore -Fc -c -d "$DB" "$1.backup"
 		}
 		export DB
 		log() {
@@ -534,6 +573,8 @@ EOF
 				psql -X -q -c "CREATE TABLE \"${SCHEMA//\"/\"\"}\".alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" "$DB"
 			fi
 
+			rm -f $lock
+
 			tee $1 |
 			(
 				IFS=
@@ -550,63 +591,47 @@ EOF
 		continue
 		;;
 
-	OCI:*)
-		DST=$src
-		DB=${src#OCI:}
-		user=${DB%%/*}
-		DRIVER=OCI
-		sql() {
-			local r
-			pushd "$B/oci" >/dev/null
-			if [ -f "$1" ]; then
-				sqlplus "$DB" @$1 $EPSG
-				r=$?
-			else
-				echo "$1 not found"
-				return 1
-			fi
-			popd >/dev/null
-			return $?
-		}
-		export -f sql
-		runsql() {
-			sqlplus "$DB" <<EOF
-whenever sqlerror exit 1
-$1;
-commit;
-quit;
-EOF
-		}
-		export -f runsql
-		dump() {
-			exp "$DB" file=$1.dmp log=$1-export.log owner=$user statistics=none
-		}
-		restore() {
-			if ! [ -f "$1.dmp" -a -r "$1.dmp" ]; then
-				echo "$P: $1.dmp nicht gefunden oder nicht lesbar." >&2
-				return 1
-			fi
-
-			imp "$DB" file=$1.dmp log=$1-import.log fromuser=$user touser=$user
-		}
-		continue
-		;;
-
 	"pgschema "*)
 		PGSCHEMA=${src#pgschema }
-		DST="${DST/ active_schema=*/} active_schema=$SCHEMA','$PGSCHEMA"
+		if [ $major -lt 3 ] || [ $major -eq 3 -a $minor -lt 1 ]; then
+			DST="${DST/ active_schema=*/} active_schema=$SCHEMA','$PGSCHEMA"
+		else
+			DST="${DST/ active_schema=*/} active_schema=$SCHEMA schemas=$SCHEMA,$PGSCHEMA"
+		fi
 		continue
 		;;
 
 	"schema "*)
 		SCHEMA=${src#schema }
-		DST="${DST/ active_schema=*/} active_schema=$SCHEMA','$PGSCHEMA"
+		if [ $major -lt 3 ] || [ $major -eq 3 -a $minor -lt 1 ]; then
+			DST="${DST/ active_schema=*/} active_schema=$SCHEMA','$PGSCHEMA"
+		else
+			DST="${DST/ active_schema=*/} active_schema=$SCHEMA schemas=$SCHEMA,$PGSCHEMA"
+		fi
 		continue
 		;;
 
+	"quittierung "*)
+		QUITTIERUNG=${src#quittierung }
+		case "$QUITTIERUNG" in
+		an|on|true|an)
+			QUITTIERUNG=true
+			;;
+		aus|off|false)
+			QUITTIERUNG=false
+			;;
+		*)
+			echo "$P: Ungültiger Wert $QUITTIERUNG (true oder false erwartet)"
+			exit 1
+			;;
+		esac
+		continue
+		;;
+
+
 	"historie "*)
 		HISTORIE=${src#historie }
-		case "$HISTORIE" in
+		case "${HISTORIE,,}" in
 		an|on|true|an)
 			HISTORIE=true
 			;;
@@ -614,7 +639,43 @@ EOF
 			HISTORIE=false
 			;;
 		*)
-			echo "$P: Ungültiger Wert $HISTORIE (true or false erwartet)"
+			echo "$P: Ungültiger Wert $HISTORIE (true oder false erwartet)"
+			exit 1
+			;;
+		esac
+
+		continue
+		;;
+
+	"avoiddupes "*)
+		AVOIDDUPES=${src#avoiddupes }
+		case "${AVOIDDUPES,,}" in
+		an|on|true|an)
+			AVOIDDUPES=true
+			;;
+		aus|off|false)
+			AVOIDDUPES=false
+			;;
+		*)
+			echo "$P: Ungültiger Wert $AVOIDDUPES (true oder false erwartet)"
+			exit 1
+			;;
+		esac
+
+		continue
+		;;
+
+	"usecopy "*)
+		USECOPY=${src#usecopy }
+		case "${USECOPY,,}" in
+		an|on|true|an)
+			USECOPY=ON
+			;;
+		aus|off|false)
+			USECOPY=OFF
+			;;
+		*)
+			echo "$P: Ungültiger Wert $USECOPY (true oder false erwartet)"
 			exit 1
 			;;
 		esac
@@ -624,7 +685,7 @@ EOF
 
 	"fnbruch "*)
 		FNBRUCH=${src#fnbruch }
-		case "$FNBRUCH" in
+		case "${FNBRUCH,,}" in
 		an|on|true|an)
 			FNBRUCH=true
 			;;
@@ -632,7 +693,7 @@ EOF
 			FNBRUCH=false
 			;;
 		*)
-			echo "$P: Ungültiger Wert $FNBRUCH (true or false erwartet)"
+			echo "$P: Ungültiger Wert $FNBRUCH (true oder false erwartet)"
 			exit 1
 			;;
 		esac
@@ -642,7 +703,7 @@ EOF
 
 	"pgverdraengen "*)
 		PGVERDRAENGEN=${src#pgverdraengen }
-		case "$PGVERDRAENGEN" in
+		case "${PGVERDRAENGEN,,}" in
 		an|on|true|an)
 			PGVERDRAENGEN=true
 			;;
@@ -650,7 +711,7 @@ EOF
 			PGVERDRAENGEN=false
 			;;
 		*)
-			echo "$P: Ungültiger Wert $PGVERDRAENGEN (true or false erwartet)"
+			echo "$P: Ungültiger Wert $PGVERDRAENGEN (true oder false erwartet)"
 			exit 1
 			;;
 		esac
@@ -664,13 +725,13 @@ EOF
 		if [ $major -ge 3 ]; then
 			case "$EPSG" in
 			13146[678]|3068)
-				export CRS="-a_srs '$B/$EPSG.wkt2'"
+				export CRS="-a_srs $B/$EPSG.prj"
 				;;
 			13068)
 				export CRS="-ct '+proj=pipeline +step +inv +proj=utm +zone=33 +ellps=GRS80 +step +inv +proj=hgridshift +grids=ntv2berlin20130508.GSB +step +proj=cass +lat_0=52.4186482777778 +lon_0=13.6272036666667 +x_0=40000 +y_0=10000 +ellps=bessel +step +proj=axisswap +order=2' -a_srs EPSG:3068"
 				;;
 			3146[678])
-				export CRS="-s_srs '$B/1$EPSG.wkt2' -t_srs 'EPSG:$EPSG"
+				export CRS="-s_srs $B/1$EPSG.prj -t_srs EPSG:$EPSG"
 				;;
 			*)
 				;;
@@ -730,6 +791,7 @@ EOF
 
 		echo "CREATE $(bdate)"
 		pushd "$B" >/dev/null
+		rund prepare
 		rund precreate
 		sql alkis-init.sql
 		rund postcreate
@@ -746,6 +808,7 @@ EOF
 
 		echo "CLEAN $(bdate)"
 		pushd "$B" >/dev/null
+		rund prepare
 		rund preclean
 		sql alkis-clean.sql
 		rund postclean
@@ -766,6 +829,7 @@ EOF
 
 		echo "UPDATE $(bdate)"
 		pushd "$B" >/dev/null
+		rund prepare
 		rund preupdate
 		sql alkis-update.sql
 		rund postupdate
@@ -776,8 +840,12 @@ EOF
 
 	"temp "*)
 		TEMP=${src#temp }
-		if ! [ -d "$TEMP" ]; then
+		tmpdir=$TEMP
+		if ! [ -d "$TEMP" ]
+		then
 			mkdir -p "$TEMP"
+		else
+			rm -f $TEMP/*
 		fi
 		continue
 		;;
@@ -833,7 +901,10 @@ EOF
 		log=$(bdate +$src)
 
 		echo "LOGGING TO $log $(bdate)"
+		lockfile -l1 $lock
 		exec 3>&1 4>&2 > >(log $log) 2>&1
+		lockfile -l1 $lock
+		rm -f $lock
 
 		echo "LOG $(bdate)"
 		echo 'Import-Version: $Format:%h$'
@@ -921,3 +992,5 @@ if [ "$src" == "error" ]; then
 	echo "WARNUNG: VERZEICHNIS $tmpdir WIRD NACH FEHLER NICHT GELÖSCHT."
 	exit 1
 fi
+
+echo

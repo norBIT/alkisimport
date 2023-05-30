@@ -6,40 +6,41 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 SELECT alkis_dropobject('alkis_nutzungen');
 CREATE TABLE alkis_nutzungen(
-	element VARCHAR PRIMARY KEY,
+	name VARCHAR PRIMARY KEY,
+	kennung VARCHAR,
 	funktionsfeld VARCHAR,
 	relationstext VARCHAR,
 	elementtext VARCHAR,
 	enumeration VARCHAR
 );
 
-INSERT INTO alkis_nutzungen(element, funktionsfeld, relationstext, elementtext, enumeration) VALUES
-	('ax_bahnverkehr',				'funktion',		', ',				'Bahnverkehr',					'ax_funktion_bahnverkehr'),
-	('ax_bergbaubetrieb',				'abbaugut',		' von ',			'Bergbaubetrieb',				'ax_abbaugut_bergbaubetrieb'),
-	('ax_flaechebesondererfunktionalerpraegung',	'funktion',		', ',				'Fläche besonderer funktionaler Prägung',	'ax_funktion_flaechebesondererfunktionalerpraegung'),
-	('ax_flaechegemischternutzung',			'funktion',		', ',				'Fläche gemischter Nutzung',			'ax_funktion_flaechegemischternutzung'),
-	('ax_fliessgewaesser',				'funktion',		', ',				'Fließgewässer',				'ax_funktion_fliessgewaesser'),
-	('ax_flugverkehr',				'funktion',		', ',				'Flugverkehr',					'ax_funktion_flugverkehr'),
-	('ax_friedhof',					'funktion',		', ',				'Friedhof',					'ax_funktion_friedhof'),
-	('ax_gehoelz',					'funktion',		', ',				'Gehölz',					'ax_funktion_gehoelz'),
-	('ax_hafenbecken',				'funktion',		', ',				'Hafenbecken',					'ax_funktion_hafenbecken'),
-	('ax_halde',					'lagergut',		', ',				'Halde',					'ax_lagergut_halde'),
-	('ax_heide',					'NULL',			'',				'Heide',					NULL),
-	('ax_industrieundgewerbeflaeche',		'funktion',		', ',				'Industrie- und Gewerbefläche',			'ax_funktion_industrieundgewerbeflaeche'),
-	('ax_landwirtschaft',				'vegetationsmerkmal',	', ',				'Landwirtschaft',				'ax_vegetationsmerkmal_landwirtschaft'),
-	('ax_meer',					'funktion',		', ',				'Meer',						'ax_funktion_meer'),
-	('ax_moor',					'NULL',			'',				'Moor',						NULL),
-	('ax_platz',					'funktion',		', ',				'Platz',					'ax_funktion_platz'),
-	('ax_schiffsverkehr',				'funktion',		', ',				'Schiffsverkehr',				'ax_funktion_schiffsverkehr'),
-	('ax_sportfreizeitunderholungsflaeche',		'funktion',		', ',				'Sport-, Freizeit- und Erholungsfläche',	'ax_funktion_sportfreizeitunderholungsflaeche'),
-	('ax_stehendesgewaesser',			'funktion',		', ',				'Stehendes Gewässer',				'ax_funktion_stehendesgewaesser'),
-	('ax_strassenverkehr',				'funktion',		', ',				'Straßenverkehr',				'ax_funktion_strasse'),
-	('ax_sumpf',					'NULL',			'',				'Sumpf',					NULL),
-	('ax_tagebaugrubesteinbruch',			'abbaugut',		' von ',			'Tagebau, Grube, Steinbruch',			'ax_abbaugut_tagebaugrubesteinbruch'),
-	('ax_unlandvegetationsloseflaeche',		'funktion',		', ',				'Unland, vegetationslose Fläche',		'ax_funktion_unlandvegetationsloseflaeche'),
-	('ax_wald',					'vegetationsmerkmal',	', ',				'Wald',						'ax_vegetationsmerkmal_wald'),
-	('ax_weg',					'funktion',		', ',				'Weg',						'ax_funktion_weg'),
-	('ax_wohnbauflaeche',				'artderbebauung',	' mit Art der Bebauung ',	'Wohnbaufläche',				'ax_artderbebauung_wohnbauflaeche');
+INSERT INTO alkis_nutzungen(name, kennung, funktionsfeld, relationstext, elementtext, enumeration) VALUES
+	('ax_bahnverkehr',				'42010',	'funktion',		', ',				'Bahnverkehr',					'ax_funktion_bahnverkehr'),
+	('ax_bergbaubetrieb',				'41004',	'abbaugut',		' von ',			'Bergbaubetrieb',				'ax_abbaugut_bergbaubetrieb'),
+	('ax_flaechebesondererfunktionalerpraegung',	'41007',	'funktion',		', ',				'Fläche besonderer funktionaler Prägung',	'ax_funktion_flaechebesondererfunktionalerpraegung'),
+	('ax_flaechegemischternutzung',			'41006',	'funktion',		', ',				'Fläche gemischter Nutzung',			'ax_funktion_flaechegemischternutzung'),
+	('ax_fliessgewaesser',				'44001',	'funktion',		', ',				'Fließgewässer',				'ax_funktion_fliessgewaesser'),
+	('ax_flugverkehr',				'42015',	'funktion',		', ',				'Flugverkehr',					'ax_funktion_flugverkehr'),
+	('ax_friedhof',					'41009',	'funktion',		', ',				'Friedhof',					'ax_funktion_friedhof'),
+	('ax_gehoelz',					'43003',	'funktion',		', ',				'Gehölz',					'ax_funktion_gehoelz'),
+	('ax_hafenbecken',				'44005',	'funktion',		', ',				'Hafenbecken',					'ax_funktion_hafenbecken'),
+	('ax_halde',					'41003',	'lagergut',		', ',				'Halde',					'ax_lagergut_halde'),
+	('ax_heide',					'43004',	'NULL',			'',				'Heide',					NULL),
+	('ax_industrieundgewerbeflaeche',		'41002',	'funktion',		', ',				'Industrie- und Gewerbefläche',			'ax_funktion_industrieundgewerbeflaeche'),
+	('ax_landwirtschaft',				'43001',	'vegetationsmerkmal',	', ',				'Landwirtschaft',				'ax_vegetationsmerkmal_landwirtschaft'),
+	('ax_meer',					'44007',	'funktion',		', ',				'Meer',						'ax_funktion_meer'),
+	('ax_moor',					'43005',	'NULL',			'',				'Moor',						NULL),
+	('ax_platz',					'42009',	'funktion',		', ',				'Platz',					'ax_funktion_platz'),
+	('ax_schiffsverkehr',				'42016',	'funktion',		', ',				'Schiffsverkehr',				'ax_funktion_schiffsverkehr'),
+	('ax_sportfreizeitunderholungsflaeche',		'41008',	'funktion',		', ',				'Sport-, Freizeit- und Erholungsfläche',	'ax_funktion_sportfreizeitunderholungsflaeche'),
+	('ax_stehendesgewaesser',			'44006',	'funktion',		', ',				'Stehendes Gewässer',				'ax_funktion_stehendesgewaesser'),
+	('ax_strassenverkehr',				'53002',	'funktion',		', ',				'Straßenverkehr',				'ax_funktion_strasse'),
+	('ax_sumpf',					'43006',	'NULL',			'',				'Sumpf',					NULL),
+	('ax_tagebaugrubesteinbruch',			'41005',	'abbaugut',		' von ',			'Tagebau, Grube, Steinbruch',			'ax_abbaugut_tagebaugrubesteinbruch'),
+	('ax_unlandvegetationsloseflaeche',		'43007',	'funktion',		', ',				'Unland, vegetationslose Fläche',		'ax_funktion_unlandvegetationsloseflaeche'),
+	('ax_wald',					'43002',	'vegetationsmerkmal',	', ',				'Wald',						'ax_vegetationsmerkmal_wald'),
+	('ax_weg',					'42006',	'funktion',		', ',				'Weg',						'ax_funktion_weg'),
+	('ax_wohnbauflaeche',				'41001',	'artderbebauung',	' mit Art der Bebauung ',	'Wohnbaufläche',				'ax_artderbebauung_wohnbauflaeche');
 
 SELECT alkis_dropobject('alkis_createnutzung');
 CREATE OR REPLACE FUNCTION pg_temp.alkis_createnutzung() RETURNS varchar AS $$
@@ -65,9 +66,7 @@ BEGIN
 			relationstext,
 			elementtext,
 			enumeration
-		FROM alkis_elemente e
-		JOIN alkis_nutzungen n ON e.name=n.element
-		WHERE 'ax_tatsaechlichenutzung' = ANY (abgeleitet_aus)
+		FROM alkis_nutzungen
 	LOOP
 		res := alkis_string_append(res, alkis_fixareas(r.name));
 

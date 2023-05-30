@@ -5,7 +5,7 @@
  * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
  *                                                                         *
  ***************************************************************************
- * Copyright (c) 2012-2020, Jürgen E. Fischer <jef@norbit.de>              *
+ * Copyright (c) 2012-2023, Jürgen E. Fischer <jef@norbit.de>              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -32,13 +32,19 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$ LANGUAGE plpgsql IMMUTABLE STRICT;
 
+CREATE OR REPLACE FUNCTION alkis_round(double precision) RETURNS varchar AS $$
+        SELECT regexp_replace(regexp_replace(round($1::numeric,9)::text, E'(\\.\\d*[1-9])0+$', E'\\1'), E'\\.0+$', '');
+$$ LANGUAGE 'sql' IMMUTABLE;
+
 CREATE OR REPLACE FUNCTION alkis_flsnrk(f ax_flurstueck) RETURNS varchar AS $$
 BEGIN
 	RETURN
 		CASE
-		WHEN f.gml_id LIKE 'DESL%' OR f.gml_id LIKE 'DETH%' THEN
+		WHEN f.gml_id LIKE 'DESL%' THEN
 			to_char(alkis_toint(f.zaehler),'fm0000') || '/' || to_char(coalesce(alkis_toint(f.nenner),0),'fm0000')
-		WHEN f.gml_id LIKE 'DESN%' THEN
+		WHEN f.gml_id LIKE 'DETH%' THEN
+			to_char(alkis_toint(f.zaehler),'fm00000') || '/' || to_char(coalesce(alkis_toint(f.nenner),0),'fm0000')
+		WHEN f.gml_id LIKE 'DESN%' OR f.gml_id LIKE 'DETH%' THEN
 			to_char(alkis_toint(f.zaehler),'fm00000') || '/' || substring(f.flurstueckskennzeichen,15,4)
 		ELSE
 			to_char(alkis_toint(f.zaehler),'fm00000') || '/' || to_char(coalesce(mod(alkis_toint(f.nenner),1000)::int,0),'fm000')
