@@ -12,7 +12,7 @@ SELECT
 	gml_id,
 	'Topographie' AS thema,
 	'ax_strukturlinie3d' AS layer,
-	st_multi(wkb_geometry) AS line,
+	st_multi(st_force2d(wkb_geometry)) AS line,
 	CASE
 	WHEN art IN (1220,1230,1240) THEN 2531
 	WHEN art=1210 THEN 2622
