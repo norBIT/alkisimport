@@ -14,6 +14,7 @@ all:
 	@echo "VERSION:$(VERSION)"
 	@echo "BINARY:$(P)"
 	@echo "SHORTCUT:$(SHORTCUT)"
+	@echo "O4WPKG:$(O4WPKG)"
 
 $(O4WSRCPKG):
 	# empty
@@ -39,7 +40,7 @@ osgeo4w/setup.hint:
 upload: $(O4WPKG) $(O4WSRCPKG) osgeo4w/setup.hint
 	rsync --chmod=D775,F664 osgeo4w/setup.hint $(O4WPKG) $(O4WSRCPKG) upload.osgeo.org:osgeo4w/v2/x86_64/release/$(PKG)/
 	wget -O - https://download.osgeo.org/cgi-bin/osgeo4w-regen-v2.sh
-	echo $$(( $(P) + 1 )) >.pkg-$(VERSION)
+	echo $$(( $(P) + 1 )) >.pkg-$(PKG)-$(VERSION)
 
 alkis-functions.sql tables.lst: alkis-functions.sql.in alkis-schema.sql alkis-schema.gfs
 	sed -ne 's/^CREATE TABLE \([^ ]*\) (.*$$/\1/p' alkis-schema.sql | sort -u >tables.tmp
