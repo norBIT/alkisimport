@@ -37,7 +37,7 @@ $(O4WPKG): tables.lst alkis-functions.sql alkis-import.cmd
 osgeo4w/setup.hint:
 	sed -e "s/@GID@/$(GID)/" setup.hint >osgeo4w/setup.hint
 
-upload: $(O4WPKG) $(O4WSRCPKG) osgeo4w/setup.hint
+upload: versioncheck $(O4WPKG) $(O4WSRCPKG) osgeo4w/setup.hint
 	rsync --chmod=D775,F664 osgeo4w/setup.hint $(O4WPKG) $(O4WSRCPKG) upload.osgeo.org:osgeo4w/v2/x86_64/release/$(PKG)/
 	wget -O - https://download.osgeo.org/cgi-bin/osgeo4w-regen-v2.sh
 	echo $$(( $(P) + 1 )) >.pkg-$(PKG)-$(VERSION)
@@ -55,6 +55,11 @@ alkis-functions.sql tables.lst: alkis-functions.sql.in alkis-schema.sql alkis-sc
 	rm tables.tmp catalogs.tmp datatables.tmp
 
 .PHONY: upload package
+
+versioncheck:
+	curl -s https://download.osgeo.org/osgeo4w/v2/x86_64/setup.ini | \
+		sed -ne '/@ $(PKG)$$/,/^$$/ {0,/^version:/ { s/^version: \([^-]*\)-\(.*\)/\1\n\2/p} }' | \
+			( read v; read b; [ $$( ( echo $(VERSION).$(P); echo $$v.$$b ) | sort -V | tail -1 ) == "$(VERSION).$(P)" ] || { echo $(VERSION)-$(P) not higher than $$v-$$b; false; } )
 
 test:
 	curl -O https://hvbg.hessen.de/sites/hvbg.hessen.de/files/2023-01/referenztestdaten_711_alkis_0536040.zip

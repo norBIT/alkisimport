@@ -29,6 +29,7 @@
 ^psql:.*: (NOTICE|HINWEIS):\s+PostGIS: Unable to compute statistics for .*: No non-null\/empty features\s*$
 ^psql:.*: (NOTICE|HINWEIS):\s+no notnull values, invalid stats\*$
 ^psql:.*: (WARNUNG|WARNING):\s+.*(only (superuser|table or database owner) can vacuum it|nur Superuser kann sie vacuumen)\s*$
+^TIP:  No function matches the given name and argument types\. You might need to add explicit type casts\.
 ^\s+(DROP TRIGGER IF EXISTS|CREATE TRIGGER) \S+_insert
 ^CONTEXT:  PL\/pgSQL-Funktion (pg_temp_\d+\.)?(alkis|alb)_.* Zeile \d+ bei RAISE
 ^CONTEXT:  SQL statement in PL\/PgSQL function "alkis_(update_schema|set_comments)" near line \d+\s*$
@@ -50,13 +51,13 @@
 ^psql:alkis-compat.sql:.*: FEHLER:  Aggregatfunktion ([^.]\.)?array_agg\(any(element|array)\) existiert nicht
 ^psql:alkis-compat.sql:.*: ERROR:  cannot drop function array_agg\(anyelement\) because it is required by the database system
 ^psql:alkis-compat.sql:.*: FEHLER:  kann .* nicht löschen, wird vom Datenbanksystem benötigt
-^LINE 2:   SELECT buffer\(\$1,\$2\);\s*$
-^LINE 2:   SELECT line_interpolate_point\(\$1,\$2\);\s*$
-^LINE 2:   SELECT force_2d\(\$1\);\s*$
-^LINE 2:   SELECT st_force_2d\(\$1\);\s*$
-^LINE 2:   SELECT st_force_collection\(\$1\);\s*$
-^LINE 2:   SELECT force_collection\(\$1\);\s*$
-^LINE 2:   SELECT intersection\(\$1,\$2\);\s*$
+^(LINE|ZEILE) 2:   SELECT buffer\(\$1,\$2\);\s*$
+^(LINE|ZEILE) 2:   SELECT line_interpolate_point\(\$1,\$2\);\s*$
+^(LINE|ZEILE) 2:   SELECT force_2d\(\$1\);\s*$
+^(LINE|ZEILE) 2:   SELECT st_force_2d\(\$1\);\s*$
+^(LINE|ZEILE) 2:   SELECT st_force_collection\(\$1\);\s*$
+^(LINE|ZEILE) 2:   SELECT force_collection\(\$1\);\s*$
+^(LINE|ZEILE) 2:   SELECT intersection\(\$1,\$2\);\s*$
 ^\s+\^\\r\s*$
 ^HINT:  Keine Funktion stimmt mit dem angegebenen Namen und den Argumenttypen .*berein. Sie m.*ssen m.*glicherweise ausdr.*ckliche Typumwandlungen hinzuf.*gen\.\s*$
 ^HINT:  No function matches the given name and argument types. You might need to add explicit type casts\.\s*$
