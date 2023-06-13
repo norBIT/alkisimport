@@ -74,7 +74,7 @@ os.putenv("OGR_SETFIELD_NUMERIC_WARNING", "ON")
 os.putenv("OGR_ARC_MINLENGTH", "0.1")
 
 # Headerkennungen die NAS-Daten identifizieren
-os.putenv("NAS_INDICATOR", "NAS-Operationen;AAA-Fachschema;aaa.xsd;aaa-suite;adv/gid/6.0")
+os.putenv("NAS_INDICATOR", "NAS-Operationen;AAA-Fachschema;aaa.xsd;aaa-suite;adv/gid/7.1")
 
 os.putenv("PGCLIENTENCODING", "UTF8")
 

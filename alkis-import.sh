@@ -32,7 +32,7 @@ export OGR_ARC_MINLENGTH=0.1
 export OGR_PG_RETRIEVE_FID=NO
 
 # Headerkennungen die NAS-Daten identifizieren
-export NAS_INDICATOR="NAS-Operationen;AAA-Fachschema;aaa.xsd;aaa-suite;adv/gid/6.0"
+export NAS_INDICATOR="NAS-Operationen;AAA-Fachschema;aaa.xsd;aaa-suite;adv/gid/7.1"
 export NAS_SKIP_CORRUPTED_FEATURES=YES
 export LIST_ALL_TABLES=YES
 
