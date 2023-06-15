@@ -359,7 +359,7 @@ final() {
 	if (( total_elapsed > 0 )); then
 		echo "FINAL: $(memunits $total_size) in $(timeunits $start_time $last_time) ($(memunits $(( total_size / total_elapsed )))/s)"
 	fi
-	rm -rf $tmpdir
+	rm -f $progress $lock
 }
 
 export LC_CTYPE=de_DE.UTF-8
