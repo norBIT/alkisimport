@@ -64,7 +64,7 @@ BEGIN
 
 		-- Oberkante(n) iterieren (MULTILINESTRINGs ggf. zerlegen)
 		FOR r1 IN
-			SELECT (st_dump(st_multi(st_linemerge(st_collect(wkb_geometry))))).geom
+			SELECT (st_dump(st_multi(st_linemerge(st_collect(st_force2d(wkb_geometry)))))).geom
 			FROM ax_strukturlinie3d
 			WHERE ARRAY[r0.gml_id] <@ istteilvon
 			  AND art=1220
