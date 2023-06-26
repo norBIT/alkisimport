@@ -246,7 +246,7 @@ BEGIN
 				INSERT INTO po_lines(
 					gml_id, thema, layer, line, signaturnummer, modell
 				) VALUES (
-					r0.gml_id, 'Topographie', 'ax_boeschungkliff', st_multi(st_collect(b1)), '2531', r0.modell
+					r0.gml_id, 'Topographie', 'ax_boeschungkliff', st_force2d(st_multi(st_collect(b1))), '2531', r0.modell
 				);
 			ELSE
 				bgln := bgln + 1;
