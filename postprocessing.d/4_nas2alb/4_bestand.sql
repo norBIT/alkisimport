@@ -109,6 +109,16 @@ INSERT INTO eigner(bestdnr,pk,ab,namensnr,ea,antverh,name,name1,name2,name3,name
 UPDATE eigner SET name1=regexp_replace(name1, E'\\s\\s+', ' ');
 
 INSERT INTO eigner(bestdnr,pk,name1,ff_entst,ff_stand)
+	SELECT
+		to_char(alkis_toint(bb.land),'fm00') || to_char(alkis_toint(bb.bezirk),'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
+                to_hex(nextval('eigner_pk_seq'::regclass)) AS pk,
+                '(fiktives Buchungsblatt)' AS name1,
+                0 AS ff_entst,
+                0 AS ff_fortf
+	FROM ax_buchungsblatt bb
+	WHERE endet IS NULL AND blattart=5000;
+
+INSERT INTO eigner(bestdnr,pk,name1,ff_entst,ff_stand)
         SELECT
                 bestdnr,
                 to_hex(nextval('eigner_pk_seq'::regclass)) AS pk,
