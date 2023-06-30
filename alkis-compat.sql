@@ -373,28 +373,12 @@ CREATE FUNCTION st_offsetcurve(geometry,float8,text) RETURNS geometry AS $$
   SELECT alkis_offsetcurve($1,$2,$3);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
-CREATE FUNCTION force_2d(geometry) RETURNS geometry AS $$
-  SELECT st_force_2d($1);
-$$ LANGUAGE 'sql' IMMUTABLE;
-
-CREATE FUNCTION force_collection(geometry) RETURNS geometry AS $$
-  SELECT st_force_collection($1);
-$$ LANGUAGE 'sql' IMMUTABLE;
-
 CREATE FUNCTION st_force_collection(geometry) RETURNS geometry AS $$
   SELECT force_collection($1);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
-CREATE FUNCTION asbinary(geometry,text) RETURNS bytea AS $$
-  SELECT st_asbinary($1,$2);
-$$ LANGUAGE 'sql' IMMUTABLE;
-
 CREATE FUNCTION st_asbinary(geometry,text) RETURNS bytea AS $$
   SELECT asbinary($1,$2);
-$$ LANGUAGE 'sql' IMMUTABLE;
-
-CREATE FUNCTION setsrid(geometry,integer) RETURNS geometry AS $$
-  SELECT st_setsrid($1,$2);
 $$ LANGUAGE 'sql' IMMUTABLE;
 
 CREATE FUNCTION st_ndims(geometry) RETURNS smallint AS $$
