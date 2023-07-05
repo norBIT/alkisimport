@@ -52,8 +52,10 @@
 ^psql:alkis-compat.sql:.*: FEHLER:  kann .* nicht löschen, wird vom Datenbanksystem benötigt
 ^LINE 2:   SELECT buffer\(\$1,\$2\);\s*$
 ^LINE 2:   SELECT line_interpolate_point\(\$1,\$2\);\s*$
+^LINE 2:   SELECT force_2d\(\$1\);\s*$
 ^LINE 2:   SELECT st_force_2d\(\$1\);\s*$
 ^LINE 2:   SELECT st_force_collection\(\$1\);\s*$
+^LINE 2:   SELECT force_collection\(\$1\);\s*$
 ^LINE 2:   SELECT intersection\(\$1,\$2\);\s*$
 ^\s+\^\\r\s*$
 ^HINT:  Keine Funktion stimmt mit dem angegebenen Namen und den Argumenttypen .*berein. Sie m.*ssen m.*glicherweise ausdr.*ckliche Typumwandlungen hinzuf.*gen\.\s*$

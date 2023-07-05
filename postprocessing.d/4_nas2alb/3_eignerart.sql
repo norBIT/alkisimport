@@ -24,12 +24,12 @@ CREATE OR REPLACE FUNCTION pg_temp.gcd(a integer, b integer) RETURNS integer AS 
         SELECT a FROM t WHERE b = 0
 $$ LANGUAGE sql IMMUTABLE;
 
-CREATE FUNCTION pg_temp.reducefrac(integer[]) RETURNS integer[] AS $$
+CREATE FUNCTION pg_temp.reducefrac(integer[]) RETURNS varchar AS $$
 DECLARE
   n integer;
 BEGIN
         SELECT pg_temp.gcd($1[1], $1[2]) INTO n;
-        RETURN ARRAY[$1[1]/n, $1[2]/n];
+        RETURN $1[1]/n || '/' || $1[2]/n;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -51,47 +51,42 @@ INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,l
 		0 AS ff_stand,
 		NULL AS lkfs
 	FROM (
+		WITH RECURSIVE
+			eignerart AS (
+				SELECT
+					/* 0 AS level, ARRAY[bs.gml_id]::varchar[] AS bses, */
+					bs.gml_id,
+					alkis_flsnr(f) AS flsnr,
+					to_char(alkis_toint(bb.land),'fm00') || to_char(alkis_toint(bb.bezirk),'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
+					bs.buchungsart AS b,
+					coalesce(bs.zaehler,1) AS zaehler,
+					coalesce(bs.nenner,1) AS nenner,
+					laufendenummer AS auftrlnr
+				FROM ax_flurstueck f
+				JOIN ax_buchungsstelle bs ON bs.gml_id=f.istgebucht AND bs.endet IS NULL
+				JOIN ax_buchungsblatt bb ON bb.gml_id=bs.istbestandteilvon AND bb.endet IS NULL
+				WHERE f.endet IS NULL
+			UNION ALL
+				SELECT
+					/* ea.level+1 AS level, ea.bses || ARRAY[bs.gml_id]::varchar[] AS bses, */
+					bs.gml_id,
+					ea.flsnr,
+					to_char(alkis_toint(bb.land),'fm00') || to_char(alkis_toint(bb.bezirk),'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
+					bs.buchungsart AS b,
+					coalesce(ea.zaehler,1)*coalesce(bs.zaehler,1) AS zaehler,
+					coalesce(ea.nenner,1)*coalesce(bs.nenner,1) AS nenner,
+					bs.laufendenummer AS auftrlnr
+				FROM eignerart ea
+				JOIN ax_buchungsstelle bs ON ARRAY[ea.gml_id] <@ bs.an
+				JOIN ax_buchungsblatt bb ON bb.gml_id=bs.istbestandteilvon AND bb.endet IS NULL
+			)
 		SELECT
-			flsnr,
-			to_char(alkis_toint(land),'fm00') || to_char(alkis_toint(bezirk),'fm0000') || '-' || trim(buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
-			b,
-			alkis_round(zaehler) || coalesce('/' || alkis_round(nenner), '') AS anteil,
-			auftrlnr
-		FROM (
-			WITH RECURSIVE
-				eignerart AS (
-					SELECT
-						/* 0 AS level, ARRAY[bs.gml_id]::varchar[] AS bses, */
-						bs.gml_id,
-						alkis_flsnr(f) AS flsnr,
-						to_char(alkis_toint(bb.land),'fm00') || to_char(alkis_toint(bb.bezirk),'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
-						bs.buchungsart AS b,
-						bs.zaehler,
-						bs.nenner,
-						laufendenummer AS auftrlnr
-					FROM ax_flurstueck f
-					JOIN ax_buchungsstelle bs ON bs.gml_id=f.istgebucht AND bs.endet IS NULL
-					JOIN ax_buchungsblatt bb ON bb.gml_id=bs.istbestandteilvon AND bb.endet IS NULL
-					WHERE f.endet IS NULL
-				UNION ALL
-					SELECT
-						/* ea.level+1 AS level, ea.bses || ARRAY[bs.gml_id]::varchar[] AS bses, */
-						bs.gml_id,
-						ea.flsnr,
-						to_char(alkis_toint(bb.land),'fm00') || to_char(alkis_toint(bb.bezirk),'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
-						bs.buchungsart AS b,
-						coalesce(ea.zaehler,1)*coalesce(bs.zaehler,1) AS zaehler,
-						coalesce(ea.nenner,1)*coalesce(bs.nenner,1) AS nenner,
-						bs.laufendenummer AS auftrlnr
-					FROM eignerart ea
-					JOIN ax_buchungsstelle bs ON ARRAY[ea.gml_id] <@ bs.an
-					JOIN ax_buchungsblatt bb ON bb.gml_id=bs.istbestandteilvon AND bb.endet IS NULL
-				)
-			SELECT
-				flsnr, bestdnr, b, auftrlnr,
-				pg_temp.sumfrac(ARRAY[zaehler::integer,nenner::integer]) AS anteil
-			FROM eignerart
-			GROUP BY flsnr, bestdnr, b, auftrlnr
-		) AS foo
+			flsnr, bestdnr, b, auftrlnr,
+			pg_temp.sumfrac(ARRAY[
+				(zaehler*power(10,min_scale(zaehler::numeric)))::integer,
+				(nenner*power(10,min_scale(zaehler::numeric)))::integer
+			]) AS anteil
+		FROM eignerart
+		GROUP BY flsnr, bestdnr, b, auftrlnr
 	) AS foo
 	;
