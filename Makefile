@@ -17,7 +17,7 @@ osgeo4w/$(PKG)-$(VERSION)-$(P).tar.bz2:
 	perl -i -pe 's/#VERSION#/$(VERSION)-$(P)/' osgeo4w/apps/$(PKG)/{about.ui,alkisImportDlg.ui}
 	tar -C osgeo4w --remove-files -cjf osgeo4w/$(PKG)-$(VERSION)-$(P).tar.bz2 apps bin etc
 
-osgeo4w/setup.hint:
+osgeo4w/setup.hint: setup.hint
 	cp setup.hint osgeo4w/setup.hint
 
 osgeo4w: osgeo4w/$(PKG)-$(VERSION)-$(P).tar.bz2 osgeo4w/$(PKG)-$(VERSION)-$(P)-src.tar.bz2 osgeo4w/setup.hint
