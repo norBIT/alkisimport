@@ -31,7 +31,7 @@ BEGIN
     PERFORM alkis_dropobject('min_scale');
     EXECUTE '
 CREATE FUNCTION min_scale(numeric) RETURNS integer AS $sql$
-  SELECT coalesce(min(i),20) FROM generate_series(0, 19) i WHERE ($1*power(10,i))::numeric=trunc($1*power(10,i))::numeric;
+  SELECT coalesce(min(i),20) FROM generate_series(0, 19) i WHERE ($1*power(10::numeric,i))::numeric=trunc($1*power(10::numeric,i))::numeric;
 $sql$ LANGUAGE ''sql'' IMMUTABLE;
 ';
   END IF;
