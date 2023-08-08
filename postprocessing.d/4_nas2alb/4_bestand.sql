@@ -95,7 +95,7 @@ INSERT INTO eigner(bestdnr,pk,ab,namensnr,ea,antverh,name,name1,name2,name3,name
 		an.strasse || coalesce(' ' || an.hausnummer,'') AS str_hnr,
 		NULL AS plz_pf,
 		NULL AS postfach,
-		an.postleitzahlpostzustellung AS plz,
+		alkis_truncate(an.postleitzahlpostzustellung, 20) AS plz,
 		alkis_truncate(an.ort_post, 200) AS ort,
 		alkis_truncate(bestimmungsland, 100) AS land,
 		0 AS ff_entst,

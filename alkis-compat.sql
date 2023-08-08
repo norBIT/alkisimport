@@ -23,23 +23,6 @@ CREATE FUNCTION unnest(anyarray) RETURNS SETOF anyelement AS $$
   SELECT $1[i] FROM generate_series(array_lower($1,1), array_upper($1,1)) i;
 $$ LANGUAGE 'sql' IMMUTABLE;
 
-SET search_path = :"alkis_schema";
-
-CREATE FUNCTION pg_temp.create_min_scale() RETURNS void AS $func$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_proc JOIN pg_namespace ON pronamespace=pg_namespace.oid AND nspname='pg_catalog' WHERE proname='min_scale') THEN
-    PERFORM alkis_dropobject('min_scale');
-    EXECUTE '
-CREATE FUNCTION min_scale(numeric) RETURNS integer AS $sql$
-  SELECT coalesce(min(i),20) FROM generate_series(0, 19) i WHERE ($1*power(10::numeric,i))::numeric=trunc($1*power(10::numeric,i))::numeric;
-$sql$ LANGUAGE ''sql'' IMMUTABLE;
-';
-  END IF;
-END;
-$func$ LANGUAGE 'plpgsql';
-
-SELECT pg_temp.create_min_scale();
-
 SET search_path = :"postgis_schema", :"parent_schema", public;
 
 CREATE FUNCTION st_snaptogrid(geometry,float8,float8) RETURNS geometry AS $$
