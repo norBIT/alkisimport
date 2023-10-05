@@ -142,7 +142,7 @@ CREATE VIEW v_bauteil_bauart AS
 	SELECT
 		wert::int AS wert
 		,beschreibung AS bezeichner
-		,'31002' AS kennung
+		,'31002'::text AS kennung
 		,'ax_bauteil'::text AS objektart
 	FROM ax_bauart_bauteil;
 
@@ -151,7 +151,7 @@ CREATE VIEW v_klass_strass_adf AS
 	SELECT
 		wert::int AS wert
 		,beschreibung AS bezeichner
-		,'71001' AS kennung
+		,'71001'::text AS kennung
 		,'ax_klassifizierungnachstrassenrecht'::text AS objektart
 	FROM ax_artderfestlegung_klassifizierungnachstrassenrecht;
 
@@ -160,7 +160,7 @@ CREATE VIEW v_klass_wasser_adf AS
 	SELECT
 		wert::int AS wert
 		,beschreibung AS bezeichner
-		,'71003' AS kennung
+		,'71003'::text AS kennung
 		,'ax_klassifizierungnachwasserrecht'::text AS objektart
 	FROM ax_artderfestlegung_klassifizierungnachwasserrecht;
 
@@ -169,7 +169,7 @@ CREATE VIEW v_andstrass_adf AS
 	SELECT
 		wert::int AS wert
 		,beschreibung AS bezeichner
-		,'71002' AS kennung
+		,'71002'::text AS kennung
 		,'ax_anderefestlegungnachstrassenrecht'::text AS objektart
 	FROM ax_artderfestlegung_anderefestlegungnachstrassenrecht;
 
@@ -178,7 +178,7 @@ CREATE VIEW v_umweltrecht_adf AS
 	SELECT
 		wert::int AS wert
 		,beschreibung AS bezeichner
-		,'71006' AS kennung
+		,'71006'::text AS kennung
 		,'ax_naturumweltoderbodenschutzrecht'::text AS objektart
 	FROM ax_artderfestlegung_naturumweltoderbodenschutzrecht;
 
@@ -196,6 +196,6 @@ CREATE VIEW v_sonstrecht_adf AS
 	SELECT
 		wert::int AS wert
 		,beschreibung AS bezeichner
-		,'71011' AS kennung
+		,'71011'::text AS kennung
 		,'ax_sonstigesrecht'::text AS objektart
 	FROM ax_artderfestlegung_sonstigesrecht;
