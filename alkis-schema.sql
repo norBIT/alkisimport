@@ -1,4 +1,4 @@
--- Version vom 20.07.2020 15:21
+-- Version vom 06.10.2023 12:30
 -- gewählte Pakete: alle
 -- gewählte Filter: 
 
@@ -24314,5 +24314,6 @@ CREATE INDEX ax_lagebezeichnungkatalogeintrag_bez ON ax_lagebezeichnungkatalogei
 CREATE INDEX ax_lagebezeichnungmithausnummer_lage ON ax_lagebezeichnungmithausnummer USING btree (gemeinde,lage);
 
 CREATE INDEX ax_lagebezeichnungohnehausnummer_key ON ax_lagebezeichnungohnehausnummer USING btree (land,regierungsbezirk,kreis,gemeinde,lage);
+
 
 END;

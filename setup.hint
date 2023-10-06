@@ -2,4 +2,4 @@ sdesc: "norGIS ALKIS Import (GeoInfoDok @GID@)"
 ldesc: "norGIS ALKIS Import (GeoInfoDok @GID@)"
 maintainer: JuergenFischer
 category: Desktop
-requires: python3-pyqt5 python3-sip python3-lxml gdal psql
+requires: python3-pyqt5 python3-sip python3-lxml gdal-dev psql

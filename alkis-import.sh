@@ -397,17 +397,13 @@ major=${GDAL_VERSION#GDAL }
 major=${major%%.*}
 minor=${GDAL_VERSION#GDAL $major.}
 minor=${minor%%.*}
-if [ $major -lt 2 ] || [ $major -eq 2 -a $minor -lt 3 ]; then
-	echo "$P: erfordert GDAL >=2.3" >&2
+if [ $major -lt 3 ] || [ $major -eq 3 -a $minor -lt 8 ]; then
+	echo "$P: erfordert GDAL >=3.8" >&2
 	exit 1
 fi
 
-# Verhindern, dass andere GML-Treiber übernehmen
-if [ $major -lt 3 ] || [ $major -eq 3 -a $minor -lt 3 ]; then
-	export OGR_SKIP=GML,SEGY
-else
-	export OGR_SKIP=GML
-fi
+# Verhindern, dass der GML-Treiber übernimmt
+export OGR_SKIP=GML
 
 export CPL_DEBUG
 export B

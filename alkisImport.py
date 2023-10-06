@@ -875,15 +875,12 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.log("GDAL-Version nicht gefunden")
                 break
 
-            if int(m.group(1)) < 2 or (int(m.group(1)) == 2 and int(m.group(2)) < 3):
-                self.log("Mindestens GDAL 2.3 erforderlich")
+            if int(m.group(1)) < 3 or (int(m.group(1)) == 3 and int(m.group(2)) < 8):
+                self.log("Mindestens GDAL 3.8 erforderlich")
                 break
 
-            # Verhindern, dass andere GML-Treiber übernehmen
-            if int(m.group(1)) < 3 or (int(m.group(1)) == 3 and int(m.group(2)) < 3):
-                os.putenv("OGR_SKIP", "GML,SEGY")
-            else:
-                os.putenv("OGR_SKIP", "GML")
+            # Verhindern, dass der GML-Treiber übernimmt
+            os.putenv("OGR_SKIP", "GML")
 
             GDAL_MAJOR = int(m.group(1))
             GDAL_MINOR = int(m.group(2))
