@@ -6,7 +6,7 @@
     refilter.py
     ---------------------
     Date                 : Sep 2012
-    Copyright            : (C) 2012-2023 by Jürgen Fischer
+    Copyright            : (C) 2012-2023 by Jürgen E. Fischer
     Email                : jef at norbit dot de
 ***************************************************************************
 *                                                                         *

@@ -135,17 +135,17 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>ist</Name>
-      <ElementPath>ist@href</ElementPath>
+      <ElementPath>ist</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzu</Name>
-      <ElementPath>gehoertZu@href</ElementPath>
+      <ElementPath>gehoertZu</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -245,12 +245,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -355,12 +355,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -435,12 +435,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>dientzurdarstellungvon</Name>
-      <ElementPath>dientZurDarstellungVon@href</ElementPath>
+      <ElementPath>dientZurDarstellungVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -510,12 +510,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>enthaelt</Name>
-      <ElementPath>enthaelt@href</ElementPath>
+      <ElementPath>enthaelt</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -600,27 +600,27 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>wer</Name>
-      <ElementPath>wer@href</ElementPath>
+      <ElementPath>wer</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>vonantrag</Name>
-      <ElementPath>vonAntrag@href</ElementPath>
+      <ElementPath>vonAntrag</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>vonaktivitaet</Name>
-      <ElementPath>vonAktivitaet@href</ElementPath>
+      <ElementPath>vonAktivitaet</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>vonvorgang</Name>
-      <ElementPath>vonVorgang@href</ElementPath>
+      <ElementPath>vonVorgang</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -695,22 +695,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>verweistauf</Name>
-      <ElementPath>verweistAuf@href</ElementPath>
+      <ElementPath>verweistAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>bearbeitungsstatus</Name>
-      <ElementPath>bearbeitungsstatus@href</ElementPath>
+      <ElementPath>bearbeitungsstatus</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gebiet</Name>
-      <ElementPath>gebiet@href</ElementPath>
+      <ElementPath>gebiet</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -775,12 +775,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>status</Name>
-      <ElementPath>status@href</ElementPath>
+      <ElementPath>status</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -845,27 +845,27 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>bearbeitbardurch</Name>
-      <ElementPath>bearbeitbarDurch@href</ElementPath>
+      <ElementPath>bearbeitbarDurch</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>status</Name>
-      <ElementPath>status@href</ElementPath>
+      <ElementPath>status</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>enthaelt</Name>
-      <ElementPath>enthaelt@href</ElementPath>
+      <ElementPath>enthaelt</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>synchronisiertmit</Name>
-      <ElementPath>synchronisiertMit@href</ElementPath>
+      <ElementPath>synchronisiertMit</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -1090,47 +1090,47 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>zeigtauf</Name>
-      <ElementPath>zeigtAuf@href</ElementPath>
+      <ElementPath>zeigtAuf</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>weistauf</Name>
-      <ElementPath>weistAuf@href</ElementPath>
+      <ElementPath>weistAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hat</Name>
-      <ElementPath>hat@href</ElementPath>
+      <ElementPath>hat</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>benennt</Name>
-      <ElementPath>benennt@href</ElementPath>
+      <ElementPath>benennt</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzu</Name>
-      <ElementPath>gehoertZu@href</ElementPath>
+      <ElementPath>gehoertZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>wirdvertretenvon</Name>
-      <ElementPath>wirdVertretenVon@href</ElementPath>
+      <ElementPath>wirdVertretenVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>uebtaus</Name>
-      <ElementPath>uebtAus@href</ElementPath>
+      <ElementPath>uebtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>besitzt</Name>
-      <ElementPath>besitzt@href</ElementPath>
+      <ElementPath>besitzt</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -1225,27 +1225,27 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>benennt</Name>
-      <ElementPath>benennt@href</ElementPath>
+      <ElementPath>benennt</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtausrechtsverhaeltnissenzu</Name>
-      <ElementPath>bestehtAusRechtsverhaeltnissenZu@href</ElementPath>
+      <ElementPath>bestehtAusRechtsverhaeltnissenZu</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatvorgaenger</Name>
-      <ElementPath>hatVorgaenger@href</ElementPath>
+      <ElementPath>hatVorgaenger</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istbestandteilvon</Name>
-      <ElementPath>istBestandteilVon@href</ElementPath>
+      <ElementPath>istBestandteilVon</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -1475,17 +1475,17 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzu</Name>
-      <ElementPath>gehoertZu@href</ElementPath>
+      <ElementPath>gehoertZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>beziehtsichauf</Name>
-      <ElementPath>beziehtSichAuf@href</ElementPath>
+      <ElementPath>beziehtSichAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -1680,17 +1680,17 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>haengtan</Name>
-      <ElementPath>haengtAn@href</ElementPath>
+      <ElementPath>haengtAn</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>beziehtsichauf</Name>
-      <ElementPath>beziehtSichAuf@href</ElementPath>
+      <ElementPath>beziehtSichAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -1790,52 +1790,52 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>wirdverwaltetvon</Name>
-      <ElementPath>wirdVerwaltetVon@href</ElementPath>
+      <ElementPath>wirdVerwaltetVon</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>an</Name>
-      <ElementPath>an@href</ElementPath>
+      <ElementPath>an</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>durch</Name>
-      <ElementPath>durch@href</ElementPath>
+      <ElementPath>durch</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>zu</Name>
-      <ElementPath>zu@href</ElementPath>
+      <ElementPath>zu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatvorgaenger</Name>
-      <ElementPath>hatVorgaenger@href</ElementPath>
+      <ElementPath>hatVorgaenger</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istbestandteilvon</Name>
-      <ElementPath>istBestandteilVon@href</ElementPath>
+      <ElementPath>istBestandteilVon</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>beziehtsichauf</Name>
-      <ElementPath>beziehtSichAuf@href</ElementPath>
+      <ElementPath>beziehtSichAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>verweistauf</Name>
-      <ElementPath>verweistAuf@href</ElementPath>
+      <ElementPath>verweistAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>grundstueckbestehtaus</Name>
-      <ElementPath>grundstueckBestehtAus@href</ElementPath>
+      <ElementPath>grundstueckBestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -1895,12 +1895,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -1980,12 +1980,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -2060,22 +2060,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>vertritt</Name>
-      <ElementPath>vertritt@href</ElementPath>
+      <ElementPath>vertritt</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>haengtan</Name>
-      <ElementPath>haengtAn@href</ElementPath>
+      <ElementPath>haengtAn</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>beziehtsichauf</Name>
-      <ElementPath>beziehtSichAuf@href</ElementPath>
+      <ElementPath>beziehtSichAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -2145,7 +2145,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -2270,7 +2270,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -2430,7 +2430,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -2615,27 +2615,27 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istgebucht</Name>
-      <ElementPath>istGebucht@href</ElementPath>
+      <ElementPath>istGebucht</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertanteiligzu</Name>
-      <ElementPath>gehoertAnteiligZu@href</ElementPath>
+      <ElementPath>gehoertAnteiligZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>zeigtauf</Name>
-      <ElementPath>zeigtAuf@href</ElementPath>
+      <ElementPath>zeigtAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>weistauf</Name>
-      <ElementPath>weistAuf@href</ElementPath>
+      <ElementPath>weistAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -2730,17 +2730,17 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzu</Name>
-      <ElementPath>gehoertZu@href</ElementPath>
+      <ElementPath>gehoertZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>beschreibt</Name>
-      <ElementPath>beschreibt@href</ElementPath>
+      <ElementPath>beschreibt</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -2835,32 +2835,32 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>weistzum</Name>
-      <ElementPath>weistZum@href</ElementPath>
+      <ElementPath>weistZum</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzu</Name>
-      <ElementPath>gehoertZu@href</ElementPath>
+      <ElementPath>gehoertZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hat</Name>
-      <ElementPath>hat@href</ElementPath>
+      <ElementPath>hat</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>beziehtsichauchauf</Name>
-      <ElementPath>beziehtSichAuchAuf@href</ElementPath>
+      <ElementPath>beziehtSichAuchAuf</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>beziehtsichauf</Name>
-      <ElementPath>beziehtSichAuf@href</ElementPath>
+      <ElementPath>beziehtSichAuf</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -2960,12 +2960,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzu</Name>
-      <ElementPath>gehoertZu@href</ElementPath>
+      <ElementPath>gehoertZu</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -3095,7 +3095,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -3160,7 +3160,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -3235,7 +3235,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -3435,12 +3435,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>beziehtsichauf</Name>
-      <ElementPath>beziehtSichAuf@href</ElementPath>
+      <ElementPath>beziehtSichAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -3585,7 +3585,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -3690,7 +3690,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -3780,7 +3780,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -3875,7 +3875,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -3970,7 +3970,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -4055,7 +4055,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -4135,7 +4135,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -4230,7 +4230,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -4330,7 +4330,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -4420,7 +4420,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -4510,12 +4510,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hat</Name>
-      <ElementPath>hat@href</ElementPath>
+      <ElementPath>hat</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -4615,7 +4615,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -4690,7 +4690,7 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -4765,12 +4765,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -4945,12 +4945,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -5265,27 +5265,27 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmitlfp</Name>
-      <ElementPath>istIdentischMitLFP@href</ElementPath>
+      <ElementPath>istIdentischMitLFP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmithfp</Name>
-      <ElementPath>istIdentischMitHFP@href</ElementPath>
+      <ElementPath>istIdentischMitHFP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>unterschiedlicherbezugspunktmitsfp</Name>
-      <ElementPath>unterschiedlicherBezugspunktMitSFP@href</ElementPath>
+      <ElementPath>unterschiedlicherBezugspunktMitSFP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -5480,77 +5480,77 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmitrsp</Name>
-      <ElementPath>istIdentischMitRSP@href</ElementPath>
+      <ElementPath>istIdentischMitRSP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istexzentrumzu</Name>
-      <ElementPath>istExzentrumZu@href</ElementPath>
+      <ElementPath>istExzentrumZu</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istzentrumzu</Name>
-      <ElementPath>istZentrumZu@href</ElementPath>
+      <ElementPath>istZentrumZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>unterschiedlicherbezugspunktmithfp</Name>
-      <ElementPath>unterschiedlicherBezugspunktMitHFP@href</ElementPath>
+      <ElementPath>unterschiedlicherBezugspunktMitHFP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmithfp</Name>
-      <ElementPath>istIdentischMitHFP@href</ElementPath>
+      <ElementPath>istIdentischMitHFP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>unterschiedlicherbezugspunktmitsfp</Name>
-      <ElementPath>unterschiedlicherBezugspunktMitSFP@href</ElementPath>
+      <ElementPath>unterschiedlicherBezugspunktMitSFP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmitsfp</Name>
-      <ElementPath>istIdentischMitSFP@href</ElementPath>
+      <ElementPath>istIdentischMitSFP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmitgrenzpunkt</Name>
-      <ElementPath>istIdentischMitGrenzpunkt@href</ElementPath>
+      <ElementPath>istIdentischMitGrenzpunkt</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>unterschiedlicherbezugspunktmitgrenzpunkt</Name>
-      <ElementPath>unterschiedlicherBezugspunktMitGrenzpunkt@href</ElementPath>
+      <ElementPath>unterschiedlicherBezugspunktMitGrenzpunkt</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmitap</Name>
-      <ElementPath>istIdentischMitAP@href</ElementPath>
+      <ElementPath>istIdentischMitAP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>unterschiedlicherbezugspunktmitap</Name>
-      <ElementPath>unterschiedlicherBezugspunktMitAP@href</ElementPath>
+      <ElementPath>unterschiedlicherBezugspunktMitAP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>unterschiedlicherbezugspunktmitsvp</Name>
-      <ElementPath>unterschiedlicherBezugspunktMitSVP@href</ElementPath>
+      <ElementPath>unterschiedlicherBezugspunktMitSVP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmitsvp</Name>
-      <ElementPath>istIdentischMitSVP@href</ElementPath>
+      <ElementPath>istIdentischMitSVP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -5760,52 +5760,52 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmitrsp</Name>
-      <ElementPath>istIdentischMitRSP@href</ElementPath>
+      <ElementPath>istIdentischMitRSP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>unterschiedlicherbezugspunktmitlfp</Name>
-      <ElementPath>unterschiedlicherBezugspunktMitLFP@href</ElementPath>
+      <ElementPath>unterschiedlicherBezugspunktMitLFP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmitlfp</Name>
-      <ElementPath>istIdentischMitLFP@href</ElementPath>
+      <ElementPath>istIdentischMitLFP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmitsfp</Name>
-      <ElementPath>istIdentischMitSFP@href</ElementPath>
+      <ElementPath>istIdentischMitSFP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>unterschiedlicherbezugspunktmitsfp</Name>
-      <ElementPath>unterschiedlicherBezugspunktMitSFP@href</ElementPath>
+      <ElementPath>unterschiedlicherBezugspunktMitSFP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>unterschiedlicherbezugspunktmitap</Name>
-      <ElementPath>unterschiedlicherBezugspunktMitAP@href</ElementPath>
+      <ElementPath>unterschiedlicherBezugspunktMitAP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>unterschiedlicherbezugspunktmitsvp</Name>
-      <ElementPath>unterschiedlicherBezugspunktMitSVP@href</ElementPath>
+      <ElementPath>unterschiedlicherBezugspunktMitSVP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>unterschiedlicherbezugspunktmitsp</Name>
-      <ElementPath>unterschiedlicherBezugspunktMitSP@href</ElementPath>
+      <ElementPath>unterschiedlicherBezugspunktMitSP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -5980,67 +5980,67 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>unterschiedlicherbezugspunktmitrsp</Name>
-      <ElementPath>unterschiedlicherBezugspunktMitRSP@href</ElementPath>
+      <ElementPath>unterschiedlicherBezugspunktMitRSP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>unterschiedlicherbezugspunktmitlfp</Name>
-      <ElementPath>unterschiedlicherBezugspunktMitLFP@href</ElementPath>
+      <ElementPath>unterschiedlicherBezugspunktMitLFP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmitlfp</Name>
-      <ElementPath>istIdentischMitLFP@href</ElementPath>
+      <ElementPath>istIdentischMitLFP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmithfp</Name>
-      <ElementPath>istIdentischMitHFP@href</ElementPath>
+      <ElementPath>istIdentischMitHFP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>unterschiedlicherbezugspunktmithfp</Name>
-      <ElementPath>unterschiedlicherBezugspunktMitHFP@href</ElementPath>
+      <ElementPath>unterschiedlicherBezugspunktMitHFP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istzentrumzu</Name>
-      <ElementPath>istZentrumZu@href</ElementPath>
+      <ElementPath>istZentrumZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istexzentrumzu</Name>
-      <ElementPath>istExzentrumZu@href</ElementPath>
+      <ElementPath>istExzentrumZu</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmitgrenzpunkt</Name>
-      <ElementPath>istIdentischMitGrenzpunkt@href</ElementPath>
+      <ElementPath>istIdentischMitGrenzpunkt</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmitap</Name>
-      <ElementPath>istIdentischMitAP@href</ElementPath>
+      <ElementPath>istIdentischMitAP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmitsvp</Name>
-      <ElementPath>istIdentischMitSVP@href</ElementPath>
+      <ElementPath>istIdentischMitSVP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istidentischmitsp</Name>
-      <ElementPath>istIdentischMitSP@href</ElementPath>
+      <ElementPath>istIdentischMitSP</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -6170,27 +6170,27 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzulfp</Name>
-      <ElementPath>gehoertZuLFP@href</ElementPath>
+      <ElementPath>gehoertZuLFP</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>beziehtsichaufsfp</Name>
-      <ElementPath>beziehtSichAufSFP@href</ElementPath>
+      <ElementPath>beziehtSichAufSFP</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>zeigtauf</Name>
-      <ElementPath>zeigtAuf@href</ElementPath>
+      <ElementPath>zeigtAuf</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -6280,37 +6280,37 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzu</Name>
-      <ElementPath>gehoertZu@href</ElementPath>
+      <ElementPath>gehoertZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>beziehtsichauf</Name>
-      <ElementPath>beziehtSichAuf@href</ElementPath>
+      <ElementPath>beziehtSichAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>haengtan</Name>
-      <ElementPath>haengtAn@href</ElementPath>
+      <ElementPath>haengtAn</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatidentitaet</Name>
-      <ElementPath>hatIdentitaet@href</ElementPath>
+      <ElementPath>hatIdentitaet</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hat</Name>
-      <ElementPath>hat@href</ElementPath>
+      <ElementPath>hat</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -6405,32 +6405,32 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>beziehtsichauf</Name>
-      <ElementPath>beziehtSichAuf@href</ElementPath>
+      <ElementPath>beziehtSichAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>verbundenmit</Name>
-      <ElementPath>verbundenMit@href</ElementPath>
+      <ElementPath>verbundenMit</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzu</Name>
-      <ElementPath>gehoertZu@href</ElementPath>
+      <ElementPath>gehoertZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hat</Name>
-      <ElementPath>hat@href</ElementPath>
+      <ElementPath>hat</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -6520,27 +6520,27 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hat</Name>
-      <ElementPath>hat@href</ElementPath>
+      <ElementPath>hat</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzu</Name>
-      <ElementPath>gehoertZu@href</ElementPath>
+      <ElementPath>gehoertZu</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>beziehtsichauf</Name>
-      <ElementPath>beziehtSichAuf@href</ElementPath>
+      <ElementPath>beziehtSichAuf</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -6620,12 +6620,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -6680,12 +6680,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -6780,12 +6780,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -6980,12 +6980,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -7185,12 +7185,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -7375,12 +7375,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -7455,12 +7455,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -7545,12 +7545,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -7635,12 +7635,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -7730,12 +7730,12 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>bestehtaus</Name>
-      <ElementPath>bestehtAus@href</ElementPath>
+      <ElementPath>bestehtAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -7810,27 +7810,27 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>dientzurdarstellungvon</Name>
-      <ElementPath>dientZurDarstellungVon@href</ElementPath>
+      <ElementPath>dientZurDarstellungVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -7890,22 +7890,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -8095,22 +8095,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -8335,22 +8335,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -8410,22 +8410,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -8495,22 +8495,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -8575,22 +8575,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -8770,22 +8770,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -8965,22 +8965,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -9170,22 +9170,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -9400,22 +9400,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -9610,22 +9610,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -9825,22 +9825,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -10040,22 +10040,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -10250,22 +10250,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -10465,22 +10465,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -10670,22 +10670,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -10865,22 +10865,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -11075,22 +11075,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -11275,22 +11275,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -11470,22 +11470,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -11685,22 +11685,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -11895,22 +11895,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -12115,22 +12115,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -12350,22 +12350,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -12430,22 +12430,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -12510,22 +12510,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -12595,22 +12595,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -12680,22 +12680,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -12885,22 +12885,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -13000,32 +13000,32 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>dientzurdarstellungvon</Name>
-      <ElementPath>dientZurDarstellungVon@href</ElementPath>
+      <ElementPath>dientZurDarstellungVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hat</Name>
-      <ElementPath>hat@href</ElementPath>
+      <ElementPath>hat</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -13215,22 +13215,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -13410,22 +13410,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -13605,22 +13605,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -13695,27 +13695,27 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>dientzurdarstellungvon</Name>
-      <ElementPath>dientZurDarstellungVon@href</ElementPath>
+      <ElementPath>dientZurDarstellungVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -13900,22 +13900,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -13980,27 +13980,27 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>zeigtauf</Name>
-      <ElementPath>zeigtAuf@href</ElementPath>
+      <ElementPath>zeigtAuf</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -14070,22 +14070,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -14205,22 +14205,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -14345,22 +14345,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -14485,22 +14485,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -14570,22 +14570,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -14765,22 +14765,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -14865,22 +14865,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -14985,32 +14985,32 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>dientzurdarstellungvon</Name>
-      <ElementPath>dientZurDarstellungVon@href</ElementPath>
+      <ElementPath>dientZurDarstellungVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hat</Name>
-      <ElementPath>hat@href</ElementPath>
+      <ElementPath>hat</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -15200,22 +15200,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -15395,22 +15395,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -15595,22 +15595,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -15860,22 +15860,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -16005,27 +16005,27 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatauch</Name>
-      <ElementPath>hatAuch@href</ElementPath>
+      <ElementPath>hatAuch</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -16240,27 +16240,27 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzu</Name>
-      <ElementPath>gehoertZu@href</ElementPath>
+      <ElementPath>gehoertZu</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -16340,22 +16340,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -16470,22 +16470,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -16600,22 +16600,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -16800,22 +16800,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -16900,27 +16900,27 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>dientzurdarstellungvon</Name>
-      <ElementPath>dientZurDarstellungVon@href</ElementPath>
+      <ElementPath>dientZurDarstellungVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -17110,22 +17110,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -17185,22 +17185,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -17265,22 +17265,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -17405,22 +17405,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -17625,207 +17625,207 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_sonstigesbauwerkodersonstigeeinrichtun</Name>
-      <ElementPath>gehoertZuBauwerk_AX_SonstigesBauwerkOderSonstigeEinrichtung@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_SonstigesBauwerkOderSonstigeEinrichtung</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_bauwerkoderanlagefuersportfreizeitunde</Name>
-      <ElementPath>gehoertZuBauwerk_AX_BauwerkOderAnlageFuerSportFreizeitUndErholung@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_BauwerkOderAnlageFuerSportFreizeitUndErholung</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_leitung</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Leitung@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Leitung</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_bauwerkoderanlagefuerindustrieundgewer</Name>
-      <ElementPath>gehoertZuBauwerk_AX_BauwerkOderAnlageFuerIndustrieUndGewerbe@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_BauwerkOderAnlageFuerIndustrieUndGewerbe</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_einrichtunginoeffentlichenbereichen</Name>
-      <ElementPath>gehoertZuBauwerk_AX_EinrichtungInOeffentlichenBereichen@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_EinrichtungInOeffentlichenBereichen</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_heilquellegasquelle</Name>
-      <ElementPath>gehoertZuBauwerk_AX_HeilquelleGasquelle@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_HeilquelleGasquelle</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_historischesbauwerkoderhistorischeeinr</Name>
-      <ElementPath>gehoertZuBauwerk_AX_HistorischesBauwerkOderHistorischeEinrichtung@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_HistorischesBauwerkOderHistorischeEinrichtung</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_turm</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Turm@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Turm</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_vorratsbehaelterspeicherbauwerk</Name>
-      <ElementPath>gehoertZuBauwerk_AX_VorratsbehaelterSpeicherbauwerk@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_VorratsbehaelterSpeicherbauwerk</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_transportanlage</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Transportanlage@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Transportanlage</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_wegpfadsteig</Name>
-      <ElementPath>gehoertZuBauwerk_AX_WegPfadSteig@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_WegPfadSteig</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_gleis</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Gleis@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Gleis</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_bahnverkehrsanlage</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Bahnverkehrsanlage@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Bahnverkehrsanlage</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_bauwerkimgewaesserbereich</Name>
-      <ElementPath>gehoertZuBauwerk_AX_BauwerkImGewaesserbereich@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_BauwerkImGewaesserbereich</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_strassenverkehrsanlage</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Strassenverkehrsanlage@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Strassenverkehrsanlage</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_seilbahnschwebebahn</Name>
-      <ElementPath>gehoertZuBauwerk_AX_SeilbahnSchwebebahn@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_SeilbahnSchwebebahn</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_einrichtungenfuerdenschiffsverkehr</Name>
-      <ElementPath>gehoertZuBauwerk_AX_EinrichtungenFuerDenSchiffsverkehr@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_EinrichtungenFuerDenSchiffsverkehr</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_bauwerkimverkehrsbereich</Name>
-      <ElementPath>gehoertZuBauwerk_AX_BauwerkImVerkehrsbereich@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_BauwerkImVerkehrsbereich</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_flugverkehrsanlage</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Flugverkehrsanlage@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Flugverkehrsanlage</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_gewaesserstationierungsachse</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Gewaesserstationierungsachse@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Gewaesserstationierungsachse</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_sickerstrecke</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Sickerstrecke@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Sickerstrecke</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_schifffahrtsliniefaehrverkehr</Name>
-      <ElementPath>gehoertZuBauwerk_AX_SchifffahrtslinieFaehrverkehr@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_SchifffahrtslinieFaehrverkehr</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_wasserspiegelhoehe</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Wasserspiegelhoehe@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Wasserspiegelhoehe</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_abschnitt</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Abschnitt@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Abschnitt</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_ast</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Ast@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Ast</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_netzknoten</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Netzknoten@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Netzknoten</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_nullpunkt</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Nullpunkt@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Nullpunkt</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_hafen</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Hafen@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Hafen</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_testgelaende</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Testgelaende@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Testgelaende</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_schleuse</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Schleuse@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Schleuse</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_ortslage</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Ortslage@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Ortslage</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_grenzuebergang</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Grenzuebergang@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Grenzuebergang</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_polder</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Polder@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Polder</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_gewaessermerkmal</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Gewaessermerkmal@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Gewaessermerkmal</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_untergeordnetesgewaesser</Name>
-      <ElementPath>gehoertZuBauwerk_AX_UntergeordnetesGewaesser@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_UntergeordnetesGewaesser</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzubauwerk_ax_vegetationsmerkmal</Name>
-      <ElementPath>gehoertZuBauwerk_AX_Vegetationsmerkmal@href</ElementPath>
+      <ElementPath>gehoertZuBauwerk_AX_Vegetationsmerkmal</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzu</Name>
-      <ElementPath>gehoertZu@href</ElementPath>
+      <ElementPath>gehoertZu</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -18020,22 +18020,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -18235,22 +18235,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -18435,22 +18435,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -18635,22 +18635,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -18845,27 +18845,27 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>zeigtauf</Name>
-      <ElementPath>zeigtAuf@href</ElementPath>
+      <ElementPath>zeigtAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -19065,22 +19065,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -19275,22 +19275,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -19495,22 +19495,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -19695,22 +19695,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -19985,47 +19985,47 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoert</Name>
-      <ElementPath>gehoert@href</ElementPath>
+      <ElementPath>gehoert</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>zeigtauf</Name>
-      <ElementPath>zeigtAuf@href</ElementPath>
+      <ElementPath>zeigtAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hat</Name>
-      <ElementPath>hat@href</ElementPath>
+      <ElementPath>hat</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>haengtzusammenmit</Name>
-      <ElementPath>haengtZusammenMit@href</ElementPath>
+      <ElementPath>haengtZusammenMit</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertzu</Name>
-      <ElementPath>gehoertZu@href</ElementPath>
+      <ElementPath>gehoertZu</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -20220,22 +20220,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -20440,22 +20440,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -20650,22 +20650,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -20865,22 +20865,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -21080,22 +21080,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -21295,22 +21295,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -21560,22 +21560,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -21665,22 +21665,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -21745,22 +21745,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -21940,22 +21940,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -22150,22 +22150,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -22360,22 +22360,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -22575,22 +22575,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -22815,22 +22815,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -22905,22 +22905,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -22980,22 +22980,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -23185,47 +23185,47 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istgebucht</Name>
-      <ElementPath>istGebucht@href</ElementPath>
+      <ElementPath>istGebucht</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>beziehtsichaufflurstueck</Name>
-      <ElementPath>beziehtSichAufFlurstueck@href</ElementPath>
+      <ElementPath>beziehtSichAufFlurstueck</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>gehoertanteiligzu</Name>
-      <ElementPath>gehoertAnteiligZu@href</ElementPath>
+      <ElementPath>gehoertAnteiligZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>zeigtauf</Name>
-      <ElementPath>zeigtAuf@href</ElementPath>
+      <ElementPath>zeigtAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>weistauf</Name>
-      <ElementPath>weistAuf@href</ElementPath>
+      <ElementPath>weistAuf</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -23305,22 +23305,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -23390,22 +23390,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -23480,22 +23480,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -23565,22 +23565,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -23675,22 +23675,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -23780,22 +23780,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -24010,22 +24010,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -24230,22 +24230,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -24310,22 +24310,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -24390,22 +24390,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -24490,22 +24490,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -24610,22 +24610,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -24725,22 +24725,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -24835,22 +24835,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -24940,22 +24940,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -25205,22 +25205,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -25460,22 +25460,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -25705,22 +25705,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -25945,22 +25945,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -26180,22 +26180,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -26395,22 +26395,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -26605,22 +26605,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -26820,22 +26820,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -27035,22 +27035,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -27250,22 +27250,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -27480,22 +27480,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -27685,22 +27685,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -27900,22 +27900,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -28115,22 +28115,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -28325,22 +28325,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -28520,22 +28520,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -28720,22 +28720,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -28930,22 +28930,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -29140,22 +29140,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -29350,22 +29350,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -29550,22 +29550,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -29750,22 +29750,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -29955,22 +29955,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -30205,22 +30205,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -30440,22 +30440,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -30675,22 +30675,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -30925,22 +30925,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -31165,22 +31165,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -31405,22 +31405,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -31485,17 +31485,17 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>detailliert</Name>
-      <ElementPath>detailliert@href</ElementPath>
+      <ElementPath>detailliert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>generalisiert</Name>
-      <ElementPath>generalisiert@href</ElementPath>
+      <ElementPath>generalisiert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -31560,17 +31560,17 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>detailliert</Name>
-      <ElementPath>detailliert@href</ElementPath>
+      <ElementPath>detailliert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>generalisiert</Name>
-      <ElementPath>generalisiert@href</ElementPath>
+      <ElementPath>generalisiert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -31635,17 +31635,17 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>detailliert</Name>
-      <ElementPath>detailliert@href</ElementPath>
+      <ElementPath>detailliert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>generalisiert</Name>
-      <ElementPath>generalisiert@href</ElementPath>
+      <ElementPath>generalisiert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -31710,17 +31710,17 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>detailliert</Name>
-      <ElementPath>detailliert@href</ElementPath>
+      <ElementPath>detailliert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>generalisiert</Name>
-      <ElementPath>generalisiert@href</ElementPath>
+      <ElementPath>generalisiert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -31785,17 +31785,17 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>detailliert</Name>
-      <ElementPath>detailliert@href</ElementPath>
+      <ElementPath>detailliert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>generalisiert</Name>
-      <ElementPath>generalisiert@href</ElementPath>
+      <ElementPath>generalisiert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -31860,17 +31860,17 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>detailliert</Name>
-      <ElementPath>detailliert@href</ElementPath>
+      <ElementPath>detailliert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>generalisiert</Name>
-      <ElementPath>generalisiert@href</ElementPath>
+      <ElementPath>generalisiert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -31935,17 +31935,17 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>detailliert</Name>
-      <ElementPath>detailliert@href</ElementPath>
+      <ElementPath>detailliert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>generalisiert</Name>
-      <ElementPath>generalisiert@href</ElementPath>
+      <ElementPath>generalisiert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -32010,17 +32010,17 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>detailliert</Name>
-      <ElementPath>detailliert@href</ElementPath>
+      <ElementPath>detailliert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>generalisiert</Name>
-      <ElementPath>generalisiert@href</ElementPath>
+      <ElementPath>generalisiert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -32115,22 +32115,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>detailliert</Name>
-      <ElementPath>detailliert@href</ElementPath>
+      <ElementPath>detailliert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>generalisiert</Name>
-      <ElementPath>generalisiert@href</ElementPath>
+      <ElementPath>generalisiert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>dientzurdarstellungvon</Name>
-      <ElementPath>dientZurDarstellungVon@href</ElementPath>
+      <ElementPath>dientZurDarstellungVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -32195,17 +32195,17 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>detailliert</Name>
-      <ElementPath>detailliert@href</ElementPath>
+      <ElementPath>detailliert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>generalisiert</Name>
-      <ElementPath>generalisiert@href</ElementPath>
+      <ElementPath>generalisiert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -32270,17 +32270,17 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>detailliert</Name>
-      <ElementPath>detailliert@href</ElementPath>
+      <ElementPath>detailliert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>generalisiert</Name>
-      <ElementPath>generalisiert@href</ElementPath>
+      <ElementPath>generalisiert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -32345,17 +32345,17 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>detailliert</Name>
-      <ElementPath>detailliert@href</ElementPath>
+      <ElementPath>detailliert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>generalisiert</Name>
-      <ElementPath>generalisiert@href</ElementPath>
+      <ElementPath>generalisiert</ElementPath>
       <Type>String</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
   </GMLFeatureClass>
@@ -32416,22 +32416,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -32496,22 +32496,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -32576,22 +32576,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -32656,22 +32656,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -32736,22 +32736,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -32816,22 +32816,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -32916,22 +32916,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -33006,22 +33006,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -33091,22 +33091,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -33186,22 +33186,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -33291,22 +33291,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -33376,22 +33376,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -33466,22 +33466,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -33566,22 +33566,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
@@ -33651,22 +33651,22 @@
     </PropertyDefn>
     <PropertyDefn>
       <Name>istabgeleitetaus</Name>
-      <ElementPath>istAbgeleitetAus@href</ElementPath>
+      <ElementPath>istAbgeleitetAus</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>traegtbeizu</Name>
-      <ElementPath>traegtBeiZu@href</ElementPath>
+      <ElementPath>traegtBeiZu</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>hatdirektunten</Name>
-      <ElementPath>hatDirektUnten@href</ElementPath>
+      <ElementPath>hatDirektUnten</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>
       <Name>istteilvon</Name>
-      <ElementPath>istTeilVon@href</ElementPath>
+      <ElementPath>istTeilVon</ElementPath>
       <Type>StringList</Type>
     </PropertyDefn>
     <PropertyDefn>

@@ -6,7 +6,7 @@
 # Author:   Jürgen E. Fischer <jef@norbit.de>
 #
 ############################################################################
-# Copyright (c) 2012-2018, Jürgen E. Fischer <jef@norbit.de>
+# Copyright (c) 2012-2023, Jürgen E. Fischer <jef@norbit.de>
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -62,9 +62,6 @@ case "$MACHTYPE" in
 esac
 export P=${0##*/}  # PROGNAME
 
-export NAS_GFS_TEMPLATE=$B/alkis-schema.gfs
-export NAS_NO_RELATION_LAYER=YES
-
 bdate() {
 	local t=${1:-+%F %T}
 	date "$t"
@@ -118,7 +115,7 @@ rund() {
 		for i in $(ls -1d ${dir}.d/* 2>/dev/null | sort); do
 			if [ -d "$i" ]; then
 				ls -1 $i/*.sql 2>/dev/null | sort | parallel --line-buffer --halt soon,fail=1 --jobs=$JOBS sql
-			elif [ -f "$i" -a -r "$i" ]; then
+			elif [[ -f "$i" && -r "$i" && "$i" =~ \.sql$ ]]; then
 				sql $i
 			else
 				continue
@@ -400,6 +397,11 @@ minor=${minor%%.*}
 if [ $major -lt 2 ] || [ $major -eq 2 -a $minor -lt 3 ]; then
 	echo "$P: erfordert GDAL >=2.3" >&2
 	exit 1
+elif [ $major -lt 3 ] || [ $major -eq 3 -a $minor -lt 8 ]; then
+	export NAS_GFS_TEMPLATE=$B/alkis-schema.37.gfs
+	export NAS_NO_RELATION_LAYER=YES
+else
+	export NAS_GFS_TEMPLATE=$B/alkis-schema.gfs
 fi
 
 # Verhindern, dass andere GML-Treiber übernehmen
@@ -476,9 +478,9 @@ do
 					;;
 
 				*)
-					echo "$P: Nicht unterstützte Datei $file" >&2
 					continue
 					;;
+
 				esac
 
 				(( S += s )) || true
@@ -552,14 +554,14 @@ EOF
 		}
 		export -f runsql
 		dump() {
-			pg_dump -Fc -f "$1.backup" "$DB"
+			pg_dump -Fc -f "$1.backup" -n "$SCHEMA" "$DB"
 		}
 		restore() {
 			if ! [ -f "$1.backup" -a -r "$1.backup" ]; then
 				echo "$P: $1.backup nicht gefunden oder nicht lesbar." >&2
 				return 1
 			fi
-			pg_restore -Fc -c -d "$DB" "$1.backup"
+			pg_restore -Fc --if-exists -c -d "$DB" "$1.backup"
 		}
 		export DB
 		log() {

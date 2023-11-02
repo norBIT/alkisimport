@@ -2,11 +2,8 @@ alkisImport.py export-subst
 alkis-import.sh export-subst
 .gitattributes export-ignore
 .gitignore export-ignore
-oci export-ignore
 setup.hint export-ignore
-setup-osgeo4w-v2.hint export-ignore
 preremove.bat export-ignore
 postinstall.bat export-ignore
-postinstall-osgeo4w-v2.bat export-ignore
 README.md export-ignore
 postprocessing.d/1_ableitungsregeln/kom.txt export-ignore

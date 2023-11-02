@@ -5,7 +5,7 @@
  * Author:   Jürgen E. Fischer <jef@norbit.de>                             *
  *                                                                         *
  ***************************************************************************
- * Copyright (c) 2012-2018, Jürgen E. Fischer <jef@norbit.de>              *
+ * Copyright (c) 2012-2023, Jürgen E. Fischer <jef@norbit.de>              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -320,7 +320,7 @@ BEGIN
 
 		IF i>2 THEN
 			IF d0=0 THEN
-				RAISE EXCEPTION 'st_offsetcurve: doppelter Punkt';
+				RAISE EXCEPTION 'alkis_offsetcurve: doppelter Punkt';
 			END IF;
 			dx := (st_y(p0)-st_y(p1)) * offs / d0;
 			dy := (st_x(p1)-st_x(p0)) * offs / d0;

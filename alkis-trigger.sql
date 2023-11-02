@@ -57,7 +57,7 @@ BEGIN
 	ELSIF length(NEW.featureid)=16 THEN
 		-- Ältestes nicht gelöschtes Objekt
 		EXECUTE 'SELECT min(beginnt) FROM ' || NEW.typename
-			|| ' WHERE gml_id=''' || substr(NEW.featureid, 1, 16) || ''''
+			|| ' WHERE gml_id=''' || NEW.featureid || ''''
 			|| ' AND endet IS NULL'
 			INTO beginnt;
 
@@ -165,7 +165,8 @@ BEGIN
 					RAISE EXCEPTION '%: Aktualisierung des Vorgängerobjekts von % schlug fehl [%:%]', NEW.featureid, beginnt, NEW.context, n;
 				END IF;
 			ELSE
-				RAISE EXCEPTION '%: Kein eindeutiges Vorgängerobjekt gefunden [%:%]', NEW.featureid, NEW.context, n;
+				RAISE NOTICE '%: Kein eindeutiges Vorgängerobjekt gefunden [%:%]', NEW.featureid, NEW.context, n;
+				RETURN NEW;
 			END IF;
 		ELSE
 			RAISE EXCEPTION '%: % schlug fehl [%]', NEW.featureid, NEW.context, n;

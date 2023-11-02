@@ -65,7 +65,7 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p&gt;&lt;strong&gt;norGIS ALKIS Import #VERSION#&lt;strong&gt;&lt;/p&gt;
 &lt;p&gt;Frontend zum Import von NAS-Daten mit GDAL/OGR&lt;/p&gt;
-&lt;p&gt;Copyright (c) 2014-2018 Jürgen E. Fischer&amp;lt;jef@norbit.de&amp;gt;, &lt;a href=&quot;http://www.norbit.de/0/&quot;&gt;norBIT GmbH&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Copyright (c) 2014-2023 Jürgen E. Fischer&amp;lt;jef@norbit.de&amp;gt;, &lt;a href=&quot;http://www.norbit.de/0/&quot;&gt;norBIT GmbH&lt;/a&gt;&lt;/p&gt;
 &lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="scaledContents">
