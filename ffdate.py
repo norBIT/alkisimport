@@ -65,7 +65,14 @@ def getdate(inputfile):
     data = header + footer[(p + 3 + len(key)):]
     nba = et.fromstring(data, parser)
 
-    return datetime.strptime(nba.find('.//portionskennung/AX_Portionskennung/datum', nba.nsmap).text, '%Y-%m-%dT%H:%M:%SZ').strftime("%Y%m%dT%H%M%SZ")
+    ts = nba.find('.//portionskennung/AX_Portionskennung/datum', nba.nsmap)
+    if ts is None:
+        return None
+
+    try:
+        return datetime.strptime(ts.text, '%Y-%m-%dT%H:%M:%SZ').strftime("%Y%m%dT%H%M%SZ")
+    except:
+        return datetime.strptime(ts.text, '%Y-%m-%dT%H:%M:%S.%fZ').strftime("%Y%m%dT%H%M%SZ")
 
 if __name__ == '__main__':
     import sys
@@ -90,5 +97,6 @@ if __name__ == '__main__':
         date = getdate(inputfile)
         if date is None:
             sys.exit(2)
+        print(date)
     except Exception as e:
         usage(str(e))

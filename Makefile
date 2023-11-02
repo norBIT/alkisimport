@@ -2,7 +2,7 @@ SHELL=bash
 BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
 PKG=alkis-import$(shell git rev-parse --abbrev-ref HEAD | sed -e "s/^/-/; /^-master$$/d")
 GID=7.1.2
-SHORTCUT=$(empty) ($(BRANCH))
+SHORTCUT=$(shell echo " ($(BRANCH))" | grep -Fxv " (master)")
 VERSION=4.1
 
 P=$(shell cat .pkg-$(PKG)-$(VERSION) 2>/dev/null || echo 1)
@@ -15,6 +15,7 @@ all:
 	@echo "BINARY:$(P)"
 	@echo "SHORTCUT:$(SHORTCUT)"
 	@echo "O4WPKG:$(O4WPKG)"
+	@echo "O4WSRCPKG:$(O4WSRCPKG)"
 
 $(O4WSRCPKG):
 	# empty
@@ -22,7 +23,7 @@ $(O4WSRCPKG):
 
 package: $(O4WPKG)
 
-$(O4WPKG): tables.lst alkis-functions.sql alkis-import.cmd
+$(O4WPKG): tables.lst alkis-functions.sql alkis-import.cmd postinstall.bat preremove.bat
 	mkdir -p osgeo4w/{apps/$(PKG)/{preprocessing,postprocessing}.d,bin,etc/{postinstall,preremove}}
 
 	git tag osgeo4w-$(VERSION)-$(P)
@@ -35,7 +36,7 @@ $(O4WPKG): tables.lst alkis-functions.sql alkis-import.cmd
 	perl -i -pe 's/#VERSION#/$(VERSION)-$(P)/' osgeo4w/apps/$(PKG)/{about.ui,alkisImportDlg.ui}
 	tar -C osgeo4w --remove-files -cjf $(O4WPKG) apps bin etc
 
-osgeo4w/setup.hint:
+osgeo4w/setup.hint: setup.hint
 	sed -e "s/@GID@/$(GID)/" setup.hint >osgeo4w/setup.hint
 
 upload: versioncheck $(O4WPKG) $(O4WSRCPKG) osgeo4w/setup.hint
@@ -55,8 +56,6 @@ alkis-functions.sql tables.lst: alkis-functions.sql.in alkis-schema.sql alkis-sc
 		alkis-functions.sql.in >alkis-functions.sql
 	rm tables.tmp catalogs.tmp datatables.tmp
 
-.PHONY: upload package
-
 versioncheck:
 	curl -s https://download.osgeo.org/osgeo4w/v2/x86_64/setup.ini | \
 		sed -ne '/@ $(PKG)$$/,/^$$/ {0,/^version:/ { s/^version: \([^-]*\)-\(.*\)/\1\n\2/p} }' | \
@@ -64,3 +63,5 @@ versioncheck:
 
 test:
 	curl -O https://hvbg.hessen.de/sites/hvbg.hessen.de/files/2023-01/referenztestdaten_711_alkis_0536040.zip
+
+.PHONY: upload package

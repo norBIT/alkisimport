@@ -118,7 +118,7 @@ rund() {
 		for i in $(ls -1d ${dir}.d/* 2>/dev/null | sort); do
 			if [ -d "$i" ]; then
 				ls -1 $i/*.sql 2>/dev/null | sort | parallel --line-buffer --halt soon,fail=1 --jobs=$JOBS sql
-			elif [ -f "$i" -a -r "$i" ]; then
+			elif [[ -f "$i" && -r "$i" && "$i" =~ \.sql$ ]]; then
 				sql $i
 			else
 				continue
@@ -141,7 +141,7 @@ import() {
 
 	t0=$(bdate +%s)
 
-	case ${src,,} in
+	case "${src,,}" in
 	*.zip)
 		dst=${src%.???}.xml
 		dst="$tmpdir/${dst//\//_}"
@@ -427,7 +427,7 @@ export jobi=0
 rm -f $lock
 while read src
 do
-	case ${src,,} in
+	case "${src,,}" in
 	""|"#"*)
 		# Leerzeilen und Kommentare ignorieren
 		continue
@@ -472,9 +472,9 @@ do
 					;;
 
 				*)
-					echo "$P: Nicht unterstützte Datei $file" >&2
 					continue
 					;;
+
 				esac
 
 				(( S += s )) || true
@@ -548,14 +548,14 @@ EOF
 		}
 		export -f runsql
 		dump() {
-			pg_dump -Fc -f "$1.backup" "$DB"
+			pg_dump -Fc -f "$1.backup" -n "$SCHEMA" "$DB"
 		}
 		restore() {
 			if ! [ -f "$1.backup" -a -r "$1.backup" ]; then
 				echo "$P: $1.backup nicht gefunden oder nicht lesbar." >&2
 				return 1
 			fi
-			pg_restore -Fc -c -d "$DB" "$1.backup"
+			pg_restore -Fc --if-exists -c -d "$DB" "$1.backup"
 		}
 		export DB
 		log() {
