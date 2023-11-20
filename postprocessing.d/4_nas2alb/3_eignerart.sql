@@ -1,3 +1,8 @@
+\set nas2alb true
+\ir ../../config.sql
+
+\if :nas2alb
+
 SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 ---
@@ -99,3 +104,5 @@ INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,l
                 GROUP BY flsnr, bestdnr, b, auftrlnr
         ) AS foo
         ;
+
+\endif

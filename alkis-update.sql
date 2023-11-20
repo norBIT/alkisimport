@@ -98,17 +98,41 @@ BEGIN
 
 	RAISE NOTICE 'ALKIS-PO-Schema-Version %', ver;
 
+
 	IF ver<4 THEN
 		RAISE NOTICE 'Migration von ALKIS-PO-Schema-Versionen vor GID7 nicht unterstützt.';
 
 	END IF;
 
-	IF ver>4 THEN
+	IF ver>5 THEN
 		RAISE EXCEPTION 'ALKIS-PO-Schema % nicht unterstützt (bis 4).', ver;
+	END IF;
+
+	IF ver=4 THEN
+		TRUNCATE po_points;
+		TRUNCATE po_lines;
+		TRUNCATE po_polygons;
+		TRUNCATE po_labels;
+
+		ALTER TABLE po_points ADD gml_ids character(16)[] NOT NULL;
+		ALTER TABLE po_lines ADD gml_ids character(16)[] NOT NULL;
+		ALTER TABLE po_polygons ADD gml_ids character(16)[] NOT NULL;
+		ALTER TABLE po_labels ADD gml_ids character(16)[] NOT NULL;
+
+		CREATE INDEX po_points_gmlids_ids ON po_points USING gin (gml_ids);
+		CREATE INDEX po_lines_gmlids_ids ON po_lines USING gin (gml_ids);
+		CREATE INDEX po_polygons_gmlids_ids ON po_polygons USING gin (gml_ids);
+		CREATE INDEX po_labels_gmlids_ids ON po_labels USING gin (gml_ids);
+
+		CREATE TABLE po_lastrun(lastrun character(20), npoints INTEGER, nlines INTEGER, npolygons INTEGER, nlabels INTEGER);
+		INSERT INTO po_lastrun(lastrun, npoints, nlines, npolygons, nlabels) VALUES (NULL, 0, 0, 0, 0);
+
+		UPDATE alkis_po_version SET version=5;
 	END IF;
 
 	RETURN r;
 END;
 $$ LANGUAGE plpgsql;
 
+SET search_path = :"alkis_schema", :"postgis_schema", public;
 SELECT pg_temp.alkis_update_schema();

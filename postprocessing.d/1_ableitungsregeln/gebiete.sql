@@ -148,14 +148,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
+DELETE FROM po_polygons WHERE signaturnummer LIKE 'pg-%';
+DELETE FROM po_labels WHERE signaturnummer LIKE 'pg-%';
+
 --
 -- Flure
 --
 SELECT 'Flurgrenzen werden aufbereitet...';
 
-INSERT INTO po_polygons(gml_id,thema,layer,signaturnummer,sn_randlinie,modell,polygon)
+INSERT INTO po_polygons(gml_id,gml_ids,thema,layer,signaturnummer,sn_randlinie,modell,polygon)
 	SELECT
 		min(gml_id) AS gml_id,
+		array_agg(gml_id) AS gml_ids,
 		'Politische Grenzen' AS thema,
 		'ax_flurstueck_flur_'||gemeindezugehoerigkeit_land||gemarkungsnummer||coalesce(flurnummer,0) AS layer,
 		'pg-flur' AS signaturnummer,
@@ -167,9 +171,10 @@ INSERT INTO po_polygons(gml_id,thema,layer,signaturnummer,sn_randlinie,modell,po
 	WHERE endet IS NULL
 	GROUP BY gemeindezugehoerigkeit_land, gemarkungsnummer, flurnummer;
 
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,modell)
 	SELECT
 		gml_id,
+		gml_ids,
 		'Politische Grenzen' AS thema,
 		layer,
 		pg_temp.pointonsurface(polygon) AS point,
@@ -185,9 +190,10 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,mo
 --
 SELECT 'Gemarkungsgrenzen werden aufbereitet...';
 
-INSERT INTO po_polygons(gml_id,thema,layer,signaturnummer,sn_randlinie,modell,polygon)
+INSERT INTO po_polygons(gml_id,gml_ids,thema,layer,signaturnummer,sn_randlinie,modell,polygon)
 	SELECT
 		min(gml_id) AS gml_id,
+		alkis_accum(gml_ids) AS gml_ids,
 		'Politische Grenzen' AS thema,
 		'ax_flurstueck_gemarkung_'||gemeindezugehoerigkeit_land||gemarkungsnummer AS layer,
 		'pg-gemarkung' AS signaturnummer,
@@ -198,9 +204,10 @@ INSERT INTO po_polygons(gml_id,thema,layer,signaturnummer,sn_randlinie,modell,po
 	JOIN pg_temp.pp_gemarkungen p ON layer LIKE 'ax_flurstueck_flur_'||gemeindezugehoerigkeit_land||gemarkungsnummer||'%' ESCAPE '?'
 	GROUP BY gemeindezugehoerigkeit_land, gemarkungsnummer;
 
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,modell)
 	SELECT
 		gml_id,
+		gml_ids,
 		'Politische Grenzen' AS thema,
 		layer,
 		pg_temp.pointonsurface(polygon) AS point,
@@ -216,9 +223,10 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,mo
 --
 SELECT 'Gemeindegrenzen werden aufbereitet...';
 
-INSERT INTO po_polygons(gml_id,thema,layer,signaturnummer,sn_randlinie,modell,polygon)
+INSERT INTO po_polygons(gml_id,gml_ids,thema,layer,signaturnummer,sn_randlinie,modell,polygon)
 	SELECT
 		min(gml_id) AS gml_id,
+		alkis_accum(gml_ids) AS gml_ids,
 		'Politische Grenzen' AS thema,
 		'ax_flurstueck_gemeinde_'||gemeindezugehoerigkeit_land||gemeindezugehoerigkeit_regierungsbezirk||gemeindezugehoerigkeit_kreis||gemeindezugehoerigkeit_gemeinde AS layer,
 		'pg-gemeinde' AS signaturnummer,
@@ -229,9 +237,10 @@ INSERT INTO po_polygons(gml_id,thema,layer,signaturnummer,sn_randlinie,modell,po
 	JOIN pg_temp.pp_gemarkungen ON layer='ax_flurstueck_gemarkung_'||gemeindezugehoerigkeit_land||gemarkungsnummer
 	GROUP BY gemeindezugehoerigkeit_land, gemeindezugehoerigkeit_regierungsbezirk, gemeindezugehoerigkeit_kreis, gemeindezugehoerigkeit_gemeinde;
 
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,modell)
 	SELECT
 		gml_id,
+		gml_ids,
 		'Politische Grenzen' AS thema,
 		layer,
 		pg_temp.pointonsurface(polygon) AS point,
@@ -247,9 +256,10 @@ INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,mo
 --
 SELECT 'Kreisgrenzen werden aufbereitet...';
 
-INSERT INTO po_polygons(gml_id,thema,layer,signaturnummer,sn_randlinie,modell,polygon)
+INSERT INTO po_polygons(gml_id,gml_ids,thema,layer,signaturnummer,sn_randlinie,modell,polygon)
 	SELECT
 		min(gml_id) AS gml_id,
+		alkis_accum(gml_ids) AS gml_ids,
 		'Politische Grenzen' AS thema,
 		'ax_flurstueck_kreis_'||gemeindezugehoerigkeit_land||gemeindezugehoerigkeit_regierungsbezirk||gemeindezugehoerigkeit_kreis AS layer,
 		'pg-kreis' AS signaturnummer,
@@ -260,9 +270,10 @@ INSERT INTO po_polygons(gml_id,thema,layer,signaturnummer,sn_randlinie,modell,po
 	JOIN pg_temp.pp_kreise p ON layer LIKE 'ax_flurstueck_gemeinde_'||gemeindezugehoerigkeit_land||gemeindezugehoerigkeit_regierungsbezirk||gemeindezugehoerigkeit_kreis||'%'
 	GROUP BY gemeindezugehoerigkeit_land, gemeindezugehoerigkeit_regierungsbezirk, gemeindezugehoerigkeit_kreis;
 
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,modell)
 	SELECT
 		gml_id,
+		gml_ids,
 		'Politische Grenzen' AS thema,
 		layer,
 		pg_temp.pointonsurface(polygon) AS point,

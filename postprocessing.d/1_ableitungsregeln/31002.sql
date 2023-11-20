@@ -8,9 +8,10 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 SELECT 'Gebäudeteile werden verarbeitet.';
 
 -- Gebäudeteile (Bauteil)
-INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+INSERT INTO po_polygons(gml_id,gml_ids,thema,layer,polygon,signaturnummer,modell)
 SELECT
 	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Gebäude' AS thema,
 	'ax_bauteil' AS layer,
 	polygon,
@@ -18,7 +19,7 @@ SELECT
 	modell
 FROM (
 	SELECT
-		o.gml_id,
+		gml_id,
 		st_multi(wkb_geometry) AS polygon,
 		CASE
 		WHEN bat=1100 AND ofl=0      THEN 2507
@@ -47,31 +48,33 @@ FROM (
 			coalesce(lagezurerdoberflaeche,0) AS ofl,
 			wkb_geometry,
 			advstandardmodell||sonstigesmodell AS modell
-		FROM ax_bauteil
-		WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL
+		FROM po_lastrun, ax_bauteil
+		WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL AND beginnt>lastrun
 	) AS o
 ) AS o
 WHERE NOT signaturnummer IS NULL;
 
 -- Gebäudeteilsymbole
-INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+INSERT INTO po_points(gml_id,gml_ids,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id, p.gml_id, d.gml_id] AS gml_ids,
 	'Gebäude' AS thema,
 	'ax_bauteil_funktion' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(d.signaturnummer,p.signaturnummer,'3336') AS signaturnummer,
-	coalesce(p.advstandardmodell||p.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_bauteil o
-LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='BAT' AND p.endet IS NULL
-LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='BAT' AND d.endet IS NULL
-WHERE bauart=2100 AND o.endet IS NULL;
+	coalesce(p.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM po_lastrun, ax_bauteil o
+LEFT OUTER JOIN po_ppo p ON o.gml_id=p.dientzurdarstellungvon AND p.art='BAT'
+LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='BAT'
+WHERE bauart=2100 AND o.endet IS NULL AND greatest(o.beginnt, p.beginnt, d.beginnt)>lastrun;
 
 -- Gebäudeteildachform
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id, t.gml_id, d.gml_id] AS gml_ids,
 	'Gebäude' AS thema,
 	'ax_bauteil_dachform' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
@@ -94,58 +97,62 @@ SELECT
 	END AS text,
 	coalesce(d.signaturnummer,t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_bauteil o
-LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='DAF' AND t.endet IS NULL
-LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='DAF' AND d.endet IS NULL
-WHERE NOT dachform IS NULL AND o.endet IS NULL;
+	coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM po_lastrun, ax_bauteil o
+LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='DAF'
+LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='DAF'
+WHERE NOT dachform IS NULL AND o.endet IS NULL AND greatest(o.beginnt, t.beginnt, d.beginnt)>lastrun;
 
 -- Gebäudeteil, oberirdische Geschosse
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id, t.gml_id, d.gml_id] AS gml_ids,
 	'Gebäude' AS thema,
 	'ax_bauteil_geschosse' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	trim(to_char(o.anzahlderoberirdischengeschosse,'RN')) AS text,
 	coalesce(d.signaturnummer,t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_bauteil o
-LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='AOG' AND t.endet IS NULL
-LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='AOG' AND d.endet IS NULL
-WHERE NOT anzahlderoberirdischengeschosse IS NULL AND o.endet IS NULL;
+	coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM po_lastrun, ax_bauteil o
+LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='AOG'
+LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='AOG'
+WHERE NOT anzahlderoberirdischengeschosse IS NULL AND o.endet IS NULL AND greatest(o.beginnt, t.beginnt, d.beginnt)>lastrun;
 
 -- Besondere Gebäudelinien
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+INSERT INTO po_lines(gml_id,gml_ids,thema,layer,line,signaturnummer,modell)
 SELECT
 	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Gebäude' AS thema,
 	'ax_besonderegebaeudelinie' AS layer,
 	st_multi(wkb_geometry) AS line,
 	2305 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_besonderegebaeudelinie
-WHERE ARRAY[1000] <@ beschaffenheit AND endet IS NULL;
+FROM po_lastrun, ax_besonderegebaeudelinie
+WHERE ARRAY[1000] <@ beschaffenheit AND endet IS NULL AND beginnt>lastrun;
 
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+INSERT INTO po_lines(gml_id,gml_ids,thema,layer,line,signaturnummer,modell)
 SELECT
 	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Gebäude' AS thema,
 	'ax_besonderegebaeudelinie' AS layer,
 	st_multi(wkb_geometry) AS line,
 	2302 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_besonderegebaeudelinie
-WHERE ARRAY[4000] <@ beschaffenheit AND endet IS NULL;
+FROM po_lastrun, ax_besonderegebaeudelinie
+WHERE ARRAY[4000] <@ beschaffenheit AND endet IS NULL AND beginnt>lastrun;
 
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+INSERT INTO po_lines(gml_id,gml_ids,thema,layer,line,signaturnummer,modell)
 SELECT
 	gml_id,
+	ARRAY[gml_id] AS gml_id,
 	'Gebäude' AS thema,
 	'ax_firstlinie' AS layer,
 	st_multi(wkb_geometry) AS line,
 	2303 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_firstlinie
-WHERE endet IS NULL;
+FROM po_lastrun, ax_firstlinie
+WHERE endet IS NULL AND beginnt>lastrun;

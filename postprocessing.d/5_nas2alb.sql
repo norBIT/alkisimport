@@ -1,3 +1,8 @@
+\set nas2alb true
+\ir ../config.sql
+
+\if :nas2alb
+
 SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 ---
@@ -111,3 +116,5 @@ SELECT "Buchdaten","Anzahl" FROM (
   SELECT 4, 'Flurstücke', count(*) FROM flurst UNION
   SELECT 5, 'Flurstücke ohne Eigentümerart', count(*) FROM flurst WHERE NOT EXISTS (SELECT * FROM eignerart WHERE eignerart.flsnr=flurst.flsnr)
 ) AS stat ORDER BY o;
+
+\endif

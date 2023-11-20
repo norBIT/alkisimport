@@ -1,3 +1,8 @@
+\set nas2alb true
+\ir ../../config.sql
+
+\if :nas2alb
+
 SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 ---
@@ -67,3 +72,5 @@ INSERT INTO strassen(flsnr,pk,strshl,hausnr,ff_entst,ff_stand)
 	FROM ax_lagebezeichnungohnehausnummer l
 	JOIN ax_flurstueck f ON ARRAY[l.gml_id] <@ f.zeigtauf AND f.endet IS NULL
 	WHERE NOT l.lage IS NULL AND l.endet IS NULL;
+
+\endif

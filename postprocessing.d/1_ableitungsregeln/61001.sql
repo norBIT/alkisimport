@@ -141,7 +141,7 @@ BEGIN
 			p0 := st_endpoint(ok);
 			p1 := (SELECT p FROM (SELECT st_pointn(uk,generate_series(1, st_npoints(uk))) AS p) AS p ORDER BY st_distance(p0,p) ASC LIMIT 1);
 			IF NOT st_equals(p0, p1) THEN
-				-- RAISE NOTICE '%: Verlängerung Ende:% [snap % to %]', r0.gml_id, st_astext(st_makeline(p0, p1)), st_astext(st_endpoint(ok)), st_astext(uk); 
+				-- RAISE NOTICE '%: Verlängerung Ende:% [snap % to %]', r0.gml_id, st_astext(st_makeline(p0, p1)), st_astext(st_endpoint(ok)), st_astext(uk);
 				fk := st_union(fk, st_makeline(p0, p1));
 			END IF;
 
@@ -244,9 +244,9 @@ BEGIN
 
 			IF b1 IS NOT NULL AND array_length(b1,1)>0 THEN
 				INSERT INTO po_lines(
-					gml_id, thema, layer, line, signaturnummer, modell
+					gml_id, gml_ids, thema, layer, line, signaturnummer, modell
 				) VALUES (
-					r0.gml_id, 'Topographie', 'ax_boeschungkliff', st_multi(st_collect(b1)), '2531', r0.modell
+					r0.gml_id, ARRAY[r0.gml_id], 'Topographie', 'ax_boeschungkliff', st_multi(st_collect(b1)), '2531', r0.modell
 				);
 			ELSE
 				bgln := bgln + 1;

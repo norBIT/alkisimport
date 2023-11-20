@@ -3,7 +3,7 @@ BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
 PKG=alkis-import$(shell git rev-parse --abbrev-ref HEAD | sed -e "s/^/-/; /^-master$$/d")
 GID=7.1.2
 SHORTCUT=$(shell echo " ($(BRANCH))" | grep -Fxv " (master)")
-VERSION=4.1
+VERSION=4.2
 
 P=$(shell cat .pkg-$(PKG)-$(VERSION) 2>/dev/null || echo 1)
 O4WPKG=osgeo4w/$(PKG)-$(VERSION)-$(P).tar.bz2

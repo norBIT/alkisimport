@@ -1,3 +1,8 @@
+\set nas2alb true
+\ir ../../config.sql
+
+\if :nas2alb
+
 SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 ---
@@ -127,3 +132,5 @@ INSERT INTO eigner(bestdnr,pk,name1,ff_entst,ff_stand)
                 0 AS ff_fortf
         FROM bestand
         WHERE NOT EXISTS (SELECT * FROM eigner WHERE eigner.bestdnr=bestand.bestdnr);
+
+\endif

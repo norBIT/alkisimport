@@ -8,9 +8,10 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 SELECT 'Einrichtungen in öffentlichen Bereichen werden verarbeitet.';
 
 -- Flächen
-INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+INSERT INTO po_polygons(gml_id,gml_ids,thema,layer,polygon,signaturnummer,modell)
 SELECT
 	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Verkehr' AS thema,
 	'ax_einrichtunginoeffentlichenbereichen' AS layer,
 	polygon,
@@ -18,22 +19,26 @@ SELECT
 	modell
 FROM (
 	SELECT
-		o.gml_id,
+		gml_id,
 		st_multi(wkb_geometry) AS polygon,
-		CASE o.art
+		CASE art
 		WHEN 1110 THEN 1330
 		WHEN 1510 THEN 2521
 		WHEN 9999 THEN 1330
 		END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
-	FROM ax_einrichtunginoeffentlichenbereichen o
-	WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL AND o.art IN (1110,1510,9999)
+	FROM po_lastrun, ax_einrichtunginoeffentlichenbereichen
+	WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON')
+          AND endet IS NULL
+          AND art IN (1110,1510,9999)
+	  AND beginnt>lastrun
 ) AS o;
 
 -- Punktsymbole
-INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+INSERT INTO po_points(gml_id,gml_ids,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	gml_id,
+	gml_ids,
 	'Verkehr' AS thema,
 	'ax_einrichtunginoeffentlichenbereichen' AS layer,
 	st_multi(point) AS point,
@@ -43,6 +48,7 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
+		ARRAY[o.gml_id,p.gml_id,d.gml_id] AS gml_ids,
 		coalesce(
 			p.wkb_geometry,
 			o.wkb_geometry
@@ -83,19 +89,21 @@ FROM (
 			WHEN o.art=2600                THEN '3571'
 			END
 		) AS signaturnummer,
-		coalesce(p.advstandardmodell||p.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-	FROM ax_einrichtunginoeffentlichenbereichen o
-	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='ART' AND p.endet IS NULL
-	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='ART' AND d.endet IS NULL
+		coalesce(p.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+	FROM po_lastrun, ax_einrichtunginoeffentlichenbereichen o
+	LEFT OUTER JOIN po_ppo p ON o.gml_id=p.dientzurdarstellungvon AND p.art='ART'
+	LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='ART'
 	WHERE geometrytype(coalesce(p.wkb_geometry,o.wkb_geometry)) IN ('POINT','MULTIPOINT')
 	  AND o.endet IS NULL
+	  AND greatest(o.beginnt, p.beginnt, d.beginnt)>lastrun
 ) AS o
 WHERE signaturnummer IS NOT NULL;
 
 -- Flächensymbole
-INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+INSERT INTO po_points(gml_id,gml_ids,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id,p.gml_id,d.gml_id] AS gml_ids,
 	'Verkehr' AS thema,
 	'ax_einrichtunginoeffentlichenbereichen' AS layer,
 	st_multi(
@@ -113,60 +121,64 @@ SELECT
 		WHEN o.art=2200 THEN '3567'
 		END
 	) AS signaturnummer,
-	coalesce(p.advstandardmodell||p.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_einrichtunginoeffentlichenbereichen o
-LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='ART' AND p.endet IS NULL
-LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='ART' AND d.endet IS NULL
-WHERE o.endet IS NULL AND geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND o.art IN (1110,2200);
+	coalesce(p.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM po_lastrun, ax_einrichtunginoeffentlichenbereichen o
+LEFT OUTER JOIN po_ppo p ON o.gml_id=p.dientzurdarstellungvon AND p.art='ART'
+LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='ART'
+WHERE o.endet IS NULL AND geometrytype(o.wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND o.art IN (1110,2200) AND greatest(o.beginnt, p.beginnt, d.beginnt)>lastrun;
 
 -- Linien
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+INSERT INTO po_lines(gml_id,gml_ids,thema,layer,line,signaturnummer,modell)
 SELECT
-	o.gml_id,
+	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Verkehr' AS thema,
 	'ax_einrichtunginoeffentlichenbereichen' AS layer,
 	st_multi(wkb_geometry) AS line,
 	2002 AS signaturnummer,
 	advstandardmodell||sonstigesmodell AS modell
-FROM ax_einrichtunginoeffentlichenbereichen o
-WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND o.art=1650;
+FROM po_lastrun, ax_einrichtunginoeffentlichenbereichen o
+WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND o.art=1650 AND beginnt>lastrun;
 
 -- Texte Ortsdurchfahrtstein
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id,t.gml_id,d.gml_id] AS gml_ids,
 	'Verkehr' AS thema,
 	'ax_einrichtunginoeffentlichenbereichen' AS layer,
 	coalesce(t.wkb_geometry,o.wkb_geometry) AS point,
 	'OD' AS text,
 	coalesce(d.signaturnummer,t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_einrichtunginoeffentlichenbereichen o
-LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='ART' AND t.endet IS NULL
-LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='ART' AND d.endet IS NULL
-WHERE o.endet IS NULL AND o.art=1420;
+	coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM po_lastrun, ax_einrichtunginoeffentlichenbereichen o
+LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='ART'
+LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='ART'
+WHERE o.endet IS NULL AND o.art=1420 AND greatest(o.beginnt, t.beginnt, d.beginnt)>lastrun;
 
 -- Texte
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id,t.gml_id,d.gml_id] AS gml_ids,
 	'Verkehr' AS thema,
 	'ax_einrichtunginoeffentlichenbereichen' AS layer,
 	coalesce(t.wkb_geometry,o.wkb_geometry) AS point,
 	kilometerangabe AS text,
 	coalesce(d.signaturnummer,t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_einrichtunginoeffentlichenbereichen o
-LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='KMA' AND t.endet IS NULL
-LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='KMA' AND d.endet IS NULL
-WHERE o.endet IS NULL AND NOT kilometerangabe IS NULL;
+	coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM po_lastrun, ax_einrichtunginoeffentlichenbereichen o
+LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='KMA'
+LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='KMA'
+WHERE o.endet IS NULL AND NOT kilometerangabe IS NULL AND greatest(o.beginnt, t.beginnt, d.beginnt)>lastrun;
 
 -- Bahnschranke
-INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+INSERT INTO po_points(gml_id,gml_ids,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
-	o.gml_id,
+	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Verkehr' AS thema,
 	'ax_einrichtunginoeffentlichenbereichen' AS layer,
 	st_multi(
@@ -190,16 +202,18 @@ FROM (
 		gml_id,
 		(st_dump(st_multi(wkb_geometry))).geom AS line,
                 advstandardmodell||sonstigesmodell AS modell
-	FROM ax_einrichtunginoeffentlichenbereichen
+	FROM po_lastrun, ax_einrichtunginoeffentlichenbereichen
 	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
           AND endet IS NULL
           AND art=1500
+	  AND beginnt>lastrun
 ) AS o;
 
 -- Tor
-INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+INSERT INTO po_polygons(gml_id,gml_ids,thema,layer,polygon,signaturnummer,modell)
 SELECT
 	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Verkehr' AS thema,
 	'ax_einrichtunginoeffentlichenbereichen' AS layer,
 	st_multi(polygon),
@@ -207,7 +221,7 @@ SELECT
 	modell
 FROM (
         SELECT
-                o.gml_id,
+                gml_id,
                 alkis_bufferline(line, 0.5) AS polygon,
                 modell
         FROM (
@@ -215,9 +229,10 @@ FROM (
 			gml_id,
 			(st_dump(st_multi(wkb_geometry))).geom AS line,
 			advstandardmodell||sonstigesmodell AS modell
-		FROM ax_einrichtunginoeffentlichenbereichen o
+		FROM po_lastrun, ax_einrichtunginoeffentlichenbereichen o
 		WHERE o.art=1501
 		  AND geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
 		  AND endet IS NULL
+		  AND beginnt>lastrun
 	) AS o
 ) AS o;

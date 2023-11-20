@@ -7,20 +7,22 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 SELECT 'Seil- und Schwebebahnen werden verarbeitet.';
 
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+INSERT INTO po_lines(gml_id,gml_ids,thema,layer,line,signaturnummer,modell)
 SELECT
 	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Verkehr' AS thema,
 	'ax_seilbahnschwebebahn' AS layer,
 	st_multi(wkb_geometry) AS line,
 	2001 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_seilbahnschwebebahn o
-WHERE endet IS NULL;
+FROM po_lastrun, ax_seilbahnschwebebahn o
+WHERE endet IS NULL AND beginnt>lastrun;
 
-INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+INSERT INTO po_points(gml_id,gml_ids,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Verkehr' AS thema,
 	'ax_seilbahnschwebebahn' AS layer,
 	st_multi( st_lineinterpolatepoint(line,o.offset) ) AS point,
@@ -29,7 +31,7 @@ SELECT
 	modell
 FROM (
 	SELECT
-		o.gml_id,
+		gml_id,
 		line,
 		generate_series( 0, trunc(st_length(line)*1000.0)::int,
 			CASE
@@ -50,17 +52,19 @@ FROM (
 			(st_dump(st_multi(wkb_geometry))).geom AS line,
 			bahnkategorie,
 			advstandardmodell||sonstigesmodell AS modell
-		FROM ax_seilbahnschwebebahn o
+		FROM po_lastrun, ax_seilbahnschwebebahn o
 		WHERE endet IS NULL
 		  AND geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
+		  AND beginnt>lastrun
 	) AS o
 ) AS o
 WHERE NOT signaturnummer IS NULL;
 
 -- Namen
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	gml_id,
+	gml_ids,
 	'Verkehr' AS thema,
 	'ax_seilbahnschwebebahn' AS layer,
 	point,
@@ -70,13 +74,14 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
+		ARRAY[o.gml_id,t.gml_id,d.gml_id] AS gml_ids,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(d.signaturnummer,t.signaturnummer,'4107') AS signaturnummer,
 		coalesce(t.schriftinhalt,name) AS text,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-	FROM ax_seilbahnschwebebahn o
-	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
-	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='NAM' AND d.endet IS NULL
-	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
+		coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+	FROM po_lastrun, ax_seilbahnschwebebahn o
+	LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='NAM'
+	LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='NAM'
+	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL) AND greatest(o.beginnt,t.beginnt,d.beginnt)>lastrun
 ) AS n WHERE NOT text IS NULL;

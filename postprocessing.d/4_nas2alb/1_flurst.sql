@@ -1,3 +1,8 @@
+\set nas2alb true
+\ir ../../config.sql
+
+\if :nas2alb
+
 SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 ---
@@ -76,3 +81,5 @@ CREATE TEMPORARY TABLE bblnr_temp AS
 CREATE INDEX bblnr_temp_flsnr ON bblnr_temp(flsnr);
 
 UPDATE flurst SET blbnr=(SELECT regexp_replace(array_to_string(array_agg(DISTINCT b.bezeichnung),','),E'\(.{196}\).+',E'\\1 ...') FROM bblnr_temp b WHERE flurst.flsnr=b.flsnr);
+
+\endif

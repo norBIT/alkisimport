@@ -8,22 +8,24 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 SELECT 'Sport-, Freizeit- und Erholungsflächen werden verarbeitet.';
 
 -- Sport-, Freizeit- und Erholungsfläche
-INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+INSERT INTO po_polygons(gml_id,gml_ids,thema,layer,polygon,signaturnummer,modell)
 SELECT
 	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Sport und Freizeit' AS thema,
 	'ax_sportfreizeitunderholungsflaeche' AS layer,
 	st_multi(wkb_geometry) AS polygon,
 	25151405 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_sportfreizeitunderholungsflaeche
-WHERE endet IS NULL;
+FROM po_lastrun, ax_sportfreizeitunderholungsflaeche
+WHERE endet IS NULL AND beginnt>lastrun;
 
 
 -- Anschrieb, Sport-, Freizeit- und Erholungsfläche
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	gml_id,
+	gml_ids,
 	'Sport und Freizeit' AS thema,
 	'ax_sportfreizeitunderholungsflaeche' AS layer,
 	point,
@@ -33,6 +35,7 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
+		ARRAY[o.gml_id, t.gml_id, n.gml_id, d.gml_id] AS gml_ids,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(
 			t.schriftinhalt,
@@ -52,22 +55,20 @@ FROM (
 		) AS text,
 		coalesce(d.signaturnummer,t.signaturnummer,n.signaturnummer,'4140') AS signaturnummer,
 		t.drehwinkel,t.horizontaleausrichtung,t.vertikaleausrichtung,t.skalierung,t.fontsperrung,
-		coalesce(
-			t.advstandardmodell||t.sonstigesmodell||n.advstandardmodell||n.sonstigesmodell,
-			o.advstandardmodell||o.sonstigesmodell
-		) AS modell
-	FROM ax_sportfreizeitunderholungsflaeche o
-	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='FKT' AND t.endet IS NULL
-	LEFT OUTER JOIN ap_pto n ON ARRAY[o.gml_id] <@ n.dientzurdarstellungvon AND n.art='NAM' AND n.endet IS NULL
-	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art IN ('NAM','FKT') AND d.endet IS NULL
-	WHERE name IS NULL AND n.schriftinhalt IS NULL AND o.endet IS NULL
+		coalesce(t.modelle, n.modelle,n.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+	FROM po_lastrun, ax_sportfreizeitunderholungsflaeche o
+	LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='FKT'
+	LEFT OUTER JOIN po_pto n ON o.gml_id=n.dientzurdarstellungvon AND n.art='NAM'
+	LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art IN ('NAM','FKT')
+	WHERE name IS NULL AND n.schriftinhalt IS NULL AND o.endet IS NULL AND greatest(o.beginnt, t.beginnt, n.beginnt, d.beginnt)>lastrun
 ) AS o
 WHERE NOT text IS NULL;
 
 -- Symbol, Sport-, Freizeit- und Erholungsfläche
-INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+INSERT INTO po_points(gml_id,gml_ids,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	gml_id,
+	gml_ids,
 	'Sport und Freizeit' AS thema,
 	'ax_sportfreizeitunderholungsflaeche' AS layer,
 	st_multi(point),
@@ -77,6 +78,7 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
+		ARRAY[o.gml_id, p.gml_id, d.gml_id] AS gml_ids,
 		coalesce(p.wkb_geometry,alkis_flaechenfuellung(o.wkb_geometry,d.positionierungsregel),st_centroid(o.wkb_geometry)) AS point,
 		coalesce(p.drehwinkel,0) AS drehwinkel,
 		coalesce(
@@ -94,21 +96,19 @@ FROM (
 			WHEN funktion=4470           THEN '3423'
 			END
 		) AS signaturnummer,
-		coalesce(
-			p.advstandardmodell||p.sonstigesmodell||d.advstandardmodell||d.sonstigesmodell,
-			o.advstandardmodell||o.sonstigesmodell
-		) AS modell
-	FROM ax_sportfreizeitunderholungsflaeche o
-	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='FKT' AND p.endet IS NULL
-	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='FKT' AND d.endet IS NULL
-	WHERE o.endet IS NULL
+		coalesce(p.modelle, p.modelle, d.modelle, o.advstandardmodell||o.sonstigesmodell) AS modell
+	FROM po_lastrun, ax_sportfreizeitunderholungsflaeche o
+	LEFT OUTER JOIN po_ppo p ON o.gml_id=p.dientzurdarstellungvon AND p.art='FKT'
+	LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='FKT'
+	WHERE o.endet IS NULL AND greatest(o.beginnt, p.beginnt, d.beginnt)>lastrun
 ) AS o
 WHERE NOT signaturnummer IS NULL;
 
 -- Name, Sport-, Freizeit- und Erholungsfläche
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	gml_id,
+	gml_ids,
 	'Sport und Freizeit' AS thema,
 	'ax_sportfreizeitunderholungsflaeche' AS layer,
 	point,
@@ -118,13 +118,14 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
+		ARRAY[o.gml_id, t.gml_id, d.gml_id] AS gml_ids,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,o.name) AS text,
 		coalesce(d.signaturnummer,t.signaturnummer,'4141') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-	FROM ax_sportfreizeitunderholungsflaeche o
-	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
-	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='NAM' AND d.endet IS NULL
-	WHERE o.endet IS NULL
+		coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+	FROM po_lastrun, ax_sportfreizeitunderholungsflaeche o
+	LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='NAM'
+	LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='NAM'
+	WHERE o.endet IS NULL AND greatest(o.beginnt, t.beginnt, d.beginnt)>lastrun
 ) AS n WHERE NOT text IS NULL;

@@ -14,6 +14,11 @@
  *                                                                         *
  ***************************************************************************/
 
+\set nas2alb true
+\ir ../config.sql
+
+\if :nas2alb
+
 \unset ON_ERROR_STOP
 SET application_name='ALKIS-Import - Liegenschaftsbuchübernahme';
 SET client_min_messages TO notice;
@@ -519,3 +524,5 @@ CREATE VIEW v_haeuser AS
   LEFT OUTER JOIN str_shl USING (strshl)
   LEFT OUTER JOIN gem_shl USING (gemshl)
 ;
+
+\endif

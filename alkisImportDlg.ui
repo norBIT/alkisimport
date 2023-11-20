@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1073</width>
+    <width>1213</width>
     <height>822</height>
    </rect>
   </property>
@@ -35,7 +35,7 @@
         <item row="2" column="1">
          <widget class="QLineEdit" name="lePORT">
           <property name="inputMask">
-           <string>99999; </string>
+           <string>99999</string>
           </property>
           <property name="text">
            <string/>
@@ -300,6 +300,13 @@
            <widget class="QCheckBox" name="cbxAvoidDupes">
             <property name="text">
              <string>Duplikate ignorieren</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbxRebuildMap">
+            <property name="text">
+             <string>Karte neu erzeugen</string>
             </property>
            </widget>
           </item>
@@ -625,6 +632,7 @@
   <tabstop>cbxClearProtocol</tabstop>
   <tabstop>cbxUseCopy</tabstop>
   <tabstop>cbxAvoidDupes</tabstop>
+  <tabstop>cbxRebuildMap</tabstop>
   <tabstop>lstFiles</tabstop>
   <tabstop>pbAdd</tabstop>
   <tabstop>pbAddDir</tabstop>

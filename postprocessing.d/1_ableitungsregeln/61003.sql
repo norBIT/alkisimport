@@ -8,9 +8,10 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 SELECT 'Dämme, Wälle und Deiche werden verarbeitet.';
 
 -- Linien
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+INSERT INTO po_lines(gml_id,gml_ids,thema,layer,line,signaturnummer,modell)
 SELECT
-	o.gml_id,
+	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Topographie' AS thema,
 	'ax_dammwalldeich' AS layer,
 	st_multi(
@@ -28,15 +29,17 @@ FROM (
 		art,
 		(st_dump(st_multi(wkb_geometry))).geom AS line,
 		advstandardmodell||sonstigesmodell AS modell
-	FROM ax_dammwalldeich
+	FROM po_lastrun, ax_dammwalldeich
 	WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
 	  AND endet IS NULL
+	  AND beginnt>lastrun
 ) AS o;
 
 -- Punkte, Wall
-INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+INSERT INTO po_points(gml_id,gml_ids,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Topographie' AS thema,
 	'ax_dammwalldeich' AS layer,
 	st_multi( st_lineinterpolatepoint(line,o.offset) ) AS point,
@@ -61,17 +64,19 @@ FROM (
 			art,
 			(st_dump(st_multi(wkb_geometry))).geom AS line,
 			advstandardmodell||sonstigesmodell AS modell
-		FROM ax_dammwalldeich o
+		FROM po_lastrun, ax_dammwalldeich o
 		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING')
 		  AND endet IS NULL
 		  AND art IN ('1910','1920','1930','1940','1950','1960','1970','1980','1990','1991','1992','2010','2011','2012','2013')
+		  AND beginnt>lastrun
 	) AS o
 ) AS o;
 
 -- Punkte, Knick, Wall
-INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+INSERT INTO po_points(gml_id,gml_ids,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Topographie' AS thema,
 	'ax_dammwalldeich' AS layer,
 	st_multi( st_lineinterpolatepoint(line,o.offset) ) AS point,
@@ -94,15 +99,16 @@ FROM (
 			art,
 			(st_dump(st_multi(wkb_geometry))).geom AS line,
 			advstandardmodell||sonstigesmodell AS modell
-		FROM ax_dammwalldeich o
-		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art IN ('2000','2001','2002','2003')
+		FROM po_lastrun, ax_dammwalldeich o
+		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art IN ('2000','2001','2002','2003') AND beginnt>lastrun
 	) AS o
 ) AS o;
 
 -- Punkte, Knick, Bewuchs
-INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+INSERT INTO po_points(gml_id,gml_ids,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Topographie' AS thema,
 	'ax_dammwalldeich' AS layer,
 	st_multi( st_lineinterpolatepoint(line,o.offset) ) AS point,
@@ -125,29 +131,31 @@ FROM (
 			art,
 			(st_dump(st_multi(wkb_geometry))).geom AS line,
 			advstandardmodell||sonstigesmodell AS modell
-		FROM ax_dammwalldeich o
-		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art IN ('2000','2001','2002','2003')
+		FROM po_lastrun, ax_dammwalldeich o
+		WHERE geometrytype(wkb_geometry) IN ('LINESTRING','MULTILINESTRING') AND endet IS NULL AND art IN ('2000','2001','2002','2003') AND beginnt>lastrun
 	) AS o
 ) AS o;
 
 -- Fläche
-INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+INSERT INTO po_polygons(gml_id,gml_ids,thema,layer,polygon,signaturnummer,modell)
 SELECT
-	o.gml_id,
+	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Topographie' AS thema,
 	'ax_dammwalldeich' AS layer,
 	st_multi(wkb_geometry) AS polygon,
 	1551 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_dammwalldeich o
-WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL AND art IN ('1910','1920','1930','1940','1950','1960','1970','1980','1990');
+FROM po_lastrun, ax_dammwalldeich o
+WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL AND art IN ('1910','1920','1930','1940','1950','1960','1970','1980','1990') AND beginnt>lastrun;
 
 -- TODO mit Graben
 
 -- Namen
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	gml_id,
+	gml_ids,
 	'Topographie' AS thema,
 	'ax_dammwalldeich' AS layer,
 	point,
@@ -157,13 +165,14 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
+		ARRAY[o.gml_id, t.gml_id, d.gml_id] AS gml_ids,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(t.schriftinhalt,name) AS text,
 		coalesce(d.signaturnummer,t.signaturnummer,'4109') AS signaturnummer,
 		drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-	FROM ax_dammwalldeich o
-	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='NAM' AND t.endet IS NULL
-	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='NAM' AND d.endet IS NULL
-	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL)
+		coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+	FROM po_lastrun, ax_dammwalldeich o
+	LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='NAM'
+	LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='NAM'
+	WHERE o.endet IS NULL AND (NOT name IS NULL OR NOT t.schriftinhalt IS NULL) AND greatest(o.beginnt, t.beginnt, d.beginnt)>lastrun
 ) AS n WHERE NOT text IS NULL;

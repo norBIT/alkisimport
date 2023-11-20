@@ -8,9 +8,10 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 SELECT 'Gebäude werden verarbeitet.';
 
 -- Gebäudeflächen (Signaturnummer = 2XXX oder 2XXX1XXX)
-INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+INSERT INTO po_polygons(gml_id,gml_ids,thema,layer,polygon,signaturnummer,modell)
 SELECT
 	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Gebäude' AS thema,
 	'ax_gebaeude' AS layer,
 	polygon,
@@ -88,25 +89,27 @@ FROM (
 			coalesce(bauweise,0) AS baw,
 			wkb_geometry,
 			o.advstandardmodell||o.sonstigesmodell AS modell
-		FROM ax_gebaeude o
-		WHERE o.endet IS NULL AND geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON')
+		FROM po_lastrun, ax_gebaeude o
+		WHERE o.endet IS NULL AND geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND o.beginnt>lastrun
 	) AS o
 ) AS o
 WHERE NOT signaturnummer IS NULL;
 
 -- Punktsymbole für Gebäude
-INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+INSERT INTO po_points(gml_id,gml_ids,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id, p.gml_id, d.gml_id] AS gml_ids,
 	'Gebäude' AS thema,
 	'ax_gebaeude_funktion' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	coalesce(d.signaturnummer,p.signaturnummer,o.signaturnummer) AS signaturnummer,
-	coalesce(p.advstandardmodell||p.sonstigesmodell||d.advstandardmodell||d.sonstigesmodell,o.modell) AS modell
-FROM (
+	coalesce(p.modelle,d.modelle,o.modell) AS modell
+FROM po_lastrun, (
 	SELECT
 		gml_id,
+		beginnt,
 		wkb_geometry,
 		CASE gebaeudefunktion
 		WHEN 2030 THEN '3300'
@@ -142,14 +145,15 @@ FROM (
 	FROM ax_gebaeude
 	WHERE endet IS NULL
 ) AS o
-LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='GFK' AND p.endet IS NULL
-LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='GFK' AND d.endet IS NULL
-WHERE NOT o.signaturnummer IS NULL;
+LEFT OUTER JOIN po_ppo p ON o.gml_id=p.dientzurdarstellungvon AND p.art='GFK'
+LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='GFK'
+WHERE NOT o.signaturnummer IS NULL AND greatest(o.beginnt, p.beginnt, d.beginnt)>lastrun;
 
 -- Gebäudebeschriftungen
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	gml_id,
+	gml_ids,
 	'Gebäude' AS thema,
 	'ax_gebaeude_funktion' AS layer,
 	point,
@@ -159,6 +163,7 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
+		ARRAY[o.gml_id,t.gml_id,n.gml_id,d.gml_id] AS gml_ids,
 		coalesce(n.wkb_geometry,t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(
 			n.schriftinhalt,
@@ -190,34 +195,41 @@ FROM (
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.vertikaleausrichtung ELSE n.vertikaleausrichtung END AS vertikaleausrichtung,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.skalierung ELSE n.skalierung END AS skalierung,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.fontsperrung ELSE n.fontsperrung END AS fontsperrung,
-		coalesce(
-			t.advstandardmodell||t.sonstigesmodell||n.advstandardmodell||n.sonstigesmodell,
-			o.modell
-		) AS modell
-	FROM (
-		SELECT gml_id, wkb_geometry, gebaeudefunktion, unnest(coalesce(name,ARRAY[NULL])) AS name,advstandardmodell||sonstigesmodell AS modell
+		coalesce(t.modelle,n.modelle,o.modell) AS modell
+	FROM po_lastrun,
+	(
+		SELECT
+			gml_id,
+			beginnt,
+			wkb_geometry,
+			gebaeudefunktion,
+			unnest(coalesce(name,ARRAY[NULL])) AS name,
+			advstandardmodell||sonstigesmodell AS modell
 		FROM ax_gebaeude
 		WHERE endet IS NULL
 	) AS o
-	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='GFK' AND t.endet IS NULL
-	LEFT OUTER JOIN ap_pto n ON ARRAY[o.gml_id] <@ n.dientzurdarstellungvon AND n.art='NAM' AND n.endet IS NULL
-	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art IN ('GFK','NAM') AND d.endet IS NULL
+	LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='GFK'
+	LEFT OUTER JOIN po_pto n ON o.gml_id=n.dientzurdarstellungvon AND n.art='NAM'
+	LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art IN ('GFK','NAM')
+	WHERE greatest(o.beginnt, t.beginnt, n.beginnt, d.beginnt)>lastrun
 ) AS o
 WHERE NOT text IS NULL;
 
 -- Weitere Gebäudefunktion
-INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+INSERT INTO po_points(gml_id,gml_ids,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id, p.gml_id, d.gml_id] AS gml_ids,
 	'Gebäude' AS thema,
 	'ax_gebaeude_funktion' AS layer,
 	st_multi(coalesce(p.wkb_geometry,st_centroid(o.wkb_geometry))) AS point,
 	p.drehwinkel,
 	coalesce(d.signaturnummer,p.signaturnummer,o.signaturnummer) AS signaturnummer,
-	coalesce(p.advstandardmodell||p.sonstigesmodell,o.modell) AS modell
-FROM (
+	coalesce(p.modelle,o.modell) AS modell
+FROM po_lastrun, (
 	SELECT
-		o.gml_id,
+		gml_id,
+		beginnt,
 		wkb_geometry,
 		CASE gebaeudefunktion
 		WHEN 1000 THEN '3300'
@@ -246,6 +258,7 @@ FROM (
 	FROM (
 		SELECT
 			gml_id,
+			beginnt,
 			wkb_geometry,
 			unnest(weiteregebaeudefunktion) AS gebaeudefunktion,
 			advstandardmodell||sonstigesmodell AS modell
@@ -253,14 +266,15 @@ FROM (
 		WHERE NOT weiteregebaeudefunktion IS NULL AND endet IS NULL
 	) AS o
 ) AS o
-LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='GFK' AND p.endet IS NULL
-LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='GFK' AND d.endet IS NULL
-WHERE NOT o.signaturnummer IS NULL;
+LEFT OUTER JOIN po_ppo p ON o.gml_id=p.dientzurdarstellungvon AND p.art='GFK'
+LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='GFK'
+WHERE NOT o.signaturnummer IS NULL AND greatest(o.beginnt, p.beginnt, d.beginnt)>lastrun;
 
 -- Weitere Gebäudefunktionsbeschriftungen
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
-	o.gml_id,
+	gml_id,
+	gml_ids,
 	'Gebäude' AS thema,
 	'ax_gebaeude_funktion' AS layer,
 	point,
@@ -270,6 +284,7 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
+		ARRAY[o.gml_id, t.gml_id, n.gml_id, d.gml_id] AS gml_ids,
 		coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		CASE
 		WHEN gebaeudefunktion=1100 AND coalesce(name,n.schriftinhalt) IS NULL THEN 'Zoll'
@@ -281,13 +296,12 @@ FROM (
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.vertikaleausrichtung ELSE n.vertikaleausrichtung END AS vertikaleausrichtung,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.skalierung ELSE n.skalierung END AS skalierung,
 		CASE WHEN name IS NULL AND n.schriftinhalt IS NULL THEN t.fontsperrung ELSE n.fontsperrung END AS fontsperrung,
-		coalesce(
-			t.advstandardmodell||t.sonstigesmodell||n.advstandardmodell||n.sonstigesmodell,
-			o.modell
-		) AS modell
-	FROM (
+		coalesce(t.modelle,n.modelle,o.modell) AS modell
+	FROM po_lastrun,
+	(
 		SELECT
 			gml_id,
+			beginnt,
 			wkb_geometry,
 			unnest(coalesce(name,ARRAY[NULL])) AS name,
 			unnest(weiteregebaeudefunktion) AS gebaeudefunktion,
@@ -295,18 +309,19 @@ FROM (
 		FROM ax_gebaeude o
 		WHERE endet IS NULL
 	) AS o
-	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='GFK' AND t.endet IS NULL
-	LEFT OUTER JOIN ap_pto n ON ARRAY[o.gml_id] <@ n.dientzurdarstellungvon AND n.art='NAM' AND n.endet IS NULL
-	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art IN ('NAM','GFK') AND d.endet IS NULL
-	WHERE NOT gebaeudefunktion IS NULL
+	LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='GFK'
+	LEFT OUTER JOIN po_pto n ON o.gml_id=n.dientzurdarstellungvon AND n.art='NAM'
+	LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art IN ('NAM','GFK')
+	WHERE NOT gebaeudefunktion IS NULL AND greatest(o.beginnt, t.beginnt, n.beginnt, d.beginnt)>lastrun
 ) AS o
 WHERE NOT text IS NULL;
 
 /*
 -- TODO: Gebäudenamen für weitere Funktionen  (Mehrere Namen? Und Funktionen? Gleich viele oder wie ist das zu kombinieren?)
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id, t.gml_id] AS gml_ids,
 	'Gebäude' AS thema,
 	'ax_gebaeude' AS layer,
 	unnest(coalesce(name,ARRAY[NULL])),
@@ -314,16 +329,17 @@ SELECT
 	coalesce(t.schriftinhalt,o.zaehler||'/'||o.nenner,o.zaehler::text) AS text,
 	coalesce(t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN 4112 ELSE 4111 END) AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_gebaeude o
-LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='ZAE_NEN' AND (t.signaturnummer IS NULL OR t.signaturnummer IN ('4122','4123')) AND t.endet IS NULL
-WHERE NOT name IS NULL AND o.endet IS NULL;
+	coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM po_lastrun, ax_gebaeude o
+LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='ZAE_NEN' AND (t.signaturnummer IS NULL OR t.signaturnummer IN ('4122','4123'))
+WHERE NOT name IS NULL AND o.endet IS NULL AND greatest(o.beginnt, t.beginnt)>lastrun;
 */
 
 -- Geschosszahl
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id, t.gml_id, d.gml_id] AS gml_ids,
 	'Gebäude' AS thema,
 	'ax_gebaeude_geschosse' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
@@ -334,16 +350,17 @@ SELECT
 	) AS text,
 	coalesce(d.signaturnummer,t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_gebaeude o
-LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='AOG_AUG' AND t.endet IS NULL
-LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='AOG_AUG' AND d.endet IS NULL
-WHERE (NOT anzahlderoberirdischengeschosse IS NULL OR NOT anzahlderunterirdischengeschosse IS NULL) AND o.endet IS NULL;
+	coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM po_lastrun, ax_gebaeude o
+LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='AOG_AUG'
+LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='AOG_AUG'
+WHERE (NOT anzahlderoberirdischengeschosse IS NULL OR NOT anzahlderunterirdischengeschosse IS NULL) AND o.endet IS NULL AND greatest(o.beginnt, t.beginnt, d.beginnt)>lastrun;
 
 -- Dachform
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id, t.gml_id, d.gml_id] AS gml_ids,
 	'Gebäude' AS thema,
 	'ax_gebaeude_dachform' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
@@ -366,16 +383,17 @@ SELECT
 	END AS text,
 	coalesce(d.signaturnummer,t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_gebaeude o
-LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='DAF' AND t.endet IS NULL
-LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='DAF' AND d.endet IS NULL
-WHERE NOT dachform IS NULL AND o.endet IS NULL;
+	coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM po_lastrun, ax_gebaeude o
+LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='DAF'
+LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='DAF'
+WHERE NOT dachform IS NULL AND o.endet IS NULL AND greatest(o.beginnt, t.beginnt, d.beginnt)>lastrun;
 
 -- Gebäudezustände
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id, t.gml_id, d.gml_id] AS gml_ids,
 	'Gebäude' AS thema,
 	'ax_gebaeude_zustand' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
@@ -389,8 +407,8 @@ SELECT
 		END) AS text,
 	coalesce(d.signaturnummer,t.signaturnummer,'4070') AS signaturnummer,
 	drehwinkel, horizontaleausrichtung, vertikaleausrichtung, skalierung, fontsperrung,
-	coalesce(o.advstandardmodell||o.sonstigesmodell,t.advstandardmodell||t.sonstigesmodell) AS modell
-FROM ax_gebaeude o
-LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='ZUS' AND t.endet IS NULL
-LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='ZUS' AND d.endet IS NULL
-WHERE zustand IN (2200,2300,3000,4000) AND o.endet IS NULL;
+	coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM po_lastrun, ax_gebaeude o
+LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='ZUS'
+LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='ZUS'
+WHERE zustand IN (2200,2300,3000,4000) AND o.endet IS NULL AND greatest(o.beginnt, t.beginnt, d.beginnt)>lastrun;

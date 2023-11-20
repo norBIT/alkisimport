@@ -49,6 +49,7 @@ export SCHEMA=public
 export PARENTSCHEMA=
 export PGSCHEMA=public
 export USECOPY=YES
+export REBUILDMAP=false
 
 B=${0%/*}   # BASEDIR
 if [ "$0" = "$B" ]; then
@@ -513,6 +514,7 @@ EOF
 				-v alkis_pgverdraengen=$PGVERDRAENGEN \
 				-v alkis_fnbruch=$FNBRUCH \
 				-v alkis_avoiddupes=$AVOIDDUPES \
+				-v alkis_rebuildmap=$REBUILDMAP \
 				-v alkis_hist=$HISTORIE \
 				-v alkis_epsg=$EPSG \
 				-v alkis_schema=$SCHEMA \
@@ -536,6 +538,7 @@ EOF
 				-v alkis_pgverdraengen=$PGVERDRAENGEN \
 				-v alkis_fnbruch=$FNBRUCH \
 				-v alkis_avoiddupes=$AVOIDDUPES \
+				-v alkis_rebuildmap=$REBUILDMAP \
 				-v alkis_hist=$HISTORIE \
 				-v alkis_epsg=$EPSG \
 				-v alkis_schema=$SCHEMA \
@@ -663,6 +666,24 @@ EOF
 			;;
 		*)
 			echo "$P: Ungültiger Wert $AVOIDDUPES (true oder false erwartet)"
+			exit 1
+			;;
+		esac
+
+		continue
+		;;
+
+	"rebuildmap "*)
+		REBUILDMAP=${src#rebuildmap }
+		case "${REBUILDMAP,,}" in
+		an|on|true|an)
+			REBUILDMAP=true
+			;;
+		aus|off|false)
+			REBUILDMAP=false
+			;;
+		*)
+			echo "$P: Ungültiger Wert $REBUILDMAP (true oder false erwartet)"
 			exit 1
 			;;
 		esac

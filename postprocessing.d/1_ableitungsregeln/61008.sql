@@ -8,9 +8,10 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 SELECT 'Höhenlinien werden verarbeitet.';
 
 -- TODO: Ob das wohl stimmt?
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+INSERT INTO po_lines(gml_id,gml_ids,thema,layer,line,signaturnummer,modell)
 SELECT
 	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Topographie' AS thema,
 	'ax_hoehenlinie' AS layer,
 	st_multi(wkb_geometry) AS line,
@@ -23,21 +24,22 @@ SELECT
 	WHEN (hoehevonhoehenlinie*40)::int%10=0 THEN 2676
 	END AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_hoehenlinie
-WHERE endet IS NULL;
+FROM po_lastrun, ax_hoehenlinie
+WHERE endet IS NULL AND beginnt>lastrun;
 
 -- Namen
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id, t.gml_id, d.gml_id] AS gml_ids,
 	'Topographie' AS thema,
 	'ax_hoehenlinie' AS layer,
 	coalesce(t.wkb_geometry,st_lineinterpolatepoint(o.wkb_geometry,0.5)) AS point,
 	hoehevonhoehenlinie AS text,
 	coalesce(d.signaturnummer,t.signaturnummer,'4104') AS signaturnummer,
 	drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,
-	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_hoehenlinie o
-LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='HHL' AND t.endet IS NULL
-LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='HHL' AND d.endet IS NULL
-WHERE o.endet IS NULL AND NOT hoehevonhoehenlinie IS NULL;
+	coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM po_lastrun, ax_hoehenlinie o
+LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='HHL'
+LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='HHL'
+WHERE o.endet IS NULL AND NOT hoehevonhoehenlinie IS NULL AND greatest(o.beginnt, t.beginnt, d.beginnt)>lastrun;

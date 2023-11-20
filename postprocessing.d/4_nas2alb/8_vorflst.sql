@@ -1,3 +1,7 @@
+\set nas2alb true
+\ir ../../config.sql
+
+\if :nas2alb
 SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 SELECT alkis_dropobject('vor_flst_pk_seq');
@@ -18,3 +22,5 @@ INSERT INTO vor_flst(flsnr,pk,v_flsnr,ff_entst,ff_stand)
 		FROM ax_historischesflurstueck
 		WHERE endet IS NULL
 	) AS foo;
+
+\endif

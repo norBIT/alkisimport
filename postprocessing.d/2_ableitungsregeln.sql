@@ -22,7 +22,8 @@ UPDATE po_polygons SET
 		WHEN signaturnummer::int/10000 BETWEEN 2000 AND 2999 THEN (signaturnummer::int/10000)::text
 		END
 	END
-WHERE signaturnummer ~ E'^[0-9]+$';
+FROM po_lastrun
+WHERE ogc_fid>npolygons AND signaturnummer ~ E'^[0-9]+$';
 
 --
 -- Randlinien als 'normale' Linien ergänzen
@@ -74,10 +75,10 @@ DROP SEQUENCE rnstricharteni_seq;
 DROP SEQUENCE rnlinie_seq;
 
 -- Array -> Set
-UPDATE po_points   SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo WHERE modell IS NOT NULL),drehwinkel_grad=degrees(drehwinkel);
-UPDATE po_lines    SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo WHERE modell IS NOT NULL);
-UPDATE po_polygons SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo WHERE modell IS NOT NULL);
-UPDATE po_labels   SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo WHERE modell IS NOT NULL),drehwinkel_grad=degrees(drehwinkel);
+UPDATE po_points   SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo WHERE modell IS NOT NULL),drehwinkel_grad=degrees(drehwinkel) FROM po_lastrun WHERE ogc_fid>npoints;
+UPDATE po_lines    SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo WHERE modell IS NOT NULL)                                     FROM po_lastrun WHERE ogc_fid>nlines;
+UPDATE po_polygons SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo WHERE modell IS NOT NULL)                                     FROM po_lastrun WHERE ogc_fid>npolygons;
+UPDATE po_labels   SET modell=(SELECT array_agg(modell) FROM (SELECT DISTINCT unnest(modell) AS modell ORDER BY modell) AS foo WHERE modell IS NOT NULL),drehwinkel_grad=degrees(drehwinkel) FROM po_lastrun WHERE ogc_fid>nlabels;
 
 SELECT
 	modell AS "ALKIS-Modellart",
@@ -114,19 +115,20 @@ ORDER BY "#Objekte" DESC;
 -- 'Randsignatur' für Flächen mit Umrandung eintragen
 UPDATE po_polygons
 	SET sn_randlinie='rn'||po_polygons.signaturnummer
-	FROM alkis_flaechen
-	WHERE alkis_flaechen.signaturnummer=po_polygons.signaturnummer AND NOT alkis_flaechen.randlinie IS NULL;
+	FROM po_lastrun, alkis_flaechen
+	WHERE alkis_flaechen.signaturnummer=po_polygons.signaturnummer AND NOT alkis_flaechen.randlinie IS NULL AND po_polygons.ogc_fid>npolygons;
 
 -- Skalierung setzen
-UPDATE po_labels SET skalierung=1 WHERE skalierung IS NULL;
+UPDATE po_labels SET skalierung=1 FROM po_lastrun WHERE skalierung IS NULL AND ogc_fid>nlabels;
 
 -- Zeilenumbrüche austauschen
-UPDATE po_labels SET text=replace(text,E'\\n',E'\n') WHERE text LIKE E'%\\n%';
+UPDATE po_labels SET text=replace(text,E'\\n',E'\n') FROM po_lastrun WHERE text LIKE E'%\\n%' AND ogc_fid>nlabels;
 
 -- Pfeilspitzen
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+INSERT INTO po_lines(gml_id,gml_ids,thema,layer,line,signaturnummer,modell)
 	SELECT
 		gml_id,
+		gml_ids,
 		thema,
 		layer,
 		st_setsrid(
@@ -145,6 +147,7 @@ INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 	FROM (
 		SELECT
 			l.gml_id,
+			l.gml_ids,
 			l.thema,
 			l.layer /* || '_pfeil' */ AS layer,
 			l.signaturnummer,
@@ -154,8 +157,9 @@ INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
 			s.pfeillaenge*0.01 AS l,
 			s.pfeilhoehe*0.005 AS h,
 			l.modell
-		FROM po_lines l
+		FROM po_lastrun, po_lines l
 		JOIN alkis_linie s ON s.abschluss='Pfeil' AND l.signaturnummer=s.signaturnummer
+		WHERE l.ogc_fid>nlines
 	) AS pfeile;
 
 -- RP-Gruppensignaturen
@@ -171,7 +175,9 @@ UPDATE po_points
 			st_translate(st_geometryn(point,1),  10,  0 )
 			]),
 		signaturnummer=substring(signaturnummer,3)
+	FROM po_lastrun
 	WHERE
+		ogc_fid>npoints AND
 		signaturnummer IN (
 			'RP3413','RP3415','RP3421','RP3442','RP3444','RP3448','RP3474','RP3476','RP3478','RP3480','RP3481','RP3484','RP3490',
 			-- TODO: Folgende mit Strichstärke 18
@@ -183,21 +189,23 @@ UPDATE po_labels
 	SET
 		layer='ax_flurstueck_nummer_rpnoart',
 		point=st_translate(point,0,3)
-	FROM ap_pto t
-	WHERE po_labels.gml_id LIKE 'DERP%'
-		AND layer='ax_flurstueck_nummer'
-		AND ARRAY[po_labels.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art IS NULL;
+	FROM ap_pto t, po_lastrun
+	WHERE po_labels.ogc_fid>nlabels
+          AND po_labels.gml_id LIKE 'DERP%'
+	  AND layer='ax_flurstueck_nummer'
+	  AND ARRAY[po_labels.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art IS NULL;
 
 UPDATE po_lines
 	SET
 		layer='ax_flurstueck_nummer_rpnoart',
 		line=st_translate(line,0,3)
-	FROM ap_pto t
-	WHERE po_lines.gml_id LIKE 'DERP%'
+	FROM ap_pto t, po_lastrun
+	WHERE po_lines.ogc_fid>nlines
+          AND po_lines.gml_id LIKE 'DERP%'
 	  AND layer='ax_flurstueck_nummer'
 	  AND ARRAY[po_lines.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL AND t.art IS NULL;
 
-SELECT 'Lösche nicht darzustellende Signaturen...';
+SELECT 'Leere nicht darzustellende Geometrien...';
 
 DELETE FROM po_points WHERE signaturnummer IS NULL OR signaturnummer IN ('6000','RP6000');
 DELETE FROM po_lines WHERE signaturnummer IS NULL OR signaturnummer IN ('6000','RP6000');
@@ -242,5 +250,22 @@ INSERT INTO po_modelle(modell,n)
 		SELECT unnest(modell) AS modell FROM po_labels
 	) AS foo
 	GROUP BY modell;
+
+-- Trigger po_ löschen
+DELETE FROM po_pto WHERE gml_id='TRIGGER';
+DELETE FROM po_lto WHERE gml_id='TRIGGER';
+DELETE FROM po_ppo WHERE gml_id='TRIGGER';
+DELETE FROM po_lpo WHERE gml_id='TRIGGER';
+DELETE FROM po_fpo WHERE gml_id='TRIGGER';
+DELETE FROM po_darstellung WHERE gml_id='TRIGGER';
+
+UPDATE po_lastrun
+	SET lastrun=(SELECT max(beginnt) FROM alkis_po_objekte),
+	    npoints=(SELECT max(ogc_fid) FROM po_points),
+	    nlines=(SELECT max(ogc_fid) FROM po_lines),
+	    npolygons=(SELECT max(ogc_fid) FROM po_polygons),
+	    nlabels=(SELECT max(ogc_fid) FROM po_labels);
+
+SELECT 'Kartenstand: ' || lastrun FROM po_lastrun;
 
 -- vim: foldmethod=marker

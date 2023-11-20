@@ -14,6 +14,11 @@
  *                                                                         *
  ***************************************************************************/
 
+\set nas2alb true
+\ir ../config.sql
+
+\if :nas2alb
+
 \unset ON_ERROR_STOP
 SET application_name='ALKIS-Import - Liegenschaftsbuchmigration';
 SET client_min_messages TO notice;
@@ -99,3 +104,5 @@ END;
 $$ LANGUAGE plpgsql;
 
 SELECT pg_temp.alb_update_schema();
+
+\endif

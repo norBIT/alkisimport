@@ -10,9 +10,10 @@ SELECT 'Besondere Flurstücksgrenzen werden verarbeitet.';
 SELECT 'Strittige Flurstücksgrenzen werden verarbeitet.';
 
 -- Strittige Grenze
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+INSERT INTO po_lines(gml_id,gml_ids,thema,layer,line,signaturnummer,modell)
 SELECT
 	o.gml_id AS gml_id,
+	ARRAY[a.gml_id, b.gml_id] AS gml_ids,
 	'Flurstücke' AS thema,
 	'ax_besondereflurstuecksgrenze' AS layer,
 	st_multi(o.wkb_geometry) AS line,
@@ -23,15 +24,16 @@ SELECT
 		o.advstandardmodell||o.sonstigesmodell,
 		a.advstandardmodell||a.sonstigesmodell||b.advstandardmodell||b.sonstigesmodell
 	) AS modell
-FROM ax_besondereflurstuecksgrenze o
+FROM po_lastrun, ax_besondereflurstuecksgrenze o
 JOIN ax_flurstueck a ON o.wkb_geometry && a.wkb_geometry AND st_intersects(o.wkb_geometry,a.wkb_geometry) AND a.endet IS NULL
 JOIN ax_flurstueck b ON o.wkb_geometry && b.wkb_geometry AND st_intersects(o.wkb_geometry,b.wkb_geometry) AND b.endet IS NULL
-WHERE ARRAY[1000] <@ artderflurstuecksgrenze AND a.ogc_fid<b.ogc_fid AND o.endet IS NULL;
+WHERE ARRAY[1000] <@ artderflurstuecksgrenze AND a.ogc_fid<b.ogc_fid AND o.endet IS NULL AND greatest(o.beginnt, a.beginnt, b.beginnt)>lastrun;
 
 -- Nicht festgestellte Grenze
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+INSERT INTO po_lines(gml_id,gml_ids,thema,layer,line,signaturnummer,modell)
 SELECT
 	o.gml_id AS gml_id,
+	ARRAY[a.gml_id, b.gml_id] AS gml_ids,
 	'Flurstücke' AS thema,
 	'ax_besondereflurstuecksgrenze' AS layer,
 	st_multi(o.wkb_geometry) AS line,
@@ -43,13 +45,14 @@ SELECT
 		o.advstandardmodell||o.sonstigesmodell,
 		a.advstandardmodell||a.sonstigesmodell||b.advstandardmodell||b.sonstigesmodell
 	) AS modell
-FROM ax_besondereflurstuecksgrenze o
+FROM po_lastrun, ax_besondereflurstuecksgrenze o
 JOIN ax_flurstueck a ON o.wkb_geometry && a.wkb_geometry AND st_intersects(o.wkb_geometry,a.wkb_geometry) AND a.endet IS NULL
 JOIN ax_flurstueck b ON o.wkb_geometry && b.wkb_geometry AND st_intersects(o.wkb_geometry,b.wkb_geometry) AND b.endet IS NULL
-WHERE ARRAY[2001,2003,2004] && artderflurstuecksgrenze AND a.ogc_fid<b.ogc_fid AND o.endet IS NULL;
+WHERE ARRAY[2001,2003,2004] && artderflurstuecksgrenze AND a.ogc_fid<b.ogc_fid AND o.endet IS NULL AND greatest(o.beginnt, a.beginnt, b.beginnt)>lastrun;
 
 SELECT 'Politische Grenze werden verschmolzen';
 
+-- TODO
 CREATE TEMPORARY TABLE alkis_politischegrenzen(i INTEGER, sn VARCHAR, adfs INTEGER[]);
 INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (1, '2016', ARRAY[7101]);
 INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (2, '2018', ARRAY[7102]);
@@ -64,6 +67,7 @@ INSERT INTO alkis_politischegrenzen(i,sn,adfs) VALUES (9, '2012', ARRAY[3000]);
 CREATE TEMPORARY TABLE po_besondereflurstuecksgrenze (
 	ogc_fid                 serial NOT NULL,
 	gml_id                  character(16) NOT NULL,
+	gml_ids                 character(16)[] NOT NULL,
 	modell			varchar[],
 	artderflurstuecksgrenze integer[],
 	PRIMARY KEY (ogc_fid)
@@ -71,15 +75,17 @@ CREATE TEMPORARY TABLE po_besondereflurstuecksgrenze (
 
 SELECT AddGeometryColumn('po_besondereflurstuecksgrenze','wkb_geometry',:alkis_epsg,'LINESTRING',2);
 
-INSERT INTO po_besondereflurstuecksgrenze(ogc_fid,gml_id,modell,artderflurstuecksgrenze,wkb_geometry)
+INSERT INTO po_besondereflurstuecksgrenze(ogc_fid,gml_id,gml_ids,modell,artderflurstuecksgrenze,wkb_geometry)
 	SELECT
 		min(ogc_fid),
 		min(gml_id),
+		array_agg(gml_id) AS gml_ids,
 		ARRAY(SELECT DISTINCT unnest(alkis_accum(advstandardmodell||sonstigesmodell)) AS modell ORDER BY modell) AS modell,
 		ARRAY(SELECT DISTINCT unnest(alkis_accum(artderflurstuecksgrenze)) AS artderflurstuecksgrenze ORDER BY artderflurstuecksgrenze) AS artderflurstuecksgrenze,
 		wkb_geometry
 	FROM ax_besondereflurstuecksgrenze
-	WHERE endet IS NULL AND (st_numpoints(wkb_geometry)>3 OR NOT st_equals(st_startpoint(wkb_geometry),st_endpoint(wkb_geometry)))
+	WHERE endet IS NULL
+          AND (st_numpoints(wkb_geometry)>3 OR NOT st_equals(st_startpoint(wkb_geometry),st_endpoint(wkb_geometry)))
 	GROUP BY wkb_geometry,st_asbinary(wkb_geometry);
 
 CREATE INDEX po_besondereflurstuecksgrenze_geom_idx ON po_besondereflurstuecksgrenze USING gist (wkb_geometry);
@@ -90,6 +96,7 @@ ANALYZE po_besondereflurstuecksgrenze;
 CREATE TEMPORARY TABLE po_joinlines(
 	ogc_fid integer PRIMARY KEY,
 	gml_id character(16),
+	gml_ids character(16)[],
 	visited boolean,
 	modell varchar[],
 	adf integer[]
@@ -162,14 +169,14 @@ BEGIN
 	FOR adf IN SELECT sn,adfs FROM alkis_politischegrenzen g ORDER BY g.i
 	LOOP
 		IF verdraengen THEN
-			INSERT INTO po_joinlines(ogc_fid,gml_id,line,visited,modell)
-				SELECT ogc_fid,gml_id,wkb_geometry AS line,false AS visited,modell
+			INSERT INTO po_joinlines(ogc_fid,gml_id,gml_ids,line,visited,modell)
+				SELECT ogc_fid,gml_id,gml_ids,wkb_geometry AS line,false AS visited,modell
 				FROM po_besondereflurstuecksgrenze
 				WHERE adf.adfs && artderflurstuecksgrenze
 				  AND NOT doneadfs && artderflurstuecksgrenze;
 		ELSE
-			INSERT INTO po_joinlines(ogc_fid,gml_id,line,visited,modell)
-				SELECT ogc_fid,gml_id,wkb_geometry AS line,false AS visited,modell
+			INSERT INTO po_joinlines(ogc_fid,gml_id,gml_ids,line,visited,modell)
+				SELECT ogc_fid,gml_id,gml_ids,wkb_geometry AS line,false AS visited,modell
 				FROM po_besondereflurstuecksgrenze
 				WHERE adf.adfs && artderflurstuecksgrenze;
 		END IF;
@@ -184,7 +191,7 @@ BEGIN
 
 		WHILE n>0
 		LOOP
-			SELECT ogc_fid,gml_id,line,modell INTO r0 FROM po_joinlines WHERE NOT visited LIMIT 1;
+			SELECT ogc_fid,gml_id,gml_ids,line,modell INTO r0 FROM po_joinlines WHERE NOT visited LIMIT 1;
 --			RAISE NOTICE 'START %:		von:%	nach:%)',
 --						r0.ogc_fid,
 --						st_astext(st_startpoint(r0.line)),
@@ -242,8 +249,8 @@ BEGIN
 			-- RAISE NOTICE 'insert line (n:%)', n;
 
 			INSERT
-				INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
-				VALUES (r0.gml_id,'Politische Grenzen','ax_besondereflurstuecksgrenze',st_multi(pg_temp.removerepeatedpoints(l)),adf.sn,m);
+				INTO po_lines(gml_id,gml_ids,thema,layer,line,signaturnummer,modell)
+				VALUES (r0.gml_id,r0.gml_ids,'Politische Grenzen','ax_besondereflurstuecksgrenze',st_multi(pg_temp.removerepeatedpoints(l)),adf.sn,m);
 		END LOOP;
 
 		SELECT COUNT(*) INTO n FROM po_joinlines WHERE NOT visited;

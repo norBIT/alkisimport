@@ -181,6 +181,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.cbxHistorie.setDisabled(True)
         self.cbxHistorie.setChecked(s.value("historie", True, type=bool))
         self.cbxQuittierung.setChecked(s.value("quittierung", False, type=bool))
+        self.cbxRebuildMap.setChecked(s.value("rebuildmap", False, type=bool))
 
         self.cbEPSG.addItem("UTM32N", "25832")
         self.cbEPSG.addItem("UTM33N", "25833")
@@ -637,6 +638,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             "-v", "alkis_pgverdraengen={}".format("true" if self.pgverdraengen else "false"),
             "-v", "alkis_avoiddupes={}".format("true" if self.avoiddupes else "false"),
             "-v", "alkis_hist={}".format("true" if self.historie else "false"),
+            "-v", "alkis_rebuildmap={}".format("true" if self.rebuildmap else "false"),
             "-v", "ON_ERROR_STOP=1",
             "-v", "ECHO=errors",
             "--quiet",
@@ -747,6 +749,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         self.quittierung = self.cbxQuittierung.isChecked()
         s.setValue("quittierung", self.quittierung)
+
+        self.rebuildmap = self.cbxRebuildMap.isChecked()
+        s.setValue("rebuildmap", self.rebuildmap)
 
         self.epsg = int(self.cbEPSG.itemData(self.cbEPSG.currentIndex()))
         s.setValue("epsg", self.epsg)

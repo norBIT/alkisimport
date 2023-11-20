@@ -38,7 +38,7 @@ SELECT format(E'DROP TRIGGER IF EXISTS %I ON %I.%I;\nCREATE TRIGGER %I BEFORE IN
     JOIN information_schema.columns b ON a.table_schema=b.table_schema AND a.table_name=b.table_name AND b.column_name='beginnt'
     WHERE a.table_schema=:'alkis_schema'
       AND substr(a.table_name,1,3) IN ('ax_','ap_','ln_','lb_','au_','aa_')
-      AND a.column_name='gml_id';
+      AND a.column_name='gml_id'
 \gexec
 
 \endif

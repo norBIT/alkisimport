@@ -1,8 +1,13 @@
+\set nas2alb true
+\ir ../../config.sql
+
+\if :nas2alb
+
 SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 ---
 --- Nutzungen
---- 
+---
 
 SELECT alkis_dropobject('alkis_nutzungen');
 CREATE TABLE alkis_nutzungen(
@@ -139,3 +144,5 @@ INSERT INTO nutz_21(flsnr,pk,nutzsl,gemfl,fl,ff_entst,ff_stand)
       AND alkis_relate(f.wkb_geometry,n.wkb_geometry,'2********','ax_flurstueck:'||f.gml_id||'<=>'||n.name||':'||n.gml_id)
   WHERE f.endet IS NULL
   GROUP BY alkis_flsnr(f), f.wkb_geometry, n.nutzung;
+
+\endif

@@ -1,3 +1,7 @@
+\set nas2alb true
+\ir ../../config.sql
+
+\if :nas2alb
 SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 --- Ausführende Stellen
@@ -118,3 +122,5 @@ INSERT INTO afst_shl(ausf_st,afst_txt)
   FROM ax_dienststelle d
   JOIN ausfst ON ausf_st=schluesselgesamt
   GROUP BY schluesselgesamt;
+
+\endif

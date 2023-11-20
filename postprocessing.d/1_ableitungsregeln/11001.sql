@@ -8,16 +8,17 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 SELECT 'Flurstücke werden verarbeitet.';
 
 -- Flurstücke
-INSERT INTO po_polygons(gml_id,thema,layer,polygon,signaturnummer,modell)
+INSERT INTO po_polygons(gml_id,gml_ids,thema,layer,polygon,signaturnummer,modell)
 SELECT
 	gml_id,
+	ARRAY[gml_id] AS gml_ids,
 	'Flurstücke' AS thema,
 	'ax_flurstueck' AS layer,
 	st_multi(wkb_geometry) AS polygon,
 	2028 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_flurstueck
-WHERE endet IS NULL;
+FROM po_lastrun, ax_flurstueck
+WHERE endet IS NULL AND beginnt>lastrun;
 
 UPDATE ax_flurstueck SET abweichenderrechtszustand='false' WHERE abweichenderrechtszustand IS NULL;
 
@@ -25,19 +26,20 @@ SELECT count(*) || ' Flurstücke mit abweichendem Rechtszustand.' FROM ax_flurst
 
 -- Flurstücksgrenzen mit abweichendem Rechtszustand
 SELECT 'Bestimme Grenzen mit abweichendem Rechtszustand';
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+INSERT INTO po_lines(gml_id,gml_ids,thema,layer,line,signaturnummer,modell)
 SELECT
 	a.gml_id,
+	ARRAY[a.gml_id,b.gml_id] AS gml_ids,
 	'Flurstücke' AS thema,
 	'ax_flurstueck' AS layer,
 	st_multi( (SELECT st_collect(geom) FROM st_dump( st_intersection(a.wkb_geometry,b.wkb_geometry) ) WHERE geometrytype(geom)='LINESTRING') ) AS line,
 	2029 AS signaturnummer,
 	a.advstandardmodell||a.sonstigesmodell||b.advstandardmodell||b.sonstigesmodell AS modell
-FROM ax_flurstueck a, ax_flurstueck b
+FROM po_lastrun, ax_flurstueck a, ax_flurstueck b
 WHERE a.ogc_fid<b.ogc_fid
   AND a.abweichenderrechtszustand='true' AND b.abweichenderrechtszustand='true'
   AND a.wkb_geometry && b.wkb_geometry AND st_intersects(a.wkb_geometry,b.wkb_geometry)
-  AND a.endet IS NULL AND b.endet IS NULL;
+  AND a.endet IS NULL AND b.endet IS NULL AND greatest(a.beginnt,b.beginnt)>lastrun;
 
 
 --                    ARZ
@@ -47,20 +49,21 @@ WHERE a.ogc_fid<b.ogc_fid
 -- Flurstücksnummern
 -- Schrägstrichdarstellung
 SELECT 'Erzeuge Flurstücksnummern in Schrägstrichdarstellung...';
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id, t.gml_id, d.gml_id] AS gml_ids,
 	'Flurstücke' AS thema,
 	'ax_flurstueck_nummer' AS layer,
 	coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 	coalesce(replace(t.schriftinhalt,'-','/'),o.zaehler||'/'||o.nenner,o.zaehler::text) AS text,
 	coalesce(d.signaturnummer,t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4122' ELSE '4113' END) AS signaturnummer,
 	t.drehwinkel, t.horizontaleausrichtung, t.vertikaleausrichtung, t.skalierung, t.fontsperrung,
-	coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_flurstueck o
-LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='ZAE_NEN' AND t.endet IS NULL
-LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='ZAE_NEN' AND d.endet IS NULL
-WHERE o.endet IS NULL AND (
+	coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM po_lastrun, ax_flurstueck o
+LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon AND t.art='ZAE_NEN'
+LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon AND d.art='ZAE_NEN'
+WHERE o.endet IS NULL AND greatest(o.beginnt,t.beginnt,d.beginnt)>lastrun AND (
 	CASE
 	WHEN :alkis_fnbruch
 	THEN coalesce(t.signaturnummer,'4115') IN ('4113','4122')
@@ -72,9 +75,10 @@ WHERE o.endet IS NULL AND (
 -- Zähler
 -- Bruchdarstellung
 SELECT 'Erzeuge Flurstückszähler...';
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	gml_id,
+	gml_ids,
 	'Flurstücke' AS thema,
 	'ax_flurstueck_nummer' AS layer,
 	CASE
@@ -86,6 +90,7 @@ SELECT
 FROM (
 	SELECT
 		gml_id,
+		gml_ids,
 		point,
 		greatest(lenz, lenn) AS len,
 		text,
@@ -99,17 +104,18 @@ FROM (
 	FROM (
 		SELECT
 			o.gml_id,
+			ARRAY[o.gml_id,t.gml_id,d.gml_id] AS gml_ids,
 			st_translate(coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)), 0, 0.40) AS point,
 			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',1),o.zaehler::text)) AS lenz,
 			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2),o.nenner::text)) AS lenn,
 			coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',1),o.zaehler::text) AS text,
 			coalesce(d.signaturnummer,t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4123' ELSE '4115' END) AS signaturnummer,
 			t.drehwinkel, t.horizontaleausrichtung, 'Basis'::text AS vertikaleausrichtung, t.skalierung, t.fontsperrung,
-			coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-		FROM ax_flurstueck o
-		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
-		LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
-		WHERE o.endet IS NULL AND
+			coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+		FROM po_lastrun, ax_flurstueck o
+		LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon
+		LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon
+		WHERE o.endet IS NULL AND greatest(o.beginnt,t.beginnt,d.beginnt)>lastrun AND
 			CASE
 			WHEN :alkis_fnbruch
 			THEN coalesce(t.signaturnummer,'4115') NOT IN ('4113','4122')
@@ -122,9 +128,10 @@ FROM (
 -- Nenner
 -- Bruchdarstellung
 SELECT 'Erzeuge Flurstücksnenner...';
-INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
+INSERT INTO po_labels(gml_id,gml_ids,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
 SELECT
 	gml_id,
+	gml_ids,
 	'Flurstücke' AS thema,
 	'ax_flurstueck_nummer' AS layer,
 	CASE
@@ -136,6 +143,7 @@ SELECT
 FROM (
 	SELECT
 		gml_id,
+		gml_ids,
 		point,
 		greatest(lenz, lenn) AS len,
 		text,
@@ -149,17 +157,18 @@ FROM (
 	FROM (
 		SELECT
 			o.gml_id,
+			ARRAY[o.gml_id,t.gml_id,d.gml_id] AS gml_ids,
 			st_translate(coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)), 0, -0.40) AS point,
 			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',1),o.zaehler::text)) AS lenz,
 			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2),o.nenner::text)) AS lenn,
 			coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2)::text,o.nenner::text) AS text,
 			coalesce(d.signaturnummer,t.signaturnummer,CASE WHEN o.abweichenderrechtszustand='true' THEN '4123' ELSE '4115' END) AS signaturnummer,
 			t.drehwinkel, t.horizontaleausrichtung, 'oben'::text AS vertikaleausrichtung, t.skalierung, t.fontsperrung,
-			coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-		FROM ax_flurstueck o
-		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
-		LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
-		WHERE o.endet IS NULL AND
+			coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+		FROM po_lastrun, ax_flurstueck o
+		LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon
+		LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon
+		WHERE o.endet IS NULL AND greatest(o.beginnt,t.beginnt,d.beginnt)>lastrun AND
 			CASE
 			WHEN :alkis_fnbruch
 			THEN coalesce(t.signaturnummer,'4115') NOT IN ('4113','4122')
@@ -172,9 +181,10 @@ FROM (
 
 -- Bruchstrich
 SELECT 'Erzeuge Flurstücksbruchstriche...';
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+INSERT INTO po_lines(gml_id,gml_ids,thema,layer,line,signaturnummer,modell)
 SELECT
 	gml_id,
+	gml_ids,
 	'Flurstücke' AS thema,
 	'ax_flurstueck_nummer' AS layer,
 	CASE
@@ -187,6 +197,7 @@ SELECT
 FROM (
 	SELECT
 		gml_id,
+		gml_ids,
 		point,
 		greatest(lenz, lenn) AS len,
 		signaturnummer,
@@ -196,17 +207,18 @@ FROM (
 	FROM (
 		SELECT
 			o.gml_id,
+			ARRAY[o.gml_id, t.gml_id, d.gml_id] AS gml_ids,
 			coalesce(t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',1),o.zaehler::text)) AS lenn,
 			length(coalesce(split_part(replace(t.schriftinhalt,'-','/'),'/',2),o.nenner::text)) AS lenz,
 			coalesce(d.signaturnummer,'2001') AS signaturnummer,
-			coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell,
+			coalesce(t.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell,
 			coalesce(t.drehwinkel,0) AS drehwinkel,
 			t.horizontaleausrichtung
-		FROM ax_flurstueck o
-		LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.endet IS NULL
-		LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
-		WHERE o.endet IS NULL AND
+		FROM po_lastrun, ax_flurstueck o
+		LEFT OUTER JOIN po_pto t ON o.gml_id=t.dientzurdarstellungvon
+		LEFT OUTER JOIN po_darstellung d ON o.gml_id=d.dientzurdarstellungvon
+		WHERE o.endet IS NULL AND greatest(o.beginnt,t.beginnt,d.beginnt)>lastrun AND
 			CASE
 			WHEN :alkis_fnbruch
 			THEN coalesce(t.signaturnummer,'4115') NOT IN ('4113','4122')
@@ -218,30 +230,32 @@ FROM (
 
 -- Zuordnungspfeile
 SELECT 'Erzeuge Zuordnungspfeile...';
-INSERT INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
+INSERT INTO po_lines(gml_id,gml_ids,thema,layer,line,signaturnummer,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id, l.gml_id] AS gml_ids,
 	'Flurstücke' AS thema,
 	'ax_flurstueck_zuordnung' AS layer,
 	st_multi(l.wkb_geometry) AS line,
 	CASE WHEN o.abweichenderrechtszustand='true' THEN 2005 ELSE 2004 END AS signaturnummer,
-	coalesce(l.advstandardmodell||l.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_flurstueck o
-JOIN ap_lpo l ON ARRAY[o.gml_id] <@ l.dientzurdarstellungvon AND l.endet IS NULL
+	coalesce(l.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM po_lastrun, ax_flurstueck o
+JOIN po_lpo l ON o.gml_id=l.dientzurdarstellungvon AND l.gml_id<>'TRIGGER'
   -- AND l.art='Pfeil' -- art in RP nicht immer gesetzt
-WHERE o.endet IS NULL;
+WHERE o.endet IS NULL AND greatest(o.beginnt,l.beginnt)>lastrun;
 
 -- Überhaken
 SELECT 'Erzeuge Überhaken...';
-INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
+INSERT INTO po_points(gml_id,gml_ids,thema,layer,point,drehwinkel,signaturnummer,modell)
 SELECT
 	o.gml_id,
+	ARRAY[o.gml_id,p.gml_id] AS gml_ids,
 	'Flurstücke' AS thema,
 	'ax_flurstueck' AS layer,
 	st_multi(p.wkb_geometry) AS point,
 	coalesce(p.drehwinkel,0) AS drehwinkel,
 	CASE WHEN o.abweichenderrechtszustand='true' THEN 3011 ELSE 3010 END AS signaturnummer,
-	coalesce(p.advstandardmodell||p.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
-FROM ax_flurstueck o
-JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='Haken' AND p.endet IS NULL
-WHERE o.endet IS NULL;
+	coalesce(p.modelle,o.advstandardmodell||o.sonstigesmodell) AS modell
+FROM po_lastrun, ax_flurstueck o
+JOIN po_ppo p ON o.gml_id=p.dientzurdarstellungvon AND p.art='Haken' AND p.gml_id<>'TRIGGER'
+WHERE o.endet IS NULL AND greatest(o.beginnt,o.beginnt)>lastrun;
