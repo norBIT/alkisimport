@@ -16,7 +16,8 @@ SELECT
 	st_multi(wkb_geometry) AS polygon,
 	25151405 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_friedhof;
+FROM ax_friedhof
+WHERE endet IS NULL;
 
 -- Text, Friedhof
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)

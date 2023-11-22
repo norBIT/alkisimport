@@ -16,7 +16,8 @@ SELECT
 	st_multi(wkb_geometry) AS polygon,
 	2515 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_weg;
+FROM ax_weg
+WHERE endet IS NULL;
 
 -- Symbol
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

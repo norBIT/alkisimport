@@ -16,7 +16,8 @@ SELECT
 	st_multi(wkb_geometry) AS polygon,
 	25171404 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_heide;
+FROM ax_heide
+WHERE endet IS NULL;
 
 -- Heide, Symbole
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

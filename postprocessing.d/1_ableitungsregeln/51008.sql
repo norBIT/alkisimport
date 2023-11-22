@@ -17,7 +17,8 @@ SELECT
 	0 AS drehwinkel,
 	3529 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_heilquellegasquelle;
+FROM ax_heilquellegasquelle
+WHERE endet IS NULL;
 
 -- Texte
 INSERT INTO po_labels(gml_id,thema,layer,point,text,signaturnummer,drehwinkel,horizontaleausrichtung,vertikaleausrichtung,skalierung,fontsperrung,modell)
