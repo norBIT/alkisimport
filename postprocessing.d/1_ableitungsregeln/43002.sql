@@ -16,7 +16,8 @@ SELECT
 	st_multi(wkb_geometry) AS polygon,
 	25171414 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_wald;
+FROM ax_wald
+WHERE endet IS NULL;
 
 -- Wald, Symbole
 -- TODO: PNR?

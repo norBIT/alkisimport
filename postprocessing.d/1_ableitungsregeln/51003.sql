@@ -27,7 +27,7 @@ FROM (
 		END AS signaturnummer,
 		advstandardmodell||sonstigesmodell AS modell
 	FROM ax_vorratsbehaelterspeicherbauwerk
-	WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON')
+	WHERE geometrytype(wkb_geometry) IN ('POLYGON','MULTIPOLYGON') AND endet IS NULL
 ) AS o;
 
 -- Vorratsbehälter, Speicherbauwerk, Symbole

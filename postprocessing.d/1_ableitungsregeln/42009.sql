@@ -19,7 +19,8 @@ SELECT
 	ELSE 2515
 	END AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_platz;
+FROM ax_platz
+WHERE endet IS NULL;
 
 -- Symbol
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

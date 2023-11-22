@@ -17,7 +17,8 @@ SELECT
 	CASE
 	WHEN zustand=4000 THEN 2516 ELSE 25151406 END AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_flugverkehr;
+FROM ax_flugverkehr
+WHERE endet IS NULL;
 
 -- Flugverkehr, Symbol
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)

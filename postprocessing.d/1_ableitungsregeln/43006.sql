@@ -16,7 +16,8 @@ SELECT
 	st_multi(wkb_geometry) AS polygon,
 	25171404 AS signaturnummer,
 	advstandardmodell||sonstigesmodell
-FROM ax_sumpf;
+FROM ax_sumpf
+WHERE endet IS NULL;
 
 -- Sumpf, Symbole
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
