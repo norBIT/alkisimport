@@ -74,7 +74,7 @@ SELECT alkis_dropobject('v_bschaetz_bodenart');
 CREATE VIEW v_bschaetz_bodenart AS
 	SELECT
 		wert::int AS wert
-		,regexp_replace( beschreibung, E'^.*\\((.*)\\)$', E'\\1') AS kurz
+		,regexp_replace(beschreibung, E'^[^(]*\\("?([^"]*)"?\\)$', E'\\1') AS kurz
 		,beschreibung AS bezeichner
 	FROM ax_bodenart_bodenschaetzung;
 
