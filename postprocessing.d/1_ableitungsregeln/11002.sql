@@ -100,6 +100,44 @@ CREATE INDEX po_joinlines_visited ON po_joinlines(visited);
 
 ANALYZE po_joinlines;
 
+SELECT split_part(split_part(postgis_version(), ' ', 1), '.', 1)::int < 2 AS needlinejoin;
+\gset
+
+\if :needlinejoin
+
+CREATE OR REPLACE FUNCTION pg_temp.make_line(l0 geometry, l1 geometry) RETURNS geometry AS $$
+DECLARE
+  c RECORD;
+  r GEOMETRY := l0;
+BEGIN
+        FOR c IN SELECT (st_dumppoints(l1)).geom
+        LOOP
+                r := st_addpoint(r, c.geom);
+        END LOOP;
+        RETURN r;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+\else
+
+CREATE OR REPLACE FUNCTION pg_temp.make_line(l0 geometry, l1 geometry) RETURNS geometry AS $$
+  SELECT st_makeline(l0, l1);
+$$ LANGUAGE sql IMMUTABLE;
+
+\endif
+
+CREATE OR REPLACE FUNCTION pg_temp.removerepeatedpoints(geometry) RETURNS geometry AS $$
+  SELECT
+    st_makeline(array_agg(p))
+  FROM (
+    SELECT
+      (g).geom AS p,
+      lag((g).geom) OVER (ORDER BY (g).path) AS pp
+    FROM st_dumppoints($1) AS g
+  ) AS g
+  WHERE pp IS NULL OR NOT st_equals(pp, p);
+$$ LANGUAGE sql IMMUTABLE;
+
 CREATE OR REPLACE FUNCTION pg_temp.alkis_besondereflurstuecksgrenze(verdraengen BOOLEAN) RETURNS varchar AS $$
 DECLARE
 	r0 RECORD;
@@ -186,14 +224,9 @@ BEGIN
 					IF FOUND THEN
 						FETCH c INTO r2;
 						IF NOT FOUND THEN
-							l := st_setsrid(st_linemerge(st_collect(l,r1.line)),st_srid(l));
-
-							IF geometrytype(l)='MULTILINESTRING' THEN
-								RAISE EXCEPTION 'MULTILINESTRING after merge: %', st_astext(l);
-							ELSIF st_numpoints(l)=np THEN
-								RAISE EXCEPTION 'merge failed: % with %',
-									st_astext(l),
-									st_astext(r1.line);
+							l := pg_temp.make_line(l,r1.line);
+							IF geometrytype(l)<>'LINESTRING' OR st_numpoints(l)=np THEN
+								RAISE EXCEPTION 'append failed: % with %', st_astext(l), st_astext(r1.line);
 							END IF;
 
 							UPDATE po_joinlines SET visited=true WHERE po_joinlines.ogc_fid=r1.ogc_fid;
@@ -210,7 +243,7 @@ BEGIN
 
 			INSERT
 				INTO po_lines(gml_id,thema,layer,line,signaturnummer,modell)
-				VALUES (r0.gml_id,'Politische Grenzen','ax_besondereflurstuecksgrenze',st_multi(l),adf.sn,m);
+				VALUES (r0.gml_id,'Politische Grenzen','ax_besondereflurstuecksgrenze',st_multi(pg_temp.removerepeatedpoints(l)),adf.sn,m);
 		END LOOP;
 
 		SELECT COUNT(*) INTO n FROM po_joinlines WHERE NOT visited;
