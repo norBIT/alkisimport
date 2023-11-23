@@ -824,12 +824,18 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.log("Mindestens PostgreSQL 8.4 erforderlich")
                 break
 
-            qry = self.db.exec_("SELECT postgis_version()")
+            qry = self.db.exec_("SELECT postgis_full_version()")
             if not qry or not qry.next():
-                self.log("Konnte PostGIS-Version nicht bestimmen!")
-                break
+                qry = self.db.exec_("SELECT postgis_version()")
+                if not qry or not qry.next():
+                    self.log("Konnte PostGIS-Version nicht bestimmen!")
+                    break
 
             self.log("PostGIS-Version: {}".format(qry.value(0)))
+
+            qry = self.db.exec_("SELECT inet_client_addr()")
+            if qry and qry.next():
+                self.log("Import von Client: {}".format(qry.value(0)))
 
             qry = self.db.exec_("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='ax_flurstueck'")
             if not qry or not qry.next():
