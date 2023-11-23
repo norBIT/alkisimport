@@ -27,8 +27,9 @@
 ^psql:.*: (NOTICE|HINWEIS):\s+(geometry|LWGEOM)_gist_joinsel called with incorrect join type\s*$
 ^psql:.*: (NOTICE|HINWEIS):\s+no non-null\/empty features, unable to compute statistics\s*$
 ^psql:.*: (NOTICE|HINWEIS):\s+PostGIS: Unable to compute statistics for .*: No non-null\/empty features\s*$
-^psql:.*: (NOTICE|HINWEIS):\s+no notnull values, invalid stats\*$
+^psql:.*: (NOTICE|HINWEIS):\s+no notnull values, invalid stats\s*$
 ^psql:.*: (WARNUNG|WARNING):\s+.*(only (superuser|table or database owner) can vacuum it|nur Superuser kann sie vacuumen)\s*$
+^psql:.*: (WARNUNG|WARNING):\s+.*(permission denied to vacuum ".*", skipping it|keine Berechtigung für Vacuum von ».*«, wird übersprungen)\s*$
 ^TIP:  No function matches the given name and argument types\. You might need to add explicit type casts\.
 ^\s+(DROP TRIGGER IF EXISTS|CREATE TRIGGER) \S+_insert
 ^CONTEXT:  PL\/pgSQL-Funktion (pg_temp_\d+\.)?(alkis|alb)_.* Zeile \d+ bei RAISE
@@ -91,8 +92,7 @@ SQL( statement|-Anweisung) \S+SELECT\s+alkis_dropobject\('alkis_konturen'\)
 ^ ax_tatsaechlichenutzung und ax_tatsaechlichenutzungsschluessel erzeugt\.\s*$
 ^ ax_ausfuehrendestellen erzeugt\.\s*$
 ^ ax_flurstueck gepr\S+ft\.\s*$
-^\s*setval\s*$
-^\s+\d+\s*$
+^\s*(setval|needlinejoin|\d+|[ft])\s*$
 ^GML: Minimum arc step angle is \d+ degrees \(was \d+\.\d+°\)\.
 ^GML: Minimum arc step segment length is \d+\.\d+ was \d\.\d+ with \d+\.\d+°\)\.
 ^GML: Minimum arc step angle is \d+ degrees \(was \d+\.\d+°; segment length \d+\.\d+\)\.
