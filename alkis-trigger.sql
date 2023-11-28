@@ -226,11 +226,6 @@ BEGIN
 			RAISE EXCEPTION '%: safeToIgnore ''%'' ungültig (''true'' oder ''false'' erwartet).', NEW.featureid, NEW.safetoignore;
 		END IF;
 
-		IF NEW.featureid=NEW.replacedby THEN
-			NEW.ignored := true;
-			RETURN NEW;
-		END IF;
-
 	ELSIF NEW.context NOT IN ('delete', 'update') THEN
 		RAISE EXCEPTION '%: Ungültiger Kontext % (''delete'', ''replace'' oder ''update'' erwartet).', NEW.featureid, NEW.context;
 	END IF;
@@ -258,11 +253,13 @@ BEGIN
 			BEFORE INSERT ON delete
 			FOR EACH ROW
 			EXECUTE PROCEDURE delete_feature_hist();
+		RAISE NOTICE 'Historische Objekte werden geführt.';
 	ELSE
 		CREATE TRIGGER delete_feature_trigger
 			BEFORE INSERT ON delete
 			FOR EACH ROW
 			EXECUTE PROCEDURE delete_feature_kill();
+		RAISE NOTICE 'Historische Objekte werden gelöscht.';
 	END IF;
 END;
 $$ LANGUAGE plpgsql;
