@@ -655,7 +655,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             else:
                 conn = ""
 
-        conn += "dbname={} user='{}' password='{}'".format(self.leDBNAME.text(), self.leUID.text(), self.lePWD.text())
+        conn += "dbname='{}' user='{}' password='{}'".format(self.leDBNAME.text(), self.leUID.text(), self.lePWD.text())
 
         self.db = QSqlDatabase.addDatabase("QPSQL")
         self.db.setConnectOptions(conn)

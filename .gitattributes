@@ -7,3 +7,4 @@ preremove.bat export-ignore
 postinstall.bat export-ignore
 README.md export-ignore
 *.in export-ignore
+Makefile export-ignore
