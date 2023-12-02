@@ -6,4 +6,5 @@ setup.hint export-ignore
 preremove.bat export-ignore
 postinstall.bat export-ignore
 README.md export-ignore
+Makefile export-ignore
 postprocessing.d/1_ableitungsregeln/kom.txt export-ignore
