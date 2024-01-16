@@ -96,6 +96,7 @@ CREATE TEMPORARY TABLE amtlbestfl AS
 		) AS amtlbestfl
 	FROM flurst
 	JOIN eignerart ON flurst.flsnr=eignerart.flsnr
+	WHERE anteil NOT LIKE '%...'
 	GROUP BY bestdnr;
 
 CREATE UNIQUE INDEX amtlbestfl_idx ON amtlbestfl(bestdnr);
