@@ -18,6 +18,7 @@
 set -e
 set -u
 set -o pipefail
+set -o noclobber
 
 # Felder als String interpretieren (führende Nullen nicht abschneiden)
 export GML_FIELDTYPES=ALWAYS_STRING
@@ -111,13 +112,27 @@ log() {
 }
 export -f log
 
+lock() {
+	for i in $(seq 10); do
+		echo $$ 2>|/dev/null >$lock && return 0
+		sleep 0.1
+	done
+	return 1
+}
+export -f lock
+
+unlock() {
+	rm -f $lock
+}
+export -f unlock
+
 rund() {
 	local dir=$1
 
 	if [ -d "$dir.d" ]; then
-		for i in $(ls -1d ${dir}.d/* 2>/dev/null | sort); do
+		for i in $(ls -1d ${dir}.d/* 2>|/dev/null | sort); do
 			if [ -d "$i" ]; then
-				ls -1 $i/*.sql 2>/dev/null | sort | parallel --line-buffer --halt soon,fail=1 --jobs=$JOBS sql
+				ls -1 $i/*.sql 2>|/dev/null | sort | parallel --line-buffer --halt soon,fail=1 --jobs=$JOBS sql
 			elif [[ -f "$i" && -r "$i" && "$i" =~ \.sql$ ]]; then
 				sql $i
 			else
@@ -146,10 +161,6 @@ import() {
 		dst=${src%.???}.xml
 		dst="$tmpdir/${dst//\//_}"
 		echo "DECOMPRESS $(bdate): $src"
-		if [ -e "$dst" ]; then
-			echo "$P: $dst bereits vorhanden." >&2
-			return 1
-		fi
 		if ! zcat "$src" >"$dst"; then
 			rm -v "$dst"
 			echo "$P: $src konnte nicht extrahiert werden." >&2
@@ -167,10 +178,6 @@ import() {
 		dst=${src%.??}
 		dst="$tmpdir/${dst//\//_}"
 		echo "DECOMPRESS $(bdate): $src"
-		if [ -e "$dst" ]; then
-			echo "$P: $dst bereits vorhanden." >&2
-			return 1
-		fi
 		if ! zcat "$src" >"$dst"; then
 			rm -v "$dst"
 			echo "$P: $src konnte nicht extrahiert werden." >&2
@@ -253,11 +260,11 @@ process() {
 		fi
 
 		if (( preprocessed == 0 )); then
-			pushd "$B" >/dev/null
+			pushd "$B" >|/dev/null
 			preprocessed=1
 			rund preprocessing
 			r=$?
-			popd >/dev/null
+			popd >|/dev/null
 			if [ "$r" -ne 0 ]; then
 				return $r
 			fi
@@ -298,7 +305,7 @@ progress() {
 	local remaining_size
 	local errors=0
 
-	lockfile -l1 $lock
+	lock
 	[ -f $progress ] && . $progress
 
 	start_time=${start_time:-$t0}
@@ -339,7 +346,7 @@ progress() {
 		echo "TIME: $file mit $(memunits $size) in 0,nichts importiert."
 	fi
 
-	cat <<EOF >$progress
+	cat <<EOF >|$progress
 start_time=$start_time
 total_size=$total_size
 remaining_size=$remaining_size
@@ -349,12 +356,12 @@ quittierungsnr=$quittierungsnr
 quittierungsi=$quittierungsi
 EOF
 
-	rm -f $lock
+	unlock
 }
 export -f progress
 
 final() {
-	lockfile -l1 $lock
+	lock
 	start_time=0
 	last_time=0
 	! [ -f $progress ] || . $progress
@@ -362,7 +369,8 @@ final() {
 	if (( total_elapsed > 0 )); then
 		echo "FINAL: $(memunits $total_size) in $(timeunits $start_time $last_time) ($(memunits $(( total_size / total_elapsed )))/s)"
 	fi
-	rm -f $progress $lock
+	rm -f $progress
+	unlock
 }
 
 export LC_CTYPE=de_DE.UTF-8
@@ -480,7 +488,7 @@ do
 				(( S += s )) || true
 			done <"$F"
 
-			cat <<EOF >$progress
+			cat <<EOF >|$progress
 total_size=$S
 remaining_size=$S
 EOF
@@ -506,7 +514,7 @@ EOF
 		DRIVER=PostgreSQL
 		sql() {
 			local file=$1
-			pushd "$B" >/dev/null
+			pushd "$B" >|/dev/null
 			local t0=$(bdate +%s)
 			echo "SQL RUN: $file $(bdate)"
 			psql -X -P pager=off \
@@ -527,7 +535,7 @@ EOF
 			local r=$?
 			local t1=$(bdate +%s)
 			echo "SQL DONE[$r]: $file $(bdate) in $(timeunits $t0 $t1)"
-			popd >/dev/null
+			popd >|/dev/null
 			return $r
 		}
 		export -f sql
@@ -578,7 +586,7 @@ EOF
 				psql -X -q -c "CREATE TABLE \"${SCHEMA//\"/\"\"}\".alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" "$DB"
 			fi
 
-			rm -f $lock
+			unlock
 
 			tee $1 |
 			(
@@ -770,11 +778,11 @@ EOF
 		fi
 
 		echo "INHERIT $(bdate)"
-		pushd "$B" >/dev/null
+		pushd "$B" >|/dev/null
 		rund preinherit
 		sql alkis-inherit.sql
 		rund postinherit
-		popd >/dev/null
+		popd >|/dev/null
 
 		continue
 		;;
@@ -795,12 +803,12 @@ EOF
 		fi
 
 		echo "CREATE $(bdate)"
-		pushd "$B" >/dev/null
+		pushd "$B" >|/dev/null
 		rund prepare
 		rund precreate
 		sql alkis-init.sql
 		rund postcreate
-		popd >/dev/null
+		popd >|/dev/null
 
 		continue
 		;;
@@ -812,12 +820,12 @@ EOF
 		fi
 
 		echo "CLEAN $(bdate)"
-		pushd "$B" >/dev/null
+		pushd "$B" >|/dev/null
 		rund prepare
 		rund preclean
 		sql alkis-clean.sql
 		rund postclean
-		popd >/dev/null
+		popd >|/dev/null
 
 		continue
 		;;
@@ -833,12 +841,12 @@ EOF
 		fi
 
 		echo "UPDATE $(bdate)"
-		pushd "$B" >/dev/null
+		pushd "$B" >|/dev/null
 		rund prepare
 		rund preupdate
 		sql alkis-update.sql
 		rund postupdate
-		popd >/dev/null
+		popd >|/dev/null
 
 		continue
 		;;
@@ -906,10 +914,10 @@ EOF
 		log=$(bdate +$src)
 
 		echo "LOGGING TO $log $(bdate)"
-		lockfile -l1 $lock
+		lock
 		exec 3>&1 4>&2 > >(log $log) 2>&1
-		lockfile -l1 $lock
-		rm -f $lock
+		lock
+		unlock
 
 		echo "LOG $(bdate)"
 		echo 'Import-Version: $Format:%h$'
@@ -965,7 +973,7 @@ final
 if [ "$src" = "error" ]; then
 	echo "FEHLER BEIM IMPORT"
 elif [ "$src" != "exit" ]; then
-	pushd "$B" >/dev/null
+	pushd "$B" >|/dev/null
 
 	if (( preprocessed == 0 )); then
 		if rund preprocessing; then
@@ -983,7 +991,7 @@ elif [ "$src" != "exit" ]; then
 		fi
 	fi
 
-	popd >/dev/null
+	popd >|/dev/null
 fi
 
 echo "END $(bdate)"
