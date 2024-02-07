@@ -338,7 +338,7 @@ progress() {
 
 		if (( t0 < t1 )); then
 			echo "TIME: $file mit $(memunits $size) in $(timeunits $t0 $t1) importiert ($(memunits $throughput)/s; Gesamt:$(memunits $total_throughput)/s)."
-			echo "REMAINING: $(memunits $remaining_size) $(( remaining_size * 100 / total_size ))% $(timeunits $remaining_time) ETA:$(date --date="1970-01-01 $eta seconds UTC")"
+			echo "REMAINING: $(memunits $remaining_size) $(( remaining_size * 100 / total_size ))% $(timeunits $remaining_time) ETA:$(date --date="@$eta")"
 		else
 			echo "TIME: $file mit $(memunits $size) in 0,nichts (Gesamt $(memunits $total_throughput)/s)."
 		fi
