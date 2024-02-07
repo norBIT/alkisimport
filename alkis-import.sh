@@ -271,13 +271,15 @@ process() {
 
 			if [ "$QUITTIERUNG" = "true" ]; then
 				n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_sequences WHERE schemaname='${SCHEMA//\'/\'\'}' AND sequencename='alkis_quittierungen_seq'" "$DB")
-				n=${n//[	 ]}
+				n=${n//[	 
+]}
 				if [ $n -eq 0 ]; then
 					runsql "CREATE SEQUENCE $SCHEMA.alkis_quittierungen_seq"
 				fi
 
 				quittierungsnr=$(psql -A -X -t -c "SELECT nextval('$SCHEMA.alkis_quittierungen_seq')" "$DB")
-				quittierungsnr=${quittierungsnr//[	 ]}
+				quittierungsnr=${quittierungsnr//[	 
+]}
 				export quittierungsnr
 				export quittierungsi=0
 			fi
@@ -338,7 +340,7 @@ progress() {
 
 		if (( t0 < t1 )); then
 			echo "TIME: $file mit $(memunits $size) in $(timeunits $t0 $t1) importiert ($(memunits $throughput)/s; Gesamt:$(memunits $total_throughput)/s)."
-			echo "REMAINING: $(memunits $remaining_size) $(( remaining_size * 100 / total_size ))% $(timeunits $remaining_time) ETA:$(date --date="1970-01-01 $eta seconds UTC")"
+			echo "REMAINING: $(memunits $remaining_size) $(( remaining_size * 100 / total_size ))% $(timeunits $remaining_time) ETA:$(date --date="@$eta")"
 		else
 			echo "TIME: $file mit $(memunits $size) in 0,nichts (Gesamt $(memunits $total_throughput)/s)."
 		fi
@@ -568,20 +570,23 @@ EOF
 		export DB
 		log() {
 			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname='${SCHEMA//\'/\'\'}'" "$DB")
-			n=${n//[	 ]}
+			n=${n//[	 
+]}
 			if [ $n -eq 0 ]; then
 				psql -X -q -c "CREATE SCHEMA \"${SCHEMA//\"/\"\"}\"" "$DB"
 			fi
 
 			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname='${SCHEMA//\'/\'\'}'" "$DB")
-			n=${n//[	 ]}
+			n=${n//[	 
+]}
 			if [ $n -eq 0 ]; then
 				echo "Schema $SCHEMA nicht erzeugt" >&2
 				exit 1
 			fi
 
 			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_tables WHERE schemaname='${SCHEMA//\'/\'\'}' AND tablename='alkis_importlog'" "$DB")
-			n=${n//[	 ]}
+			n=${n//[	 
+]}
 			if [ $n -eq 0 ]; then
 				psql -X -q -c "CREATE TABLE \"${SCHEMA//\"/\"\"}\".alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" "$DB"
 			fi
