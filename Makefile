@@ -36,10 +36,8 @@ $(O4WPKG): tables.lst alkis-functions.sql alkis-import.cmd postinstall.bat prere
 	perl -i -pe 's/#VERSION#/$(VERSION)-$(P)/' osgeo4w/apps/$(PKG)/{about.ui,alkisImportDlg.ui}
 	tar -C osgeo4w --remove-files -cjf $(O4WPKG) apps bin etc
 
-osgeo4w/setup.hint: setup.hint
+upload: versioncheck $(O4WPKG) $(O4WSRCPKG)
 	sed -e "s/@GID@/$(GID)/" setup.hint >osgeo4w/setup.hint
-
-upload: versioncheck $(O4WPKG) $(O4WSRCPKG) osgeo4w/setup.hint
 	rsync --chmod=D775,F664 osgeo4w/setup.hint $(O4WPKG) $(O4WSRCPKG) upload.osgeo.org:osgeo4w/v2/x86_64/release/$(PKG)/
 	wget -O - https://download.osgeo.org/cgi-bin/osgeo4w-regen-v2.sh
 	echo $$(( $(P) + 1 )) >.pkg-$(PKG)-$(VERSION)
