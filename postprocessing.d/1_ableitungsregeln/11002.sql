@@ -231,7 +231,11 @@ BEGIN
 					IF FOUND THEN
 						FETCH c INTO r2;
 						IF NOT FOUND THEN
-							l := pg_temp.make_line(l,r1.line);
+							IF i=0 THEN
+								l := pg_temp.make_line(r1.line,l);
+							ELSE
+								l := pg_temp.make_line(l,r1.line);
+							END IF;
 							IF geometrytype(l)<>'LINESTRING' OR st_numpoints(l)=np THEN
 								RAISE EXCEPTION 'append failed: % with %', st_astext(l), st_astext(r1.line);
 							END IF;
