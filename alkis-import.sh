@@ -105,7 +105,7 @@ timeunits() {
 export -f timeunits
 
 log() {
-	tee $1 | python3 $B/refilter.py
+	python3 $B/refilter.py | tee $1
 }
 export -f log
 
@@ -114,6 +114,7 @@ lock() {
 		echo $$ 2>|/dev/null >$lock && return 0
 		sleep 0.1
 	done
+	echo "$(bdate): lock failed"
 	return 1
 }
 export -f lock
@@ -212,6 +213,7 @@ import() {
 	echo "IMPORT $(bdate): $dst $(memunits $s)"
 
 	if [ -n "$sfre" ] && eval [[ "$src" =~ "$sfre" ]]; then
+		echo "WARNING: Importfehler werden ignoriert"
 		opt="$opt -skipfailures"
 	fi
 	opt="$opt -ds_transaction --config PG_USE_COPY $USECOPY -nlt CONVERT_TO_LINEAR"
@@ -573,35 +575,38 @@ EOF
 		}
 		export DB
 		log() {
-			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname='${SCHEMA//\'/\'\'}'" "$DB")
+			export SCHEMAL="'${SCHEMA//\'/\'\'}'"
+			export SCHEMAI="\"${SCHEMA//\"/\"\"}\""
+			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname=$SCHEMAL" "$DB")
 			n=${n//[	 ]}
 			if [ $n -eq 0 ]; then
-				psql -X -q -c "CREATE SCHEMA \"${SCHEMA//\"/\"\"}\"" "$DB"
+				psql -X -q -c "CREATE SCHEMA $SCHEMAI" "$DB"
 			fi
 
-			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname='${SCHEMA//\'/\'\'}'" "$DB")
+			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname=$SCHEMAL" "$DB")
 			n=${n//[	 ]}
 			if [ $n -eq 0 ]; then
 				echo "Schema $SCHEMA nicht erzeugt" >&2
 				exit 1
 			fi
 
-			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_tables WHERE schemaname='${SCHEMA//\'/\'\'}' AND tablename='alkis_importlog'" "$DB")
+			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_tables WHERE schemaname=$SCHEMAL AND tablename='alkis_importlog'" "$DB")
 			n=${n//[	 ]}
 			if [ $n -eq 0 ]; then
-				psql -X -q -c "CREATE TABLE \"${SCHEMA//\"/\"\"}\".alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" "$DB"
+				psql -X -q -c "CREATE TABLE $SCHEMAI.alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)" "$DB"
 			fi
 
 			unlock
 
-			tee $1 |
+			local log=$1
+			export log
 			(
 				IFS=
-				exec 5> >(python3 $B/refilter.py >&3)
+				exec 5> >(python3 $B/refilter.py | tee $log >&3)
 				while read m; do
 					echo "$m" >&5
 					m=${m//\'/\'\'}
-					echo "INSERT INTO \"${SCHEMA//\"/\"\"}\".alkis_importlog(msg) VALUES (E'${m//\'/\'\'}');"
+					echo "INSERT INTO $SCHEMAI.alkis_importlog(msg) VALUES (E'${m//\'/\'\'}');"
 				done
 				echo "\\q"
 			) |
@@ -926,7 +931,15 @@ EOF
 		unlock
 
 		echo "LOG $(bdate)"
-		echo 'Import-Version: $Format:%h$'
+		if ! [ -e "$B/.git" ]; then
+			echo 'Import-Version: $Format:%h$'
+		else
+			if type -p git >/dev/null; then
+				git log -1 --pretty='Import-Version: %h'
+			else
+				echo 'Import-Version: unbekannt'
+			fi
+		fi
 		echo "GDAL-Version: $GDAL_VERSION"
 
 		continue

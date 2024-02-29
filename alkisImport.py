@@ -805,7 +805,16 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 self.logqry = None
                 break
 
-            self.log("Import-Version: $Format:%h$")
+            if not os.path.exists(".git"):
+                self.log("Import-Version: $Format:%h$")
+            else:
+                git = which("git")
+                if not git:
+                    git = which("git.exe")
+                if git:
+                    self.runProcess([git, "log", "-1", "--pretty=Import-Version: %h"])
+                else:
+                    self.log("Import-Version: unbekannt")
 
             qry = self.db.exec_("SELECT version()")
 
@@ -1174,6 +1183,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                             args.extend(["-a_srs", "EPSG:{}".format(self.epsg)])
 
                         if self.cbxSkipFailures.isChecked() or fn in checked:
+                            self.log("WARNUNG: Importfehler werden ignoriert")
                             args.extend(["-skipfailures", "--config", "PG_USE_COPY", "NO"])
                         else:
                             args.extend(["--config", "PG_USE_COPY", "YES" if self.cbxUseCopy.isChecked() else "NO"])
