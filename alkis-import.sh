@@ -109,21 +109,18 @@ export -f timeunits
 
 log() {
 	python3 $B/refilter.py | tee $1
+	unlock
 }
 export -f log
 
 lock() {
-	for i in $(seq 10); do
-		echo $$ 2>|/dev/null >$lock && return 0
-		sleep 0.1
-	done
-	echo "$(bdate): lock failed"
-	return 1
+	exec 99>$lock
+	flock 99
 }
 export -f lock
 
 unlock() {
-	rm -f $lock
+	exec 99>&-
 }
 export -f unlock
 
