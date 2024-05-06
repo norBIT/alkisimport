@@ -111,7 +111,7 @@ log() {
 export -f log
 
 lock() {
-	exec 99>$lock
+	exec 99>|$lock
 	flock 99
 }
 export -f lock
