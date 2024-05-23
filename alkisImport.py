@@ -1135,9 +1135,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         else:
                             args.append("PG:{0} schemas='{1},{2}' active_schema={1}".format(conn, self.schema, self.pgschema))
 
-                        if int(self.leGT.text() or '0') >= 1:
-                            args.extend(["-gt", self.leGT.text()])
-
                         if GDAL_MAJOR >= 3:
                             if self.epsg == 131466 or self.epsg == 131467 or self.epsg == 131468:
                                 args.extend(["-a_srs", os.path.join(BASEDIR, "{}.prj".format(self.epsg))])
@@ -1182,6 +1179,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                             self.log("WARNUNG: Importfehler werden ignoriert")
                             args.extend(["-skipfailures", "--config", "PG_USE_COPY", "NO"])
                         else:
+                            if int(self.leGT.text() or '0') >= 1:
+                                args.extend(["-gt", self.leGT.text()])
                             args.extend(["--config", "PG_USE_COPY", "YES" if self.cbxUseCopy.isChecked() else "NO"])
 
                         args.extend(["-nlt", "CONVERT_TO_LINEAR", "-ds_transaction"])
