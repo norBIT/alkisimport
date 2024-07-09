@@ -19,9 +19,9 @@ all:
 
 $(O4WSRCPKG):
 	# empty
-	tar -cjf $(O4WSRCPKG) -T /dev/null
+	d=$$(mktemp -d); tar -C $$d -cjf $(O4WSRCPKG) .; rmdir $$d
 
-package: $(O4WPKG)
+package: $(O4WPKG) $(O4WSRCPKG)
 
 $(O4WPKG): alkis-import.cmd postinstall.bat preremove.bat
 	mkdir -p osgeo4w/{apps/$(PKG)/{preprocessing,postprocessing}.d,bin,etc/{postinstall,preremove}}
