@@ -127,6 +127,138 @@ BEGIN
 		CREATE TABLE po_lastrun(lastrun character(20), npoints INTEGER, nlines INTEGER, npolygons INTEGER, nlabels INTEGER);
 		INSERT INTO po_lastrun(lastrun, npoints, nlines, npolygons, nlabels) VALUES (NULL, 0, 0, 0, 0);
 
+		DECLARE
+			sql text;
+		BEGIN
+			SELECT
+				E'CREATE VIEW alkis_po_objekte AS\n  ' ||
+				array_to_string(
+					array_agg(
+						format('SELECT gml_id,beginnt,endet,%L AS table_name FROM %I', table_name, table_name)
+					),
+				E' UNION ALL\n  '
+				)
+			INTO sql
+			FROM (
+				SELECT
+					table_name
+				FROM information_schema.columns
+				WHERE table_schema=current_schema AND column_name IN ('gml_id', 'beginnt', 'endet')
+				GROUP BY table_name
+				HAVING count(*)=3
+			) AS t;
+
+			EXECUTE sql;
+		END;
+
+		CREATE TABLE po_darstellung (
+			gml_id character(16),
+			beginnt character(20),
+			dientzurdarstellungvon character(16),
+			modelle character varying[],
+			art character varying,
+			darstellungsprioritaet integer,
+			positionierungsregel character varying,
+			signaturnummer character varying
+		);
+
+		CREATE INDEX po_darstellung_gml_id ON po_darstellung(gml_id);
+		CREATE INDEX po_darstellung_dzv ON po_darstellung(dientzurdarstellungvon);
+		CREATE INDEX po_darstellung_art ON po_darstellung(art);
+
+		CREATE TABLE po_ppo (
+			gml_id character(16),
+			beginnt character(20),
+			dientzurdarstellungvon character(16),
+			modelle character varying[],
+			art character varying,
+			darstellungsprioritaet integer,
+			drehwinkel double precision,
+			signaturnummer character varying,
+			skalierung double precision
+		);
+
+		PERFORM AddGeometryColumn('po_ppo','wkb_geometry', find_srid(current_schema::text, 'ax_flurstueck', 'wkb_geometry'), 'GEOMETRY', 2);
+
+		CREATE INDEX po_ppo_gml_id ON po_ppo(gml_id);
+		CREATE INDEX po_ppo_dzv ON po_ppo(dientzurdarstellungvon);
+		CREATE INDEX po_ppo_art ON po_ppo(art);
+
+		CREATE TABLE po_lpo (
+			gml_id character(16),
+			beginnt character(20),
+			dientzurdarstellungvon character(16),
+			modelle character varying[],
+			art character varying,
+			darstellungsprioritaet integer,
+			signaturnummer character varying
+		);
+
+		PERFORM AddGeometryColumn('po_lpo','wkb_geometry', find_srid(current_schema::text, 'ax_flurstueck', 'wkb_geometry'), 'GEOMETRY', 2);
+
+		CREATE INDEX po_lpo_gml_id ON po_lpo(gml_id);
+		CREATE INDEX po_lpo_dzv ON po_lpo(dientzurdarstellungvon);
+		CREATE INDEX po_lpo_art ON po_lpo(art);
+
+		CREATE TABLE po_fpo (
+			gml_id character(16),
+			beginnt character(20),
+			dientzurdarstellungvon character(16),
+			modelle character varying[],
+			art character varying,
+			darstellungsprioritaet integer,
+			signaturnummer character varying
+		);
+
+		PERFORM AddGeometryColumn('po_fpo','wkb_geometry', find_srid(current_schema::text, 'ax_flurstueck', 'wkb_geometry'), 'GEOMETRY', 2);
+
+		CREATE INDEX po_fpo_gml_id ON po_fpo(gml_id);
+		CREATE INDEX po_fpo_dzv ON po_fpo(dientzurdarstellungvon);
+		CREATE INDEX po_fpo_art ON po_fpo(art);
+
+		CREATE TABLE po_pto(
+			gml_id character(16),
+			beginnt character(20),
+			dientzurdarstellungvon character(16),
+			modelle character varying[],
+			art varchar,
+			darstellungsprioritaet integer,
+			drehwinkel double precision,
+			fontsperrung double precision,
+			horizontaleausrichtung character varying,
+			schriftinhalt character varying,
+			signaturnummer character varying,
+			skalierung double precision,
+			vertikaleausrichtung character varying
+		);
+
+		PERFORM AddGeometryColumn('po_pto','wkb_geometry', find_srid(current_schema::text, 'ax_flurstueck', 'wkb_geometry'), 'GEOMETRY', 2);
+
+		CREATE INDEX po_pto_gml_id ON po_pto(gml_id);
+		CREATE INDEX po_pto_dzv ON po_pto(dientzurdarstellungvon);
+		CREATE INDEX po_pto_art ON po_pto(art);
+
+		CREATE TABLE po_lto (
+			gml_id character(16),
+			beginnt character(20),
+			dientzurdarstellungvon character(16),
+			modelle character varying[],
+			art character varying,
+			darstellungsprioritaet integer,
+			fontsperrung double precision,
+			horizontaleausrichtung character varying,
+			schriftinhalt character varying,
+			signaturnummer character varying,
+			skalierung double precision,
+			vertikaleausrichtung character varying
+		);
+
+		PERFORM AddGeometryColumn('po_lto','wkb_geometry', find_srid(current_schema::text, 'ax_flurstueck', 'wkb_geometry'), 'GEOMETRY', 2);
+
+		CREATE INDEX po_lto_gml_id ON po_lto(gml_id);
+		CREATE INDEX po_lto_dzv ON po_lto(dientzurdarstellungvon);
+		CREATE INDEX po_lto_art ON po_lto(art);
+
 		UPDATE alkis_po_version SET version=5;
 	END IF;
 
