@@ -42,14 +42,14 @@ export PGCLIENTENCODING=UTF8
 export EPSG=25832
 export CRS="-a_srs EPSG:$EPSG"
 export FNBRUCH=true
-export AVOIDDUPES=false
+export AVOIDDUPES=true
 export HISTORIE=true
 export QUITTIERUNG=false
 export PGVERDRAENGEN=false
 export SCHEMA=public
 export PARENTSCHEMA=
 export PGSCHEMA=public
-export USECOPY=YES
+export USECOPY=NO
 export REBUILDMAP=false
 export TRANSFORM=false
 
@@ -219,6 +219,14 @@ import() {
 		opt="$opt -skipfailures"
 	fi
 	opt="$opt -ds_transaction --config PG_USE_COPY $USECOPY -nlt CONVERT_TO_LINEAR"
+
+	if [ $AVOIDDUPES = "true" ]; then
+		if [ $USECOPY = "NO" ] && (( GDAL_MAJOR>3 || (GDAL_MAJOR==3 && GDAL_MINOR>=10) )); then
+			opt="$opt --config OGR_PG_SKIP_CONFLICTS YES"
+		elif (( $JOBS != 1 )); then
+			echo "WARNING: Paralleler Import bei Fortführung/Duplikate ignorieren kann mit GDAL <3.10 oder USECOPY zu Abbrüchen führen"
+		fi
+	fi
 
 	case "$MACHTYPE" in
 	*-cygwin|*msys)
@@ -402,14 +410,15 @@ echo "START $(bdate)"
 GDAL_VERSION=$(unset CPL_DEBUG; ogr2ogr --version)
 echo $GDAL_VERSION
 
-major=${GDAL_VERSION#GDAL }
-major=${major%%.*}
-minor=${GDAL_VERSION#GDAL $major.}
-minor=${minor%%.*}
-if [ $major -lt 3 ] || [ $major -eq 3 -a $minor -lt 8 ]; then
+GDAL_MAJOR=${GDAL_VERSION#GDAL }
+GDAL_MAJOR=${GDAL_MAJOR%%.*}
+GDAL_MINOR=${GDAL_VERSION#GDAL $GDAL_MAJOR.}
+GDAL_MINOR=${GDAL_MINOR%%.*}
+if (( GDAL_MAJOR<3 || (GDAL_MAJOR==3 && GDAL_MINOR<8) )); then
 	echo "$P: erfordert GDAL >=3.8" >&2
 	exit 1
 fi
+export GDAL_MAJOR GDAL_MINOR
 
 # Verhindern, dass der GML-Treiber übernimmt
 export OGR_SKIP=GML
@@ -513,15 +522,23 @@ EOF
 		DST=$src
 		DB=${src#PG:}
 		DRIVER=PostgreSQL
+
 		sql() {
 			local file=$1
 			pushd "$B" >|/dev/null
 			local t0=$(bdate +%s)
 			echo "SQL RUN: $file $(bdate)"
+
+			local avoiddupes=$AVOIDDUPES
+			if [ $AVOIDDUPES = true -a $USECOPY = NO ] && (( GDAL_MAJOR>3 || (GDAL_MAJOR==3 && GDAL_MINOR>=10) )); then
+				# Trigger nur, wenn OGR_PG_SKIP_CONFLICTS nicht möglich ist (GDAL<3.10 oder PG_USE_COPY=YES)
+				avoiddupes=false
+			fi
+
 			psql -X -P pager=off \
 				-v alkis_pgverdraengen=$PGVERDRAENGEN \
 				-v alkis_fnbruch=$FNBRUCH \
-				-v alkis_avoiddupes=$AVOIDDUPES \
+				-v alkis_avoiddupes=$avoiddupes \
 				-v alkis_rebuildmap=$REBUILDMAP \
 				-v alkis_hist=$HISTORIE \
 				-v alkis_epsg=$EPSG \
@@ -543,10 +560,16 @@ EOF
 		}
 		export -f sql
 		runsql() {
+			local avoiddupes=$AVOIDDUPES
+			if [ $AVOIDDUPES = true -a $USECOPY = NO ] && (( GDAL_MAJOR>3 || (GDAL_MAJOR==3 && GDAL_MINOR>=10) )); then
+				# Trigger nur, wenn OGR_PG_SKIP_CONFLICTS nicht möglich ist (GDAL<3.10 oder PG_USE_COPY=YES)
+				avoiddupes=false
+			fi
+
 			psql -X -P pager=off \
 				-v alkis_pgverdraengen=$PGVERDRAENGEN \
 				-v alkis_fnbruch=$FNBRUCH \
-				-v alkis_avoiddupes=$AVOIDDUPES \
+				-v alkis_avoiddupes=$avoiddupes \
 				-v alkis_rebuildmap=$REBUILDMAP \
 				-v alkis_hist=$HISTORIE \
 				-v alkis_epsg=$EPSG \
@@ -614,7 +637,7 @@ EOF
 
 	"pgschema "*)
 		PGSCHEMA=${src#pgschema }
-		if [ $major -lt 3 ] || [ $major -eq 3 -a $minor -lt 1 ]; then
+		if (( GDAL_MAJOR<3 || (GDAL_MAJOR==3 && GDAL_MINOR<1) )); then
 			DST="${DST/ active_schema=*/} active_schema=$SCHEMA','$PGSCHEMA"
 		else
 			DST="${DST/ active_schema=*/} active_schema=$SCHEMA schemas=$SCHEMA,$PGSCHEMA"
@@ -624,7 +647,7 @@ EOF
 
 	"schema "*)
 		SCHEMA=${src#schema }
-		if [ $major -lt 3 ] || [ $major -eq 3 -a $minor -lt 1 ]; then
+		if (( GDAL_MAJOR<3 || (GDAL_MAJOR==3 && GDAL_MINOR<1) )); then
 			DST="${DST/ active_schema=*/} active_schema=$SCHEMA','$PGSCHEMA"
 		else
 			DST="${DST/ active_schema=*/} active_schema=$SCHEMA schemas=$SCHEMA,$PGSCHEMA"
@@ -635,10 +658,10 @@ EOF
 	"quittierung "*)
 		QUITTIERUNG=${src#quittierung }
 		case "$QUITTIERUNG" in
-		an|on|true|an)
+		an|on|true|yes)
 			QUITTIERUNG=true
 			;;
-		aus|off|false)
+		aus|off|false|no)
 			QUITTIERUNG=false
 			;;
 		*)
@@ -653,10 +676,10 @@ EOF
 	"historie "*)
 		HISTORIE=${src#historie }
 		case "${HISTORIE,,}" in
-		an|on|true|an)
+		an|on|true|yes)
 			HISTORIE=true
 			;;
-		aus|off|false)
+		aus|off|false|no)
 			HISTORIE=false
 			;;
 		*)
@@ -671,10 +694,10 @@ EOF
 	"avoiddupes "*)
 		AVOIDDUPES=${src#avoiddupes }
 		case "${AVOIDDUPES,,}" in
-		an|on|true|an)
+		an|on|true|yes)
 			AVOIDDUPES=true
 			;;
-		aus|off|false)
+		aus|off|false|no)
 			AVOIDDUPES=false
 			;;
 		*)
@@ -707,14 +730,14 @@ EOF
 	"usecopy "*)
 		USECOPY=${src#usecopy }
 		case "${USECOPY,,}" in
-		an|on|true|an)
-			USECOPY=ON
+		an|on|true|yes)
+			USECOPY=YES
 			;;
-		aus|off|false)
-			USECOPY=OFF
+		aus|off|false|no)
+			USECOPY=NO
 			;;
 		*)
-			echo "$P: Ungültiger Wert $USECOPY (true oder false erwartet)"
+			echo "$P: Ungültiger Wert $USECOPY (yes oder no erwartet)"
 			exit 1
 			;;
 		esac
@@ -725,10 +748,10 @@ EOF
 	"fnbruch "*)
 		FNBRUCH=${src#fnbruch }
 		case "${FNBRUCH,,}" in
-		an|on|true|an)
+		an|on|true|yes)
 			FNBRUCH=true
 			;;
-		aus|off|false)
+		aus|off|false|no)
 			FNBRUCH=false
 			;;
 		*)
@@ -743,10 +766,10 @@ EOF
 	"pgverdraengen "*)
 		PGVERDRAENGEN=${src#pgverdraengen }
 		case "${PGVERDRAENGEN,,}" in
-		an|on|true|an)
+		an|on|true|yes)
 			PGVERDRAENGEN=true
 			;;
-		aus|off|false)
+		aus|off|false|no)
 			PGVERDRAENGEN=false
 			;;
 		*)
@@ -761,10 +784,10 @@ EOF
 	"transform "*)
 		TRANSFORM=${src#transform }
 		case "${TRANSFORM,,}" in
-		an|on|true|an)
+		an|on|true|yes)
 			TRANSFORM=true
 			;;
-		aus|off|false)
+		aus|off|false|no)
 			TRANSFORM=false
 			;;
 		*)
@@ -780,7 +803,7 @@ EOF
 	"epsg "*)
 		EPSG=${src#epsg }
 
-		if [ $major -ge 3 ]; then
+		if (( GDAL_MAJOR >= 3 )); then
 			case "$EPSG" in
 			13146[678]|3068)
 				export CRS="-a_srs $B/$EPSG.prj"

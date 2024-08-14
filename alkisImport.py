@@ -174,8 +174,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         self.cbFnbruch.setCurrentIndex(0 if s.value("fnbruch", True, type=bool) else 1)
         self.cbPgVerdraengen.setCurrentIndex(1 if s.value("pgverdraengen", False, type=bool) else 0)
-        self.cbxUseCopy.setChecked(s.value("usecopy", True, type=bool))
-        self.cbxAvoidDupes.setChecked(s.value("avoiddupes", False, type=bool))
+        self.cbxUseCopy.setChecked(s.value("usecopy", False, type=bool))
+        self.cbxAvoidDupes.setChecked(s.value("avoiddupes", True, type=bool))
         self.cbxCreate.setChecked(False)
         self.cbxClean.setChecked(False)
         self.cbxHistorie.setDisabled(True)
@@ -648,6 +648,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         return ok
 
     def runSQLScript(self, conn, fn, parallel=False):
+        # Trigger nur, wenn OGR_PG_SKIP_CONFLICTS nicht möglich
+        avoiddupes = self.avoiddupes and not (self.GDAL_MAJOR < 3 or (self.GDAL_MAJOR == 3 and self.GDAL_MINOR < 10))
+
         return self.runProcess([
             self.psql,
             "-v", "alkis_epsg={}".format(3068 if self.epsg == 13068 else self.epsg),
@@ -657,7 +660,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             "-v", "parent_schema={}".format(self.parentschema if self.parentschema else self.schema),
             "-v", "alkis_fnbruch={}".format("true" if self.fnbruch else "false"),
             "-v", "alkis_pgverdraengen={}".format("true" if self.pgverdraengen else "false"),
-            "-v", "alkis_avoiddupes={}".format("true" if self.avoiddupes else "false"),
+            "-v", "alkis_avoiddupes={}".format("true" if avoiddupes else "false"),
             "-v", "alkis_hist={}".format("true" if self.historie else "false"),
             "-v", "alkis_rebuildmap={}".format("true" if self.rebuildmap else "false"),
             "-v", "ON_ERROR_STOP=1",
@@ -758,7 +761,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         s.setValue("files_sf", checked)
 
         s.setValue("skipfailures", self.cbxSkipFailures.isChecked())
-        s.setValue("usecopy", self.cbxUseCopy.isChecked())
+        self.usecopy = self.cbxUseCopy.isChecked()
+        s.setValue("usecopy", self.usecopy)
 
         self.avoiddupes = self.cbxAvoidDupes.isChecked()
         s.setValue("avoiddupes", self.avoiddupes)
@@ -932,8 +936,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             # Verhindern, dass der GML-Treiber übernimmt
             os.putenv("OGR_SKIP", "GML")
 
-            GDAL_MAJOR = int(m.group(1))
-            GDAL_MINOR = int(m.group(2))
+            self.GDAL_MAJOR = int(m.group(1))
+            self.GDAL_MINOR = int(m.group(2))
 
             self.psql = which("psql")
             if not self.psql:
@@ -1165,12 +1169,12 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                             "-progress",
                         ]
 
-                        if GDAL_MAJOR < 3 or (GDAL_MAJOR == 3 and GDAL_MINOR < 1):
+                        if self.GDAL_MAJOR < 3 or (self.GDAL_MAJOR == 3 and self.GDAL_MINOR < 1):
                             args.append("PG:{} active_schema={}','{}".format(conn, self.schema, self.pgschema))
                         else:
                             args.append("PG:{0} schemas='{1},{2}' active_schema={1}".format(conn, self.schema, self.pgschema))
 
-                        if GDAL_MAJOR >= 3:
+                        if self.GDAL_MAJOR >= 3:
                             if self.epsg == 131466 or self.epsg == 131467 or self.epsg == 131468:
                                 args.extend(["-a_srs", os.path.join(BASEDIR, "{}.prj".format(self.epsg))])
 
@@ -1216,7 +1220,10 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         else:
                             if int(self.leGT.text() or '0') >= 1:
                                 args.extend(["-gt", self.leGT.text()])
-                            args.extend(["--config", "PG_USE_COPY", "YES" if self.cbxUseCopy.isChecked() else "NO"])
+                            args.extend(["--config", "PG_USE_COPY", "YES" if self.usecopy else "NO"])
+
+                        if self.avoiddupes and not self.usecopy and (self.GDAL_MAJOR > 3 or (self.GDAL_MAJOR == 3 and self.GDAL_MINOR >= 10)):
+                            args.extend(["--config", "OGR_PG_SKIP_CONFLICTS", "YES"])
 
                         args.extend(["-nlt", "CONVERT_TO_LINEAR", "-ds_transaction"])
 
