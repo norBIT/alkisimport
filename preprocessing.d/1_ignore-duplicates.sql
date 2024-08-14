@@ -16,6 +16,8 @@
 
 \if :alkis_avoiddupes
 
+SELECT 'Mehrfach vorkommende Objekte werden ignoriert.';
+
 SET search_path TO :"alkis_schema",public;
 
 CREATE OR REPLACE FUNCTION ignore_duplicate() RETURNS TRIGGER LANGUAGE plpgsql AS $$
