@@ -23,8 +23,9 @@ SELECT
 	st_multi(o.wkb_geometry) AS point,
 	0 AS drehwinkel,
 	CASE
-	WHEN abmarkung_marke=1700 AND p.gml_id LIKE 'DENW%' THEN 3024
-	WHEN abmarkung_marke=9500 AND p.gml_id LIKE 'DENW%' THEN 3024
+	WHEN abmarkung_marke=1700 AND (p.gml_id LIKE 'DENW%' OR p.gml_id LIKE 'DESH%') THEN 3024
+	WHEN abmarkung_marke=1710 AND p.gml_id LIKE 'DESH%' THEN 3024
+	WHEN abmarkung_marke=9500 AND (p.gml_id LIKE 'DENW%' OR p.gml_id LIKE 'DESH%') THEN 3024
 	WHEN abmarkung_marke=9600 THEN 3022
 	WHEN abmarkung_marke=9998 THEN 3024
 	ELSE 3020
@@ -33,7 +34,7 @@ SELECT
 FROM ax_grenzpunkt p
 JOIN po_punktortta_istteilvon itv ON p.gml_id=itv.istteilvon
 JOIN ax_punktortta o ON itv.gml_id=o.gml_id AND o.endet IS NULL
-WHERE (abmarkung_marke<>9500 OR (abmarkung_marke = 9500 AND p.gml_id LIKE 'DENW%')) AND p.endet IS NULL;
+WHERE (abmarkung_marke<>9500 OR (abmarkung_marke = 9500 AND (p.gml_id LIKE 'DENW%' OR  p.gml_id LIKE 'DESH%'))) AND p.endet IS NULL;
 
 /*
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
