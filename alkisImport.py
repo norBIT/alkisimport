@@ -176,6 +176,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.cbxHistorie.setDisabled(True)
         self.cbxHistorie.setChecked(s.value("historie", True, type=bool))
         self.cbxQuittierung.setChecked(s.value("quittierung", False, type=bool))
+        self.cbxTransform.setChecked(s.value("transform", False, type=bool))
 
         self.cbEPSG.addItem("UTM32N", "25832")
         self.cbEPSG.addItem("UTM33N", "25833")
@@ -187,7 +188,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.cbEPSG.addItem("DHDN GK4 (BY)", "31468")
         self.cbEPSG.addItem("Soldner-Berlin (vortransformiert)", "3068")
         self.cbEPSG.addItem("Soldner-Berlin (transformieren)", "13068")
-        self.cbEPSG.setCurrentIndex(self.cbEPSG.findData(s.value("epsg", "25832")))
+        self.cbEPSG.addItem("Benutzer-EPSG", "-1")
 
         self.pbAdd.clicked.connect(self.selFiles)
         self.pbAddDir.clicked.connect(self.selDir)
@@ -197,6 +198,15 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.pbSave.clicked.connect(self.saveList)
         self.lstFiles.itemSelectionChanged.connect(self.selChanged)
         self.cbxSkipFailures.toggled.connect(self.skipFailuresToggled)
+        self.cbEPSG.currentIndexChanged.connect(self.epsgChanged)
+        self.cbxCreate.toggled.connect(self.createChanged)
+
+        epsg = s.value("epsg", "25832")
+        i = self.cbEPSG.findData(epsg)
+        if i == -1:
+            i = self.cbEPSG.findData("-1")
+            self.leCustomEpsg.setText(str(epsg))
+        self.cbEPSG.setCurrentIndex(i)
 
         self.pbStart.clicked.connect(self.run)
         self.pbLoadLog.clicked.connect(self.loadLog)
@@ -360,6 +370,16 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 line = os.path.join(os.path.dirname(fn), line)
             self.lstFiles.addItem(os.path.abspath(line))
         f.close()
+
+    def createChanged(self):
+        self.cbEPSG.setEnabled(self.cbxCreate.isChecked())
+        self.cbxHistorie.setEnabled(self.cbxCreate.isChecked())
+        self.cbxClean.setEnabled(not self.cbxCreate.isChecked())
+        self.cbxTransform.setEnabled(self.cbxCreate.isChecked())
+        self.epsgChanged()
+
+    def epsgChanged(self):
+        self.leCustomEpsg.setEnabled(self.cbxCreate.isChecked() and self.cbEPSG.currentIndex() == self.cbEPSG.findData("-1"))
 
     def selChanged(self):
         self.pbRemove.setDisabled(len(self.lstFiles.selectedItems()) == 0)
@@ -625,6 +645,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         return self.runProcess([
             self.psql,
             "-v", "alkis_epsg={}".format(3068 if self.epsg == 13068 else self.epsg),
+            "-v", "alkis_transform={}".format(self.transform),
             "-v", "alkis_schema={}".format(self.schema),
             "-v", "postgis_schema={}".format(self.pgschema),
             "-v", "parent_schema={}".format(self.parentschema if self.parentschema else self.schema),
@@ -743,7 +764,12 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.quittierung = self.cbxQuittierung.isChecked()
         s.setValue("quittierung", self.quittierung)
 
+        self.transform = self.cbxTransform.isChecked()
+        s.setValue("transform", self.transform)
+
         self.epsg = int(self.cbEPSG.itemData(self.cbEPSG.currentIndex()))
+        if self.epsg == -1:
+            self.epsg = int(self.leCustomEpsg.text())
         s.setValue("epsg", self.epsg)
 
         self.running = True

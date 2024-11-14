@@ -35,7 +35,7 @@
         <item row="2" column="1">
          <widget class="QLineEdit" name="lePORT">
           <property name="inputMask">
-           <string>99999; </string>
+           <string>99999</string>
           </property>
           <property name="text">
            <string/>
@@ -209,7 +209,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="4" column="1" colspan="3">
          <widget class="QComboBox" name="cbPgVerdraengen">
           <item>
            <property name="text">
@@ -233,6 +233,26 @@
           </property>
          </widget>
         </item>
+        <item row="2" column="2">
+         <widget class="QLineEdit" name="leCustomEpsg">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="inputMask">
+           <string>999999</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QCheckBox" name="cbxTransform">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Eingabedaten transformieren</string>
+          </property>
+         </widget>
+        </item>
         <item row="3" column="0">
          <widget class="QLabel" name="label_8">
           <property name="text">
@@ -243,7 +263,7 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="3" column="1" colspan="3">
          <widget class="QComboBox" name="cbFnbruch">
           <item>
            <property name="text">
@@ -257,7 +277,7 @@
           </item>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="5" column="1" colspan="3">
          <widget class="QLineEdit" name="leGT">
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
@@ -273,7 +293,7 @@
           </property>
          </widget>
         </item>
-        <item row="13" column="0" colspan="2">
+        <item row="13" column="0" colspan="4">
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
            <widget class="QCheckBox" name="cbxSkipFailures">
@@ -305,7 +325,7 @@
           </item>
          </layout>
         </item>
-        <item row="0" column="0" colspan="2">
+        <item row="0" column="0" colspan="4">
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
            <widget class="QCheckBox" name="cbxCreate">
@@ -618,6 +638,8 @@
   <tabstop>cbxHistorie</tabstop>
   <tabstop>cbxQuittierung</tabstop>
   <tabstop>cbEPSG</tabstop>
+  <tabstop>leCustomEpsg</tabstop>
+  <tabstop>cbxTransform</tabstop>
   <tabstop>cbFnbruch</tabstop>
   <tabstop>cbPgVerdraengen</tabstop>
   <tabstop>leGT</tabstop>
@@ -697,8 +719,24 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>809</x>
-     <y>78</y>
+     <x>690</x>
+     <y>50</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>50</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbxCreate</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leCustomEpsg</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>598</x>
+     <y>43</y>
     </hint>
     <hint type="destinationlabel">
      <x>1507</x>
