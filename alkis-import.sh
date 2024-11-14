@@ -522,6 +522,7 @@ EOF
 				-v alkis_avoiddupes=$AVOIDDUPES \
 				-v alkis_hist=$HISTORIE \
 				-v alkis_epsg=$EPSG \
+				-v alkis_transform=$TRANSFORM \
 				-v alkis_schema=$SCHEMA \
 				-v postgis_schema=$PGSCHEMA \
 				-v parent_schema=${PARENTSCHEMA:-$SCHEMA} \
@@ -545,6 +546,7 @@ EOF
 				-v alkis_avoiddupes=$AVOIDDUPES \
 				-v alkis_hist=$HISTORIE \
 				-v alkis_epsg=$EPSG \
+				-v alkis_transform=$TRANSFORM \
 				-v alkis_schema=$SCHEMA \
 				-v postgis_schema=$PGSCHEMA \
 				-v parent_schema=${PARENTSCHEMA:-$SCHEMA} \
@@ -734,6 +736,25 @@ EOF
 		continue
 		;;
 
+	"transform "*)
+		TRANSFORM=${src#transform }
+		case "${TRANSFORM,,}" in
+		an|on|true|an)
+			TRANSFORM=true
+			;;
+		aus|off|false)
+			TRANSFORM=false
+			;;
+		*)
+			echo "$P: Ungültiger Wert $TRANSFORM (true oder false erwartet)"
+			exit 1
+			;;
+		esac
+
+		continue
+		;;
+
+
 	"epsg "*)
 		EPSG=${src#epsg }
 
@@ -749,6 +770,7 @@ EOF
 				export CRS="-s_srs $B/1$EPSG.prj -t_srs EPSG:$EPSG"
 				;;
 			*)
+				export CRS="-a_srs EPSG:$EPSG"
 				;;
 			esac
 
@@ -764,6 +786,8 @@ EOF
 				export PROJ_LIB=$B CRS="-s_srs +init=custom:1$EPSG -t_srs EPSG:$EPSG"
 				;;
 			*)
+				export CRS="-a_srs EPSG:$EPSG"
+
 				;;
 			esac
 
