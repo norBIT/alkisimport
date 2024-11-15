@@ -26,7 +26,7 @@ package: $(O4WPKG) $(O4WSRCPKG)
 $(O4WPKG): alkis-import.cmd postinstall.bat preremove.bat
 	mkdir -p osgeo4w/{apps/$(PKG)/{preprocessing,postprocessing}.d,bin,etc/{postinstall,preremove}}
 
-	git tag osgeo4w-$(VERSION)-$(P)
+	git tag osgeo4w-$(VERSION)-$(P) -m osgeo4w-$(VERSION)-$(P)
 	git archive --format=tar --prefix=osgeo4w/apps/$(PKG)/ HEAD | tar -xf -
 	sed -e "s/@PKG@/$(PKG)/g; s/@VERSION/$(VERSION)/g; s/@SHORTCUT@/$(SHORTCUT)/g;" alkis-import.cmd >osgeo4w/bin/$(PKG).cmd
 	sed -e "s/@PKG@/$(PKG)/g; s/@VERSION/$(VERSION)/g; s/@SHORTCUT@/$(SHORTCUT)/g;" postinstall.bat >osgeo4w/etc/postinstall/$(PKG).bat

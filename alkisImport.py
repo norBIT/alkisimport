@@ -684,6 +684,10 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.schema = self.leSCHEMA.text()
         self.pgschema = self.lePGSCHEMA.text()
 
+        if self.schema == "":
+            self.log("Kein ALKIS-Schema angegeben")
+            return None
+
         qry = self.db.exec_("SELECT 1 FROM pg_namespace WHERE nspname='{}'".format(self.schema.replace("'", "''")))
         if not qry:
             self.log("Konnte Schema nicht überprüfen! [{}]".format(qry.lastError().text()))
