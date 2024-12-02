@@ -91,8 +91,23 @@ nba = et.fromstring(header + footer[(p + 3 + len(key)):], parser)
 if not nba.tag.endswith("AX_NutzerbezogeneBestandsdatenaktualisierung_NBA"):
     usage("AX_NutzerbezogeneBestandsdatenaktualisierung_NBA auf oberster Ebene erwartet. {} gefunden.".format(nba.tag))
 
+prefix = None
+for i in [
+        './/portionskennung/AX_Portionskennung/profilkennung',
+        './/profilkennung',
+        './/antragsnummer',
+        './/auftragsnummer'
+]:
+    e = nba.find(i, nba.nsmap)
+    if e is not None:
+        prefix = e.text
+        break
+
+if prefix is None:
+    prefix = "quittierung"
+
 outputfile = os.path.join(outputdir, "{}_{}_NBA_Quittierung_ID_{}.xml".format(
-    nba.find('.//portionskennung/AX_Portionskennung/profilkennung', nba.nsmap).text,
+    prefix,
     datetime.strptime(
         nba.find('.//portionskennung/AX_Portionskennung/datum', nba.nsmap).text,
         '%Y-%m-%dT%H:%M:%SZ'
