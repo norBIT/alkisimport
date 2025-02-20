@@ -51,6 +51,7 @@ export SCHEMA=public
 export PARENTSCHEMA=
 export PGSCHEMA=public
 export USECOPY=YES
+export TRANSFORM=false
 
 B=${0%/*}   # BASEDIR
 if [ "$0" = "$B" ]; then
