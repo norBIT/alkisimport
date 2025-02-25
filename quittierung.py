@@ -136,6 +136,7 @@ else:
 
     for n in [
         './/portionskennung/AX_Portionskennung/profilkennung',
+        './/profilkennung',
         './/antragsnummer',
         './/auftragsnummer'
     ]:
@@ -155,7 +156,7 @@ else:
 
 erfolgreich = et.SubElement(q, "portionNBAErfolgreich", nsmap=nba.nsmap)
 
-portion = et.SubElement(erfolgreich, 'AX_Portion_Erfolgreich', attrib={"{%s}id" % nba.nsmap['gml']: gml_id}, nsmap=nba.nsmap)
+portion = et.SubElement(erfolgreich, 'AX_Portion_Erfolgreich', nsmap=nba.nsmap)
 portion.append(nba.find('.//portionskennung', nba.nsmap))
 
 pe = et.SubElement(portion, 'erfolgreich', nsmap=nba.nsmap)
