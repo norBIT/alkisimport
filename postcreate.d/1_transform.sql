@@ -23,7 +23,7 @@ SELECT 'Eingabedaten werde in ' || :'alkis_epsg' || ' transformiert.';
 SELECT format('
 CREATE OR REPLACE FUNCTION inplace_transform() RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN
-  IF substr(NEW.gml_id, 3, 2) IN (''BW'',''BY'',''HB'',''HE'',''HH'',''NW'',''RP'',''SH'',''SL'',''ST'',''TH'') THEN
+  IF substr(NEW.gml_id, 3, 2) IN (''BW'',''BY'',''HB'',''HE'',''HH'',''NI'',''NW'',''RP'',''SH'',''SL'',''ST'',''TH'') THEN
     NEW.wkb_geometry := st_transform(st_setsrid(NEW.wkb_geometry, 25832), %s);
   ELSE
     NEW.wkb_geometry := st_transform(st_setsrid(NEW.wkb_geometry, 25833), %s);
