@@ -803,7 +803,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         QApplication.setOverrideCursor(Qt.WaitCursor)
 
         id_quittierung = None
-        i_quittierung = 0
 
         while True:
             t0 = QElapsedTimer()
@@ -1270,8 +1269,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                             if qry and qry.next():
                                 id_quittierung = qry.value(0)
 
-                        self.runProcess([sys.executable, os.path.join(BASEDIR, "quittierung.py"), ".", src, "ID_{:08d}".format(i_quittierung), str(id_quittierung), "true" if ok else "false"])
-                        i_quittierung += 1
+                        self.runProcess([sys.executable, os.path.join(BASEDIR, "quittierung.py"), ".", src, str(id_quittierung), "true" if ok else "false"])
 
                     item.setSelected(ok)
                     if src != fn and os.path.exists(src):
