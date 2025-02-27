@@ -288,7 +288,6 @@ process() {
 				quittierungsnr=$(psql -A -X -t -c "SELECT nextval('$SCHEMA.alkis_quittierungen_seq')" "$DB")
 				quittierungsnr=${quittierungsnr//[	 ]}
 				export quittierungsnr
-				export quittierungsi=0
 			fi
 		fi
 
@@ -331,8 +330,7 @@ progress() {
 		else
 			success=false
 		fi
-		python3 $B/quittierung.py . "$dst" "$(printf "ID_%08d" $quittierungsi)" $quittierungsnr $success
-		(( ++quittierungsi ))
+		python3 $B/quittierung.py . "$dst" $quittierungsnr $success
 	fi
 
 
@@ -362,7 +360,6 @@ remaining_size=$remaining_size
 last_time=$t1
 errors=$errors
 quittierungsnr=$quittierungsnr
-quittierungsi=$quittierungsi
 EOF
 
 	unlock
