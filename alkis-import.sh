@@ -410,10 +410,10 @@ GDAL_MAJOR=${GDAL_VERSION#GDAL }
 GDAL_MAJOR=${GDAL_MAJOR%%.*}
 GDAL_MINOR=${GDAL_VERSION#GDAL $GDAL_MAJOR.}
 GDAL_MINOR=${GDAL_MINOR%%.*}
-if (( GDAL_MAJOR < 2 || (( GDAL_MAJOR==2 && GDAL_MINOR<3 ) )); then
+if (( GDAL_MAJOR < 2 || (GDAL_MAJOR==2 && GDAL_MINOR<3) )); then
 	echo "$P: erfordert GDAL >=2.3" >&2
 	exit 1
-elif (( GDAL_MAJOR < 3 || ((GDAL_MAJOR==3 && GDAL_MINOR<8) )); then
+elif (( GDAL_MAJOR < 3 || (GDAL_MAJOR==3 && GDAL_MINOR<8) )); then
 	export NAS_GFS_TEMPLATE=$B/alkis-schema.37.gfs
 	export NAS_NO_RELATION_LAYER=YES
 else
@@ -422,7 +422,7 @@ fi
 export GDAL_MAJOR GDAL_MINOR
 
 # Verhindern, dass andere GML-Treiber übernehmen
-if (( GDAL_MAJOR< 3 || (GDAL_MAJOR==3 && GDAL_MINOR<3 )); then
+if (( GDAL_MAJOR< 3 || (GDAL_MAJOR==3 && GDAL_MINOR<3) )); then
 	export OGR_SKIP=GML,SEGY
 else
 	export OGR_SKIP=GML
