@@ -111,9 +111,9 @@ FROM (
 		coalesce(t.advstandardmodell||t.sonstigesmodell,o.advstandardmodell||o.sonstigesmodell) AS modell
 	FROM ax_industrieundgewerbeflaeche o
 	LEFT OUTER JOIN ap_pto t ON ARRAY[o.gml_id] <@ t.dientzurdarstellungvon AND t.art='FKT' AND t.endet IS NULL
-	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='FKT' AND d.endet IS NULL
+	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
 	WHERE o.endet IS NULL
-) AS i WHERE NOT text IS NULL;
+) AS i WHERE NOT text IS NULL AND signaturnummer != '6000';
 
 -- Industrie- und Gewerbefläche, Funktionssymbole
 INSERT INTO po_points(gml_id,thema,layer,point,drehwinkel,signaturnummer,modell)
@@ -146,7 +146,7 @@ FROM (
 		) AS modell
 	FROM ax_industrieundgewerbeflaeche o
 	LEFT OUTER JOIN ap_ppo p ON ARRAY[o.gml_id] <@ p.dientzurdarstellungvon AND p.art='FKT' AND p.endet IS NULL
-	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.art='FKT' AND d.endet IS NULL
+	LEFT OUTER JOIN ap_darstellung d ON ARRAY[o.gml_id] <@ d.dientzurdarstellungvon AND d.endet IS NULL
 	WHERE o.endet IS NULL
 ) AS o
-WHERE NOT signaturnummer IS NULL;
+WHERE NOT signaturnummer IS NULL AND signaturnummer != '6000';
