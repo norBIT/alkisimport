@@ -72,18 +72,36 @@ BEGIN
 
 	RAISE NOTICE 'ALKIS-Schema-Version: %', ver;
 
-	IF ver<101 THEN
+	IF ver<100 THEN
 		RAISE EXCEPTION 'Migration von Schema-Version vor GID 7.1.2 wird nicht unterstützt.';
 	END IF;
 
-	IF ver=100 THEN
+	IF ver<101 THEN
 		RAISE NOTICE 'Migriere auf Schema-Version 101 (GID 7.1.2)';
 
 		UPDATE alkis_version SET version=101;
 	END IF;
 
-	IF ver>101 THEN
-		RAISE EXCEPTION 'ALKIS-Schema % nicht unterstützt (bis 101).', ver;
+	IF ver<102 THEN
+		RAISE NOTICE 'Migriere auf Schema-Version 102';
+
+		FOR c IN
+			SELECT table_name
+			FROM information_schema.columns a
+			WHERE a.table_schema=current_schema()
+			  AND (substr(a.table_name,1,3) IN ('ax_','ap_','ln_','lb_','au_','aa_') OR a.table_name='delete')
+			  AND a.column_name='endet'
+		LOOP
+			EXECUTE 'UPDATE ' || c.table_name || ' SET endet=substr(endet,1,4)||''-''||substr(endet,5,2)||''-''||substr(endet,7,5)||'':''||substr(endet,12,2)||'':''||substr(endet,14,3) WHERE length(endet)=16';
+		END LOOP;
+
+		UPDATE alkis_version SET version=102;
+
+		r := alkis_string_append(r, 'ALKIS-Schema migriert');
+	END IF;
+
+	IF ver>102 THEN
+		RAISE EXCEPTION 'ALKIS-Schema % nicht unterstützt (bis 102).', ver;
 	END IF;
 
 	--
@@ -111,4 +129,5 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+SET search_path = :"alkis_schema", :"postgis_schema", public;
 SELECT pg_temp.alkis_update_schema();

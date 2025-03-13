@@ -70,9 +70,9 @@ def getdate(inputfile):
         return None
 
     try:
-        return datetime.strptime(ts.text, '%Y-%m-%dT%H:%M:%SZ').strftime("%Y%m%dT%H%M%SZ")
+        return datetime.strptime(ts.text, '%Y-%m-%dT%H:%M:%SZ').strftime("%Y-%m-%dT%H:%M:%SZ")
     except:
-        return datetime.strptime(ts.text, '%Y-%m-%dT%H:%M:%S.%fZ').strftime("%Y%m%dT%H%M%SZ")
+        return datetime.strptime(ts.text, '%Y-%m-%dT%H:%M:%S.%fZ').strftime("%Y-%m-%dT%H:%M:%SZ")
 
 if __name__ == '__main__':
     import sys
