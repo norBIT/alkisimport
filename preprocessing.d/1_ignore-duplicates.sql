@@ -24,7 +24,7 @@ CREATE OR REPLACE FUNCTION ignore_duplicate() RETURNS TRIGGER LANGUAGE plpgsql A
 DECLARE
   i INTEGER;
 BEGIN
-  EXECUTE format('SELECT count(*) FROM %I.%I WHERE gml_id=%L AND beginnt=%L', TG_TABLE_SCHEMA, TG_TABLE_NAME, NEW.gml_id, NEW.beginnt) INTO i;
+  EXECUTE 'SELECT count(*) FROM ' || quote_ident(TG_TABLE_SCHEMA) || '.' || quote_ident(TG_TABLE_NAME) || ' WHERE gml_id=' || quote_literal(NEW.gml_id) || ' AND beginnt=' || quote_literal(NEW.beginnt) INTO i;
   IF i>0 THEN
     RETURN NULL;
   ELSE
@@ -33,14 +33,14 @@ BEGIN
 END;
 $$ SET search_path TO :"alkis_schema";
 
-SELECT format(E'DROP TRIGGER IF EXISTS %I ON %I.%I;\nCREATE TRIGGER %I BEFORE INSERT ON %I.%I FOR EACH ROW EXECUTE PROCEDURE ignore_duplicate();',
-        a.table_name || '_insert', a.table_schema, a.table_name,
-        a.table_name || '_insert', a.table_schema, a.table_name)
-    FROM information_schema.columns a
-    JOIN information_schema.columns b ON a.table_schema=b.table_schema AND a.table_name=b.table_name AND b.column_name='beginnt'
-    WHERE a.table_schema=:'alkis_schema'
-      AND substr(a.table_name,1,3) IN ('ax_','ap_','ks_','aa_','au_','ta_')
-      AND a.column_name='gml_id';
+SELECT
+	'SELECT alkis_dropobject(' || quote_literal(a.table_name || '_insert') || E');\n' ||
+	'CREATE TRIGGER ' || quote_ident(a.table_name || '_insert') || ' BEFORE INSERT ON ' || quote_ident(a.table_schema) || '.' || quote_ident(a.table_name) || ' FOR EACH ROW EXECUTE PROCEDURE ignore_duplicate();'
+FROM information_schema.columns a
+JOIN information_schema.columns b ON a.table_schema=b.table_schema AND a.table_name=b.table_name AND b.column_name='beginnt'
+WHERE a.table_schema=:'alkis_schema'
+  AND substr(a.table_name,1,3) IN ('ax_','ap_','ks_','aa_','au_','ta_')
+  AND a.column_name='gml_id';
 \gexec
 
 \endif

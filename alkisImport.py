@@ -641,9 +641,13 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         return ok
 
+    # INSERT…ON CONFLICT DO NOTHING nur verwendbar mit GDAL>=3.10, PostgreSQL>=9.5 und ohne COPY
+    def useonconflict(self):
+        return self.avoiddupes and not self.usecopy and (self.GDAL_MAJOR > 3 or (self.GDAL_MAJOR == 3 and self.GDAL_MINOR >= 10)) and (self.PG_MAJOR > 9 or (self.PG_MAJOR == 9 and self.PG_MINOR >= 5))
+
     def runSQLScript(self, conn, fn, parallel=False):
-        # Trigger nur, wenn OGR_PG_SKIP_CONFLICTS nicht möglich
-        avoiddupes = self.avoiddupes and not (self.GDAL_MAJOR < 3 or (self.GDAL_MAJOR == 3 and self.GDAL_MINOR < 10))
+        # Trigger nur, wenn OGR_PG_SKIP_CONFLICTS nicht möglich ist
+        avoiddupes = self.avoiddupes and not self.useonconflict()
 
         return self.runProcess([
             self.psql,
@@ -812,12 +816,35 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             if conn is None:
                 break
 
-            self.db.exec_("SET application_name='ALKIS-Import - Frontend'")
-            self.db.exec_("SET client_min_messages TO notice")
+            qry = self.db.exec_("SELECT version()")
+
+            if not qry or not qry.next():
+                self.log("Konnte PostgreSQL-Version nicht bestimmen!")
+                break
+
+            self.log("Datenbank-Version: {}".format(qry.value(0)))
+
+            m = re.search("PostgreSQL (\\d+)\\.(\\d+)", qry.value(0))
+            if not m:
+                self.log("PostgreSQL-Version nicht im erwarteten Format")
+                break
+
+            self.PG_MAJOR = int(m.group(1))
+            self.PG_MINOR = int(m.group(2))
+
+            if self.PG_MAJOR < 8 or (self.PG_MAJOR == 8 and self.PG_MAJOR < 4):
+                self.log("Mindestens PostgreSQL 8.4 erforderlich")
+                break
+
+            if self.PG_MAJOR >= 9:
+                self.db.exec_("SET application_name='ALKIS-Import - Frontend'")
+
+            if self.PG_MAJOR > 9 or (self.PG_MAJOR == 9 and self.PG_MINOR >= 4):
+                self.db.exec_("SET client_min_messages TO notice")
 
             qry = self.db.exec_("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='alkis_importlog'")
             if not qry or not qry.next():
-                self.log("Konnte Existenz von Protokolltabelle nicht überprüfen.")
+                self.log("Konnte Existenz der Protokolltabelle nicht überprüfen.")
                 break
 
             if int(qry.value(0)) == 0:
@@ -849,23 +876,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     self.runProcess([git, "log", "-1", "--pretty=Import-Version: %h"])
                 else:
                     self.log("Import-Version: unbekannt")
-
-            qry = self.db.exec_("SELECT version()")
-
-            if not qry or not qry.next():
-                self.log("Konnte PostgreSQL-Version nicht bestimmen!")
-                break
-
-            self.log("Datenbank-Version: {}".format(qry.value(0)))
-
-            m = re.search("PostgreSQL (\\d+)\\.(\\d+)", qry.value(0))
-            if not m:
-                self.log("PostgreSQL-Version nicht im erwarteten Format")
-                break
-
-            if int(m.group(1)) < 8 or (int(m.group(1)) == 8 and int(m.group(2)) < 4):
-                self.log("Mindestens PostgreSQL 8.4 erforderlich")
-                break
 
             qry = self.db.exec_("SELECT postgis_full_version()")
             if not qry or not qry.next():
@@ -1221,7 +1231,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                                 args.extend(["-gt", self.leGT.text()])
                             args.extend(["--config", "PG_USE_COPY", "YES" if self.usecopy else "NO"])
 
-                        if self.avoiddupes and not self.usecopy and (self.GDAL_MAJOR > 3 or (self.GDAL_MAJOR == 3 and self.GDAL_MINOR >= 10)):
+                        if self.useonconflict():
                             args.extend(["--config", "OGR_PG_SKIP_CONFLICTS", "YES"])
 
                         args.extend(["-nlt", "CONVERT_TO_LINEAR", "-ds_transaction"])
@@ -1231,8 +1241,8 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                             if ffdate is not None:
                                 args.extend(["-doo", f"PRELUDE_STATEMENTS=CREATE TEMPORARY TABLE deletedate AS SELECT '{ffdate}'::character(20) AS endet"])
                                 self.log(f"{fn}: Fortführungsdatum {ffdate}")
-                        except Exception as e:
-                            pass
+                        except Exception:
+                            ffdate = None
 
                         args.append(src)
 
@@ -1243,6 +1253,16 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
                         ok = self.runProcess(args)
 
+                        if ok:
+                            if qry.prepare("INSERT INTO alkis_importe(filename,datadate) VALUES (?,?)"):
+                                qry.addBindValue(fn)
+                                qry.addBindValue(ffdate)
+                                if not qry.exec_():
+                                    self.log("Konnte Import nicht speichern! [{}]".format(qry.lastError().text()))
+                                    break
+                            else:
+                                self.log("Konnte Speichern des Imports nicht vorbereiten! [{}]".format(qry.lastError().text()))
+                                break
                         try:
                             os.unlink(src[:-4] + ".gfs")
                         except OSError:
@@ -1274,8 +1294,10 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                             if qry and qry.next():
                                 id_quittierung = qry.value(0)
 
-                        self.runProcess([sys.executable, os.path.join(BASEDIR, "quittierung.py"), ".", src, "ID_{:08d}".format(i_quittierung), str(id_quittierung), "true" if ok else "false"])
-                        i_quittierung += 1
+                        if not self.runProcess([sys.executable, os.path.join(BASEDIR, "quittierung.py"), ".", src, str(id_quittierung), "true" if ok else "false"]):
+                            self.log("Quittierung gescheitert!")
+                            ok = False
+                            break
 
                     item.setSelected(ok)
                     if src != fn and os.path.exists(src):

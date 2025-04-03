@@ -100,12 +100,22 @@ BEGIN
 
 	FOR c IN SELECT relname,conname
 		FROM pg_catalog.pg_constraint
-		JOIN pg_catalog.pg_class ON pg_constraint.conrelid=pg_constraint.oid
+		JOIN pg_catalog.pg_class ON pg_constraint.conrelid=pg_class.oid
 		JOIN pg_catalog.pg_namespace ON pg_constraint.connamespace=pg_namespace.oid
 		WHERE pg_namespace.nspname=current_schema() AND pg_constraint.conname=t
 	LOOP
 		r := alkis_string_append(r, 'Constraint ' || c.conname || ' von ' || c.relname || ' gelöscht.');
 		EXECUTE 'ALTER TABLE ' || c.relname || ' DROP CONSTRAINT ' || c.conname;
+	END LOOP;
+
+	FOR c IN SELECT tgname,relname
+		FROM pg_catalog.pg_trigger
+		JOIN pg_catalog.pg_class ON pg_trigger.tgrelid=pg_class.oid
+		JOIN pg_catalog.pg_namespace ON pg_class.relnamespace=pg_namespace.oid
+		WHERE pg_namespace.nspname=current_schema() AND pg_trigger.tgname=t
+	LOOP
+		r := alkis_string_append(r, 'Trigger ' || c.tgname || ' von ' || c.relname || ' gelöscht.');
+		EXECUTE 'DROP TRIGGER ' || c.tgname || ' ON ' || c.relname;
 	END LOOP;
 
 	RETURN r;

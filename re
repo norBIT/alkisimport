@@ -21,7 +21,7 @@
 ^GDAL: In GDALDestroy - unloading GDAL shared library\.\s*$
 ^psql:.*: (NOTICE|HINWEIS):\s+(function|aggregate|Funktion|Aggregatfunktion) ([^.]+\.)?alkis_accum\(anyarray\) (does not exist, skipping|existiert nicht, wird \S+bersprungen)
 ^psql:.*: (NOTICE|HINWEIS):\s+(function|Funktion) ([^.]+\.)?alkis_(drop\(\)|dropobject\(text\)|delete\(\)|mviews\(\)|update_schema\(\)|set_schema\(text\)) (does not exist, skipping|existiert nicht, wird \S+bersprungen)$
-^psql:.*: (NOTICE|HINWEIS):\s+(trigger|Trigger)\s+\S+_insert.*(does not exist, skipping|existiert nicht, wird \S+bersprungen)
+^psql:.*: (NOTICE|HINWEIS):\s+(trigger|Trigger)\s+\S+_(insert|transform).*(does not exist, skipping|existiert nicht, wird \S+bersprungen)
 ^psql:.*: (NOTICE|HINWEIS):\s+Dropping (table|view|sequence) 
 ^psql:.*: (NOTICE|HINWEIS):\s+gserialized_gist_joinsel: jointype 4 not supported\s*$
 ^psql:.*: (NOTICE|HINWEIS):\s+(geometry|LWGEOM)_gist_joinsel called with incorrect join type\s*$
@@ -31,7 +31,8 @@
 ^psql:.*: (WARNUNG|WARNING):\s+.*(only (superuser|table or database owner) can vacuum it|nur Superuser kann sie vacuumen)\s*$
 ^psql:.*: (WARNUNG|WARNING):\s+.*(permission denied to vacuum ".*", skipping it|keine Berechtigung für Vacuum von ».*«, wird übersprungen)\s*$
 ^TIP:  No function matches the given name and argument types\. You might need to add explicit type casts\.
-^\s+(DROP TRIGGER IF EXISTS|CREATE TRIGGER) \S+_insert
+^\s+(DROP TRIGGER IF EXISTS|CREATE TRIGGER) \S+_(insert|transform)
+^\s+SELECT alkis_dropobject\('\S+_(insert|transform)'\)
 ^CONTEXT:  PL\/pgSQL-Funktion (pg_temp_\d+\.)?(alkis|alb)_.* Zeile \d+ bei RAISE
 ^CONTEXT:  SQL statement in PL\/PgSQL function "alkis_(update_schema|set_comments)" near line \d+\s*$
 ^CONTEXT:  SQL statement "ALTER TABLE alkis_(flaechen|linien|schriften) ADD PRIMARY KEY \(katalog,signaturnummer\)"
