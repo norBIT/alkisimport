@@ -187,7 +187,7 @@ CREATE VIEW v_denkmal_adf AS
 	SELECT
 		wert::int AS wert
 		,beschreibung AS bezeichner
-		,'71009'AS kennung
+		,'71009'::text AS kennung
 		,'ax_denkmalschutzrecht'::text AS objektart
 	FROM ax_artderfestlegung_denkmalschutzrecht;
 

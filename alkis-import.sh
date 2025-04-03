@@ -52,6 +52,8 @@ export PGSCHEMA=public
 export USECOPY=NO
 export REBUILDMAP=false
 export TRANSFORM=false
+export PG_MAJOR=
+export PG_MINOR=
 
 B=${0%/*}   # BASEDIR
 if [ "$0" = "$B" ]; then
@@ -215,16 +217,14 @@ import() {
 	echo "IMPORT $(bdate): $dst $(memunits $s)"
 
 	if [ -n "$sfre" ] && eval [[ "$src" =~ "$sfre" ]]; then
-		echo "WARNING: Importfehler werden ignoriert"
+		echo "WARNUNG: Importfehler werden ignoriert"
 		opt="$opt -skipfailures"
 	fi
 	opt="$opt -ds_transaction --config PG_USE_COPY $USECOPY -nlt CONVERT_TO_LINEAR"
 
 	if [ $AVOIDDUPES = "true" ]; then
-		if [ $USECOPY = "NO" ] && (( GDAL_MAJOR>3 || (GDAL_MAJOR==3 && GDAL_MINOR>=10) )); then
+		if useonconflict; then
 			opt="$opt --config OGR_PG_SKIP_CONFLICTS YES"
-		elif (( $JOBS != 1 )); then
-			echo "WARNING: Paralleler Import bei Fortführung/Duplikate ignorieren kann mit GDAL <3.10 oder USECOPY zu Abbrüchen führen"
 		fi
 	fi
 
@@ -238,6 +238,7 @@ import() {
 	esac
 
 	if ffdate=$(python3 $B/ffdate.py "$dst1"); then
+		ffdate=${ffdate//[	 ]}
 		opt="$opt -doo \"PRELUDE_STATEMENTS=CREATE TEMPORARY TABLE deletedate AS SELECT '$ffdate'::character(20) AS endet\""
 	elif (( $? == 2 )); then
 		:
@@ -251,7 +252,7 @@ import() {
 	local r=$?
 	t1=$(bdate +%s)
 
-	progress "$dst" "$dst1" $s $t0 $t1 $r
+	progress "$src" "$dst1" $s $t0 $t1 $r
 
 	[ $rm == 1 ] && rm -fv "$dst"
 	trap "" EXIT
@@ -282,13 +283,17 @@ process() {
 				n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_sequences WHERE schemaname='${SCHEMA//\'/\'\'}' AND sequencename='alkis_quittierungen_seq'" "$DB")
 				n=${n//[	 ]}
 				if [ $n -eq 0 ]; then
-					runsql "CREATE SEQUENCE $SCHEMA.alkis_quittierungen_seq"
+					runsql "CREATE SEQUENCE \"${SCHEMA//\"/\"\"}\".alkis_quittierungen_seq"
 				fi
 
-				quittierungsnr=$(psql -A -X -t -c "SELECT nextval('$SCHEMA.alkis_quittierungen_seq')" "$DB")
+				quittierungsnr=$(psql -A -X -t -c "SELECT nextval('\"${SCHEMA//\"/\"\"}\".alkis_quittierungen_seq')" "$DB")
 				quittierungsnr=${quittierungsnr//[	 ]}
 				export quittierungsnr
 			fi
+		fi
+
+		if [ $AVOIDDUPES = "true" ] && (( JOBS != 1 )) && ! useonconflict; then
+			echo "WARNUNG: Paralleler Import bei Fortführung/Duplikate ignorieren kann mit GDAL <3.10, PG <9.5 oder USECOPY zu Abbrüchen führen"
 		fi
 
 		export job
@@ -333,10 +338,11 @@ progress() {
 		python3 $B/quittierung.py . "$dst" $quittierungsnr $success
 	fi
 
-
 	if [ $r -ne 0 ]; then
 		(( errors++ )) || true
 		echo "ERROR: Ergebnis $r bei $file (bislang $errors Fehler)"
+	else
+		runsql "INSERT INTO \"${SCHEMA//\"/\"\"}\".alkis_importe(filename, datadate) VALUES ('${file//\'/\'\'}','$ffdate')"
 	fi
 
 	if (( elapsed > 0 )); then
@@ -407,12 +413,9 @@ echo "START $(bdate)"
 GDAL_VERSION=$(unset CPL_DEBUG; ogr2ogr --version)
 echo $GDAL_VERSION
 
-GDAL_MAJOR=${GDAL_VERSION#GDAL }
-GDAL_MAJOR=${GDAL_MAJOR%%.*}
-GDAL_MINOR=${GDAL_VERSION#GDAL $GDAL_MAJOR.}
-GDAL_MINOR=${GDAL_MINOR%%.*}
-if (( GDAL_MAJOR<3 || (GDAL_MAJOR==3 && GDAL_MINOR<8) )); then
-	echo "$P: erfordert GDAL >=3.8" >&2
+IFS=". " read gdal GDAL_MAJOR GDAL_MINOR _ <<<$GDAL_VERSION
+if [ "$gdal" != "GDAL" ] || (( GDAL_MAJOR<3 || (GDAL_MAJOR==3 && GDAL_MINOR<8) )); then
+	echo "$P: erfordert GDAL >=3.8 [$gdal|$GDAL_MAJOR|$GDAL_MINOR]" >&2
 	exit 1
 fi
 export GDAL_MAJOR GDAL_MINOR
@@ -520,6 +523,30 @@ EOF
 		DB=${src#PG:}
 		DRIVER=PostgreSQL
 
+		useonconflict() {
+			local pgname
+
+			if [ -z "$PG_MAJOR" ]; then
+				IFS=". " read pgname PG_MAJOR PG_MINOR _ < <(psql -X -A -t -c "SELECT version()" "$DB")
+				if [ "$pgname" != "PostgreSQL" ]; then
+					echo "$P: Konnte PostgreSQL-Version nicht feststellen" >&2
+					exit 1
+				elif (( PG_MAJOR < 8 || (PG_MAJOR==8 && PG_MINOR<4) )); then
+					echo "$P: Mindestens PostgreSQL 8.4 erforderlich" >&2
+					exit 1
+				fi
+				echo "PostgreSQL-Version: $PG_MAJOR.$PG_MINOR"
+			fi
+
+			if [ $AVOIDDUPES = true -a $USECOPY = NO ] &&
+				(( GDAL_MAJOR>3 || (GDAL_MAJOR==3 && GDAL_MINOR>=10) )) &&
+				(( PG_MAJOR>9 || (PG_MAJOR==9 && PG_MAJOR>=5) )); then
+				return 0
+			else
+				return 1
+			fi
+		}
+		export -f useonconflict
 		sql() {
 			local file=$1
 			pushd "$B" >|/dev/null
@@ -527,11 +554,11 @@ EOF
 			echo "SQL RUN: $file $(bdate)"
 
 			local avoiddupes=$AVOIDDUPES
-			if [ $AVOIDDUPES = true -a $USECOPY = NO ] && (( GDAL_MAJOR>3 || (GDAL_MAJOR==3 && GDAL_MINOR>=10) )); then
-				# Trigger nur, wenn OGR_PG_SKIP_CONFLICTS nicht möglich ist (GDAL<3.10 oder PG_USE_COPY=YES)
+			if useonconflict; then
 				avoiddupes=false
 			fi
 
+			PGAPPNAME=$file \
 			psql -X -P pager=off \
 				-v alkis_pgverdraengen=$PGVERDRAENGEN \
 				-v alkis_fnbruch=$FNBRUCH \
@@ -540,13 +567,12 @@ EOF
 				-v alkis_hist=$HISTORIE \
 				-v alkis_epsg=$EPSG \
 				-v alkis_transform=$TRANSFORM \
-				-v alkis_schema=$SCHEMA \
-				-v postgis_schema=$PGSCHEMA \
-				-v parent_schema=${PARENTSCHEMA:-$SCHEMA} \
+				-v alkis_schema="$SCHEMA" \
+				-v postgis_schema="$PGSCHEMA" \
+				-v parent_schema="${PARENTSCHEMA:-$SCHEMA}" \
 				-v ON_ERROR_STOP=1 \
 				-v ECHO=errors \
 				--quiet \
-				-c "SET application_name='$file'" \
 				-f "$file" \
 				"$DB"
 			local r=$?
@@ -558,8 +584,7 @@ EOF
 		export -f sql
 		runsql() {
 			local avoiddupes=$AVOIDDUPES
-			if [ $AVOIDDUPES = true -a $USECOPY = NO ] && (( GDAL_MAJOR>3 || (GDAL_MAJOR==3 && GDAL_MINOR>=10) )); then
-				# Trigger nur, wenn OGR_PG_SKIP_CONFLICTS nicht möglich ist (GDAL<3.10 oder PG_USE_COPY=YES)
+			if useonconflict; then
 				avoiddupes=false
 			fi
 
@@ -594,6 +619,7 @@ EOF
 		log() {
 			export SCHEMAL="'${SCHEMA//\'/\'\'}'"
 			export SCHEMAI="\"${SCHEMA//\"/\"\"}\""
+
 			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname=$SCHEMAL" "$DB")
 			n=${n//[	 ]}
 			if [ $n -eq 0 ]; then
@@ -603,7 +629,7 @@ EOF
 			n=$(psql -X -t -c "SELECT count(*) FROM pg_catalog.pg_namespace WHERE nspname=$SCHEMAL" "$DB")
 			n=${n//[	 ]}
 			if [ $n -eq 0 ]; then
-				echo "Schema $SCHEMA nicht erzeugt" >&2
+				echo "$P: Schema $SCHEMA nicht erzeugt" >&2
 				exit 1
 			fi
 
@@ -662,7 +688,7 @@ EOF
 			QUITTIERUNG=false
 			;;
 		*)
-			echo "$P: Ungültiger Wert $QUITTIERUNG (true oder false erwartet)"
+			echo "$P: Ungültiger Wert $QUITTIERUNG (true oder false erwartet)" >&2
 			exit 1
 			;;
 		esac
@@ -680,7 +706,7 @@ EOF
 			HISTORIE=false
 			;;
 		*)
-			echo "$P: Ungültiger Wert $HISTORIE (true oder false erwartet)"
+			echo "$P: Ungültiger Wert $HISTORIE (true oder false erwartet)" >&2
 			exit 1
 			;;
 		esac
@@ -698,7 +724,7 @@ EOF
 			AVOIDDUPES=false
 			;;
 		*)
-			echo "$P: Ungültiger Wert $AVOIDDUPES (true oder false erwartet)"
+			echo "$P: Ungültiger Wert $AVOIDDUPES (true oder false erwartet)" >&2
 			exit 1
 			;;
 		esac
@@ -734,7 +760,7 @@ EOF
 			USECOPY=NO
 			;;
 		*)
-			echo "$P: Ungültiger Wert $USECOPY (yes oder no erwartet)"
+			echo "$P: Ungültiger Wert $USECOPY (yes oder no erwartet)" >&2
 			exit 1
 			;;
 		esac
@@ -752,7 +778,7 @@ EOF
 			FNBRUCH=false
 			;;
 		*)
-			echo "$P: Ungültiger Wert $FNBRUCH (true oder false erwartet)"
+			echo "$P: Ungültiger Wert $FNBRUCH (true oder false erwartet)" >&2
 			exit 1
 			;;
 		esac
@@ -770,7 +796,7 @@ EOF
 			PGVERDRAENGEN=false
 			;;
 		*)
-			echo "$P: Ungültiger Wert $PGVERDRAENGEN (true oder false erwartet)"
+			echo "$P: Ungültiger Wert $PGVERDRAENGEN (true oder false erwartet)" >&2
 			exit 1
 			;;
 		esac
@@ -788,7 +814,7 @@ EOF
 			TRANSFORM=false
 			;;
 		*)
-			echo "$P: Ungültiger Wert $TRANSFORM (true oder false erwartet)"
+			echo "$P: Ungültiger Wert $TRANSFORM (true oder false erwartet)" >&2
 			exit 1
 			;;
 		esac
@@ -949,9 +975,6 @@ EOF
 	options|"options"*)
 		opt=${src#options}
 		opt=${opt# }
-		if [ "$DRIVER" = OCI ]; then
-			opt="$opt -relaxedFieldNameMatch"
-		fi
 		continue
 		;;
 

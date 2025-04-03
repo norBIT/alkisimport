@@ -39,7 +39,7 @@ def usage(msg=None):
     sys.exit(1)
 
 
-if len(sys.argv) != 6:
+if len(sys.argv) != 5:
     usage()
 
 outputdir, inputfile, impid, status = sys.argv[1:]
