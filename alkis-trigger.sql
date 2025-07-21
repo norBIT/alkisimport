@@ -184,34 +184,27 @@ $$ LANGUAGE plpgsql SET search_path = :"alkis_schema", public;
 CREATE OR REPLACE FUNCTION delete_feature_kill() RETURNS TRIGGER AS $$
 DECLARE
 	n INTEGER;
-	vbeginnt TEXT;
-	replgml TEXT;
-	featgml TEXT;
+	beginnt TEXT;
 	s TEXT;
 BEGIN
-	-- Version 2014-09-23, replace führt auch zum Löschen des Vorgängerobjektes
 	NEW.context := coalesce(lower(NEW.context),'delete');
 
-	IF NEW.anlass IS NULL THEN
-		NEW.anlass := ARRAY[]::varchar[];
-	END IF;
-	featgml := substr(NEW.featureid, 1, 16); -- gml_id ohne Timestamp
-
 	IF length(NEW.featureid)=32 THEN
-		-- beginnt-Zeit der zu löschenden Vorgänger-Version des Objektes
-		vbeginnt := substr(NEW.featureid, 17, 4) || '-'
-			 || substr(NEW.featureid, 21, 2) || '-'
-			 || substr(NEW.featureid, 23, 2) || 'T'
-			 || substr(NEW.featureid, 26, 2) || ':'
-			 || substr(NEW.featureid, 28, 2) || ':'
-			 || substr(NEW.featureid, 30, 2) || 'Z' ;
+		beginnt := substr(NEW.featureid, 17, 4) || '-'
+			|| substr(NEW.featureid, 21, 2) || '-'
+			|| substr(NEW.featureid, 23, 2) || 'T'
+			|| substr(NEW.featureid, 26, 2) || ':'
+			|| substr(NEW.featureid, 28, 2) || ':'
+			|| substr(NEW.featureid, 30, 2) || 'Z'
+			;
 	ELSIF length(NEW.featureid)=16 THEN
 		-- Ältestes nicht gelöschtes Objekt
 		EXECUTE 'SELECT min(beginnt) FROM ' || NEW.typename
-			|| ' WHERE gml_id=''' || featgml || '''' || ' AND endet IS NULL'
-			INTO vbeginnt;
+			|| ' WHERE gml_id=''' || NEW.featureid || ''''
+			|| ' AND endet IS NULL'
+			INTO beginnt;
 
-		IF vbeginnt IS NULL THEN
+		IF beginnt IS NULL THEN
 			RAISE EXCEPTION '%: Keinen Kandidaten zum Löschen gefunden.', NEW.featureid;
 		END IF;
 	ELSE
@@ -226,12 +219,17 @@ BEGIN
 			RAISE EXCEPTION '%: safeToIgnore ''%'' ungültig (''true'' oder ''false'' erwartet).', NEW.featureid, NEW.safetoignore;
 		END IF;
 
+		IF NEW.featureid=NEW.replacedby THEN
+			NEW.ignored := true;
+			RETURN NEW;
+		END IF;
+
 	ELSIF NEW.context NOT IN ('delete', 'update') THEN
 		RAISE EXCEPTION '%: Ungültiger Kontext % (''delete'', ''replace'' oder ''update'' erwartet).', NEW.featureid, NEW.context;
+
 	END IF;
 
-	-- Vorgänger-ALKIS-Objekt löschen
-	s := 'DELETE FROM ' || NEW.typename || ' WHERE gml_id=''' || featgml || ''' AND beginnt=''' || vbeginnt || '''' ;
+	s := 'DELETE FROM ' || NEW.typename || ' WHERE gml_id=''' || substr(NEW.featureid, 1, 16) || ''' AND beginnt=''' || beginnt || '''';
 	EXECUTE s;
 	GET DIAGNOSTICS n = ROW_COUNT;
 	-- RAISE NOTICE 'SQL[%]:%', n, s;

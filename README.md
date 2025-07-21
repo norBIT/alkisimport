@@ -7,7 +7,7 @@ Funktion:
 * Anlegen des Datenbankmodells
 * Import einer oder mehrere NAS-Dateien oder ganzer Verzeichnisse über GDAL/OGR
 * Protokollierung und Fortschrittsanzeige
-* Vorbereitung der graphischen Darstellung nach [GeoInfoDok](http://www.adv-online.de/AAA-Modell/Dokumente-der-GeoInfoDok/) (insb. Ableitungsregeln des Signaturkatalog)
+* Vorbereitung der graphischen Darstellung nach [GeoInfoDok](https://www.adv-online.de/GeoInfoDok/) (insb. Ableitungsregeln des Signaturkatalog)
 * Aufbereitung der Liegenschaftsbuchdaten
 
 Die graphische Darstellung selbst erfolgt mit weiterer Software:
