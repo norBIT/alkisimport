@@ -152,7 +152,7 @@ DECLARE
 	np INTEGER;
 	i INTEGER;
 	j INTEGER;
-	doneadfs INTEGER[];
+	doneadfs INTEGER[] := ARRAY[]::INTEGER[];
 	adf RECORD;
 	c REFCURSOR;
 	joined BOOLEAN;
