@@ -78,7 +78,8 @@ INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,l
                                         bs.buchungsart AS b,
                                         coalesce(bs.zaehler,1) AS zaehler,
                                         coalesce(bs.nenner,1) AS nenner,
-                                        laufendenummer AS auftrlnr
+                                        laufendenummer AS auftrlnr,
+                                        bb.blattart
                                 FROM ax_flurstueck f
                                 JOIN ax_buchungsstelle bs ON bs.gml_id=f.istgebucht AND bs.endet IS NULL
                                 JOIN ax_buchungsblatt bb ON bb.gml_id=bs.istbestandteilvon AND bb.endet IS NULL
@@ -92,7 +93,8 @@ INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,l
                                         bs.buchungsart AS b,
                                         coalesce(ea.zaehler,1)*coalesce(bs.zaehler,1) AS zaehler,
                                         coalesce(ea.nenner,1)*coalesce(bs.nenner,1) AS nenner,
-                                        bs.laufendenummer AS auftrlnr
+                                        bs.laufendenummer AS auftrlnr,
+                                        bb.blattart
                                 FROM eignerart ea
                                 JOIN ax_buchungsstelle bs ON ARRAY[ea.gml_id] <@ bs.an
                                 JOIN ax_buchungsblatt bb ON bb.gml_id=bs.istbestandteilvon AND bb.endet IS NULL
@@ -101,6 +103,7 @@ INSERT INTO eignerart(flsnr,bestdnr,bvnr,b,anteil,auftlnr,sa,ff_entst,ff_stand,l
                         flsnr, bestdnr, b, auftrlnr,
                         alkis_truncate(pg_temp.sumfrac(ARRAY[zaehler::numeric, nenner::numeric]), 24) AS anteil
                 FROM eignerart
+                WHERE blattart<>'5000'
                 GROUP BY flsnr, bestdnr, b, auftrlnr
         ) AS foo
         ;

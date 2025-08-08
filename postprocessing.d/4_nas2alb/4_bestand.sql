@@ -44,7 +44,7 @@ INSERT INTO bestand(bestdnr,gbbz,gbblnr,anteil,auftlnr,bestfl,ff_entst,ff_stand,
 		0 AS ff_stand,
 		NULL AS pz
 	FROM ax_buchungsblatt bb
-	WHERE bb.endet IS NULL
+	WHERE bb.endet IS NULL AND bb.blattart<>'5000'
 	  -- Workaround für gleiche Bestände von mehreren Katasterämtern
 	  AND NOT EXISTS (
 		SELECT *
@@ -112,25 +112,5 @@ INSERT INTO eigner(bestdnr,pk,ab,namensnr,ea,antverh,name,name1,name2,name3,name
 	WHERE nn.endet IS NULL;
 
 UPDATE eigner SET name1=regexp_replace(name1, E'\\s\\s+', ' ');
-
-INSERT INTO eigner(bestdnr,pk,name1,ff_entst,ff_stand)
-	SELECT
-		to_char(alkis_toint(bb.land),'fm00') || to_char(alkis_toint(bb.bezirk),'fm0000') || '-' || trim(bb.buchungsblattnummermitbuchstabenerweiterung) AS bestdnr,
-                to_hex(nextval('eigner_pk_seq'::regclass)) AS pk,
-                '(fiktives Buchungsblatt)' AS name1,
-                0 AS ff_entst,
-                0 AS ff_fortf
-	FROM ax_buchungsblatt bb
-	WHERE endet IS NULL AND blattart=5000;
-
-INSERT INTO eigner(bestdnr,pk,name1,ff_entst,ff_stand)
-        SELECT
-                bestdnr,
-                to_hex(nextval('eigner_pk_seq'::regclass)) AS pk,
-                '(mehrere)' AS name1,
-                0 AS ff_entst,
-                0 AS ff_fortf
-        FROM bestand
-        WHERE NOT EXISTS (SELECT * FROM eigner WHERE eigner.bestdnr=bestand.bestdnr);
 
 \endif
