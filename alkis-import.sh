@@ -1050,6 +1050,10 @@ EOF
 		break
 		;;
 
+	*)
+		echo "$P: Zeile nicht erkannt: $src" >&2
+		exit 1
+		;;
 	esac
 done <"$F"
 
