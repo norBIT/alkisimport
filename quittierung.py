@@ -24,6 +24,7 @@ from copy import deepcopy
 
 parser = et.XMLParser(remove_blank_text=True)
 
+chunkCount = 30
 chunkSize = 1000
 key = "geaenderteObjekte"
 
@@ -55,13 +56,13 @@ f = open(inputfile, "rb")
 header = b""
 i = 0
 p = -1
-while i < 10 and p < 0:
+while i < chunkCount and p < 0:
     header += f.read(chunkSize)
     i += 1
     p = header.find("<{}>".format(key).encode("utf-8"))
 
 if p < 0:
-    usage("<{}> nicht in den ersten {} Bytes der Datei {} gefunden.".format(key, 10 * chunkSize, inputfile))
+    usage("<{}> nicht in den ersten {} Bytes der Datei {} gefunden.".format(key, chunkCount * chunkSize, inputfile))
 
 header = header[:p]
 
@@ -72,7 +73,7 @@ fl = f.tell()
 
 i = 0
 p = -1
-while i < 10 and p < 0 and fl > 0:
+while i < chunkCount and p < 0 and fl > 0:
     pos = fl - i * chunkSize
     if pos < 0:
         chunkSize += pos
@@ -83,7 +84,7 @@ while i < 10 and p < 0 and fl > 0:
     p = footer.find("</{}>".format(key).encode("utf-8"))
 
 if p < 0:
-    usage("</{}> nicht in den letzten {} Bytes der Datei {} gefunden.".format(key, 10 * chunkSize, inputfile))
+    usage("</{}> nicht in den letzten {} Bytes der Datei {} gefunden.".format(key, chunkCount * chunkSize, inputfile))
 
 nba = et.fromstring(header + footer[(p + 3 + len(key)):], parser)
 
