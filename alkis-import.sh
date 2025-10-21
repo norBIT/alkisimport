@@ -1015,7 +1015,7 @@ EOF
 			echo 'Import-Version: $Format:%h$'
 		else
 			if type -p git >/dev/null; then
-				git log -1 --pretty='Import-Version: %h'
+				git --git-dir=$B/.git log -1 --pretty='Import-Version: %h'
 			else
 				echo 'Import-Version: unbekannt'
 			fi
