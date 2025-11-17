@@ -11,17 +11,21 @@ SET search_path = :"alkis_schema", :"parent_schema", :"postgis_schema", public;
 
 SELECT alkis_dropobject('alkis_klassifizierungen');
 CREATE TABLE alkis_klassifizierungen(
-	name VARCHAR PRIMARY KEY,
+	name VARCHAR,
 	kennung VARCHAR,
 	funktionsfeld VARCHAR,
 	prefix VARCHAR,
 	ackerzahl VARCHAR,
 	bodenzahl VARCHAR,
-	enumeration VARCHAR
+	enumeration VARCHAR,
+	PRIMARY KEY(name,funktionsfeld)
 );
 
 INSERT INTO alkis_klassifizierungen(name, kennung, prefix, funktionsfeld, bodenzahl, ackerzahl, enumeration) VALUES
 	('ax_bodenschaetzung',			'72001', 'b', 'nutzungsart',		'bodenzahlodergruenlandgrundzahl',	'ackerzahlodergruenlandzahl',	'ax_nutzungsart_bodenschaetzung'),
+	('ax_bodenschaetzung',			'72001', 'a', 'bodenart',		'NULL::varchar',			'NULL::varchar',		'ax_bodenart_bodenschaetzung'),
+	('ax_bodenschaetzung',			'72001', 'k', 'klimastufe',		'NULL::varchar', 			'NULL::varchar',		'ax_klimastufe'),
+	('ax_bodenschaetzung',			'72001', 'w', 'wasserverhaeltnisse',	'NULL::varchar', 			'NULL::varchar',		'ax_wasserverhaeltnisse'),
 	('ax_bewertung',			'72004', 'B', 'klassifizierung',	'NULL::varchar',			'NULL::varchar',		'ax_klassifizierung_bewertung'),
 	('ax_klassifizierungnachwasserrecht',	'71003', 'W', 'artderfestlegung',	'NULL::varchar',			'NULL::varchar',		'ax_artderfestlegung_klassifizierungnachwasserrecht'),
 	('ax_klassifizierungnachstrassenrecht',	'71001', 'S', 'artderfestlegung',	'NULL::varchar',			'NULL::varchar',		'ax_artderfestlegung_klassifizierungnachstrassenrecht');
