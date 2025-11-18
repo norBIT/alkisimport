@@ -33,6 +33,8 @@ SELECT alkis_dropobject('ax_ausfuehrendestellen');
 SELECT alkis_dropobject('v_eigentuemer');
 SELECT alkis_dropobject('v_haeuser');
 
+SELECT alkis_dropobject(table_name) FROM information_schema.tables WHERE table_schema=:'alkis_schema' AND table_name LIKE 'ax_%_defekt';
+
 \i nas2alb-functions.sql
 
 SELECT alkis_dropobject('flurst');
