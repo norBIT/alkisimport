@@ -640,9 +640,23 @@ BEGIN
 			RAISE EXCEPTION '%: safeToIgnore ''%'' ungültig (''true'' oder ''false'' erwartet).', NEW.featureid, NEW.safetoignore;
 		END IF;
 
-		IF NEW.featureid=NEW.replacedby THEN
-			NEW.ignored := true;
-			RETURN NEW;
+		IF NEW.featureid=NEW.replacedby AND length(NEW.replacedby)=32 THEN
+			EXECUTE 'SELECT count(*) FROM ' || NEW.typename || ' a'
+			     || ' WHERE gml_id=''' || substr(NEW.replacedby, 1, 16) || ''''
+			     || ' AND endet IS NULL'
+			     || ' AND beginnt>'''
+			     || substr(NEW.replacedby, 17, 4) || '-'
+			     || substr(NEW.replacedby, 21, 2) || '-'
+			     || substr(NEW.replacedby, 23, 2) || 'T'
+			     || substr(NEW.replacedby, 26, 2) || ':'
+			     || substr(NEW.replacedby, 28, 2) || ':'
+			     || substr(NEW.replacedby, 30, 2) || 'Z'''
+			INTO n;
+
+			IF n=0 THEN
+				NEW.ignored := true;
+				RETURN NEW;
+			END IF;
 		END IF;
 
 	ELSIF NEW.context NOT IN ('delete', 'update') THEN
