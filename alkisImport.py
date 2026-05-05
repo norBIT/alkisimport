@@ -677,18 +677,29 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.importALKIS()
 
     def connectDb(self):
-        if self.leSERVICE.text() != '':
-            conn = "service={} ".format(self.leSERVICE.text())
-        else:
-            if self.leHOST.text() != '':
-                conn = "host={} port={} ".format(self.leHOST.text(), self.lePORT.text())
-            else:
-                conn = ""
+        options = []
 
-        conn += "dbname='{}' user='{}' password='{}'".format(self.leDBNAME.text(), self.leUID.text(), self.lePWD.text())
+        if self.leSERVICE.text() != '':
+            options.append("service={}".format(self.leSERVICE.text()))
+
+        if self.leHOST.text() != '':
+            options.append("host={}".format(self.leHOST.text()))
+            if self.lePORT.text() != '' and self.lePORT.text().strip() != '5432':
+                options.append("port={}".format(self.lePORT.text()))
+
+        if self.leDBNAME.text() != '':
+            options.append("dbname='{}'".format(self.leDBNAME.text().replace("\\", "\\\\").replace("'", "\\'")))
+
+        if self.leUID.text() != '':
+            options.append("user='{}'".format(self.leUID.text().replace("\\", "\\\\").replace("'", "\\'")))
+
+        if self.lePWD.text() != '':
+            options.append("password='{}'".format(self.lePWD.text().replace("\\", "\\\\").replace("'", "\\'")))
+
+        conninfo = " ".join(options)
 
         self.db = QSqlDatabase.addDatabase("QPSQL")
-        self.db.setConnectOptions(conn)
+        self.db.setConnectOptions(conninfo)
         if not self.db.open():
             self.log("Konnte Datenbankverbindung nicht aufbauen! [{}]".format(self.db.lastError().text()))
             return None
@@ -702,19 +713,19 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             self.log("Kein ALKIS-Schema angegeben")
             return None
 
-        qry = self.db.exec_("SELECT 1 FROM pg_namespace WHERE nspname='{}'".format(self.schema.replace("'", "''")))
+        qry = self.db.exec_("SELECT 1 FROM pg_namespace WHERE nspname='{}'".format(self.schema.replace("'", "''")))  # nosec: B608
         if not qry:
             self.log("Konnte Schema nicht überprüfen! [{}]".format(qry.lastError().text()))
             return None
 
         if not qry.next():
-            if not self.db.exec_("CREATE SCHEMA \"{}\"".format(self.schema.replace('"', '""'))):
+            if not self.db.exec_("CREATE SCHEMA \"{}\"".format(self.schema.replace('"', '""'))):  # nosec: B608
                 self.log("Konnte Schema nicht erstellen!")
                 return None
 
         self.db.exec_("SET search_path = \"{}\", \"{}\", public".format(self.schema, self.pgschema))
 
-        return conn
+        return conninfo
 
     def rund(self, conn, dir):
         matches = []
