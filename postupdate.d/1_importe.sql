@@ -16,7 +16,7 @@
 
 SET search_path TO :"alkis_schema",:"postgis_schema",public;
 
-SELECT count(*)>1 AS exists FROM information_schema.tables WHERE table_schema=:'alkis_schema' AND table_name='alkis_importe';
+SELECT count(*)>0 AS exists FROM information_schema.tables WHERE table_schema=:'alkis_schema' AND table_name='alkis_importe';
 \gset
 
 \if :exists
