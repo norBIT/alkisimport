@@ -42,16 +42,17 @@ from itertools import islice
 from ffdate import getdate
 
 try:
-    from PyQt4.QtCore import QSettings, QProcess, QDir, QFileInfo, Qt, QDateTime, QElapsedTimer, QByteArray
-    from PyQt4.QtGui import QApplication, QDialog, QIcon, QFileDialog, QMessageBox, QFont, QIntValidator, QListWidgetItem
-    from PyQt4.QtSql import QSqlDatabase, QSqlQuery
-    from PyQt4 import uic
-except ImportError:
-    from PyQt5.QtCore import QSettings, QProcess, QDir, QFileInfo, Qt, QDateTime, QElapsedTimer, QByteArray
+    from PyQt5.QtCore import QSettings, QProcess, QDir, QFileInfo, Qt, QDateTime, QElapsedTimer, QByteArray, QUuid
     from PyQt5.QtGui import QIcon, QFont, QIntValidator
     from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMessageBox, QListWidgetItem
     from PyQt5.QtSql import QSqlDatabase, QSqlQuery
     from PyQt5 import uic
+except ImportError:
+    from PyQt6.QtCore import QSettings, QProcess, QDir, QFileInfo, Qt, QDateTime, QElapsedTimer, QByteArray, QUuid
+    from PyQt6.QtGui import QIcon, QFont, QIntValidator
+    from PyQt6.QtWidgets import QApplication, QDialog, QFileDialog, QMessageBox, QListWidgetItem
+    from PyQt6.QtSql import QSqlDatabase, QSqlQuery
+    from PyQt6 import uic
 
 BASEDIR = os.path.dirname(__file__)
 sys.path.insert(0, BASEDIR)
@@ -141,48 +142,13 @@ class aboutDlg(QDialog, aboutDlgBase):
 
 
 class alkisImportDlg(QDialog, alkisImportDlgBase):
-
     def __init__(self):
         QDialog.__init__(self)
         self.setupUi(self)
         self.setWindowIcon(QIcon('logo.svg'))
-        self.setWindowFlags(Qt.WindowMinimizeButtonHint)
+        self.setWindowFlags(Qt.WindowType.WindowMinimizeButtonHint)
 
-        s = QSettings("norBIT", "norGIS-ALKIS-Import")
-
-        self.leSERVICE.setText(s.value("service", ""))
-        self.leHOST.setText(s.value("host", ""))
-        self.lePORT.setText(s.value("port", "5432"))
-        self.leDBNAME.setText(s.value("dbname", ""))
-        self.leUID.setText(s.value("uid", ""))
-        self.lePWD.setText(s.value("pwd", ""))
-        self.leSCHEMA.setText(s.value("schema", "public"))
-        self.lePGSCHEMA.setText(s.value("pgschema", "public"))
-        self.lePARENTSCHEMA.setText(s.value("parentschema", ""))
-        self.leGT.setText(s.value("gt", "20000"))
         self.leGT.setValidator(QIntValidator(-1, 99999999))
-
-        self.cbxSkipFailures.setChecked(s.value("skipfailures", False, type=bool))
-
-        checked = s.value("files_sf", []) or []
-        for i in s.value("files", []) or []:
-            item = QListWidgetItem(i)
-            if not self.cbxSkipFailures.isChecked():
-                item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-                item.setCheckState(Qt.Checked if i in checked else Qt.Unchecked)
-            self.lstFiles.addItem(item)
-
-        self.cbFnbruch.setCurrentIndex(0 if s.value("fnbruch", True, type=bool) else 1)
-        self.cbPgVerdraengen.setCurrentIndex(1 if s.value("pgverdraengen", False, type=bool) else 0)
-        self.cbxUseCopy.setChecked(s.value("usecopy", False, type=bool))
-        self.cbxAvoidDupes.setChecked(s.value("avoiddupes", True, type=bool))
-        self.cbxCreate.setChecked(False)
-        self.cbxClean.setChecked(False)
-        self.cbxHistorie.setDisabled(True)
-        self.cbxHistorie.setChecked(s.value("historie", True, type=bool))
-        self.cbxQuittierung.setChecked(s.value("quittierung", False, type=bool))
-        self.cbxTransform.setChecked(s.value("transform", False, type=bool))
-        self.cbxRebuildMap.setChecked(s.value("rebuildmap", False, type=bool))
 
         self.cbEPSG.addItem("UTM32N", "25832")
         self.cbEPSG.addItem("UTM33N", "25833")
@@ -196,6 +162,31 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.cbEPSG.addItem("Soldner-Berlin (transformieren)", "13068")
         self.cbEPSG.addItem("Benutzer-EPSG", "-1")
 
+        self.s = QSettings("norBIT", "norGIS-ALKIS-Import")
+        self.global_parameters = ["config", "splitter", "geometry"]
+
+        self.config = self.value("config")
+
+        if len(self.s.childGroups()) == 0 or self.config is None:
+            self.config = QUuid.createUuid().toString()
+
+            keys = [x for x in self.s.childKeys() if x not in self.global_parameters]
+            if len(keys) > 0:
+                for key in keys:
+                    self.setValue(key, self.s.value(key))
+                self.setValue("name", "Übernommene Konfiguration")
+
+                if QMessageBox.question(self, "norGIS-ALKIS-Import", "Alte Konfiguration übernommen! Alte löschen?", QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
+                    for key in keys:
+                        self.s.remove(key)
+            else:
+                self.setValue("name", "Neue Konfiguration")
+
+        for config in self.s.childGroups():
+            self.cbConfig.addItem(self.s.value(f"{config}/name"), config)
+
+        self.pbRemoveConfig.setEnabled(self.cbConfig.count() > 1)
+
         self.pbAdd.clicked.connect(self.selFiles)
         self.pbAddDir.clicked.connect(self.selDir)
         self.pbRemove.clicked.connect(self.rmFiles)
@@ -207,13 +198,6 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.cbEPSG.currentIndexChanged.connect(self.epsgChanged)
         self.cbxCreate.toggled.connect(self.createChanged)
 
-        epsg = s.value("epsg", "25832")
-        i = self.cbEPSG.findData(epsg)
-        if i == -1:
-            i = self.cbEPSG.findData("-1")
-            self.leCustomEpsg.setText(str(epsg))
-        self.cbEPSG.setCurrentIndex(i)
-
         self.pbStart.clicked.connect(self.run)
         self.pbLoadLog.clicked.connect(self.loadLog)
         self.pbSaveLog.clicked.connect(self.saveLog)
@@ -224,14 +208,14 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.pbProgressFile.setVisible(False)
 
         f = QFont("Monospace")
-        f.setStyleHint(QFont.TypeWriter)
+        f.setStyleHint(QFont.StyleHint.TypeWriter)
         self.lwProtocol.setFont(f)
         self.lwProtocol.setUniformItemSizes(True)
 
         self.status("")
 
-        self.restoreGeometry(s.value("geometry", QByteArray(), type=QByteArray))
-        self.splitter.restoreState(s.value("splitter", QByteArray(), type=QByteArray))
+        self.restoreGeometry(self.value("geometry", QByteArray(), type=QByteArray))
+        self.splitter.restoreState(self.value("splitter", QByteArray(), type=QByteArray))
 
         self.canceled = False
         self.running = False
@@ -239,6 +223,169 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         self.logqry = None
 
         self.reFilter = []
+
+        self.cbConfig.lineEdit().textEdited.connect(self.nameEdited)
+        self.cbConfig.currentIndexChanged.connect(self.selectConfig)
+        self.pbAddConfig.clicked.connect(self.addConfig)
+        self.pbRemoveConfig.clicked.connect(self.removeConfig)
+
+        self.loadConfig(self.config)
+
+    def value(self, key, default=None, type=str):
+        if key not in self.global_parameters:
+            key = f"{self.config}/{key}"
+        r = self.s.value(key, default, type=type)
+        return r
+
+    def setValue(self, key, value, config=None):
+        if config is None:
+            config = self.config
+        if key not in self.global_parameters:
+            key = f"{config}/{key}"
+        self.s.setValue(key, value)
+
+    def selectConfig(self):
+        if self.config == self.cbConfig.currentData():
+            return
+
+        self.saveConfig()
+        self.loadConfig(self.cbConfig.currentData())
+
+    def addConfig(self):
+        config = QUuid.createUuid().toString()
+        self.setValue("name", "Neue Konfiguration", config)
+
+        cb = self.cbConfig
+        cb.addItem("Neue Konfiguration", config)
+        cb.setCurrentIndex(cb.count() - 1)
+
+        self.pbRemoveConfig.setEnabled(True)
+
+    def removeConfig(self):
+        if QMessageBox.question(self, "norGIS-ALKIS-Import", f"Konfiguration {self.value('name')} wirklich löschen!", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) == QMessageBox.StandardButton.No:
+            return
+
+        self.s.remove(self.config)
+        self.config = None
+
+        self.cbConfig.removeItem(self.cbConfig.currentIndex())
+
+        self.pbRemoveConfig.setEnabled(self.cbConfig.count() > 1)
+
+    def nameEdited(self, name):
+        self.cbConfig.setItemText(self.cbConfig.currentIndex(), name)
+        self.setValue("name", name)
+
+    def loadConfig(self, config):
+        self.config = config
+        self.setValue("config", self.config)
+
+        self.cbConfig.setCurrentIndex(self.cbConfig.findData(self.config))
+
+        self.leSERVICE.setText(self.value("service", ""))
+        self.leHOST.setText(self.value("host", ""))
+        self.lePORT.setText(self.value("port", "5432"))
+        self.leDBNAME.setText(self.value("dbname", ""))
+        self.leUID.setText(self.value("uid", ""))
+        self.lePWD.setText(self.value("pwd", ""))
+        self.leSCHEMA.setText(self.value("schema", "public"))
+        self.lePGSCHEMA.setText(self.value("pgschema", "public"))
+        self.lePARENTSCHEMA.setText(self.value("parentschema", ""))
+        self.leGT.setText(self.value("gt", "20000"))
+
+        self.cbxSkipFailures.setChecked(self.value("skipfailures", False, type=bool))
+
+        checked = self.value("files_sf", []) or []
+        files = self.value("files", []) or []
+
+        self.lstFiles.clear()
+        for i in files:
+            item = QListWidgetItem(i)
+            if not self.cbxSkipFailures.isChecked():
+                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                item.setCheckState(Qt.CheckState.Checked if i in checked else Qt.CheckState.Unchecked)
+            self.lstFiles.addItem(item)
+
+        self.cbFnbruch.setCurrentIndex(0 if self.value("fnbruch", True, type=bool) else 1)
+        self.cbPgVerdraengen.setCurrentIndex(1 if self.value("pgverdraengen", False, type=bool) else 0)
+        self.cbxUseCopy.setChecked(self.value("usecopy", False, type=bool))
+        self.cbxAvoidDupes.setChecked(self.value("avoiddupes", True, type=bool))
+        self.cbxCreate.setChecked(False)
+        self.cbxClean.setChecked(False)
+        self.cbxHistorie.setDisabled(True)
+        self.cbxHistorie.setChecked(self.value("historie", True, type=bool))
+        self.cbxQuittierung.setChecked(self.value("quittierung", False, type=bool))
+        self.cbxTransform.setChecked(self.value("transform", False, type=bool))
+        self.cbxRebuildMap.setChecked(self.value("rebuildmap", False, type=bool))
+
+        epsg = self.value("epsg", "25832")
+        i = self.cbEPSG.findData(epsg)
+        if i == -1:
+            i = self.cbEPSG.findData("-1")
+            self.leCustomEpsg.setText(str(epsg))
+        self.cbEPSG.setCurrentIndex(i)
+
+    def saveConfig(self):
+        if self.config is None:
+            return
+
+        self.setValue("service", self.leSERVICE.text())
+        self.setValue("host", self.leHOST.text())
+        self.setValue("port", self.lePORT.text())
+        self.setValue("dbname", self.leDBNAME.text())
+        self.setValue("uid", self.leUID.text())
+        self.setValue("pwd", self.lePWD.text())
+        self.setValue("schema", self.leSCHEMA.text())
+        self.setValue("pgschema", self.lePGSCHEMA.text())
+        self.setValue("parentschema", self.lePARENTSCHEMA.text())
+        self.schema = self.leSCHEMA.text()
+        self.pgschema = self.lePGSCHEMA.text()
+        self.parentschema = self.lePARENTSCHEMA.text()
+        self.setValue("gt", self.leGT.text())
+
+        files = []
+        for i in range(self.lstFiles.count()):
+            files.append(self.lstFiles.item(i).text())
+
+        self.setValue("files", files)
+
+        checked = []
+        for i in range(0, self.lstFiles.count()):
+            item = self.lstFiles.item(i)
+            if item.checkState() == Qt.CheckState.Checked:
+                checked.append(item.text())
+
+        self.setValue("files_sf", checked)
+
+        self.setValue("skipfailures", self.cbxSkipFailures.isChecked())
+        self.usecopy = self.cbxUseCopy.isChecked()
+        self.setValue("usecopy", self.usecopy)
+
+        self.avoiddupes = self.cbxAvoidDupes.isChecked()
+        self.setValue("avoiddupes", self.avoiddupes)
+
+        self.fnbruch = self.cbFnbruch.currentIndex() == 0
+        self.setValue("fnbruch", self.fnbruch)
+
+        self.pgverdraengen = self.cbPgVerdraengen.currentIndex() == 1
+        self.setValue("pgverdraengen", self.pgverdraengen)
+
+        self.historie = self.cbxHistorie.isChecked()
+        self.setValue("historie", self.historie)
+
+        self.quittierung = self.cbxQuittierung.isChecked()
+        self.setValue("quittierung", self.quittierung)
+
+        self.transform = self.cbxTransform.isChecked()
+        self.setValue("transform", self.transform)
+
+        self.rebuildmap = self.cbxRebuildMap.isChecked()
+        self.setValue("rebuildmap", self.rebuildmap)
+
+        self.epsg = int(self.cbEPSG.itemData(self.cbEPSG.currentIndex()))
+        if self.epsg == -1:
+            self.epsg = int(self.leCustomEpsg.text())
+        self.setValue("epsg", self.epsg)
 
     def loadRe(self):
         f = open("re", "r", encoding="utf-8")
@@ -296,8 +443,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         return r
 
     def selFiles(self):
-        s = QSettings("norBIT", "norGIS-ALKIS-Import")
-        lastDir = s.value("lastDir", ".")
+        lastDir = self.value("lastDir", ".")
 
         files = QFileDialog.getOpenFileNames(self, "NAS-Dateien wählen", lastDir, "NAS-Dateien (*.xml *.xml.gz *.zip)")
         if isinstance(files, tuple):
@@ -311,33 +457,32 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             f = os.path.abspath(f)
             item = QListWidgetItem(f)
             if not self.cbxSkipFailures.isChecked():
-                item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-                item.setCheckState(Qt.Unchecked)
+                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                item.setCheckState(Qt.CheckState.Unchecked)
             self.lstFiles.addItem(item)
             dirs.append(os.path.dirname(f))
 
-        s.setValue("lastDir", os.path.commonprefix(dirs))
+        self.setValue("lastDir", os.path.commonprefix(dirs))
 
     def selDir(self):
-        s = QSettings("norBIT", "norGIS-ALKIS-Import")
-        lastDir = s.value("lastDir", ".")
+        lastDir = self.value("lastDir", ".")
 
         d = QFileDialog.getExistingDirectory(self, "Verzeichnis mit NAS-Dateien wählen", lastDir)
         if d is None or d == '':
-            QMessageBox.critical(self, "norGIS-ALKIS-Import", "Kein eindeutiges Verzeichnis gewählt!", QMessageBox.Cancel)
+            QMessageBox.critical(self, "norGIS-ALKIS-Import", "Kein eindeutiges Verzeichnis gewählt!", QMessageBox.StandardButton.Cancel)
             return
 
-        s.setValue("lastDir", d)
+        self.setValue("lastDir", d)
 
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
 
         self.status("Verzeichnis wird durchsucht...")
 
         for f in sorted(getFiles("\\.(xml|xml\\.gz|zip)$", d)):
             item = QListWidgetItem(f)
             if not self.cbxSkipFailures.isChecked():
-                item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-                item.setCheckState(Qt.Unchecked)
+                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                item.setCheckState(Qt.CheckState.Unchecked)
             self.lstFiles.addItem(item)
 
         self.status("")
@@ -409,7 +554,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             m = m.rstrip()
             if m == "":
                 continue
-            self.lwProtocol.addItem(ts.toString(Qt.ISODate) + " " + m)
+            self.lwProtocol.addItem(ts.toString(Qt.DateFormat.ISODate) + " " + m)
 
         app.processEvents()
         if not self.skipScroll:
@@ -421,7 +566,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         self.logqry.bindValue(0, msg)
 
-        if not self.logqry.exec_():
+        if not self.logqry.exec():
             err = self.logqry.lastError().text()
             logqry = self.logqry
             self.logqry = None
@@ -430,17 +575,17 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             self.logqry = logqry
 
     def loadLog(self):
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         self.lwProtocol.setUpdatesEnabled(False)
 
         conn = self.connectDb()
         if not conn:
-            QMessageBox.critical(self, "norGIS-ALKIS-Import", "Konnte keine Datenbankverbindung aufbauen!", QMessageBox.Cancel)
+            QMessageBox.critical(self, "norGIS-ALKIS-Import", "Konnte keine Datenbankverbindung aufbauen!", QMessageBox.StandardButton.Cancel)
             return
 
-        qry = self.db.exec_("SELECT ts,msg FROM alkis_importlog ORDER BY n")
+        qry = self.db.exec("SELECT ts,msg FROM alkis_importlog ORDER BY n")
         if not qry:
-            QMessageBox.critical(self, "norGIS-ALKIS-Import", "Konnte Protokoll nicht abfragen!", QMessageBox.Cancel)
+            QMessageBox.critical(self, "norGIS-ALKIS-Import", "Konnte Protokoll nicht abfragen!", QMessageBox.StandardButton.Cancel)
             return
 
         self.skipScroll = True
@@ -480,22 +625,21 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         for i in range(self.lstFiles.count()):
             item = self.lstFiles.item(i)
             if self.cbxSkipFailures.isChecked():
-                item.setFlags(item.flags() & ~Qt.ItemIsUserCheckable)
-                item.setData(Qt.CheckStateRole, None)
+                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsUserCheckable)
+                item.setData(Qt.ItemDataRole.CheckStateRole, None)
             else:
-                item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-                item.setCheckState(Qt.Unchecked)
+                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                item.setCheckState(Qt.CheckState.Unchecked)
         self.update()
 
     def about(self):
         dlg = aboutDlg()
-        dlg.exec_()
+        dlg.exec()
 
     def accept(self):
         if not self.running:
-            s = QSettings("norBIT", "norGIS-ALKIS-Import")
-            s.setValue("geometry", self.saveGeometry())
-            s.setValue("splitter", self.splitter.saveState())
+            self.setValue("geometry", self.saveGeometry())
+            self.setValue("splitter", self.splitter.saveState())
             QDialog.accept(self)
 
     def closeEvent(self, e):
@@ -507,7 +651,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         e.ignore()
 
     def cancel(self):
-        if QMessageBox.question(self, "norGIS-ALKIS-Import", "Laufenden Import abbrechen?", QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+        if QMessageBox.question(self, "norGIS-ALKIS-Import", "Laufenden Import abbrechen?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) == QMessageBox.StandardButton.Yes:
             self.canceled = True
 
     def keep(self, line):
@@ -613,7 +757,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             currout = self.processOutputOut(currout, p.readAllStandardOutput())
             currerr = self.processOutputErr(currerr, p.readAllStandardError())
 
-            if p.state() != QProcess.Running:
+            if p.state() != QProcess.ProcessState.Running:
                 if self.canceled:
                     self.log("Prozeß abgebrochen.")
                 break
@@ -631,7 +775,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             self.log("E {}".format(currerr))
 
         ok = False
-        if p.exitStatus() == QProcess.NormalExit:
+        if p.exitStatus() == QProcess.ExitStatus.NormalExit:
             if p.exitCode() == 0:
                 ok = True
             else:
@@ -704,7 +848,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             self.log("Konnte Datenbankverbindung nicht aufbauen! [{}]".format(self.db.lastError().text()))
             return None
 
-        self.db.exec_("SET STANDARD_CONFORMING_STRINGS TO ON")
+        self.db.exec("SET STANDARD_CONFORMING_STRINGS TO ON")
 
         self.schema = self.leSCHEMA.text()
         self.pgschema = self.lePGSCHEMA.text()
@@ -713,17 +857,17 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             self.log("Kein ALKIS-Schema angegeben")
             return None
 
-        qry = self.db.exec_("SELECT 1 FROM pg_namespace WHERE nspname='{}'".format(self.schema.replace("'", "''")))  # nosec: B608
+        qry = self.db.exec("SELECT 1 FROM pg_namespace WHERE nspname='{}'".format(self.schema.replace("'", "''")))  # nosec: B608
         if not qry:
             self.log("Konnte Schema nicht überprüfen! [{}]".format(qry.lastError().text()))
             return None
 
         if not qry.next():
-            if not self.db.exec_("CREATE SCHEMA \"{}\"".format(self.schema.replace('"', '""'))):  # nosec: B608
+            if not self.db.exec("CREATE SCHEMA \"{}\"".format(self.schema.replace('"', '""'))):  # nosec: B608
                 self.log("Konnte Schema nicht erstellen!")
                 return None
 
-        self.db.exec_("SET search_path = \"{}\", \"{}\", public".format(self.schema, self.pgschema))
+        self.db.exec("SET search_path = \"{}\", \"{}\", public".format(self.schema, self.pgschema))
 
         return conninfo
 
@@ -747,63 +891,9 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
         if 'CPL_DEBUG' in os.environ:
             self.log("Debug-Ausgaben aktiv.")
 
-        files = []
-        for i in range(self.lstFiles.count()):
-            files.append(self.lstFiles.item(i).text())
+        self.saveConfig()
 
-        s = QSettings("norBIT", "norGIS-ALKIS-Import")
-        s.setValue("service", self.leSERVICE.text())
-        s.setValue("host", self.leHOST.text())
-        s.setValue("port", self.lePORT.text())
-        s.setValue("dbname", self.leDBNAME.text())
-        s.setValue("uid", self.leUID.text())
-        s.setValue("pwd", self.lePWD.text())
-        s.setValue("schema", self.leSCHEMA.text())
-        s.setValue("pgschema", self.lePGSCHEMA.text())
-        s.setValue("parentschema", self.lePARENTSCHEMA.text())
-        self.schema = self.leSCHEMA.text()
-        self.pgschema = self.lePGSCHEMA.text()
-        self.parentschema = self.lePARENTSCHEMA.text()
-        s.setValue("gt", self.leGT.text())
-        s.setValue("files", files)
-
-        checked = []
-        for i in range(0, self.lstFiles.count()):
-            item = self.lstFiles.item(i)
-            if item.checkState() == Qt.Checked:
-                checked.append(item.text())
-
-        s.setValue("files_sf", checked)
-
-        s.setValue("skipfailures", self.cbxSkipFailures.isChecked())
-        self.usecopy = self.cbxUseCopy.isChecked()
-        s.setValue("usecopy", self.usecopy)
-
-        self.avoiddupes = self.cbxAvoidDupes.isChecked()
-        s.setValue("avoiddupes", self.avoiddupes)
-
-        self.fnbruch = self.cbFnbruch.currentIndex() == 0
-        s.setValue("fnbruch", self.fnbruch)
-
-        self.pgverdraengen = self.cbPgVerdraengen.currentIndex() == 1
-        s.setValue("pgverdraengen", self.pgverdraengen)
-
-        self.historie = self.cbxHistorie.isChecked()
-        s.setValue("historie", self.historie)
-
-        self.quittierung = self.cbxQuittierung.isChecked()
-        s.setValue("quittierung", self.quittierung)
-
-        self.transform = self.cbxTransform.isChecked()
-        s.setValue("transform", self.transform)
-
-        self.rebuildmap = self.cbxRebuildMap.isChecked()
-        s.setValue("rebuildmap", self.rebuildmap)
-
-        self.epsg = int(self.cbEPSG.itemData(self.cbEPSG.currentIndex()))
-        if self.epsg == -1:
-            self.epsg = int(self.leCustomEpsg.text())
-        s.setValue("epsg", self.epsg)
+        checked = self.value("files_sf", []) or []
 
         self.running = True
         self.canceled = False
@@ -820,7 +910,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         self.lstFiles.itemSelectionChanged.disconnect(self.selChanged)
 
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
 
         id_quittierung = None
 
@@ -836,7 +926,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             if conn is None:
                 break
 
-            qry = self.db.exec_("SELECT version()")
+            qry = self.db.exec("SELECT version()")
 
             if not qry or not qry.next():
                 self.log("Konnte PostgreSQL-Version nicht bestimmen!")
@@ -857,23 +947,23 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 break
 
             if self.PG_MAJOR >= 9:
-                self.db.exec_("SET application_name='ALKIS-Import - Frontend'")
+                self.db.exec("SET application_name='ALKIS-Import - Frontend'")
 
             if self.PG_MAJOR > 9 or (self.PG_MAJOR == 9 and self.PG_MINOR >= 4):
-                self.db.exec_("SET client_min_messages TO notice")
+                self.db.exec("SET client_min_messages TO notice")
 
-            qry = self.db.exec_("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='alkis_importlog'")
+            qry = self.db.exec("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='alkis_importlog'")
             if not qry or not qry.next():
                 self.log("Konnte Existenz der Protokolltabelle nicht überprüfen.")
                 break
 
             if int(qry.value(0)) == 0:
-                qry = self.db.exec_("CREATE TABLE alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)")
+                qry = self.db.exec("CREATE TABLE alkis_importlog(n SERIAL PRIMARY KEY, ts timestamp default now(), msg text)")
                 if not qry:
                     self.log("Konnte Protokolltabelle nicht anlegen [{}]".format(qry.lastError().text()))
                     break
             elif self.cbxClearProtocol.isChecked():
-                qry = self.db.exec_("TRUNCATE alkis_importlog")
+                qry = self.db.exec("TRUNCATE alkis_importlog")
                 if not qry:
                     self.log("Konnte Protokolltabelle nicht leeren [{}]".format(qry.lastError().text()))
                     break
@@ -897,20 +987,20 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                 else:
                     self.log("Import-Version: unbekannt")
 
-            qry = self.db.exec_("SELECT postgis_full_version()")
+            qry = self.db.exec("SELECT postgis_full_version()")
             if not qry or not qry.next():
-                qry = self.db.exec_("SELECT postgis_version()")
+                qry = self.db.exec("SELECT postgis_version()")
                 if not qry or not qry.next():
                     self.log("Konnte PostGIS-Version nicht bestimmen!")
                     break
 
             self.log("PostGIS-Version: {}".format(qry.value(0)))
 
-            qry = self.db.exec_("SELECT inet_client_addr()")
+            qry = self.db.exec("SELECT inet_client_addr()")
             if qry and qry.next():
                 self.log("Import von Client: {}".format(qry.value(0)))
 
-            qry = self.db.exec_("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='ax_flurstueck'")
+            qry = self.db.exec("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='ax_flurstueck'")
             if not qry or not qry.next():
                 self.log("Konnte Existenz des ALKIS-Schema nicht überprüfen.")
                 break
@@ -920,7 +1010,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     self.log("Keine ALKIS-Daten vorhanden - Datenbestand muß angelegt werden.")
                     break
 
-                if not qry.exec_("SELECT find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry')") or not qry.next():
+                if not qry.exec("SELECT find_srid(current_schema()::text,'ax_flurstueck','wkb_geometry')") or not qry.next():
                     self.log("Konnte Koordinatensystem der vorhandenen Datenbank nicht bestimmen.")
                     break
 
@@ -1268,7 +1358,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                             if qry.prepare("INSERT INTO alkis_importe(filename,datadate) VALUES (?,?)"):
                                 qry.addBindValue(fn)
                                 qry.addBindValue(ffdate)
-                                if not qry.exec_():
+                                if not qry.exec():
                                     self.log("Konnte Import nicht speichern! [{}]".format(qry.lastError().text()))
                                     break
                             else:
@@ -1298,10 +1388,10 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                         self.log("{} mit {} wurde übersprungen...".format(fn, self.memunits(size)))
 
                     if self.quittierung:
-                        self.db.exec_("CREATE SEQUENCE \"{}\".alkis_quittierungen_seq".format(self.schema.replace('"', '""')))
+                        self.db.exec("CREATE SEQUENCE \"{}\".alkis_quittierungen_seq".format(self.schema.replace('"', '""')))
 
                         if id_quittierung is None:
-                            qry = self.db.exec_("SELECT nextval('\"{}\".alkis_quittierungen_seq')".format(self.schema.replace('"', '""').replace("'", "''")))
+                            qry = self.db.exec("SELECT nextval('\"{}\".alkis_quittierungen_seq')".format(self.schema.replace('"', '""').replace("'", "''")))
                             if qry and qry.next():
                                 id_quittierung = qry.value(0)
 
@@ -1323,7 +1413,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
                     self.alive.setText("Noch {} in etwa {}\nETA: {} -".format(
                         self.memunits(remaining_data),
                         self.timeunits(remaining_time),
-                        QDateTime.currentDateTime().addMSecs(int(remaining_time)).toString(Qt.ISODate)
+                        QDateTime.currentDateTime().addMSecs(int(remaining_time)).toString(Qt.DateFormat.ISODate)
                     ))
 
                     app.processEvents()
@@ -1390,4 +1480,4 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
 app = QApplication(sys.argv)
 dlg = alkisImportDlg()
-dlg.exec_()
+dlg.exec()
