@@ -127,6 +127,10 @@ def getFiles(pattern, directory):
     return files
 
 
+def nsortkey(v):
+    return [int(c) if c.isdigit() else c for c in re.split(r'(\d+)', v)]
+
+
 class ProcessError(Exception):
     def __init__(self, msg):
         self.msg = msg
@@ -474,7 +478,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
 
         self.status("Verzeichnis wird durchsucht...")
 
-        for f in sorted(getFiles("\\.(xml|xml\\.gz|zip)$", d)):
+        for f in sorted(getFiles("\\.(xml|xml\\.gz|zip)$", d), key=nsortkey):
             item = QListWidgetItem(f)
             if not self.cbxSkipFailures.isChecked():
                 item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
@@ -872,7 +876,7 @@ class alkisImportDlg(QDialog, alkisImportDlgBase):
             for filename in fnmatch.filter(filenames, '*.sql'):
                 matches.append(os.path.join(root, filename))
 
-        for f in sorted(matches):
+        for f in sorted(matches, key=nsortkey):
             self.status("{} wird gestartet...".format(f))
             if not self.runSQLScript(conn, f):
                 self.log("{} gescheitert.".format(f))
