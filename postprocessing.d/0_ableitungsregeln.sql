@@ -301,11 +301,11 @@ SELECT 'Kartenerzeugung ab ' || lastrun FROM po_lastrun;
 SELECT 'Geänderte Darstellungsobjekte werden gelöscht.';
 
 WITH
-  -- Alle neuen Objekte und alle die erst seit dem letzten Lauf nicht mehr aktuell sind
+  -- Alle neuen Objekte und alle, die erst seit dem letzten Lauf nicht mehr aktuell sind
   alkis_changed AS (
     SELECT gml_id FROM po_lastrun, alkis_po_objekte WHERE beginnt>lastrun
   UNION
-    SELECT gml_id FROM po_lastrun, alkis_po_objekte WHERE beginnt<=lastrun AND endet>=lastrun
+    SELECT gml_id FROM po_lastrun, alkis_po_objekte WHERE beginnt<=lastrun AND endet>lastrun
   ),
   delete_points   AS (DELETE FROM po_points   a USING alkis_changed b WHERE ARRAY[b.gml_id]<@a.gml_ids RETURNING a.gml_id),
   delete_lines    AS (DELETE FROM po_lines    a USING alkis_changed b WHERE ARRAY[b.gml_id]<@a.gml_ids RETURNING a.gml_id),
