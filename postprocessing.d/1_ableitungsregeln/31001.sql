@@ -159,7 +159,7 @@ SELECT
 FROM (
 	SELECT
 		o.gml_id,
-		coalesce(n.wkb_geometry,t.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
+		coalesce(t.wkb_geometry,n.wkb_geometry,st_centroid(o.wkb_geometry)) AS point,
 		coalesce(
 			n.schriftinhalt,
 			t.schriftinhalt,
